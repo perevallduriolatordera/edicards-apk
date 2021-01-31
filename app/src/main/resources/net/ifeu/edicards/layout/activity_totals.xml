@@ -1,0 +1,55 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/svcScroll" 
+    android:clickable="true" 
+    android:layout_weight="1" 
+    android:layout_width="fill_parent" 
+    android:layout_height="fill_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        	  android:id="@+id/BasesMainLinearLayout" 
+              android:layout_width="fill_parent" 
+              android:layout_height="250dp" 
+              android:layout_marginTop="5dp"
+              android:layout_marginLeft="15dp"
+              android:layout_marginRight="15dp"   
+              android:background="@drawable/border_layout"
+              android:orientation="vertical" >
+         
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    	  android:id="@+id/Bases2MainLinearLayout" 
+          android:layout_width="fill_parent" 
+          android:layout_height="250dp" 
+          android:layout_marginTop="5dp" 
+          android:background="@drawable/border_layout"
+          android:orientation="horizontal" >
+</LinearLayout>
+</LinearLayout> 
+</ScrollView>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        	  android:id="@+id/TotalsMainLinearLayout" 
+              android:layout_width="fill_parent" 
+              android:layout_height="150dp" 
+              android:layout_marginTop="400dp" 
+              android:layout_marginLeft="15dp"
+              android:layout_marginRight="15dp" 
+              android:background="@drawable/border_layout"
+              android:orientation="vertical" >
+         
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    	  android:id="@+id/Totals2MainLinearLayout" 
+          android:layout_width="fill_parent" 
+          android:layout_height="250dp" 
+          android:layout_marginTop="5dp" 
+          android:background="@drawable/border_layout"
+          android:orientation="horizontal" >
+</LinearLayout>
+</LinearLayout> 
+
+</RelativeLayout>

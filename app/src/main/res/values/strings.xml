@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Edicards</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_main">Edicards</string>
+    <string name="title_activity_new_user">Creación de nuevo usuario</string>
+    <string name="NewUser_Button1">Botó 1</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_main_menu">Menú Principal</string>
+    <string name="title_activity_main_menu_fragments">MainMenuFragments</string>
+    <string name="title_activity_test_fragment">TestFragment</string>
+    <string name="title_activity_under_construction">UnderConstruction</string>
+    <string name="title_activity_article_search">ArticleSearch</string>
+    <string name="title_activity_albaran_client_search">AlbaranClientSearch</string>
+    <string name="title_activity_customer_search_list_dialog">Selección de cliente</string>
+    <string name="title_activity_deposit_manager">DepositManager</string>
+    <string name="title_activity_stock_manager">StockManager</string>
+    <string name="title_activity_albaran_customer_search_dialog">Seleccione el cliente al que desea actualizar el depósito</string>
+    <string name="title_activity_articulo_dialog">Datos del artículo</string>
+    <string name="title_activity_totals">Resumen de totales</string>
+    <string name="title_activity_customer_data">Datos del cliente</string>
+    <string name="title_activity_gastos_manager">GastosManager</string>
+    <string name="title_activity_signature">Signature</string>
+    <string name="title_activity_reports">Reports</string>
+    <string name="title_activity_reporting__potenciados">Productos Potenciados</string>
+    <string name="title_activity_reporting__piezas">Número de Piezas</string>
+    <string name="title_activity_reporting__totales">Totales del informe</string>
+    <string name="title_activity_reporting__retirados">Productos Retirados</string>
+    <string name="title_activity_signature_customer">Firma del cliente</string>
+    <string name="title_activity_signature_vendor">Firma del vendedor</string>
+    <string name="title_activity_select_deposit">Seleccione el depósito de trabajo</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_sender_messages">SenderMessages</string>
+    <string name="title_activity_upgrade__app">Edicards Gestión comercial</string>
+    <string name="title_activity_deposit_view">DepositView</string>
+    <string name="title_activity_albaran_view">Albarán</string>
+    <string name="title_activity_ingreso_data">IngresoData</string>
+    <string name="title_activity_login">Login</string>
+    <string name="title_activity_UCE">Control de errores</string>
+    
+    <string name="ask_for_error_log">Se ha producido un error inesperado.\nNotifica a informática Feu el error.\nGracias por tu colaboración.</string>
+    <string name="email_welcome_note">Hola,\n\nError en la aplicación. Visualice el error en el log.\n\n\n</string>
+    <string name="copyright_info">UCE Handler\nApp Edicards.</string>
+
+</resources>

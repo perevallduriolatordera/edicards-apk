@@ -1,0 +1,582 @@
+package net.ifeu.edicards.Pdf;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+
+import android.content.Context;
+import android.os.Environment;
+import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.DTODeposito;
+import net.ifeu.edicards.DataTier.DTOLineaDeposito;
+import net.ifeu.edicards.DataTier.Totales;
+
+public class PdfDTOCreator extends pdfBase {
+
+	DTODeposito _deposito;
+
+	
+	public PdfDTOCreator(DTODeposito deposito, Context context, AppConfig app)
+			throws FileNotFoundException, DocumentException {
+		
+		super(context, app);
+		_deposito = deposito;
+	}	
+
+	
+	@Override
+	protected void insertSeparators() throws DocumentException {
+		_document.add(new Paragraph(
+				"---------------------------------------------------------------------"
+						+ "--------------------------------------- \n",
+				_fontNormal));
+	}
+
+	private void printHeader() throws DocumentException, FileNotFoundException {
+
+		this.addLogo();
+
+		String text = Constants.EMPTY_STRING;
+
+		text = "\nGRUP EDICIONES ESTER JAEN SL\n"
+				+
+				// "Editora y Distribuidora de Tarjetas de Felicitacion\n" +
+				// "Postales  Stickers  Llaveros\n" +
+				// "Libros de Colorear  Gifts  Manualidades  Papel Fantasia\n" +
+				"NIF: B-61806808\n"
+				+ "Ediciones Ester Jaen S.L.  Pol. Ind Pla de la Bruguera\n"
+				+ "C/Solsones, 68  08211\n"
+				+ "Castellar del Valles  (Spain)\n"
+				+ "Telfs: 902007753  937143823    Tel. Internacional +34 937143823\n"
+				+ "Fax.902007754\n"
+				+ "e-mail: edicards@edicards.com    Web: www.edicards.com\n\n";
+
+		Paragraph paragraph = new Paragraph(text, _fontNormal);
+		paragraph.setAlignment(Element.ALIGN_CENTER);
+
+		_document.add(paragraph);
+
+		this.insertSeparators();
+
+	}
+
+	private void printHeaderData(int Tipo) throws DocumentException {
+
+		SimpleDateFormat formatter;
+		formatter = new SimpleDateFormat("dd/MM/yyyy");
+		String pago = (Tipo == 1) ? "\n" : "Pago: " + _deposito.PagoDescripcion
+				+ "\n";
+
+		String text = "Fecha: " + formatter.format(_deposito.FechaDeposito)
+				+ "  Vendedor: " + _app.getUser().Name + "\n"
+				+ "Codigo Cliente: " + _deposito.CodigoCliente
+				+ "  Nombre: " + _deposito.Nombre + "\n" + "Razón: "
+				+ _deposito.Razon + "\n" + "NIF: " + _deposito.NIF + "\n"
+				+ "Direccion: " + _deposito.Direccion1 + "\n" + "Cod. Postal: "
+				+ _deposito.CodigoPostal + "  Poblacion:  "
+				+ _deposito.Poblacion + "\n" + "Telefono 1: "
+				+ _deposito.Telefono1 + "  Telefono 2: " + _deposito.Telefono2
+				+ "  Mail:" + _deposito.Mail + "\n" + pago;
+
+		_document.add(new Paragraph(text, _fontNormal));
+
+	}
+
+	private void printHeaderFields(int tipo) throws DocumentException {
+
+		this.insertSeparators();
+
+		String total;
+
+		if (tipo == 2)
+			total = padLeft("TOTAL", 10);
+		else
+			total = Constants.EMPTY_STRING;
+
+		String text = padRight("COD.", 10) + padRight("DESCRIPCION", 25)
+				+ padLeft("UNID.", 10) + padLeft("PRECIO.", 10) + total + "\n";
+
+		_document.add(new Paragraph(text, _fontNormal));
+
+		this.insertSeparators();
+	}
+
+	private void printTotals(int tipo) throws DocumentException,
+			MalformedURLException, IOException {
+		DecimalFormat df = new DecimalFormat("0.00");
+
+		if (tipo == 1) {
+			try {
+				_deposito.CalculateDeposito();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			this.insertSeparators();
+
+		} else {
+			try {
+				_deposito.Calculate();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			if ((_deposito.Totales.DescuentoFinanciero != 0 || _deposito.Totales.DescuentoProntoPago != 0)
+					&& (_deposito.Serie.equals(_app.getUser().SerialInvoiceA))) {
+				String total = padLeft(" ", 43)
+						+ padRight("TOTAL:", 10)
+						+ padLeft(" ", 10)
+						+ padRight(String.valueOf(df
+								.format(_deposito.Totales.TotalBaseSinDte)), 10);
+				_document.add(new Paragraph("\n" + total + "\n", _fontBold));
+
+				if (_deposito.Totales.DescuentoProntoPago != 0) {
+					String prontoPago = padLeft(" ", 43)
+							+ padRight("DTE. COMERCIAL:", 15)
+							+ padLeft(" ", 5)
+							+ padRight(
+									String.valueOf(df
+											.format(_deposito.Totales.TotalDescuentoProntoPago)),
+									10);
+					_document.add(new Paragraph(prontoPago + "\n", _fontBold));
+				}
+
+				if (_deposito.Totales.DescuentoFinanciero != 0) {
+					String financiero = padLeft(" ", 43)
+							+ padRight("DTE. FINANCIERO:", 16)
+							+ padLeft(" ", 4)
+							+ padRight(
+									String.valueOf(df
+											.format(_deposito.Totales.TotalDescuentoFinanciero)),
+									10);
+					_document.add(new Paragraph(financiero + "\n", _fontBold));
+				}
+				
+				String neto = padLeft(" ", 43)
+						+ padRight("NETO:", 10)
+						+ padLeft(" ", 10)
+						+ padRight(String.valueOf(df
+								.format(_deposito.Totales.TotalBase)), 10);
+				_document.add(new Paragraph(neto + "\n", _fontBold));
+			}
+
+			if (_deposito.Serie.equals(_app.getUser().SerialInvoiceA)) {
+				String suma = padLeft(" ", 43)
+						+ padRight("SUMA:", 10)
+						+ padLeft(" ", 10)
+						+ padRight(String.valueOf(df
+								.format(_deposito.Totales.TotalBase)), 10);
+
+				_document.add(new Paragraph("\n" + suma + "\n", _fontBold));
+
+				String impuestos = padLeft(" ", 43)
+						+ padRight("IMPUESTOS:", 10)
+						+ padLeft(" ", 10)
+						+ padRight(String.valueOf(df
+								.format(_deposito.Totales.TotalIVA
+										+ _deposito.Totales.TotalRecargo)), 10);
+
+				_document.add(new Paragraph(impuestos + "\n", _fontBold));
+
+			}
+
+			String total = Constants.EMPTY_STRING;
+			
+			if (_deposito.Serie.equals(_app.getUser().SerialInvoiceA)) {
+					total = padLeft(" ", 43)
+					+ padRight("TOTAL:", 10)
+					+ padLeft(" ", 10)
+					+ padRight(
+							String.valueOf(df.format(_deposito.Totales.Total)),
+							10);
+			} else {
+				try {
+					total = padLeft(" ", 43)
+							+ padRight("TOTAL:", 10)
+							+ padLeft(" ", 10)
+							+ padRight(
+									String.valueOf(df.format(_deposito.Totales.TotalBase)),
+									10);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+			_document.add(new Paragraph(total + "\n", _fontBold));
+
+			if (_deposito.Serie.equals(_app.getUser().SerialInvoiceB)) {
+
+				_document.add(new Paragraph("\nIVA NO INCLUIDO\n", _fontBold));
+
+				_document.add(new Paragraph(_deposito.PagoDescripcion + "\n",
+						_fontBold));
+
+				/*
+				 * if (isMadeInSpain(deposito.CodigoPostal))
+				 * this.PrintBitmapImage(context, PORT, SETTINGS,
+				 * context.getResources(), R.drawable.madeinspain, 1500);
+				 */
+
+			} else {
+				for (Totales.Base base : _deposito.Totales.Bases.values()) {
+
+					_document.add(new Paragraph("Impuestos:\n"));
+
+					String baseText = "\u0009" + "Base imp: "
+							+ padRight(df.format(base.Base), 10)
+							+ padRight(df.format(base.IvaPerc) + "%", 10)
+							+ padRight(df.format(base.Iva) + " Euros", 16)
+							+ "\n";
+
+					_document.add(new Paragraph(baseText, _fontBold));
+
+					String reqEqvText = "\u0009" + "Rec eq: "
+							+ padRight(" ", 10)
+							+ padRight(df.format(base.RecargoPerc) + "%", 10)
+							+ padRight(df.format(base.Recargo) + " Euros ", 16)
+							+ "\n";
+
+					_document.add(new Paragraph(reqEqvText, _fontBold));
+
+					String formaPagoText = "\nForma de pago: "
+							+ _deposito.PagoDescripcion + "\n";
+
+					_document.add(new Paragraph(formaPagoText, _fontBold));
+
+					if (_deposito.Pagado) {
+						/*
+						 * if (isMadeInSpain(deposito.CodigoPostal))
+						 * this.PrintBitmapImage(context, PORT, SETTINGS,
+						 * context.getResources(), R.drawable.madeinspain,
+						 * 1500);
+						 */
+
+						_document.add(new Paragraph(
+								"Conforme   firma cliente:\n", _fontNormal));
+
+						_document.add(new Paragraph("\n"));
+
+						String pagadoText = "HE RECIBIDO DE "
+								+ _deposito.Nombre + " LA CANTIDAD DE "
+								+ df.format(_deposito.CantidadPagada)
+								+ " Euros EN CONCEPTO DEL PAGO DEL ALBARAN "
+								+ _app.getUser().User + "/"
+								+ String.valueOf(_deposito.NumeroAlbaran)
+								+ "\n\n";
+
+						_document.add(new Paragraph(pagadoText, _fontNormal));
+
+						if (_deposito.CantidadPagada < _deposito.Totales.Total) {
+							String pendienteText = "QUEDA PENDIENTE DE PAGO LA CANTIDAD DE "
+									+ df.format(_deposito.Totales.Total
+											- _deposito.CantidadPagada)
+									+ " Euros EN CONCEPTO DEL PAGO DEL ALBARAN "
+									+ _app.getUser().User
+									+ "/"
+									+ String.valueOf(_deposito.NumeroAlbaran)
+									+ "\n";
+
+							_document.add(new Paragraph(pendienteText,
+									_fontNormal));
+						}
+
+						_document.add(new Paragraph("\n"));
+
+						_document.add(new Paragraph("\n"));
+
+						String firmaVendedorText = "FIRMA VENDEDOR: "
+								+ _app.getUser().Name + "\n";
+
+						_document.add(new Paragraph(firmaVendedorText,
+								_fontNormal));
+
+						this.addSignature(2);
+						// this.PrintBitmapSignatureVendor(context, PORT,
+						// SETTINGS, 150);
+
+						_document.add(new Paragraph("\n"));
+
+						String firmaClienteText = "FIRMA CLIENTE\n";
+
+						_document.add(new Paragraph(firmaClienteText,
+								_fontNormal));
+
+						this.addSignature(1);
+						// this.PrintBitmapSignature(context, PORT, SETTINGS,
+						// 150);
+
+					} else {
+						// _document
+						// .add(new Paragraph(
+						// "\nOPERACION ASEGURADA EN CREDITO Y CAUCION\n\n"));
+
+						/*
+						 * if (isMadeInSpain(deposito.CodigoPostal))
+						 * this.PrintBitmapImage(context, PORT, SETTINGS,
+						 * context.getResources(), R.drawable.madeinspain,
+						 * 1500);
+						 */
+
+						_document.add(new Paragraph(
+								"Conforme - Firma Cliente:\n", _fontNormal));
+
+						this.addSignature(1);
+						// this.PrintBitmapSignature(context, PORT, SETTINGS,
+						// 150);
+					}
+
+				}
+			}
+
+		}
+	}
+
+	private void printHeaderDetail(int tipo) throws DocumentException {
+
+		DecimalFormat df = new DecimalFormat("0.00");
+
+		List<DTOLineaDeposito> tempList = new ArrayList<DTOLineaDeposito>();
+
+		for (DTOLineaDeposito linea : _deposito.Lineas.values()) {
+			tempList.add(linea);
+		}
+
+		Collections
+				.sort(tempList, new DTOLineaDeposito().new ArticuloComparator());
+
+		if (tipo == 2)
+			for (DTOLineaDeposito linea : tempList) {
+				if (linea.UnidadesFacturadas != 0) {
+					String desc;
+					if (linea.Descripcion.length() > 25)
+						desc = linea.Descripcion.substring(0, 25);
+					else
+						desc = linea.Descripcion;
+
+					String lineaText = padRight(linea.CodigoArticulo,
+							10)
+							+ padRight(desc, 25)
+							+ padLeft(String.valueOf(linea.UnidadesFacturadas),
+									10)
+							+ padLeft(df.format(linea.PVP), 10)
+							+ padLeft(
+									String.valueOf(df.format(linea.PVP
+											* linea.UnidadesFacturadas)), 10)
+							+ "\n";
+
+					_document.add(new Paragraph(lineaText, _fontBold));
+
+					if (linea.TotalAbono != 0) {
+						String lineaAbonoText = padRight(
+								linea.CodigoArticulo, 10)
+								+ padRight(desc, 25)
+								+ padLeft(String.valueOf(linea.UnidadesAbono),
+										10)
+								+ padLeft(df.format(linea.PVPAbono), 10)
+								+ padLeft(String.valueOf(df
+										.format(linea.TotalAbono)), 10) + "\n";
+
+						_document.add(new Paragraph(lineaAbonoText, _fontBold));
+					}
+				} else {
+					if (linea.TotalAbono != 0) {
+
+						String desc;
+
+						if (linea.Descripcion.length() > 25)
+							desc = linea.Descripcion.substring(0, 25);
+						else
+							desc = linea.Descripcion;
+
+						String lineaText = padRight(
+								linea.CodigoArticulo, 10)
+								+ padRight(desc, 25)
+								+ padLeft(String.valueOf(linea.UnidadesAbono),
+										10)
+								+ padLeft(df.format(linea.PVPAbono), 10)
+								+ padLeft(String.valueOf(df
+										.format(linea.TotalAbono)), 10) + "\n";
+
+						_document.add(new Paragraph(lineaText, _fontBold));
+					}
+				}
+			}
+		else {
+			for (DTOLineaDeposito linea : tempList) {
+				if (linea.UnidadesRepuestas > 0) {
+					String desc;
+					if (linea.Descripcion.length() > 25)
+						desc = linea.Descripcion.substring(0, 25);
+					else
+						desc = linea.Descripcion;
+
+					String lineaText = padRight(linea.CodigoArticulo,
+							10)
+							+ padRight(desc, 25)
+							+ padLeft(String.valueOf(linea.UnidadesRepuestas),
+									10)
+							+ padLeft(df.format(linea.PVPAnterior), 10) + "\n";
+
+					_document.add(new Paragraph(lineaText, _fontBold));
+				}
+			}
+		}
+
+	}
+
+	@Override
+	protected void closePage() throws DocumentException {
+
+		_document.add(new Paragraph("\n"));
+
+		this.insertSeparators();
+		this.insertSeparators();
+
+		_document.close();
+
+	}
+
+	public boolean createAlbaran(String guid) throws FileNotFoundException,
+			DocumentException {
+
+		_GUID = guid;
+
+		_document = new Document();
+
+		_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
+				+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_PDF + "/"
+				+ "REC_A_" + _app.getUser().User + " " + _deposito.NumeroAlbaran
+				+ "_" + this.getDateTimeFormat() + ".pdf";
+
+		_document.addTitle(_app.getUser().User + "_" + _deposito.NumeroAlbaran
+				+ "_" + String.valueOf(new Date(0)));
+
+		PdfWriter.getInstance(_document, new FileOutputStream(_pdfName));
+		_document.open();
+
+		try {
+			if (_deposito.Serie.equals(_app.getUser().SerialInvoiceA))
+				printHeader();
+
+			if (_deposito.Serie.equals(_app.getUser().SerialInvoiceB)) {
+				String presupuestoText = "PRESUPUESTO: NUM "
+						+ _app.getUser().User + "/"
+						+ String.valueOf(_deposito.NumeroAlbaran) + "\n";
+
+				_document.add(new Paragraph(presupuestoText, _fontBold));
+			} else if (!_deposito.Pagado) {
+				String albaranText = "ALBARAN: NUM " + _app.getUser().User
+						+ "/" + String.valueOf(_deposito.NumeroAlbaran) + "\n";
+
+				_document.add(new Paragraph(albaranText, _fontBold));
+			} else {
+				String albaranText = "ALBARAN ENTREGA: NUM "
+						+ _app.getUser().User + "/"
+						+ String.valueOf(_deposito.NumeroAlbaran) + "\n";
+
+				_document.add(new Paragraph(albaranText, _fontBold));
+			}
+
+			this.printHeaderData(2);
+
+			printHeaderFields(2);
+
+			printHeaderDetail(2);
+
+			printTotals(2);
+
+			closePage();
+
+		} catch (Exception e) {
+			return false;
+		}
+
+		return true;
+	}
+
+	public boolean createDeposito(String guid) throws FileNotFoundException,
+			DocumentException {
+
+		_GUID = guid;
+
+		_document = new Document();
+
+		_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
+				+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_PDF + "/"
+				+ "D_" + _app.getUser().User + " " + _deposito.IdDeposito + "_"
+				+ this.getDateTimeFormat() + ".pdf";
+
+		_document.addTitle(_app.getUser().User + "_" + _deposito.IdDeposito
+				+ "_" + String.valueOf(new Date(0)));
+
+		_writer = PdfWriter.getInstance(_document, new FileOutputStream(
+				_pdfName));
+		_document.open();
+
+		try {
+
+			printHeader();
+
+			String depositoNum = "DEPOSITO: NUM " + _app.getUser().User + "/"
+					+ String.valueOf(_deposito.IdDeposito) + "\n";
+
+			_document.add(new Paragraph(depositoNum, _fontBold));
+
+			this.printHeaderData(1);
+
+			printHeaderFields(1);
+
+			printHeaderDetail(1);
+
+			printTotals(1);
+
+			// String text = "\nOPERACION ASEGURADA EN CREDITO Y CAUCION\n\n";
+
+			// _document.add(new Paragraph(text));
+
+			/*
+			 * if (isMadeInSpain(deposito.CodigoPostal))
+			 * this.PrintBitmapImage(context, PORT, SETTINGS,
+			 * context.getResources(), R.drawable.madeinspain, 1500);
+			 */
+
+			/*
+			 * this.PrintBitmapImage(context, PORT, SETTINGS,
+			 * context.getResources(), R.drawable.contract, 1500);
+			 */
+
+			String firmaCliente = "Conforme - Firma Cliente:\n";
+
+			_document.add(new Paragraph(firmaCliente, _fontNormal));
+
+			this.addSignature(1);
+			// this.PrintBitmapSignature(context, PORT, SETTINGS, 150);
+
+			closePage();
+
+		} catch (Exception e) {
+
+			return false;
+		}
+
+		return true;
+	}
+
+
+}

@@ -1,0 +1,84 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent" 
+              android:layout_height="fill_parent" 
+              android:background="@drawable/edicards_back_2"
+              android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#000000"
+        android:text="Envío de notificaciones y Recordatorios" />
+    
+    <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="170px"
+            android:layout_marginTop="100px"
+            android:layout_marginBottom="50px"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/lblRecordatorio"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:text="Recordatorio:    "
+                android:textColor="#000000"
+                android:textSize="@dimen/text_small" />
+
+            <EditText
+                android:id="@+id/txtRecordatorio"
+                android:layout_width="800dp"
+                android:layout_height="100dp"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:singleLine="false"
+                android:text=""
+                android:background="@drawable/rounded_edittext"
+                android:textSize="@dimen/text_small"
+                android:textStyle="bold" />
+            
+             <Button android:id="@+id/btnSend"
+       			 android:textColor="#000" android:background="#55FF55" 
+        		 android:text="Enviar"
+        		 android:layout_marginLeft="50px"
+		         android:layout_marginRight="50px"
+        		 android:layout_width="70px" 
+		     	 android:layout_marginBottom="20dp"
+		     	 android:layout_marginTop="20dp"
+		     	 android:layout_height="40px" />
+            
+        </LinearLayout>
+        
+     <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="170px"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/lblNotificaciones"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:layout_marginTop="25px"
+                android:text="Envío de actualización de la aplicación al resto de comerciales"
+                android:textColor="#000000"
+                android:textSize="@dimen/text_small" />
+            
+             <Button android:id="@+id/btnSendUpgrade"
+       			 android:textColor="#000" android:background="#FF5555" 
+        		 android:text="Enviar"
+        		 android:layout_marginLeft="50px"
+		         android:layout_marginRight="50px"
+        		 android:layout_width="70px" 
+		     	 android:layout_marginBottom="20dp"
+		     	 android:layout_marginTop="20dp"
+		     	 android:layout_height="40px" />
+            
+        </LinearLayout>
+
+</LinearLayout>

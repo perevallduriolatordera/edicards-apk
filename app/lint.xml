@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lint>
+    <issue id="ParserError">
+        <ignore path="src/net/ifeu/Utils/MessageBox.java" />
+    </issue>
+    <issue id="SimpleDateFormat">
+        <ignore path="src/net/ifeu/edicards/Pdf/PdfAuthorization.java" />
+    </issue>
+</lint>

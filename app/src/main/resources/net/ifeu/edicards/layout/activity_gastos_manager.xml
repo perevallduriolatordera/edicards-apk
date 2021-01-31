@@ -1,0 +1,68 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/edicards_back_2"> >
+    
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        	  android:id="@+id/calendarMainLinearLayout" 
+              android:layout_width="fill_parent" 
+              android:layout_height="200px" 
+              android:layout_marginTop="5dp" 
+              android:background="@drawable/border_layout"
+              android:orientation="horizontal" >
+</LinearLayout>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        	  android:id="@+id/headerMainLinearLayout" 
+              android:layout_width="fill_parent" 
+              android:layout_height="50px" 
+              android:layout_marginTop="205dp" 
+              android:background="@drawable/border_layout"
+              android:orientation="horizontal" >
+              
+        <TextView
+        	android:text="Código"
+        	android:layout_width="150px" 
+    		android:layout_height="fill_parent"
+    		android:textSize="24dp"/>
+        
+        <TextView
+        	android:text="Artículo"
+        	android:layout_width="300px" 
+    		android:layout_height="fill_parent"
+    		android:textSize="24dp"/>
+        
+        <TextView
+        	android:text="         Cantidad"
+        	android:layout_width="185px" 
+    		android:layout_height="fill_parent"
+    		android:textSize="24dp"/>
+        
+        
+</LinearLayout>
+ 
+  <LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical"
+               android:layout_width="fill_parent" 
+               android:layout_height="fill_parent"
+               android:layout_marginTop="255dp" >
+    
+    
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/svcScroll" 
+    android:clickable="true" 
+    android:layout_weight="1" 
+    android:layout_width="fill_parent" 
+    android:layout_marginLeft="5px" 
+    android:layout_height="fill_parent">
+    
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical"
+        	  android:id="@+id/mainLinearLayout" 
+               android:layout_width="fill_parent" 
+               android:layout_height="fill_parent">
+    </LinearLayout>
+</ScrollView>
+
+</LinearLayout>
+
+ 
+</RelativeLayout>

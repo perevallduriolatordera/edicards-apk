@@ -1,0 +1,206 @@
+package net.ifeu.edicards.Pdf;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Articulo;
+import net.ifeu.edicards.DataTier.MovimientosAlmacen;
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.os.Environment;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+
+public class PdfInventory extends pdfBase {
+
+	public PdfInventory(Context context, AppConfig app)
+			throws FileNotFoundException, DocumentException {
+
+		super(context, app);
+		
+	}
+
+	@SuppressLint("SimpleDateFormat")
+	private void printHeader() throws DocumentException, FileNotFoundException {
+
+		this.addLogo();
+
+		String text = Constants.EMPTY_STRING;
+
+		SimpleDateFormat formatter;
+		formatter = new SimpleDateFormat("dd/MM/yyyy");
+		
+		text = "\nSTOCK CORRESPONDIENTE AL COMERCIAL: " + _app.getUser().User + " ( " +  _app.getUser().Name + " )\n" 
+				+ "Fecha: " + formatter.format(new Date()) + "\n"; 
+
+		Paragraph paragraph = new Paragraph(text, _fontBoldExtra);
+		paragraph.setAlignment(Element.ALIGN_CENTER);
+
+		_document.add(paragraph);
+
+		this.insertSeparators();
+
+	}
+
+	
+
+	private void printHeaderFields() throws DocumentException {
+
+		this.insertSeparators();
+
+		String text = padRight("CODIGO ARTICULO.", 30) + padRight("DESCRIPCION", 30)
+				+ padLeft("UNIDADES.", 30) + padLeft("UNIDADES RECICLAJE.", 30) + "\n";
+
+		_document.add(new Paragraph(text, _fontNormal));
+
+		this.insertSeparators();
+	}
+
+	@SuppressWarnings("deprecation")
+	private void printHeaderDetail() {
+
+		//DecimalFormat df = new DecimalFormat("0.00");
+
+		Articulo articulo = new Articulo();
+		LinkedHashMap<String, Articulo> articulos = null;
+	        
+        try {
+        	articulo.InitializePersistance(_app, _context);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			_app.getErrorTrace().Send(_app.getUser().User, e);
+		}
+
+        try {
+			articulos = articulo.getAllArticulos(1);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			_app.getErrorTrace().Send(_app.getUser().User, e1);
+		}
+        
+        MovimientosAlmacen movimientos = new MovimientosAlmacen();
+        try {
+        	movimientos.InitializePersistance(_app, _context);
+        } catch (Exception e1) {
+			// TODO Auto-generated catch block
+			_app.getErrorTrace().Send(_app.getUser().User, e1);
+		}
+		
+		Date now = new Date();
+		
+		LinkedHashMap<String,ArrayList<MovimientosAlmacen>> movs 
+			= new LinkedHashMap<String,ArrayList<MovimientosAlmacen>>();
+		
+		try {
+			 
+			movs = movimientos.getMovimientosByMonth(2000 + (now.getYear() % 100), 
+						now.getMonth() + 1);
+		 } catch (Exception e1) {
+				// TODO Auto-generated catch block
+				_app.getErrorTrace().Send(_app.getUser().User, e1);
+		  }
+			
+		
+        
+        for (Articulo art : articulos.values())
+        {
+			try {
+				String lineaText = padRight(art.CodigoArticulo,
+						30)
+						+ padRight(art.Descripcion, 30)
+						+ padLeft(String.valueOf(art.Stock),
+								30)
+						+ padLeft(String.valueOf(art.StockDefectuoso), 30)
+						+ "\n";
+
+				_document.add(new Paragraph(lineaText, _fontBold));
+				
+				
+				if (movs.containsKey(art.CodigoArticulo))
+				{
+					ArrayList<MovimientosAlmacen> array = movs.get(art.CodigoArticulo);
+					
+					String movsText = Constants.EMPTY_STRING;
+					
+					for(Iterator<MovimientosAlmacen> iterator = array.iterator(); iterator.hasNext();) 
+					{
+						MovimientosAlmacen movArticulo = (MovimientosAlmacen) iterator.next();
+						
+						if (movArticulo.Entradas != 0 || movArticulo.Salidas != 0)
+						{
+							String auxText = this.getDateTimeFormat(movArticulo.Fecha)
+								  + (movArticulo.Tipo == 1 ? " Inventario: " : " Camión: ")
+								  + (movArticulo.Entradas != 0 ? movArticulo.Entradas + " unidades entradas " : Constants.EMPTY_STRING)
+								  + (movArticulo.Salidas != 0 ? movArticulo.Salidas + " unidades sacadas " : Constants.EMPTY_STRING)
+								  + (movArticulo.TipoStock == 1 ? " de unidades en buen estado " : " de unidades de reciclaje ")
+								  + "\n";
+						
+						
+						
+							movsText = movsText + padRight(Constants.EMPTY_STRING,
+								15)
+								+ padRight(auxText, 60);
+								
+						}					
+					}
+					_document.add(new Paragraph(movsText, _fontNormal));
+					_document.add(new Paragraph(Constants.EMPTY_STRING, _fontBold));
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				_app.getErrorTrace().Send(_app.getUser().User, e);
+			}
+        
+		
+		}
+
+	}
+
+	public boolean createInventory() throws FileNotFoundException,
+			DocumentException {
+
+		_document = new Document();
+
+		_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
+				+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_INVENTARIO + "/"
+				+ _app.getUser().User + "_" 
+				+ this.getDateTimeFormat() + ".pdf";
+
+		//_document.addTitle(_app.getUser().User + "_"
+		//		+ "_" + String.valueOf(new Date(0)));
+
+		_writer = PdfWriter.getInstance(_document, new FileOutputStream(
+				_pdfName));
+		_document.open();
+
+		try {
+
+			printHeader();
+
+			printHeaderFields();
+
+			printHeaderDetail();
+
+			// this.PrintBitmapSignature(context, PORT, SETTINGS, 150);
+
+			closePage();
+
+		} catch (Exception e) {
+
+			return false;
+		}
+
+		return true;
+	}
+
+}

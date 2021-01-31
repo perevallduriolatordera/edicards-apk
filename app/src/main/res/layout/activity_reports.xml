@@ -1,0 +1,75 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/Edicards"> 
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        	  android:id="@+id/headerMainLinearLayout" 
+              android:layout_width="fill_parent" 
+              android:layout_height="170dp" 
+              android:layout_marginTop="5dp" 
+              android:background="@color/DarkBlue"
+              android:orientation="horizontal" >
+
+      		  <Button android:id="@+id/btnAccept"
+        		 android:text="Ver"
+        		 android:layout_marginLeft="20px"
+		         android:layout_marginRight="20px"
+        		 android:layout_width="70px" 
+		     	 android:layout_marginBottom="20dp"
+		     	 android:layout_marginTop="20dp"
+		     	 android:layout_height="40px"
+		     	 android:background="@drawable/background_button" />
+        
+		      <DatePicker
+		        android:id="@+id/dpResult1"
+		        android:layout_width="wrap_content"
+		        android:scaleX="0.60"
+				android:scaleY="0.60"
+		        android:layout_height="wrap_content" />
+		         
+		      <DatePicker
+		        android:id="@+id/dpResult2"
+		        android:layout_width="wrap_content"
+		        android:scaleX="0.60"
+				android:scaleY="0.60"
+		        android:layout_height="wrap_content" />
+		          
+		       
+</LinearLayout>
+
+<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical"
+    			android:layout_marginBottom="100dp" 
+    			android:layout_height="520dp"
+    			android:layout_width="fill_parent"
+                android:layout_marginTop="175dp" >
+    
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/svcScroll" 
+    android:clickable="true" 
+    android:layout_weight="1" 
+    android:layout_width="fill_parent" 
+    android:layout_height="fill_parent">
+    
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        	  android:id="@+id/mainLinearLayoutDepositManager" 
+              android:layout_width="fill_parent" 
+              android:layout_height="fill_parent" 
+              android:orientation="vertical" >
+    </LinearLayout>
+</ScrollView>
+</LinearLayout>
+
+ <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        	  android:id="@+id/footerMainLinearLayout" 
+              android:layout_width="fill_parent" 
+              android:layout_height="50dp" 
+              android:layout_marginTop="590dp" 
+              android:background="@color/DarkBlue"
+              android:orientation="horizontal" >
+              
+        
+</LinearLayout>
+
+</RelativeLayout>

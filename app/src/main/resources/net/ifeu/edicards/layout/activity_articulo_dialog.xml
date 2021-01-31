@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent" 
+              android:layout_height="fill_parent" 
+              android:orientation="vertical" > 
+
+   
+    <TextView android:id="@+id/lblIdArticuloLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25px"
+        android:layout_marginRight="25px"
+        android:textSize="@dimen/text_small"
+        android:text="Código:" />
+    
+    <TextView android:id="@+id/lblIdArticulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25px"
+        android:layout_marginRight="25px"
+        android:textSize="@dimen/text_small"
+        android:textColor="#6699BB"
+        android:textStyle="bold"
+        android:text="" />
+    
+    <TextView android:id="@+id/lblDescripcionArticuloLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25px"
+        android:layout_marginRight="25px"
+        android:textSize="@dimen/text_small"
+        android:text="Descripción:" />
+    
+    <TextView android:id="@+id/lblDescripcionArticulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25px"
+        android:layout_marginRight="25px"
+        android:textSize="@dimen/text_small"
+        android:textColor="#6699BB"
+        android:textStyle="bold"
+        android:text="" />
+    
+    
+    <TextView android:id="@+id/lblPrecioArticuloLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25px"
+        android:layout_marginRight="25px"
+        android:textSize="@dimen/text_small"
+        android:text="Precio:" />
+    
+    <TextView android:id="@+id/lblPrecioArticulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25px"
+        android:layout_marginRight="25px"
+        android:textSize="@dimen/text_small"
+        android:textColor="#6699BB"
+        android:textStyle="bold"
+        android:text="" />
+    
+     <TextView android:id="@+id/lblFamiliaArticuloLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25px"
+        android:layout_marginRight="25px"
+        android:textSize="@dimen/text_small"
+        android:text="Familia:" />
+    
+    <TextView android:id="@+id/lblFamiliaArticulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25px"
+        android:layout_marginRight="25px"
+        android:textSize="@dimen/text_small"
+        android:textColor="#6699BB"
+        android:textStyle="bold"
+        android:text="" />
+    
+    <TextView android:id="@+id/lblTipoIVAArticuloLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25px"
+        android:layout_marginRight="25px"
+        android:textSize="@dimen/text_small"
+        android:text="Tipo IVA:" />
+    
+    <TextView android:id="@+id/lblTipoIVAArticulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25px"
+        android:layout_marginRight="25px"
+        android:textSize="@dimen/text_small"
+        android:textColor="#6699BB"
+        android:textStyle="bold"
+        android:text="" />
+    
+    <TextView android:id="@+id/lblDescuento1ArticuloLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25px"
+        android:layout_marginRight="25px"
+        android:textSize="@dimen/text_small"
+        android:text="Descuento 1:" />
+    
+    <TextView android:id="@+id/lblDescuento1Articulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25px"
+        android:layout_marginRight="25px"
+        android:textSize="@dimen/text_small"
+        android:textColor="#6699BB"
+        android:textStyle="bold"
+        android:text="" />
+    
+     <TextView android:id="@+id/lblStockLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25px"
+        android:layout_marginRight="25px"
+        android:textSize="@dimen/text_small"
+        android:text="Unidades actuales:" />
+    
+    <TextView android:id="@+id/lblStock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="25px"
+        android:layout_marginRight="25px"
+        android:textSize="@dimen/text_small"
+        android:textColor="#6699BB"
+        android:textStyle="bold"
+        android:text="" />
+
+
+</LinearLayout>
+
+ 
+       

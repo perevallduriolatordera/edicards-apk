@@ -1,0 +1,362 @@
+ECLIPSE ANDROID PROJECT IMPORT SUMMARY
+======================================
+
+Ignored Files:
+--------------
+The following files were *not* copied into the new Gradle project; you
+should evaluate whether these are still needed in your project and if
+so manually move them:
+
+* .idea\
+* .idea\.name
+* .idea\Edicards.iml
+* .idea\compiler.xml
+* .idea\copyright\
+* .idea\copyright\profiles_settings.xml
+* .idea\misc.xml
+* .idea\modules.xml
+* .idea\src.iml
+* .idea\vcs.xml
+* .idea\workspace.xml
+* META-INF\
+* META-INF\MANIFEST.MF
+* ic_launcher-web.png
+* net\
+* net\ifeu\
+* net\ifeu\edicards\
+* net\ifeu\edicards\AlbaranCustomerSearch$1$1.class
+* net\ifeu\edicards\AlbaranCustomerSearch$1.class
+* net\ifeu\edicards\AlbaranCustomerSearch$2.class
+* net\ifeu\edicards\AlbaranCustomerSearch$3.class
+* net\ifeu\edicards\AlbaranCustomerSearch.class
+* net\ifeu\edicards\AlbaranView$1.class
+* net\ifeu\edicards\AlbaranView.class
+* net\ifeu\edicards\AppConfig.class
+* net\ifeu\edicards\ArticleDialog.class
+* net\ifeu\edicards\ArticleSearch$1.class
+* net\ifeu\edicards\ArticleSearch.class
+* net\ifeu\edicards\BuildConfig.class
+* net\ifeu\edicards\Constants\
+* net\ifeu\edicards\Constants\Constants.class
+* net\ifeu\edicards\CustomerData.class
+* net\ifeu\edicards\CustomerSearch$1.class
+* net\ifeu\edicards\CustomerSearch.class
+* net\ifeu\edicards\CustomerSearchListDialog.class
+* net\ifeu\edicards\DataTier\
+* net\ifeu\edicards\DataTier\Articulo.class
+* net\ifeu\edicards\DataTier\Cliente.class
+* net\ifeu\edicards\DataTier\ClienteInfo.class
+* net\ifeu\edicards\DataTier\Contador.class
+* net\ifeu\edicards\DataTier\DTODeposito.class
+* net\ifeu\edicards\DataTier\DTOLineaDeposito$ArticuloComparator.class
+* net\ifeu\edicards\DataTier\DTOLineaDeposito.class
+* net\ifeu\edicards\DataTier\Deposito.class
+* net\ifeu\edicards\DataTier\FormaPago.class
+* net\ifeu\edicards\DataTier\Gasto.class
+* net\ifeu\edicards\DataTier\GastosInfo.class
+* net\ifeu\edicards\DataTier\Historico.class
+* net\ifeu\edicards\DataTier\IPersistable.class
+* net\ifeu\edicards\DataTier\Incidencia.class
+* net\ifeu\edicards\DataTier\IncidenciaType.class
+* net\ifeu\edicards\DataTier\Ingresos.class
+* net\ifeu\edicards\DataTier\LineaDeposito$ArticuloComparator.class
+* net\ifeu\edicards\DataTier\LineaDeposito.class
+* net\ifeu\edicards\DataTier\LineaHistorico.class
+* net\ifeu\edicards\DataTier\LineaMovimientos.class
+* net\ifeu\edicards\DataTier\MovimientosAlmacen.class
+* net\ifeu\edicards\DataTier\Pactos.class
+* net\ifeu\edicards\DataTier\Persistent.class
+* net\ifeu\edicards\DataTier\Recordatorio$1.class
+* net\ifeu\edicards\DataTier\Recordatorio$2.class
+* net\ifeu\edicards\DataTier\Recordatorio.class
+* net\ifeu\edicards\DataTier\Reporting$Defectuoso.class
+* net\ifeu\edicards\DataTier\Reporting$Potenciado.class
+* net\ifeu\edicards\DataTier\Reporting$Retirado.class
+* net\ifeu\edicards\DataTier\Reporting$Totales.class
+* net\ifeu\edicards\DataTier\Reporting$Vendido.class
+* net\ifeu\edicards\DataTier\Reporting.class
+* net\ifeu\edicards\DataTier\Support\
+* net\ifeu\edicards\DataTier\Support\IDataTierBase.class
+* net\ifeu\edicards\DataTier\Support\ValidationResult.class
+* net\ifeu\edicards\DataTier\Tarifa.class
+* net\ifeu\edicards\DataTier\TipoIVA.class
+* net\ifeu\edicards\DataTier\Totales$Base.class
+* net\ifeu\edicards\DataTier\Totales.class
+* net\ifeu\edicards\DataTier\TransferMode.class
+* net\ifeu\edicards\DataTier\User.class
+* net\ifeu\edicards\DatabaseOperations\
+* net\ifeu\edicards\DatabaseOperations\DatabaseOperations.class
+* net\ifeu\edicards\DepositManager$1.class
+* net\ifeu\edicards\DepositManager$10.class
+* net\ifeu\edicards\DepositManager$11.class
+* net\ifeu\edicards\DepositManager$12.class
+* net\ifeu\edicards\DepositManager$13.class
+* net\ifeu\edicards\DepositManager$14.class
+* net\ifeu\edicards\DepositManager$15.class
+* net\ifeu\edicards\DepositManager$16.class
+* net\ifeu\edicards\DepositManager$17.class
+* net\ifeu\edicards\DepositManager$18.class
+* net\ifeu\edicards\DepositManager$19.class
+* net\ifeu\edicards\DepositManager$2.class
+* net\ifeu\edicards\DepositManager$20.class
+* net\ifeu\edicards\DepositManager$21.class
+* net\ifeu\edicards\DepositManager$22.class
+* net\ifeu\edicards\DepositManager$23.class
+* net\ifeu\edicards\DepositManager$24.class
+* net\ifeu\edicards\DepositManager$25.class
+* net\ifeu\edicards\DepositManager$26.class
+* net\ifeu\edicards\DepositManager$27.class
+* net\ifeu\edicards\DepositManager$28.class
+* net\ifeu\edicards\DepositManager$3.class
+* net\ifeu\edicards\DepositManager$4.class
+* net\ifeu\edicards\DepositManager$5.class
+* net\ifeu\edicards\DepositManager$6.class
+* net\ifeu\edicards\DepositManager$7.class
+* net\ifeu\edicards\DepositManager$8.class
+* net\ifeu\edicards\DepositManager$9.class
+* net\ifeu\edicards\DepositManager.class
+* net\ifeu\edicards\DepositView$1.class
+* net\ifeu\edicards\DepositView.class
+* net\ifeu\edicards\GastosManager$1.class
+* net\ifeu\edicards\GastosManager$2.class
+* net\ifeu\edicards\GastosManager$3.class
+* net\ifeu\edicards\GastosManager.class
+* net\ifeu\edicards\IngresoData$1.class
+* net\ifeu\edicards\IngresoData.class
+* net\ifeu\edicards\MainActivity$1.class
+* net\ifeu\edicards\MainActivity.class
+* net\ifeu\edicards\MainMenu.class
+* net\ifeu\edicards\MainMenuFragments.class
+* net\ifeu\edicards\NewUser.class
+* net\ifeu\edicards\Pdf\
+* net\ifeu\edicards\Pdf\PdfAuthorization.class
+* net\ifeu\edicards\Pdf\PdfCreator.class
+* net\ifeu\edicards\Pdf\PdfDTOCreator.class
+* net\ifeu\edicards\Pdf\PdfInventory.class
+* net\ifeu\edicards\Printer\
+* net\ifeu\edicards\Printer\IPrint.class
+* net\ifeu\edicards\Printer\IPrintDTO.class
+* net\ifeu\edicards\Printer\PrintDTODocumentsStar.class
+* net\ifeu\edicards\Printer\PrintDTODocumentsWoosim.class
+* net\ifeu\edicards\Printer\PrintDocumentsStar.class
+* net\ifeu\edicards\Printer\PrintDocumentsWoosim.class
+* net\ifeu\edicards\Printer\PrintManager.class
+* net\ifeu\edicards\Printer\StarBitmap.class
+* net\ifeu\edicards\R$attr.class
+* net\ifeu\edicards\R$dimen.class
+* net\ifeu\edicards\R$drawable.class
+* net\ifeu\edicards\R$id.class
+* net\ifeu\edicards\R$layout.class
+* net\ifeu\edicards\R$menu.class
+* net\ifeu\edicards\R$string.class
+* net\ifeu\edicards\R$style.class
+* net\ifeu\edicards\R$styleable.class
+* net\ifeu\edicards\R.class
+* net\ifeu\edicards\Reporting_Piezas.class
+* net\ifeu\edicards\Reporting_Potenciados.class
+* net\ifeu\edicards\Reporting_Retirados.class
+* net\ifeu\edicards\Reporting_Totales.class
+* net\ifeu\edicards\Reports$1.class
+* net\ifeu\edicards\Reports$2.class
+* net\ifeu\edicards\Reports$3.class
+* net\ifeu\edicards\Reports$4.class
+* net\ifeu\edicards\Reports$5.class
+* net\ifeu\edicards\Reports$6.class
+* net\ifeu\edicards\Reports$7.class
+* net\ifeu\edicards\Reports$8.class
+* net\ifeu\edicards\Reports.class
+* net\ifeu\edicards\SelectDeposit$1.class
+* net\ifeu\edicards\SelectDeposit$2.class
+* net\ifeu\edicards\SelectDeposit$3.class
+* net\ifeu\edicards\SelectDeposit$4.class
+* net\ifeu\edicards\SelectDeposit$5.class
+* net\ifeu\edicards\SelectDeposit.class
+* net\ifeu\edicards\SenderMessages$1.class
+* net\ifeu\edicards\SenderMessages$2.class
+* net\ifeu\edicards\SenderMessages.class
+* net\ifeu\edicards\Services\
+* net\ifeu\edicards\Services\Compression.class
+* net\ifeu\edicards\Services\GZIPInputStream.class
+* net\ifeu\edicards\Services\HttpService.class
+* net\ifeu\edicards\Services\ParserResponse.class
+* net\ifeu\edicards\Services\RestClient$RequestMethod.class
+* net\ifeu\edicards\Services\RestClient.class
+* net\ifeu\edicards\Services\ServiceWorker.class
+* net\ifeu\edicards\Services\WindowsCredentials.class
+* net\ifeu\edicards\SignatureCustomer.class
+* net\ifeu\edicards\SignatureVendor.class
+* net\ifeu\edicards\StockManager$1.class
+* net\ifeu\edicards\StockManager$2.class
+* net\ifeu\edicards\StockManager$3.class
+* net\ifeu\edicards\StockManager$4.class
+* net\ifeu\edicards\StockManager$5.class
+* net\ifeu\edicards\StockManager$6.class
+* net\ifeu\edicards\StockManager$7.class
+* net\ifeu\edicards\StockManager$SwapStorage.class
+* net\ifeu\edicards\StockManager.class
+* net\ifeu\edicards\Totals.class
+* net\ifeu\edicards\UnderConstruction.class
+* net\ifeu\edicards\Upgrade_App.class
+* net\ifeu\edicards\WorkingArea.class
+* net\ifeu\edicards\Xml\
+* net\ifeu\edicards\Xml\XmlCreator$Reports.class
+* net\ifeu\edicards\Xml\XmlCreator.class
+* net\ifeu\library\
+* net\ifeu\library\Controls\
+* net\ifeu\library\Controls\ButtonColor.class
+* net\ifeu\library\Controls\ComboBox$1.class
+* net\ifeu\library\Controls\ComboBox$2.class
+* net\ifeu\library\Controls\ComboBox.class
+* net\ifeu\library\Controls\IComboBoxChangeEvent.class
+* net\ifeu\library\Controls\LabelColor.class
+* net\ifeu\library\Controls\TextBoxColor$1.class
+* net\ifeu\library\Controls\TextBoxColor.class
+* net\ifeu\library\Database\
+* net\ifeu\library\Database\DatabaseConnection$DatabaseHelper.class
+* net\ifeu\library\Database\DatabaseConnection.class
+* net\ifeu\library\Devices\
+* net\ifeu\library\Devices\BlueTooth.class
+* net\ifeu\library\Devices\Wifi.class
+* net\ifeu\library\Devices\_3G.class
+* net\ifeu\library\Errors\
+* net\ifeu\library\Errors\ErrorTrace.class
+* net\ifeu\library\IO\
+* net\ifeu\library\IO\EscapeChars.class
+* net\ifeu\library\IO\IOUtils.class
+* net\ifeu\library\Imaging\
+* net\ifeu\library\Imaging\BMPFile.class
+* net\ifeu\library\Imaging\BitmapConvertor.class
+* net\ifeu\library\Imaging\BitmapConvertorAsync$ConvertInBackground.class
+* net\ifeu\library\Imaging\BitmapConvertorAsync.class
+* net\ifeu\library\Mail\
+* net\ifeu\library\Mail\Mail.class
+* net\ifeu\library\Mail\MailSender$1.class
+* net\ifeu\library\Mail\MailSender.class
+* net\ifeu\library\Signature\
+* net\ifeu\library\Signature\SignatureView.class
+* net\ifeu\library\Trace\
+* net\ifeu\library\Trace\Trace.class
+* net\ifeu\library\Utils\
+* net\ifeu\library\Utils\MessageBox$1.class
+* net\ifeu\library\Utils\MessageBox$10.class
+* net\ifeu\library\Utils\MessageBox$2.class
+* net\ifeu\library\Utils\MessageBox$3.class
+* net\ifeu\library\Utils\MessageBox$4.class
+* net\ifeu\library\Utils\MessageBox$5.class
+* net\ifeu\library\Utils\MessageBox$6.class
+* net\ifeu\library\Utils\MessageBox$7.class
+* net\ifeu\library\Utils\MessageBox$8.class
+* net\ifeu\library\Utils\MessageBox$9.class
+* net\ifeu\library\Utils\MessageBox.class
+* net\ifeu\library\Utils\MessageBoxType.class
+* net\ifeu\library\Utils\OS.class
+* proguard-project.txt
+
+Replaced Jars with Dependencies:
+--------------------------------
+The importer recognized the following .jar files as third party
+libraries and replaced them with Gradle dependencies instead. This has
+the advantage that more explicit version information is known, and the
+libraries can be updated automatically. However, it is possible that
+the .jar file in your project was of an older version than the
+dependency we picked, which could render the project not compileable.
+You can disable the jar replacement in the import wizard and try again:
+
+android-support-v4.jar => com.android.support:support-v4:24.2.1
+gson-2.2.2-javadoc.jar => com.google.code.gson:gson:2.3.1
+gson-2.2.2-sources.jar => com.google.code.gson:gson:2.3.1
+gson-2.2.2.jar => com.google.code.gson:gson:2.2.2
+
+Potentially Missing Dependency:
+-------------------------------
+When we replaced the following .jar files with a Gradle dependency, we
+inferred the dependency version number from the filename. This
+specific version may not actually be available from the repository.
+If you get a build error stating that the dependency is missing, edit
+the version number to for example "+" to pick up the latest version
+instead. (This may require you to update your code if the library APIs
+have changed.)
+
+gson-2.2.2.jar => version 2.2.2 in com.google.code.gson:gson:2.2.2
+
+Moved Files:
+------------
+Android Gradle projects use a different directory structure than ADT
+Eclipse projects. Here's how the projects were restructured:
+
+* AndroidManifest.xml => app\src\main\AndroidManifest.xml
+* libs\activation.jar => app\libs\activation.jar
+* libs\additionnal.jar => app\libs\additionnal.jar
+* libs\commons-codec-1.10.jar => app\libs\commons-codec-1.10.jar
+* libs\commons-logging-1.2.jar => app\libs\commons-logging-1.2.jar
+* libs\fluent-hc-4.5.6.jar => app\libs\fluent-hc-4.5.6.jar
+* libs\httpclient-4.5.6.jar => app\libs\httpclient-4.5.6.jar
+* libs\httpclient-cache-4.5.6.jar => app\libs\httpclient-cache-4.5.6.jar
+* libs\httpclient-win-4.5.6.jar => app\libs\httpclient-win-4.5.6.jar
+* libs\httpcore-4.4.10.jar => app\libs\httpcore-4.4.10.jar
+* libs\httpmime-4.5.6.jar => app\libs\httpmime-4.5.6.jar
+* libs\itextpdf-5.4.0.jar => app\libs\itextpdf-5.4.0.jar
+* libs\ksoap2-android-assembly-2.3-jar-with-dependencies.jar => app\libs\ksoap2-android-assembly-2.3-jar-with-dependencies.jar
+* libs\mail.jar => app\libs\mail.jar
+* libs\Parse-1.2.3.jar => app\libs\Parse-1.2.3.jar
+* libs\StarIOPort3.1.jar => app\libs\StarIOPort3.1.jar
+* libs\woosimprinter_bt.jar => app\libs\woosimprinter_bt.jar
+* lint.xml => app\lint.xml
+* res\ => app\src\main\res\
+* src\ => app\src\main\java\
+* src\.idea\.name => app\src\main\resources\.idea\.name
+* src\.idea\compiler.xml => app\src\main\resources\.idea\compiler.xml
+* src\.idea\copyright\profiles_settings.xml => app\src\main\resources\.idea\copyright\profiles_settings.xml
+* src\.idea\misc.xml => app\src\main\resources\.idea\misc.xml
+* src\.idea\modules.xml => app\src\main\resources\.idea\modules.xml
+* src\.idea\src.iml => app\src\main\resources\.idea\src.iml
+* src\.idea\vcs.xml => app\src\main\resources\.idea\vcs.xml
+* src\.idea\workspace.xml => app\src\main\resources\.idea\workspace.xml
+* src\net\ifeu\edicards\layout\activity_albaran_customer_search.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_albaran_customer_search.xml
+* src\net\ifeu\edicards\layout\activity_albaran_view.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_albaran_view.xml
+* src\net\ifeu\edicards\layout\activity_article_search.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_article_search.xml
+* src\net\ifeu\edicards\layout\activity_articulo_dialog.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_articulo_dialog.xml
+* src\net\ifeu\edicards\layout\activity_customer_data.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_customer_data.xml
+* src\net\ifeu\edicards\layout\activity_customer_search.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_customer_search.xml
+* src\net\ifeu\edicards\layout\activity_customer_search_list_dialog.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_customer_search_list_dialog.xml
+* src\net\ifeu\edicards\layout\activity_deposit_manager.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_deposit_manager.xml
+* src\net\ifeu\edicards\layout\activity_deposit_view.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_deposit_view.xml
+* src\net\ifeu\edicards\layout\activity_error.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_error.xml
+* src\net\ifeu\edicards\layout\activity_gastos_manager.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_gastos_manager.xml
+* src\net\ifeu\edicards\layout\activity_ingreso_data.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_ingreso_data.xml
+* src\net\ifeu\edicards\layout\activity_login.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_login.xml
+* src\net\ifeu\edicards\layout\activity_main.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_main.xml
+* src\net\ifeu\edicards\layout\activity_main_menu.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_main_menu.xml
+* src\net\ifeu\edicards\layout\activity_main_menu_fragments.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_main_menu_fragments.xml
+* src\net\ifeu\edicards\layout\activity_monitor.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_monitor.xml
+* src\net\ifeu\edicards\layout\activity_new_user.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_new_user.xml
+* src\net\ifeu\edicards\layout\activity_reporting__potenciados.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_reporting__potenciados.xml
+* src\net\ifeu\edicards\layout\activity_reporting__retirados.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_reporting__retirados.xml
+* src\net\ifeu\edicards\layout\activity_reporting__totales.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_reporting__totales.xml
+* src\net\ifeu\edicards\layout\activity_reporting_piezas.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_reporting_piezas.xml
+* src\net\ifeu\edicards\layout\activity_reports.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_reports.xml
+* src\net\ifeu\edicards\layout\activity_select_deposit.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_select_deposit.xml
+* src\net\ifeu\edicards\layout\activity_sender_messages.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_sender_messages.xml
+* src\net\ifeu\edicards\layout\activity_signature_customer.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_signature_customer.xml
+* src\net\ifeu\edicards\layout\activity_signature_vendor.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_signature_vendor.xml
+* src\net\ifeu\edicards\layout\activity_stock_manager.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_stock_manager.xml
+* src\net\ifeu\edicards\layout\activity_totals.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_totals.xml
+* src\net\ifeu\edicards\layout\activity_upgrade__app.xml => app\src\main\resources\net\ifeu\edicards\layout\activity_upgrade__app.xml
+* src\net\ifeu\edicards\layout\error_activity.xml => app\src\main\resources\net\ifeu\edicards\layout\error_activity.xml
+* src\net\ifeu\edicards\layout\mylist.xml => app\src\main\resources\net\ifeu\edicards\layout\mylist.xml
+* src\net\ifeu\edicards\layout\tab.xml => app\src\main\resources\net\ifeu\edicards\layout\tab.xml
+
+Next Steps:
+-----------
+You can now build the project. The Gradle project needs network
+connectivity to download dependencies.
+
+Bugs:
+-----
+If for some reason your project does not build, and you determine that
+it is due to a bug or limitation of the Eclipse to Gradle importer,
+please file a bug at http://b.android.com with category
+Component-Tools.
+
+(This import summary is for your information only, and can be deleted
+after import once you are satisfied with the results.)

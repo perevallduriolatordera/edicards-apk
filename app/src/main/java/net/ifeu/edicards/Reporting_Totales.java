@@ -1,0 +1,218 @@
+package net.ifeu.edicards;
+
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Date;
+
+import net.ifeu.edicards.DataTier.Ingresos;
+import net.ifeu.edicards.DataTier.Reporting;
+import net.ifeu.library.Controls.LabelColor;
+import android.app.ActionBar.LayoutParams;
+import android.app.Activity;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.view.Gravity;
+import android.view.Menu;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+
+public class Reporting_Totales extends Activity {
+
+	AppConfig _appConfig;
+	
+    @SuppressWarnings("deprecation")
+	@Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_reporting__totales);
+        
+        android.view.WindowManager.LayoutParams params = getWindow().getAttributes(); 
+        params.height = LayoutParams.FILL_PARENT;
+        params.width  = 900;
+        getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+        
+        
+        fillTotales();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_reporting__totales, menu);
+        return true;
+    }
+    
+	private LinearLayout addCounter(String text, String value, int color, boolean compress) {
+		
+		LinearLayout layout = new LinearLayout(this);
+		layout.setOrientation(LinearLayout.HORIZONTAL);
+		
+    	android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.MATCH_PARENT);
+    	
+		RelativeLayout card = new RelativeLayout(this);
+    	card.setBackgroundResource(R.drawable.card_background);
+    	card.setGravity(Gravity.CENTER);
+    	    	
+    	params.width=200;
+    	params.height=100;
+    	card.setLayoutParams(params);
+    	card.setPadding(20, 20, 20, 20);
+    	
+    	LinearLayout layout1 = new LinearLayout(this);
+		layout1.setOrientation(LinearLayout.VERTICAL);
+		
+		LabelColor label = new LabelColor(this, color, true, Gravity.CENTER);
+		label.setText(text.toUpperCase());
+		label.setTextSize(compress ? 12 : 16);
+		
+		
+    	LabelColor label2 = new LabelColor(this, Color.BLACK, true, Gravity.CENTER);
+		label2.setText(String.valueOf(value));
+		label2.setTextSize(24);
+    	
+    	layout1.addView(label);
+    	layout1.addView(label2);
+    	
+    	card.addView(layout1);
+    	
+    	layout.addView(card);
+    	
+    	return layout;
+    	
+	}
+    
+    private void fillTotales()
+    {
+    	
+    	DecimalFormat df = new DecimalFormat("0.00");
+    	
+    	_appConfig = (AppConfig) this.getApplicationContext();
+    	Reporting reporting = _appConfig.getWorkingArea().CurrentReporting;
+    	
+    	if (reporting == null) {
+    		return;
+    	}
+    	    	 
+    	LinearLayout mainLinearLayout = (LinearLayout) this.findViewById(R.id.mainLinearLayout);
+    	mainLinearLayout.removeAllViews();
+    	mainLinearLayout.setOrientation(LinearLayout.VERTICAL);
+    	    	   		 
+	 	final LinearLayout layout = new LinearLayout(this);
+		layout.removeAllViews();
+		layout.setOrientation(LinearLayout.VERTICAL);
+    	
+    	LinearLayout layout2 = new LinearLayout(this);
+		layout2.removeAllViews();
+		layout2.setOrientation(LinearLayout.HORIZONTAL);
+		    	
+		// Clientes nuevos
+		
+		layout2.addView(this.addCounter("Clientes Nuevos", String.valueOf(reporting.totales.Nuevos), Color.MAGENTA, false));
+    	
+    	// Depósitos retirados
+		
+		layout2.addView(this.addCounter("Clientes de Baja", String.valueOf(reporting.totales.Retirados), Color.RED, false));
+    	
+    	// Visitas
+    	
+		layout2.addView(this.addCounter("Número de Visitas", String.valueOf(reporting.totales.Visitas), Color.BLUE, false));
+    	
+    	// Visitas con albarán
+		
+		//layout2.addView(this.addCounter("Número de Visitas con albarán", String.valueOf(reporting.totales.NumeroSerieA), Color.BLACK, false));
+    	
+    	//layout.addView(layout2);
+		
+		// Total Facturación
+		
+		layout2.addView(this.addCounter("Total facturado", String.valueOf(reporting.totales.Facturado) + " €", Color.BLACK, true));
+				
+		layout.addView(layout2);
+		
+    	// siguiente linea
+    	
+    	layout2 = new LinearLayout(this);
+		layout2.removeAllViews();
+		layout2.setOrientation(LinearLayout.HORIZONTAL);
+		
+		
+		// Albaranes Edi
+		
+		layout2.addView(this.addCounter("Albaranes EDI (" + String.valueOf(reporting.totales.InicialSerieA) + " - " + String.valueOf(reporting.totales.FinalSeriaA) + ")", String.valueOf(reporting.totales.NumeroSerieA) + " / " + String.valueOf(df.format(reporting.totales.TotalSerieA))  + " €", Color.BLACK, true));
+		
+		//Cantidad Pagada Serie A
+		
+		layout2.addView(this.addCounter("COBROS EDI Total", String.valueOf(reporting.totales.CantidadPagadaSerieA) + " €", Color.BLACK, false));
+						
+		layout.addView(layout2);
+		
+		// siguiente linea
+		
+		layout2 = new LinearLayout(this);
+		layout2.removeAllViews();
+		layout2.setOrientation(LinearLayout.HORIZONTAL);
+
+		// Albaranes B
+		
+		layout2.addView(this.addCounter("Albaranes (" + String.valueOf(reporting.totales.InicialSerieB) + " - " + String.valueOf(reporting.totales.FinalSerieB) + ")", String.valueOf(reporting.totales.NumeroSerieB) + " / " + String.valueOf(df.format(reporting.totales.TotalSerieB))  + " €", Color.BLACK, true));    	
+		
+    	//Cantidad Pagada Serie B
+		
+		layout2.addView(this.addCounter("COBROS", String.valueOf(reporting.totales.CantidadPagadaSerieB) + " €", Color.BLACK, false));
+
+		layout.addView(layout2);
+		
+		// siguiente linea
+		
+		layout2 = new LinearLayout(this);
+		layout2.removeAllViews();
+		layout2.setOrientation(LinearLayout.HORIZONTAL);
+		
+    	// Cantidad Pagada Serie A + B
+		
+    	double cantidad = reporting.totales.CantidadPagadaSerieA + reporting.totales.CantidadPagadaSerieB;
+		layout2.addView(this.addCounter("Total COBROS", String.valueOf(df.format(cantidad)) + " €", Color.BLACK, false));		
+
+		
+    	// Cantidad Ingresos
+    	
+    	double ingresos = this.getIngresos();
+    	layout2.addView(this.addCounter("Total INGRESADO", String.valueOf(df.format(ingresos)) + " €", Color.BLACK, false));		
+		
+    	// 	Cantidad Pendiente a ingresar
+    	
+    	double pendiente = cantidad - ingresos;
+    	layout2.addView(this.addCounter("Total PENDIENTE INGRESAR", String.valueOf(df.format(pendiente)) + " €", Color.BLACK, true));
+    	
+    	layout.addView(layout2);
+    	
+    	mainLinearLayout.addView(layout);
+ 
+    }
+    
+    private double getIngresos()  {
+
+    	double IngresosTotales = 0;
+    	
+    	try {
+    		Ingresos ingresos = new Ingresos();
+    		ingresos.InitializePersistance(_appConfig, this.getApplicationContext());
+
+    		ArrayList<Ingresos> list = ingresos.getIngresosOfThisWeek(new Date());
+
+    		for (Ingresos ingreso : list) {
+
+    			if (ingreso.Cantidad != 0)
+    				IngresosTotales += ingreso.Cantidad;
+    		}
+
+    	} catch (Exception e) {
+			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+
+    	}
+    	
+    	return IngresosTotales;
+    	
+	}
+
+    
+}

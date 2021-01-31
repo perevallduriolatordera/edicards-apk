@@ -1,0 +1,246 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#FFF" >
+
+    <LinearLayout
+        android:id="@+id/headerMainLinearLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="250dp"
+        android:layout_marginTop="5dp"
+        android:background="@color/DarkBlue"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:id="@+id/headerMainLinearLayout2"
+            android:layout_width="fill_parent"
+            android:layout_height="100dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/DarkBlue"
+            android:orientation="vertical" >
+
+            <LinearLayout
+                android:id="@+id/headerMainLinearLayout3"
+                android:layout_width="fill_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="5dp"
+                android:background="@color/DarkBlue"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="10dp"
+                    android:text="  Cliente: "
+                    android:textSize="12dp" />
+
+                <TextView
+                    android:textColor="#FFFFFF"
+                    android:id="@+id/lblCliente"
+                    android:layout_width="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_height="50dp"
+                    android:textSize="12dp" />
+                
+                 <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="10dp"
+                    android:text="  Total Base: "
+                    android:textSize="12dp" />
+
+                <TextView
+                    android:textColor="#FFFFFF"
+                    android:id="@+id/lblBase"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="10dp"
+                    android:textSize="12dp" />
+
+                <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="10dp"
+                    android:text="  Total Factura: "
+                    android:textSize="12dp" />
+
+                <TextView
+                    android:textColor="#FFFFFF"
+                    android:id="@+id/lblTotalFactura"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="10dp"
+                    android:textSize="12dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/headerMainLinearLayout4"
+                android:layout_width="fill_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="5dp"
+                android:background="@color/DarkBlue"
+                android:orientation="horizontal" >
+
+               
+            </LinearLayout>
+        </LinearLayout>
+        
+         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="fill_parent" 
+              android:layout_height="50dp" 
+              android:background="@color/DarkBlue"
+              android:layout_marginTop="5dp"
+              android:orientation="horizontal" > 
+    
+			      
+			      <AutoCompleteTextView android:id="@+id/myautocomplete"
+					android:layout_width="400px"
+					android:layout_height="wrap_content"
+					android:textColor="#FFFFFF"
+					android:hint="nombre del artículo"
+					android:completionThreshold="1"/>
+			      
+			      <Button
+	                android:id="@+id/btnSearchClear"
+	                android:layout_width="100px"
+	                android:layout_height="30px"
+	                android:layout_marginLeft="20dp"
+	                android:background="@drawable/background_button"
+	                android:onClick="OnViewAll"
+	                android:text="Ver todos"
+	                android:textColor="#FFF" />
+			    
+   		</LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/headerMainLinearLayout5"
+            android:layout_width="fill_parent"
+            android:layout_height="25dp"            
+            android:layout_marginTop="5dp"
+            android:background="@color/DarkBlue"
+            android:orientation="horizontal" >
+
+          <!--   <TextView
+                android:layout_width="50dp"
+                android:id="@+id/headerLabelCodigo"
+                android:layout_height="25dp"
+                android:text="Código"  
+                android:textSize="12dp" />
+
+            <TextView
+                android:id="@+id/headerLabelArticulo"
+                android:layout_width="100dp"
+                android:layout_height="25dp"
+                android:text="Artículo"
+                android:textSize="12dp" />
+
+            <TextView
+                android:id="@+id/headerLabelDepInicial"
+                android:layout_width="100dp"
+                android:layout_height="25dp"
+                android:text="Dep.Inicial"
+                android:textSize="12dp" />
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="25dp"
+                android:text="Contadas"
+                android:textSize="12dp" />
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="25dp"
+                android:text="Reciclado"
+                android:textSize="12dp" />
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="25dp"
+                android:text="PVP Fact"
+                android:textSize="12dp" />
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="25dp"
+                android:text=" Facturadas"
+                android:textSize="12dp" />
+
+            <TextView
+                android:id="@+id/headerLabelRepuestas"
+                android:layout_width="100dp"
+                android:layout_height="25dp"
+                android:text="Repuestas"
+                android:textSize="12dp" />
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="25dp"
+                android:text="PVP Post"
+                android:textSize="12dp" />
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="25dp"
+                android:text="Total"
+                android:textSize="12dp" /> -->
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/headerMainLinearLayout6"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/Edicards"
+            android:orientation="horizontal" >
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="350dp"
+        android:layout_marginBottom="130dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="250dp"
+        android:orientation="vertical" >
+
+        <ScrollView
+            android:id="@+id/svcScroll"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:clickable="true" >
+
+            <LinearLayout
+                android:id="@+id/mainLinearLayoutDepositManager"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="0dp"
+                android:orientation="vertical" > 
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+    
+      <!--  <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/footerMainLinearLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="180dp"
+        android:layout_marginTop="520dp"
+        android:background="@drawable/border_layout"
+        android:orientation="horizontal" >
+    </LinearLayout>-->
+    
+<!--  para V7 de Android -->  
+    <LinearLayout
+        android:id="@+id/footerMainLinearLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="150dp"
+        android:layout_marginTop="550dp"
+        android:background="@color/DarkBlue"
+        android:orientation="horizontal" >
+    </LinearLayout>
+
+
+</RelativeLayout>

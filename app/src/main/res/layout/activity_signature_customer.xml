@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <net.ifeu.library.Signature.SignatureView
+            android:id="@+id/signatureView"
+            android:layout_width="wrap_content"
+            android:layout_height="600px" />
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/btnAccept"
+                android:layout_width="150px"
+                android:layout_height="40px"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="20dp"
+                android:background="#FFF"
+                android:onClick="OnClick"
+                android:text="Aceptar"
+                android:textColor="#000" />
+
+            <Button
+                android:id="@+id/btnDelete"
+                android:layout_width="150px"
+                android:layout_height="40px"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="20dp"
+                android:background="#FFF"
+                android:onClick="OnDelete"
+                android:text="Borrar"
+                android:textColor="#000" />
+            
+             <Button
+                android:id="@+id/btnDepositView"
+                android:layout_width="150px"
+                android:layout_height="40px"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="20dp"
+                android:background="#FFF"
+                android:onClick="OnDepositView"
+                android:text="Ver Depósito"
+                android:textColor="#000" />
+             
+              <Button
+                android:id="@+id/btnAccept"
+                android:layout_width="150px"
+                android:layout_height="40px"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="20dp"
+                android:background="#FFF"
+                android:onClick="OnAlbaranView"
+                android:text="Ver Albarán"
+                android:textColor="#000" />
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

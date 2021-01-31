@@ -1,0 +1,409 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal" >
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="70px"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/lblNIFClienteLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:text="NIF:              "
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/text_small" />
+
+            <EditText
+                android:id="@+id/lblNIFCliente"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/text_small"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="70px"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/lblNombreClienteLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:text="Nombre:    "
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/text_small" />
+
+            <EditText
+                android:id="@+id/lblNombreCliente"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/text_small"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="70px"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/lblRazonClienteLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:text="Razón:       "
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/text_small" />
+
+            <EditText
+                android:id="@+id/lblRazonCliente"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/text_small"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="70px"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/lblDireccionClienteLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:text="Dirección: "
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/text_small" />
+
+            <EditText
+                android:id="@+id/lblDireccionCliente"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/text_small"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="70px"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/lblLocalidadClienteLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:text="Localidad:"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/text_small" />
+
+            <EditText
+                android:id="@+id/lblLocalidadCliente"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/text_small"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="70px"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/lblProvinciaClienteLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:text="Provincia: "
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/text_small" />
+
+            <EditText
+                android:id="@+id/lblProvinciaCliente"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/text_small"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="70px"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/lblCodigoPostalClienteLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:text="CP:               "
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/text_small" />
+
+            <EditText
+                android:id="@+id/lblCodigoPostalCliente"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/text_small"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="70px"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/lblTelefono1ClienteLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:singleLine="true"
+                android:text="Teléfono 1:"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/text_small" />
+
+            <EditText
+                android:id="@+id/lblTelefono1Cliente"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:text=""
+                android:textSize="@dimen/text_small"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="70px"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/lblTelefono2ClienteLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:singleLine="true"
+                android:text="Teléfono 2:"
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/text_small" />
+
+            <EditText
+                android:id="@+id/lblTelefono2Cliente"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:text=""
+                android:textSize="@dimen/text_small"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="70px"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/lblFaxClienteLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:text="FAX:             "
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/text_small" />
+
+            <EditText
+                android:id="@+id/lblFaxCliente"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/text_small"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="70px"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/lblFaxMailLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:text="MAIL:           "
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/text_small" />
+
+            <EditText
+                android:id="@+id/lblMailCliente"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/text_small"
+                android:textStyle="bold" />
+        </LinearLayout>
+        
+         <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="70px"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/lblCCCLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:text="Cuenta Corriente:     "
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/text_small" />
+
+            <EditText
+                android:id="@+id/lblCCCCliente"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/text_small"
+                android:textStyle="bold" />
+        </LinearLayout>
+        
+         <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="70px"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/lblRepresentanteClienteLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:text="Representante Tienda:  "
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/text_small" />
+
+            <EditText
+                android:id="@+id/lblRepresentanteCliente"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/text_small"
+                android:textStyle="bold" />
+        </LinearLayout>
+        
+         <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="70px"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/lblDniRepresentanteClienteLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:text="DNI Repres Tienda: "
+                android:textColor="#FFFFFF"
+                android:textSize="@dimen/text_small" />
+
+            <EditText
+                android:id="@+id/lblDniRepresentanteCliente"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:layout_marginRight="25px"
+                android:singleLine="true"
+                android:text=""
+                android:textSize="@dimen/text_small"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="70px"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/btnGenerateAlbaran"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25px"
+                android:onClick="OnApply"
+                android:text="   Aplicar   " />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
