@@ -83,7 +83,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 	
 	private LinkedList<String> _articles = new LinkedList<String>();
 
-
 	private final int TEXT_SIZE = 14;
 	private final int TEXT_SIZE_LARGE = 16;
 	private final int TEXT_SIZE_BUTTON = 12;
@@ -95,9 +94,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 	private final int WIDTH_NEWER_VERSION_DESCRIPCION = 100;
 			
 	public void onCreate(Bundle savedInstanceState) {
-
 		super.onCreate(savedInstanceState);
-		
 	}
 
 	@Override
