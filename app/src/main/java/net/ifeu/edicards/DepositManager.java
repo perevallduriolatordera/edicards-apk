@@ -829,7 +829,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
                 // Get the cursor, positioned to the corresponding row in the
                 // result set
             	
-            	String selectedArticle =  listView.getItemAtPosition(position).toString();
+            	String selectedArticle =  listView.getItemAtPosition(position).toString().trim().toUpperCase();
             	
             	LinearLayout layout = (LinearLayout) that.getActivity()
         				.findViewById(R.id.mainLinearLayoutDepositManager);
@@ -841,8 +841,9 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
             	    View v = layout.getChildAt(i);
             	    
             	    LabelColor articleLabel = (LabelColor) ((LinearLayout) v).getChildAt(1);
-            	    String currentArticle = articleLabel.getText().toString().trim();
-            	    
+            	    String currentArticle = articleLabel.getText().toString().trim().toUpperCase();
+
+            	    Log.i("DepositManager", currentArticle);
             	    if (selectedArticle.equals(currentArticle) && !isShowed) {
             	    	v.setVisibility(View.VISIBLE);
             	    	isShowed = true;
