@@ -1183,7 +1183,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 			}
 		}
 
-		if (_deposito.isDeposito() && !_deposito.isDepositoUpdated()) {
+		if (_deposito.isDeposito() && (!_deposito.isDepositoUpdated() || _deposito.isDepositoUpdatedOnlyVentaDirecta())) {
 			boolean result = _appConfig.getMessageBox().ShowWithResult("Cierre de operación",
 					"NO se ha modificado el depósito. Desea Continuar?", this.getActivity(),
 					MessageBoxType.Information);
@@ -1252,7 +1252,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 
 		boolean printDeposito = true;
 
-		if (!_deposito.isDepositoUpdated()) {
+		if (!_deposito.isDepositoUpdated() || _deposito.isDepositoUpdatedOnlyVentaDirecta()) {
 			printDeposito = _appConfig.getMessageBox().ShowWithResult("Impresión de documentos",
 					"El depósito no ha sido modificado. Desea imprimirlo de todos modos ?", this.getActivity(),
 					MessageBoxType.Information);

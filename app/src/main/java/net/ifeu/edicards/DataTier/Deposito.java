@@ -1229,6 +1229,31 @@ public class Deposito extends Cliente implements IPersistable {
 		return deposito;
 	}
 
+	public boolean isDepositoUpdatedOnlyVentaDirecta() {
+
+		boolean isOnlyVentaDirecta = false;
+
+		for (LineaDeposito linea : Lineas.values()) {
+			if (linea.UnidadesInicialesFijas != linea.UnidadesRepuestas) {
+
+				Log.i("DepositoManager", "isDepositoUpdatedOnlyVentaDirecta: true");
+				Log.i("DepositoManager", "Art: " + linea.Articulo.Descripcion);
+				Log.i("DepositoManager", "Unidades Fijas: " + linea.UnidadesInicialesFijas);
+				Log.i("DepositoManager", "Unidades Repuestas: " + linea.UnidadesRepuestas);
+				Log.i("DepositoManager", "PVP Anterior: " + linea.PVPAnterior);
+				Log.i("DepositoManager", "PVP Inicial: " + linea.PVPInicial);
+
+				return false;
+			}
+
+			if (linea.PVPAnterior != linea.PVPInicial && linea.UnidadesFacturadas > 0) {
+				isOnlyVentaDirecta = true;
+			}
+		}
+
+		return isOnlyVentaDirecta;
+
+	}
 	public boolean isDepositoUpdated() {
 		for (LineaDeposito linea : Lineas.values()) {
 			if ((linea.UnidadesInicialesFijas != linea.UnidadesRepuestas)
@@ -1247,7 +1272,7 @@ public class Deposito extends Cliente implements IPersistable {
 
 		Log.i("DepositoManager", "isDepositoUpdated: false");
 
-		return false || this.DatosFiscalesUpdated ;
+		return false || this.DatosFiscalesUpdated;
 
 	}
 
