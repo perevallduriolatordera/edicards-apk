@@ -11,14 +11,15 @@ import java.net.URLEncoder;
 import java.text.NumberFormat;                                                                                                       
 import java.text.ParsePosition;                                                                                                      
 import java.text.SimpleDateFormat;                                                                                                   
-import java.util.ArrayList;                                                                                                          
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -36,10 +37,11 @@ import net.ifeu.edicards.DataTier.Tarifa;
 import net.ifeu.edicards.DataTier.TipoIVA;                                                                                           
 import net.ifeu.edicards.Pdf.PdfInventory;                                                                                           
 import net.ifeu.edicards.Services.RestClient.RequestMethod;                                                                          
-import net.ifeu.edicards.Xml.XmlCreator;                                                                                             
-import net.ifeu.library.Devices.Wifi;                                                                                                
-import net.ifeu.library.Devices._3G;                                                                                                 
-import net.ifeu.library.IO.IOUtils;                                                                                                  
+import net.ifeu.edicards.Xml.XmlCreator;
+import net.ifeu.library.Firebase.ArticuloStock;
+import net.ifeu.library.Firebase.ArticuloStockResponse;
+import net.ifeu.library.Firebase.FireStoreCaller;
+import net.ifeu.library.IO.IOUtils;
 import net.ifeu.library.Mail.Mail;                                                                                                   
 import net.ifeu.library.Mail.MailSender;                                                                                             
 import org.apache.http.NameValuePair;                                                                                                
@@ -771,12 +773,41 @@ public class ServiceWorker extends ServiceBase {
 				result = false;                                                                                                                                                                         
 			}                                                                                                                        
                                                                                                                                      
-			Log.i("ServiceWorker", "Finalizamos proceso llamada Articulos");                                                         
-			                                                                                                                                       
-			articulo.ReleasePersistance();                                                                                           
+			Log.i("ServiceWorker", "Finalizamos proceso llamada Articulos");
+
+			// * * * * * * * * * * LLAMADA A ARTICULOS-STOCK DE FIRECLOUD * * * * * * * * * *
+
+			Log.i("ServiceWorker", "Invocamos la obtención del token de firestore");
+			FireStoreCaller fireStoreServices = new FireStoreCaller();
+			String idToken = fireStoreServices.getToken();
+
+			ArticuloStockResponse stock = fireStoreServices.getStock(idToken);
+			Log.i("ServiceWorker", "Finalizamos la obtención del token de firestore");
+
+			LinkedHashMap<String, Articulo> articulos = articulo.getAllArticulos(1);
+			boolean hasNew = false;
+			for (Articulo art : articulos.values()) {
+				if (stock.articulos.containsKey(art.CodigoArticulo)) {
+					art.InitializePersistance(app, context);
+					art.StockPropio = stock.articulos.get(art.CodigoArticulo).stock;
+					art.update();
+					art.ReleasePersistance();
+				} else {
+					ArticuloStock articuloStock = new ArticuloStock();
+					articuloStock.idArticulo = art.CodigoArticulo;
+					articuloStock.descripcion = art.Descripcion;
+					articuloStock.stock = true;
+					stock.articulos.put(art.CodigoArticulo, articuloStock);
+					hasNew = true;
+				}
+			}
+
+			if (hasNew)
+				result = fireStoreServices.createStock(idToken, stock.name, stock.articulos);
+			articulo.ReleasePersistance();
                                                                                                                                      
 			// * * * * * * * * * * LLAMADA A TRASPASO ALMACEN * * * * * * * * *                                                                                                                                                                        
-                                                                                                                                     
+
 			try {                                                                                                                    
 				articulo.InitializePersistance(app, context);                                                                        
 			} catch (Exception e) {                                                                                                  
@@ -973,10 +1004,9 @@ public class ServiceWorker extends ServiceBase {
 						int maxAttempts = 0;                                                                                         
 						while (!successful && maxAttempts < Constants.WS_MAX_INTENTOS) {                                             
                                                                                                                                      
-							try {                                                                                                    
-                                                                                                                                     
-								Log.i("Depositos Indice Inicial", String.valueOf(i));                                                
-								Log.i("Depositos Indice Final", String.valueOf(i + Constants.WS_PAGINACION));                        
+							try {
+								Log.i("Depositos Indice Inicial", String.valueOf(i));
+								Log.i("Depositos Indice Final", String.valueOf(i + Constants.WS_PAGINACION));
                                                                                                                                      
 								document = null;                                                                                     
                                                                                                                                      
@@ -1146,8 +1176,5 @@ public class ServiceWorker extends ServiceBase {
 	      throw e;
 	    }
 	}
-                                                                                                                                     
-	                                                                                                                                 
-                                                                                                                                     
-}                                                                                                                                    
+}
                                                                                                                                      

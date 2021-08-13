@@ -1007,7 +1007,11 @@ public class DatabaseOperations {
 				_databaseConnection.getDatabase().execSQL("alter table " + Constants.TABLE_LINEAS_HISTORICO + " ADD COLUMN PVP REAL default null ");
 			} 
 			catch (Exception e) {
-				return;
+			}
+
+			try {
+				_databaseConnection.getDatabase().execSQL("alter table " + Constants.TABLE_ARTICULOS + " ADD COLUMN StockPropio integer NOT NULL default 1 ");
+			} catch (Exception e) {
 			}
 			
 		}

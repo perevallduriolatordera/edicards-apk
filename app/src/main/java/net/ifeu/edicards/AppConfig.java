@@ -6,6 +6,9 @@ import java.util.Hashtable;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+
+import com.androidnetworking.AndroidNetworking;
+
 import net.ifeu.edicards.Cache.CacheData;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.User;
@@ -116,7 +119,9 @@ public class AppConfig extends Application {
                 .setTrackActivitiesEnabled(true)
                 .addCommaSeparatedEmailAddresses("valldu@hotmail.com")
                 .build();
-		
+
+		AndroidNetworking.initialize(getApplicationContext());
+
 	}
 	
 	private void getUserData() {
