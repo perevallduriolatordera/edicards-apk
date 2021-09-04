@@ -134,9 +134,7 @@ public class ServiceWorker extends ServiceBase {
 				} catch (Exception e) {                                                                                                      
 					continue;                                                                       
 				}
-			}                                                                                                                        
-		                                                                                                                            
-                                                                                                                                     
+			}
                                                                                                                                      
 		// * * * * * * * * * ENVIAMOS AUTORIZACIONES * * * * * * * * * * * *                                                         
 		                                                                                                                                                                                                                                                                  
@@ -788,10 +786,13 @@ public class ServiceWorker extends ServiceBase {
 			boolean hasNew = false;
 			for (Articulo art : articulos.values()) {
 				if (stock.articulos.containsKey(art.CodigoArticulo)) {
-					art.InitializePersistance(app, context);
+					Articulo articuloUpdate = new Articulo();
+					articuloUpdate.InitializePersistance(app, context);
+					articuloUpdate.setArticuloById(String.valueOf(art.IdArticulo));
 					art.StockPropio = stock.articulos.get(art.CodigoArticulo).stock;
-					art.update();
-					art.ReleasePersistance();
+					articuloUpdate.StockPropio = art.StockPropio;
+					articuloUpdate.update();
+					articuloUpdate.ReleasePersistance();
 				} else {
 					ArticuloStock articuloStock = new ArticuloStock();
 					articuloStock.idArticulo = art.CodigoArticulo;
@@ -808,11 +809,11 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 			// * * * * * * * * * * LLAMADA A TRASPASO ALMACEN * * * * * * * * *                                                                                                                                                                        
 
-			try {                                                                                                                    
-				articulo.InitializePersistance(app, context);                                                                        
-			} catch (Exception e) {                                                                                                  
-				result = false;                                                                                                                                                                         
-			}                                                                                                                        
+			try {
+				articulo.InitializePersistance(app, context);
+			} catch (Exception e) {
+				result = false;
+			}
                                                                                                                                      
 			http = new HttpService();                                                                                                
                                                                                                                                      

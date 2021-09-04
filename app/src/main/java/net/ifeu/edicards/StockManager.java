@@ -19,6 +19,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import net.ifeu.edicards.Constants.Constants;
@@ -96,9 +97,8 @@ public class StockManager extends Fragment {
 		// Inicialitzem l'objecte AppConfig
 
 		_appConfig = (AppConfig) getActivity().getApplicationContext();
-		
-		Articulo articulos = new Articulo();
 
+		Articulo articulos = new Articulo();
 		try {
 			articulos.InitializePersistance(_appConfig, _appConfig);
 			_articulos = articulos.getAllArticulos(1);
@@ -679,6 +679,15 @@ public class StockManager extends Fragment {
 			}
 		});
 
+		ImageView imageView = new ImageView(this._appConfig);
+
+		if (!articulo.StockPropio)
+			imageView.setImageResource(R.drawable.edicardslogo);
+		else
+			imageView.setImageResource(R.drawable.furgoneta);
+
+		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(150, 60);
+		imageView.setLayoutParams(layoutParams);
 		
 		layout.addView(codigoArticulo);
 		layout.addView(articuloDescripcion);
@@ -693,6 +702,7 @@ public class StockManager extends Fragment {
 		//layout.addView(intercambio);
 		layout.addView(space2);
 		layout.addView(unidadesRecuento);
+		layout.addView(imageView);
 		
 		mainLinearLayout.addView(layout);
 

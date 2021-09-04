@@ -3,6 +3,7 @@ package net.ifeu.edicards;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Deposito;
+import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.Reporting;
 import net.ifeu.edicards.DataTier.TransferMode;
@@ -20,6 +21,7 @@ public class WorkingArea {
 	public TransferMode TransferMode;
 	public Deposito InitialDeposito;
 	public ServiceMonitor Monitor;
+	public DepositoModalidad CurrentDepositoModalidad;
 	
 	public WorkingArea()
 	{

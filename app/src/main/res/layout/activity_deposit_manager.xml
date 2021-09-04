@@ -91,8 +91,7 @@
               android:background="@color/DarkBlue"
               android:layout_marginTop="5dp"
               android:orientation="horizontal" > 
-    
-			      
+
 			      <AutoCompleteTextView android:id="@+id/myautocomplete"
 					android:layout_width="400px"
 					android:layout_height="wrap_content"
@@ -105,10 +104,27 @@
 	                android:layout_width="100px"
 	                android:layout_height="30px"
 	                android:layout_marginLeft="20dp"
+                    android:layout_marginRight="50dp"
 	                android:background="@drawable/background_button"
 	                android:onClick="OnViewAll"
 	                android:text="Ver todos"
 	                android:textColor="#FFF" />
+
+                <TextView
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="10dp"
+                    android:text="  Tipo de entrega: "
+                    android:textSize="12dp" />
+
+                <TextView
+                    android:textColor="#FFFFFF"
+                    android:id="@+id/lblTipoEntrega"
+                    android:layout_width="100dp"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="10dp"
+                    android:textSize="12dp" />
+            </LinearLayout>
 			    
    		</LinearLayout>
 
