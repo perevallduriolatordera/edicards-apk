@@ -13,6 +13,7 @@ import java.util.List;
 import net.ifeu.edicards.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Deposito;
+import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.Totales;
 import android.content.Context;
@@ -342,6 +343,13 @@ public class PdfCreator extends pdfBase{
 				}
 			}
 
+			if (tipo == 2 &&  this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
+				String pendienteEnvioText = "MERCANCÍA PENDIENTE DE ENVIO"
+						+ "\n";
+
+				_document.add(new Paragraph(pendienteEnvioText,
+						_fontNormal));
+			}
 		}
 	}
 
@@ -456,11 +464,12 @@ public class PdfCreator extends pdfBase{
 		_GUID = guid;
 
 		_document = new Document();
+		String tipoEnvio = this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "E" : "F";
 
 		_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
 				+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_PDF + "/"
 				+ "A_" + _app.getUser().User + " " + _deposito.NumeroAlbaran
-				+ "_" + this.getDateTimeFormat() + ".pdf";
+				+ "_" + this.getDateTimeFormat() + "_" + tipoEnvio + ".pdf";
 
 		_document.addTitle(_app.getUser().User + "_" + _deposito.NumeroAlbaran
 				+ "_" + String.valueOf(new Date(0)));
@@ -508,17 +517,18 @@ public class PdfCreator extends pdfBase{
 		return true;
 	}
 
-	public void createDeposito(String guid) 
+	public void createDeposito(String guid)
 			throws DocumentException, MalformedURLException, IOException {
 
 		_GUID = guid;
 
 		_document = new Document();
+		String tipoEnvio = this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "E" : "F";
 
 		_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
 				+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_PDF + "/"
 				+ "D_" + _app.getUser().User + " " + _deposito.IdDeposito + "_"
-				+ this.getDateTimeFormat() + ".pdf";
+				+ this.getDateTimeFormat() + "_" + tipoEnvio + ".pdf";
 
 		_document.addTitle(_app.getUser().User + "_" + _deposito.IdDeposito
 				+ "_" + String.valueOf(new Date(0)));

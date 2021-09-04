@@ -183,6 +183,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 					FillWindow();
 					boolean resultDepositoModalidad = _appConfig.getMessageBox().ShowWithResult("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", DepositManager.this.getContext(), MessageBoxType.Information);
 					this._appConfig.getWorkingArea().CurrentDepositoModalidad =resultDepositoModalidad ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
+					TextView labelTipoEntrega = (TextView) getActivity().findViewById(R.id.lblTipoEntrega);
+					labelTipoEntrega.setText(_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
 
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -1423,6 +1425,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 			historico.Tipo = Constants.TIPO_HISTORICO_CLIENTE_NUEVO;
 		else if (_deposito.Retirado)
 			historico.Tipo = Constants.TIPO_HISTORICO_CLIENTE_BAJA;
+
+		historico.ActualizarStock = _appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? false : true;
 		
 		// Serializamos el objeto deposito a JSON
 		try {

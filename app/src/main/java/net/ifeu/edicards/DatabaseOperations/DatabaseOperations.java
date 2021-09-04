@@ -1013,6 +1013,11 @@ public class DatabaseOperations {
 				_databaseConnection.getDatabase().execSQL("alter table " + Constants.TABLE_ARTICULOS + " ADD COLUMN StockPropio integer NOT NULL default 1 ");
 			} catch (Exception e) {
 			}
+
+			try {
+				_databaseConnection.getDatabase().execSQL("alter table " + Constants.TABLE_HISTORICOS + " ADD COLUMN ActualizarStock integer NOT NULL default 1 ");
+			} catch (Exception e) {
+			}
 			
 		}
 		else {

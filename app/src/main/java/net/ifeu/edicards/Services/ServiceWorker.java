@@ -127,6 +127,21 @@ public class ServiceWorker extends ServiceBase {
 					} catch (Exception e) {
 					    continue;                                                                                                     
 					}
+
+					// Comprovamos si está pendiente de stock, para enviar correo a ADMINISTRACION
+
+					String[] parts = file.split("_");
+					if (parts.length > 2 && parts[2].startsWith("E") && fileInfo.getName().subSequence(0, 1).equals("A")) {
+
+						MailSender mailAdministracion = new MailSender(Constants.MAIL_ADMINISTRACION, title,Constants.MAIL_BODY, file);
+
+						try {
+							mailAdministracion.send();
+						} catch (Exception e) {
+							continue;
+						}
+
+					}
 					
 					IOUtils.deleteFile(file);
 					this.Monitor().PdfSend++;

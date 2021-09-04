@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.R;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Deposito;
@@ -407,6 +408,11 @@ public class PrintDocumentsWoosim implements IPrint {
 					this.PrintBitmapSignature();
 				}
 
+			}
+
+			if (tipo == 2 &&  app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
+				_woosim.saveSpool (LANGUAGE, "MERCANCÍA PENDIENTE DE ENVIO" + "\n", 0, false);
+				this.Print();
 			}
 
 		}

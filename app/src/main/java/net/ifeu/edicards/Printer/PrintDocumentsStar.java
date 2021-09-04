@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.R;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Deposito;
@@ -19,6 +20,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 
+import com.itextpdf.text.Paragraph;
 import com.starmicronics.stario.StarIOPort;
 import com.starmicronics.stario.StarIOPortException;
 import com.starmicronics.stario.StarPrinterStatus;
@@ -492,9 +494,14 @@ public class PrintDocumentsStar implements IPrint {
 
 					this.PrintBitmapSignature(context, PORT, SETTINGS, 150);
 				}
-
 			}
 
+			if (tipo == 2 &&  app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
+				outputByteBuffer = ("MERCANCÍA PENDIENTE DE ENVIO" + "\n").getBytes();
+
+				port.writePort(outputByteBuffer, 0,
+						outputByteBuffer.length);
+			}
 		}
 	}
 

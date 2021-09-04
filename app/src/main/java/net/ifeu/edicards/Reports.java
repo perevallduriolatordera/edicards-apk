@@ -755,7 +755,9 @@ private LinearLayout addInfo(String text, int color) {
 	}
 	
 	private void upgradeStock(Historico historico) throws Exception {
-		
+
+		if (!historico.ActualizarStock) return;
+
 		long lastId = 0;
 		int lastStock = 0;
 		int lastStockDefectuoso = 0;

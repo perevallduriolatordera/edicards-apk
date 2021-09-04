@@ -31,6 +31,7 @@ public class Historico extends Persistent implements IPersistable {
 	public int Tipo;
 	public String GUID;
 	public String Serializacion;
+	public boolean ActualizarStock;
 	
 	public Historico()
 	{
@@ -68,6 +69,7 @@ public class Historico extends Persistent implements IPersistable {
 		values.put("Tipo",this.Tipo);
 		values.put("GUID", this.GUID);
 		values.put("Serializacion", this.Serializacion);
+		values.put("ActualizarStock", this.ActualizarStock ? 1 : 0);
 	
 		try {
 			this.IdHistorico = super.getDatabaseOperations().insert(Constants.TABLE_HISTORICOS, null , values);
@@ -98,6 +100,7 @@ public class Historico extends Persistent implements IPersistable {
 		values.put("Tipo",this.Tipo);
 		values.put("GUID", this.GUID);
 		values.put("Serializacion", this.Serializacion);
+		values.put("ActualizarStock", this.ActualizarStock ? 1 : 0);
 		
 		String[] whereArgs = { String.valueOf(this.IdHistorico) }; 
 		
@@ -128,6 +131,7 @@ public class Historico extends Persistent implements IPersistable {
 			this.Tipo = Integer.parseInt(cursor.getString(cursor.getColumnIndex("Tipo")));
 			this.GUID = cursor.getString(cursor.getColumnIndex("Tipo"));
 			this.Serializacion = cursor.getString(cursor.getColumnIndex("Serializacion"));
+			this.ActualizarStock = cursor.getInt(cursor.getColumnIndex("ActualizarStock")) == 1 ? true : false;
 			
 			Cliente cliente = new Cliente();
 			
@@ -208,7 +212,8 @@ public class Historico extends Persistent implements IPersistable {
 					historico.Tipo = Integer.parseInt(cursor.getString(cursor.getColumnIndex("Tipo")));
 					historico.GUID = cursor.getString(cursor.getColumnIndex("GUID"));
 					historico.Serializacion = cursor.getString(cursor.getColumnIndex("Serializacion"));
-					
+					historico.ActualizarStock = (cursor.getInt(cursor.getColumnIndex("ActualizarStock")) == 1 ? true : false);
+
 					Cliente cliente = new Cliente();
 					
 					try {
@@ -324,7 +329,8 @@ public class Historico extends Persistent implements IPersistable {
 					historico.Tipo = Integer.parseInt(cursor.getString(cursor.getColumnIndex("Tipo")));
 					historico.GUID = cursor.getString(cursor.getColumnIndex("GUID"));
 					historico.Serializacion = cursor.getString(cursor.getColumnIndex("Serializacion"));
-					
+					historico.ActualizarStock = (cursor.getInt(cursor.getColumnIndex("ActualizarStock"))) == 1 ? true : false;
+
 					Cliente cliente = new Cliente();
 					
 					try {
