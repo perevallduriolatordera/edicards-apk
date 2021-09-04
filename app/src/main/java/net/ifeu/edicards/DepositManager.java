@@ -2545,7 +2545,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 			}
 
 			TextView label3 = (TextView) getActivity().findViewById(R.id.lblTipoEntrega);
-			label3.setText(_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards", "Entregar mercancia físicamente");
+			label3.setText(_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
 		} else {
 			TextView label = (TextView) getActivity().findViewById(R.id.lblBase);
 			label.setText(Constants.EMPTY_STRING);

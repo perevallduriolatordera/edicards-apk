@@ -41,8 +41,8 @@
                     android:layout_marginTop="10dp"
                     android:layout_height="50dp"
                     android:textSize="12dp" />
-                
-                 <TextView
+
+                <TextView
                     android:layout_width="100dp"
                     android:layout_height="50dp"
                     android:layout_marginTop="10dp"
@@ -81,124 +81,124 @@
                 android:background="@color/DarkBlue"
                 android:orientation="horizontal" >
 
-               
+
             </LinearLayout>
         </LinearLayout>
-        
-         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent" 
-              android:layout_height="50dp" 
-              android:background="@color/DarkBlue"
-              android:layout_marginTop="5dp"
-              android:orientation="horizontal" > 
 
-			      <AutoCompleteTextView android:id="@+id/myautocomplete"
-					android:layout_width="400px"
-					android:layout_height="wrap_content"
-					android:textColor="#FFFFFF"
-					android:hint="nombre del artículo"
-					android:completionThreshold="1"/>
-			      
-			      <Button
-	                android:id="@+id/btnSearchClear"
-	                android:layout_width="100px"
-	                android:layout_height="30px"
-	                android:layout_marginLeft="20dp"
-                    android:layout_marginRight="50dp"
-	                android:background="@drawable/background_button"
-	                android:onClick="OnViewAll"
-	                android:text="Ver todos"
-	                android:textColor="#FFF" />
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:background="@color/DarkBlue"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal" >
 
-                <TextView
-                    android:layout_width="100dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="10dp"
-                    android:text="  Tipo de entrega: "
-                    android:textSize="12dp" />
 
-                <TextView
-                    android:textColor="#FFFFFF"
-                    android:id="@+id/lblTipoEntrega"
-                    android:layout_width="100dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="10dp"
-                    android:textSize="12dp" />
-            </LinearLayout>
-			    
-   		</LinearLayout>
+            <AutoCompleteTextView android:id="@+id/myautocomplete"
+                android:layout_width="400px"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:hint="nombre del artículo"
+                android:completionThreshold="1"/>
+
+            <Button
+                android:id="@+id/btnSearchClear"
+                android:layout_width="100px"
+                android:layout_height="30px"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="50dp"
+                android:background="@drawable/background_button"
+                android:onClick="OnViewAll"
+                android:text="Ver todos"
+                android:textColor="#FFF" />
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:text="  Tipo de entrega: "
+                android:textSize="12dp" />
+
+            <TextView
+                android:textColor="#FFFFFF"
+                android:id="@+id/lblTipoEntrega"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:textSize="12dp" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/headerMainLinearLayout5"
             android:layout_width="fill_parent"
-            android:layout_height="25dp"            
+            android:layout_height="25dp"
             android:layout_marginTop="5dp"
             android:background="@color/DarkBlue"
             android:orientation="horizontal" >
 
-          <!--   <TextView
-                android:layout_width="50dp"
-                android:id="@+id/headerLabelCodigo"
-                android:layout_height="25dp"
-                android:text="Código"  
-                android:textSize="12dp" />
+            <!--   <TextView
+                  android:layout_width="50dp"
+                  android:id="@+id/headerLabelCodigo"
+                  android:layout_height="25dp"
+                  android:text="Código"
+                  android:textSize="12dp" />
 
-            <TextView
-                android:id="@+id/headerLabelArticulo"
-                android:layout_width="100dp"
-                android:layout_height="25dp"
-                android:text="Artículo"
-                android:textSize="12dp" />
+              <TextView
+                  android:id="@+id/headerLabelArticulo"
+                  android:layout_width="100dp"
+                  android:layout_height="25dp"
+                  android:text="Artículo"
+                  android:textSize="12dp" />
 
-            <TextView
-                android:id="@+id/headerLabelDepInicial"
-                android:layout_width="100dp"
-                android:layout_height="25dp"
-                android:text="Dep.Inicial"
-                android:textSize="12dp" />
+              <TextView
+                  android:id="@+id/headerLabelDepInicial"
+                  android:layout_width="100dp"
+                  android:layout_height="25dp"
+                  android:text="Dep.Inicial"
+                  android:textSize="12dp" />
 
-            <TextView
-                android:layout_width="100dp"
-                android:layout_height="25dp"
-                android:text="Contadas"
-                android:textSize="12dp" />
+              <TextView
+                  android:layout_width="100dp"
+                  android:layout_height="25dp"
+                  android:text="Contadas"
+                  android:textSize="12dp" />
 
-            <TextView
-                android:layout_width="100dp"
-                android:layout_height="25dp"
-                android:text="Reciclado"
-                android:textSize="12dp" />
+              <TextView
+                  android:layout_width="100dp"
+                  android:layout_height="25dp"
+                  android:text="Reciclado"
+                  android:textSize="12dp" />
 
-            <TextView
-                android:layout_width="100dp"
-                android:layout_height="25dp"
-                android:text="PVP Fact"
-                android:textSize="12dp" />
+              <TextView
+                  android:layout_width="100dp"
+                  android:layout_height="25dp"
+                  android:text="PVP Fact"
+                  android:textSize="12dp" />
 
-            <TextView
-                android:layout_width="100dp"
-                android:layout_height="25dp"
-                android:text=" Facturadas"
-                android:textSize="12dp" />
+              <TextView
+                  android:layout_width="100dp"
+                  android:layout_height="25dp"
+                  android:text=" Facturadas"
+                  android:textSize="12dp" />
 
-            <TextView
-                android:id="@+id/headerLabelRepuestas"
-                android:layout_width="100dp"
-                android:layout_height="25dp"
-                android:text="Repuestas"
-                android:textSize="12dp" />
+              <TextView
+                  android:id="@+id/headerLabelRepuestas"
+                  android:layout_width="100dp"
+                  android:layout_height="25dp"
+                  android:text="Repuestas"
+                  android:textSize="12dp" />
 
-            <TextView
-                android:layout_width="100dp"
-                android:layout_height="25dp"
-                android:text="PVP Post"
-                android:textSize="12dp" />
+              <TextView
+                  android:layout_width="100dp"
+                  android:layout_height="25dp"
+                  android:text="PVP Post"
+                  android:textSize="12dp" />
 
-            <TextView
-                android:layout_width="100dp"
-                android:layout_height="25dp"
-                android:text="Total"
-                android:textSize="12dp" /> -->
+              <TextView
+                  android:layout_width="100dp"
+                  android:layout_height="25dp"
+                  android:text="Total"
+                  android:textSize="12dp" /> -->
         </LinearLayout>
 
         <LinearLayout
@@ -233,22 +233,22 @@
                 android:layout_height="fill_parent"
                 android:layout_marginTop="0dp"
                 android:layout_marginBottom="0dp"
-                android:orientation="vertical" > 
+                android:orientation="vertical" >
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
-    
-      <!--  <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/footerMainLinearLayout"
-        android:layout_width="fill_parent"
-        android:layout_height="180dp"
-        android:layout_marginTop="520dp"
-        android:background="@drawable/border_layout"
-        android:orientation="horizontal" >
-    </LinearLayout>-->
-    
-<!--  para V7 de Android -->  
+
+    <!--  <LinearLayout
+      xmlns:android="http://schemas.android.com/apk/res/android"
+      android:id="@+id/footerMainLinearLayout"
+      android:layout_width="fill_parent"
+      android:layout_height="180dp"
+      android:layout_marginTop="520dp"
+      android:background="@drawable/border_layout"
+      android:orientation="horizontal" >
+  </LinearLayout>-->
+
+    <!--  para V7 de Android -->
     <LinearLayout
         android:id="@+id/footerMainLinearLayout"
         android:layout_width="fill_parent"
