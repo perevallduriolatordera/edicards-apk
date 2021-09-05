@@ -118,20 +118,12 @@ public class ServiceWorker extends ServiceBase {
 		//			Mail mail = new Mail(Constants.MAIL_HOST, Constants.MAIL_PORT, Constants.MAIL_SPORT, Constants.MAIL_USER,            
 		//					Constants.MAIL_PASSWORD, Constants.MAIL_FROM, title, Constants.MAIL_TO, Constants.MAIL_BODY);                
 		                                                                                                                                 
-		//			mail.addAttachment(file, title + ".pdf");                                                                            
-					                                                                                                                     
-					MailSender mail = new MailSender(Constants.MAIL_TO, title,Constants.MAIL_BODY, file);                                
-		                                
-					try {
-						mail.send();
-					} catch (Exception e) {
-					    continue;                                                                                                     
-					}
+		//			mail.addAttachment(file, title + ".pdf");
 
 					// Comprovamos si está pendiente de stock, para enviar correo a ADMINISTRACION
 
 					String[] parts = file.split("_");
-					if (parts.length > 2 && parts[2].startsWith("E") && fileInfo.getName().subSequence(0, 1).equals("A")) {
+					if (parts.length > 3 && parts[3].startsWith("E") && fileInfo.getName().subSequence(0, 1).equals("A")) {
 
 						MailSender mailAdministracion = new MailSender(Constants.MAIL_ADMINISTRACION, title,Constants.MAIL_BODY, file);
 
@@ -141,6 +133,14 @@ public class ServiceWorker extends ServiceBase {
 							continue;
 						}
 
+					}
+
+					MailSender mail = new MailSender(Constants.MAIL_TO, title,Constants.MAIL_BODY, file);
+
+					try {
+						mail.send();
+					} catch (Exception e) {
+						continue;
 					}
 					
 					IOUtils.deleteFile(file);
