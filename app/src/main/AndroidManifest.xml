@@ -4,9 +4,9 @@
     android:versionCode="3"
     android:versionName="3.1.6 (5 Septiembre 2021)" >
 
-    <uses-sdk
+    <!--<uses-sdk
         android:minSdkVersion="16"
-        android:targetSdkVersion="19" />
+        android:targetSdkVersion="19" />-->
 
     <application
         android:name=".AppConfig"
