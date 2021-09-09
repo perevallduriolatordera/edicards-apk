@@ -2373,9 +2373,9 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 
 		ImageView imageView = new ImageView(this._appConfig);
 		if (lineaDeposito.Articulo.StockPropio)
-			imageView.setImageResource(R.drawable.furgoneta);
+			imageView.setImageResource(R.drawable.stock_ok);
 		else
-			imageView.setImageResource(R.drawable.card_background);
+			imageView.setImageResource(R.drawable.stock_ko);
 
 		LinearLayout.LayoutParams layoutParamsImage = new LinearLayout.LayoutParams(25, 25);
 		imageView.setLayoutParams(layoutParamsImage);
@@ -2476,9 +2476,9 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 			((ImageView) controlsGrid.get(8)).setImageResource(R.drawable.abono);
 		else
 			if (linea.Articulo.StockPropio)
-				((ImageView) controlsGrid.get(8)).setImageResource(R.drawable.furgoneta);
+				((ImageView) controlsGrid.get(8)).setImageResource(R.drawable.stock_ok);
 			else
-				((ImageView) controlsGrid.get(8)).setImageResource(R.drawable.card_background);
+				((ImageView) controlsGrid.get(8)).setImageResource(R.drawable.stock_ko);
 
 		//else
 		//	((LabelColor) controlsGrid.get(8)).setText(Constants.EMPTY_STRING);

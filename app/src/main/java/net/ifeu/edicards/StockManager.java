@@ -682,9 +682,9 @@ public class StockManager extends Fragment {
 		ImageView imageView = new ImageView(this._appConfig);
 
 		if (!articulo.StockPropio)
-			imageView.setImageResource(R.drawable.edicardslogo);
+			imageView.setImageResource(R.drawable.stock_ko);
 		else
-			imageView.setImageResource(R.drawable.furgoneta);
+			imageView.setImageResource(R.drawable.stock_ok);
 
 		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(150, 60);
 		imageView.setLayoutParams(layoutParams);
