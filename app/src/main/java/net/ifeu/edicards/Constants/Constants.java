@@ -175,4 +175,8 @@ public final class Constants {
 	public static final String FIRECLOUD_PASSWORD = "ger0svk0";
 	public static final String FIRECLOUD_URL_DATABASE = "https://firestore.googleapis.com/v1/projects/edicards-stock/databases/(default)/documents/articulos";
 	public static final String FIRECLOUD_URL_BASE = "https://firestore.googleapis.com/v1/";
+
+	public static final String PREFILL_COMPANY = "E_ESTERJ";
+	public static final String PREFILL_INVOICE_A = "A";
+	public static final String PREFILL_INVOICE_B = "B";
 }

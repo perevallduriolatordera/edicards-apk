@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -27,8 +28,8 @@ public class DatabaseOperations {
 		_context = context;
 		
 		try {
-		_databaseConnection = new DatabaseConnection(_context,Constants.DATABASE_NAME,Constants.DATABASE_VERSION);
-		_databaseConnection.openDB();
+			_databaseConnection = new DatabaseConnection(_context,Constants.DATABASE_NAME,Constants.DATABASE_VERSION);
+			_databaseConnection.openDB();
 		}
 		catch (Exception e)
 		{
@@ -37,8 +38,29 @@ public class DatabaseOperations {
 		
 		// Creem l'estructura de base de dades en el cas de que sigui necessari.
 		
-		if (!existsTable(Constants.TABLE_CLIENTES))
-			createDatabaseStructure();
+		if (!existsTable(Constants.TABLE_CLIENTES)) {
+			_databaseConnection.closeDB();
+			boolean resultRestore = this.restoreDatabase();
+			if (!resultRestore) {
+				_databaseConnection.openDB();
+				createDatabaseStructure();
+			} else {
+
+				try {
+
+					_databaseConnection = new DatabaseConnection(_context,Constants.DATABASE_NAME,Constants.DATABASE_VERSION);
+					_databaseConnection.openDB();
+					this.createDatabaseStructureIfNecessary();
+				}
+				catch (Exception e)
+				{
+					throw new Exception("Error abriendo objeto de conexión a base de datos. Motivo: " + e.getMessage().toString());
+				}
+			}
+		} else {
+			this.createDatabaseStructureIfNecessary();
+		}
+
 	}
 	
 	public void closeDB() throws Exception 
@@ -110,7 +132,55 @@ public class DatabaseOperations {
 	    }
 	    return false;
 	}*/
-	
+
+	private static void copyFile(FileInputStream fromFile, FileOutputStream toFile) throws IOException {
+		FileChannel fromChannel = null;
+		FileChannel toChannel = null;
+		try {
+			fromChannel = fromFile.getChannel();
+			toChannel = toFile.getChannel();
+			fromChannel.transferTo(0, fromChannel.size(), toChannel);
+		} finally {
+			try {
+				if (fromChannel != null) {
+					fromChannel.close();
+				}
+			} finally {
+				if (toChannel != null) {
+					toChannel.close();
+				}
+			}
+		}
+	}
+
+	public boolean restoreDatabase() {
+		String backupFileName = "/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_DB_BACKUP + "/" +
+				Constants.DATABASE_NAME;
+
+		FileInputStream inputStreamNewDB = null;
+		try {
+			inputStreamNewDB = new FileInputStream(backupFileName);
+		} catch (FileNotFoundException e1) {
+			return false;
+		}
+
+		final File oldDB = _context.getDatabasePath(Constants.DATABASE_NAME);
+
+		if (inputStreamNewDB != null) {
+			try {
+				copyFile((FileInputStream) inputStreamNewDB, new FileOutputStream(oldDB));
+			} catch (IOException e) {
+				Log.d("Database", "ex for is of restore: " + e);
+				return false;
+			}
+		} else {
+			Log.d("Database", "Restore - file does not exists");
+			return false;
+		}
+
+		return true;
+	}
+
 	public void backupDatabase() throws IOException {
 		final File dbFile = _context.getDatabasePath(Constants.DATABASE_NAME);
 	    
@@ -121,9 +191,6 @@ public class DatabaseOperations {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
-		
-
 
 	    String outFileName = "/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_DB_BACKUP + "/" +                            
 				Constants.DATABASE_NAME;

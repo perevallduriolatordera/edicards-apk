@@ -1,5 +1,6 @@
 package net.ifeu.edicards;
 
+import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Support.ValidationResult;
 import net.ifeu.library.Utils.MessageBoxType;
 import android.app.Activity;
@@ -22,6 +23,10 @@ public class NewUser extends Activity {
         
         // Inicialitzem l'objecte d'aplicació
         _appConfig = (AppConfig) this.getApplicationContext();
+
+		((EditText) findViewById(R.id.txtSerialInoviceA)).setText(Constants.PREFILL_INVOICE_A);
+		((EditText) findViewById(R.id.txtSerialInoviceB)).setText(Constants.PREFILL_INVOICE_B);
+		((EditText) findViewById(R.id.txtCompany)).setText(Constants.PREFILL_COMPANY);
         
         android.view.WindowManager.LayoutParams params = getWindow().getAttributes(); 
         params.height = LayoutParams.FILL_PARENT;

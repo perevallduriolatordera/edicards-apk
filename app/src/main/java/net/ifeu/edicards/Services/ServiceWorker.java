@@ -647,13 +647,17 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 				app.getDatabaseOperations().openDB(context);                                                                         
                                                                                                                                      
-				if (debug == 1)                                                                                                      
+				/*if (debug == 1)
 					app.getDatabaseOperations().createDatabaseStructure();                                                           
 				                                                                                                                     
-				if (!app.getDatabaseOperations().existsTable(Constants.TABLE_ARTICULOS))                                             
-					app.getDatabaseOperations().createDatabaseStructure();                                                           
+				if (!app.getDatabaseOperations().existsTable(Constants.TABLE_ARTICULOS)) {
+					boolean resultRestore =app.getDatabaseOperations().restoreDatabase();
+					if (!resultRestore) {
+						app.getDatabaseOperations().createDatabaseStructure();
+					}
+				}
 				else                                                                                                                 
-					app.getDatabaseOperations().createDatabaseStructureIfNecessary();                                                
+					app.getDatabaseOperations().createDatabaseStructureIfNecessary();*/
                                                                                                                                      
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                      
@@ -790,38 +794,42 @@ public class ServiceWorker extends ServiceBase {
 
 			// * * * * * * * * * * LLAMADA A ARTICULOS-STOCK DE FIRECLOUD * * * * * * * * * *
 
-			Log.i("ServiceWorker", "Invocamos la obtención del token de firestore");
-			FireStoreCaller fireStoreServices = new FireStoreCaller();
-			String idToken = fireStoreServices.getToken();
+			try {
 
-			ArticuloStockResponse stock = fireStoreServices.getStock(idToken);
-			Log.i("ServiceWorker", "Finalizamos la obtención del token de firestore");
+				Log.i("ServiceWorker", "Invocamos la obtención del token de firestore");
+				FireStoreCaller fireStoreServices = new FireStoreCaller();
+				String idToken = fireStoreServices.getToken();
 
-			LinkedHashMap<String, Articulo> articulos = articulo.getAllArticulos(1);
-			boolean hasNew = false;
-			for (Articulo art : articulos.values()) {
-				if (stock.articulos.containsKey(art.CodigoArticulo)) {
-					Articulo articuloUpdate = new Articulo();
-					articuloUpdate.InitializePersistance(app, context);
-					articuloUpdate.setArticuloById(String.valueOf(art.IdArticulo));
-					art.StockPropio = stock.articulos.get(art.CodigoArticulo).stock;
-					articuloUpdate.StockPropio = art.StockPropio;
-					articuloUpdate.update();
-					articuloUpdate.ReleasePersistance();
-				} else {
-					ArticuloStock articuloStock = new ArticuloStock();
-					articuloStock.idArticulo = art.CodigoArticulo;
-					articuloStock.descripcion = art.Descripcion;
-					articuloStock.stock = true;
-					stock.articulos.put(art.CodigoArticulo, articuloStock);
-					hasNew = true;
+				ArticuloStockResponse stock = fireStoreServices.getStock(idToken);
+				Log.i("ServiceWorker", "Finalizamos la obtención del token de firestore");
+
+				LinkedHashMap<String, Articulo> articulos = articulo.getAllArticulos(1);
+				boolean hasNew = false;
+				for (Articulo art : articulos.values()) {
+					if (stock.articulos.containsKey(art.CodigoArticulo)) {
+						Articulo articuloUpdate = new Articulo();
+						articuloUpdate.InitializePersistance(app, context);
+						articuloUpdate.setArticuloById(String.valueOf(art.IdArticulo));
+						art.StockPropio = stock.articulos.get(art.CodigoArticulo).stock;
+						articuloUpdate.StockPropio = art.StockPropio;
+						articuloUpdate.update();
+						articuloUpdate.ReleasePersistance();
+					} else {
+						ArticuloStock articuloStock = new ArticuloStock();
+						articuloStock.idArticulo = art.CodigoArticulo;
+						articuloStock.descripcion = art.Descripcion;
+						articuloStock.stock = true;
+						stock.articulos.put(art.CodigoArticulo, articuloStock);
+						hasNew = true;
+					}
 				}
-			}
 
-			if (hasNew)
-				result = fireStoreServices.createStock(idToken, stock.name, stock.articulos);
-			articulo.ReleasePersistance();
-                                                                                                                                     
+				if (hasNew)
+					result = fireStoreServices.createStock(idToken, stock.name, stock.articulos);
+				articulo.ReleasePersistance();
+			} catch (Exception e) {
+				result = false;
+			}
 			// * * * * * * * * * * LLAMADA A TRASPASO ALMACEN * * * * * * * * *                                                                                                                                                                        
 
 			try {
