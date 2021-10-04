@@ -1,0 +1,18 @@
+<component name="libraryTable">
+  <library name="Gradle: com.amitshekhar.android:android-networking:1.0.0@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/android-networking-1.0.0.aar/7f0b26f20fd4a3a1652c93b1640ab48d/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/android-networking-1.0.0.aar/7f0b26f20fd4a3a1652c93b1640ab48d/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/android-networking-1.0.0.aar/7f0b26f20fd4a3a1652c93b1640ab48d/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/ea1cadbb576a409c4d8f31b68d39e288/android-networking-1.0.0/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/ea1cadbb576a409c4d8f31b68d39e288/android-networking-1.0.0/AndroidManifest.xml" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/ea1cadbb576a409c4d8f31b68d39e288/android-networking-1.0.0/res" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.amitshekhar.android/android-networking/1.0.0/959dfbd68aba5cc899fbc3351d5735dc9fd382/android-networking-1.0.0-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.amitshekhar.android/android-networking/1.0.0/1e4c6c0a265c81df48759a5bba19914f790f119d/android-networking-1.0.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

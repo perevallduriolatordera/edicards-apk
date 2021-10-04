@@ -125,7 +125,7 @@ public class ServiceWorker extends ServiceBase {
 					String[] parts = file.split("_");
 					if (parts.length > 3 && parts[3].startsWith("E") && fileInfo.getName().subSequence(0, 1).equals("A")) {
 
-						MailSender mailAdministracion = new MailSender(Constants.MAIL_ADMINISTRACION, title,Constants.MAIL_BODY, file);
+						MailSender mailAdministracion = new MailSender(Constants.MAIL_FACTURACION, title,Constants.MAIL_BODY, file);
 
 						try {
 							mailAdministracion.send();

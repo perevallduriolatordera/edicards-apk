@@ -344,11 +344,11 @@ public class PdfCreator extends pdfBase{
 			}
 
 			if (tipo == 2 &&  this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
-				String pendienteEnvioText = "MERCANCÍA PENDIENTE DE ENVIO"
+				String pendienteEnvioText = "MERCANCIA PENDIENTE DE ENVIO"
 						+ "\n";
 
 				_document.add(new Paragraph(pendienteEnvioText,
-						_fontNormal));
+						_fontBoldExtra));
 			}
 		}
 	}

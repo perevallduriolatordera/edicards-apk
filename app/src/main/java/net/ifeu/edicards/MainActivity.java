@@ -5,6 +5,7 @@ import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.library.Devices.BlueTooth;
 import net.ifeu.library.Devices.Wifi;
 import net.ifeu.library.Devices._3G;
+import net.ifeu.library.Utils.Inactivate;
 import net.ifeu.library.Utils.MessageBoxType;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -22,7 +23,6 @@ import android.widget.EditText;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
 //import com.parse.ParseAnalytics;
 
 public class MainActivity extends Activity {
@@ -66,9 +66,14 @@ public class MainActivity extends Activity {
 			_appConfig.getConnectivity().Bluetooth = BlueTooth.IsEnabled();
 	
 			// Obtenim les dades de l'usuari
-	
 			getUserData();
-	
+
+			//desactivar la app en el cas de que sigui necessari
+			if (Inactivate.inactivateIfNecessary()) {
+				this.finish();
+				System.exit(0);
+			}
+
 			if (_appConfig.getUser().isEmpty()) {
 				Log.i(tag, "Cridem a l'activitat StartNewUser");
 				StartNewUser();

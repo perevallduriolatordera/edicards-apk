@@ -308,7 +308,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 			}
 
 			if (tipo == 2 &&  app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
-				_woosim.saveSpool (LANGUAGE, "MERCANCÍA PENDIENTE DE ENVIO" + "\n", 0, false);
+				_woosim.saveSpool (LANGUAGE, "MERCANCIA PENDIENTE DE ENVIO" + "\n", 0, true);
 				this.Print();
 			}
 

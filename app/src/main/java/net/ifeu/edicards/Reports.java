@@ -42,6 +42,7 @@ import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
+import net.ifeu.library.Utils.Inactivate;
 import net.ifeu.library.Utils.MessageBoxType;
 
 public class Reports extends Fragment {
@@ -61,6 +62,17 @@ public class Reports extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.activity_reports, container, false);
+	}
+
+	@Override
+	public void onResume() {
+
+		super.onResume();
+		//desactivar la app en el cas de que sigui necessari
+		if (Inactivate.inactivateIfNecessary()) {
+			this.getActivity().finish();
+			System.exit(0);
+		}
 	}
 
 	@Override
@@ -274,7 +286,7 @@ public class Reports extends Fragment {
 
 	}
 	
-private LinearLayout addInfo(String text, int color) {
+	private LinearLayout addInfo(String text, int color) {
 		
 		LinearLayout layout = new LinearLayout(this.getActivity());
 		layout.setOrientation(LinearLayout.HORIZONTAL);

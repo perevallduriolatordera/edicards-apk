@@ -497,10 +497,15 @@ public class PrintDocumentsStar implements IPrint {
 			}
 
 			if (tipo == 2 &&  app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
-				outputByteBuffer = ("MERCANCÍA PENDIENTE DE ENVIO" + "\n").getBytes();
+
+				port.writePort(new byte[]{0x1b, 0x45, 0x01}, 0, 3);
+
+				outputByteBuffer = ("MERCANCIA PENDIENTE DE ENVIO" + "\n").getBytes();
 
 				port.writePort(outputByteBuffer, 0,
 						outputByteBuffer.length);
+
+				port.writePort(new byte[]{0x1b, 0x45, 0x00}, 0, 3);
 			}
 		}
 	}

@@ -78,8 +78,6 @@ public class MessageBox {
 		        	
 		        	Log.i("handleMessage",mesg.toString());
 		            throw new RuntimeException("@Custom");
-		        	
-		        	
 		        }  
 		    };
 		    
