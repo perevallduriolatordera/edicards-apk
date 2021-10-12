@@ -110,49 +110,6 @@ public class MessageBox {
         return _result;
 	}
 
-	public boolean ShowWithResult(String title, String text, String response1, String response2, Context context, MessageBoxType type)
-	{
-		final Handler handler = new Handler() {
-			@Override
-			public void handleMessage(Message mesg) {
-
-				Log.i("handleMessage",mesg.toString());
-				throw new RuntimeException("@Custom");
-
-
-			}
-		};
-
-		AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-		alertDialog.setTitle(title);
-		alertDialog.setMessage(text);
-
-		alertDialog.setPositiveButton(response1, new OnClickListener() {
-
-			public void onClick(DialogInterface dialog, int arg1) {
-				setResult(true);
-				handler.sendMessage(handler.obtainMessage());
-				dialog.dismiss();
-			}});
-
-		alertDialog.setNegativeButton(response2, new OnClickListener() {
-			public void onClick(DialogInterface dialog, int arg1) {
-				setResult(false);
-				handler.sendMessage(handler.obtainMessage());
-				dialog.dismiss();
-			}});
-
-		alertDialog.setCancelable(false);
-
-		alertDialog.create().show();
-
-		// loop till a runtime exception is triggered.
-		try { Looper.loop(); }
-		catch(RuntimeException e2) {}
-
-		return _result;
-	}
-	
 	private void setResult(boolean value)
 	{
 		_result = value;

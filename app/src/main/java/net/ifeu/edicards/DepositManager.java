@@ -58,9 +58,8 @@ import net.ifeu.library.Controls.ComboBox;
 import net.ifeu.library.Controls.IComboBoxChangeEvent;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
-import net.ifeu.library.Signature.SignatureView;
+import net.ifeu.library.Utils.AdvancedMessageBox;
 import net.ifeu.library.Utils.MessageBoxType;
-import net.ifeu.library.Utils.OS;
 
 public class DepositManager extends Fragment implements IComboBoxChangeEvent, TextWatcher {
 
@@ -84,6 +83,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 	private AutoCompleteTextView _myAutoComplete;
 	
 	private LinkedList<String> _articles = new LinkedList<String>();
+
+	private AdvancedMessageBox _dialogDepositoModalidad;
 
 	private final int TEXT_SIZE = 14;
 	private final int TEXT_SIZE_LARGE = 16;
@@ -158,7 +159,15 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 	public void onDestroy() {
 		super.onDestroy();
 	}
-	
+
+	@Override
+	public void onPause() {
+		super.onPause();
+
+		if (_dialogDepositoModalidad != null)
+			_dialogDepositoModalidad.Close();
+	}
+
 	@Override
 	public void onResume() {
 		super.onResume();
@@ -180,8 +189,10 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 			} else {
 
 				try {
+					_searched = true;
 					FillWindow();
-					boolean resultDepositoModalidad = _appConfig.getMessageBox().ShowWithResult("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", DepositManager.this.getContext(), MessageBoxType.Information);
+					this._dialogDepositoModalidad = new AdvancedMessageBox();
+					boolean resultDepositoModalidad = _dialogDepositoModalidad.Show("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", DepositManager.this.getContext(), MessageBoxType.Information);
 					this._appConfig.getWorkingArea().CurrentDepositoModalidad =resultDepositoModalidad ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
 					TextView labelTipoEntrega = (TextView) getActivity().findViewById(R.id.lblTipoEntrega);
 					labelTipoEntrega.setText(_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
@@ -189,8 +200,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				_searched = true;
-
 			}
 		}
 	}

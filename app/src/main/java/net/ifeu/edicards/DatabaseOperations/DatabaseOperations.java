@@ -42,6 +42,7 @@ public class DatabaseOperations {
 			_databaseConnection.closeDB();
 			boolean resultRestore = this.restoreDatabase();
 			if (!resultRestore) {
+				_databaseConnection = new DatabaseConnection(_context,Constants.DATABASE_NAME,Constants.DATABASE_VERSION);
 				_databaseConnection.openDB();
 				createDatabaseStructure();
 			} else {

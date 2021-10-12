@@ -109,21 +109,29 @@ public class StockManager extends Fragment {
 
 		if (addHeader)
 			this.addHeader();
-		
-		for (Articulo articulo : _articulos.values())
-			try {
-				addLine(articulo);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-			}
 
-		if (_articulos.size() == 0)
+		if (_articulos == null) {
 			_appConfig
 					.getMessageBox()
 					.Show("Control de almacén",
 							"No se han encontrado artículos. Sincronice datos con el servidor",
 							getActivity(), MessageBoxType.Information);
+		} else {
+			for (Articulo articulo : _articulos.values())
+				try {
+					addLine(articulo);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+				}
+
+			if (_articulos.size() == 0)
+				_appConfig
+						.getMessageBox()
+						.Show("Control de almacén",
+								"No se han encontrado artículos. Sincronice datos con el servidor",
+								getActivity(), MessageBoxType.Information);
+		}
 	}
 	
 	private void SendRecuento() {

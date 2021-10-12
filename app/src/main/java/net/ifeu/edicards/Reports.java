@@ -85,14 +85,20 @@ public class Reports extends Fragment {
 		final Button acceptButton = (Button) this.getActivity().findViewById(
 				R.id.btnAccept);
 
+		final Reports that = this;
+
 		acceptButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(final View v) {
 
 				try {
 
-					getHistoricos();
+					if (Inactivate.inactivateIfNecessary()) {
+						that.getActivity().finish();
+						System.exit(0);
+					}
 
+					getHistoricos();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					_appConfig.getMessageBox().Show("Atención",
