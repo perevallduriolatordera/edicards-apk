@@ -6,6 +6,7 @@ public enum IncidenciaType {
 	BajaCliente,
 	DatosFiscales,
 	AlbaranAnulado,
+	AlbaranAnuladoDesdeEdicards,
 	CuentaCorriente,
 	Filiacion,
 	Ingreso

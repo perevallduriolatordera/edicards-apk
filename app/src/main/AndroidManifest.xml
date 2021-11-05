@@ -3,7 +3,7 @@
     package="net.ifeu.edicards"
     android:versionCode="3"
     android:exported="true"
-    android:versionName="3.1.8 (10 Octubre 2021)" >
+    android:versionName="3.1.9 (05 Noviembre 2021)" >
 
     <!--<uses-sdk
         android:minSdkVersion="16"
@@ -20,6 +20,7 @@
             android:label="@string/title_activity_main"
             android:theme="@android:style/Theme.Dialog" >
             <intent-filter>
+
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>

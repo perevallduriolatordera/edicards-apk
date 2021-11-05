@@ -36,6 +36,7 @@ public class Incidencia {
 			case BajaCliente: tipoInc = " Baja de cliente"; prefix = "B"; break;
 			case DatosFiscales: tipoInc = "Datos fiscales modificados"; prefix = "D"; break;
 			case AlbaranAnulado: tipoInc = "Albarán anulado"; prefix = "A"; break;
+			case AlbaranAnuladoDesdeEdicards: tipoInc = "Albarán anulado"; prefix = "E"; break;
 			case CuentaCorriente: tipoInc = "Cuenta Corriente modificada"; prefix = "C"; break;
 			case Filiacion: tipoInc = "Filiación de Cliente modificada"; prefix = "F"; break;
 			case Ingreso: tipoInc = "Ingreso realizado por comercial"; prefix = "I"; break;

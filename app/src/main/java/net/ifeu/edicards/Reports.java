@@ -767,7 +767,7 @@ public class Reports extends Fragment {
 
 		Incidencia incidencia = new Incidencia(_appConfig
 				.getUser().User, new Date(),
-				IncidenciaType.AlbaranAnulado, text);
+				historico.ActualizarStock ? IncidenciaType.AlbaranAnulado : IncidenciaType.AlbaranAnuladoDesdeEdicards, text);
 		incidencia.create();
 
 	}

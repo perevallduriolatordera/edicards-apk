@@ -933,12 +933,11 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 			return null;
 		}
 
-		// if (_deposito.IdDeposito == null)
 		_deposito.FechaDeposito = new Date();
 
 		if (_deposito.IdDeposito == null)
 			_deposito.save();
-		else {
+		else if (_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Furgoneta) {
 			_deposito.DeleteAllLines();
 			_deposito.update();
 		}

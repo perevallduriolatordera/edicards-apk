@@ -253,7 +253,9 @@ public class ServiceWorker extends ServiceBase {
 					String title = Constants.EMPTY_STRING;                                                                               
 		                                                                                                                                 
 					if (fileInfo.getName().subSequence(0, 1).toString().equals("A"))                                                     
-						title = "Albarán anulado enviado por " + app.getUser().User;                                                     
+						title = "Albarán anulado enviado por " + app.getUser().User;
+					else if (fileInfo.getName().subSequence(0, 1).toString().equals("E"))
+						title = "Albarán anulado enviado por " + app.getUser().User;
 					else if (fileInfo.getName().subSequence(0, 1).toString().equals("B"))                                                
 						title = "Baja de cliente enviado por " + app.getUser().User;                                                     
 					else if (fileInfo.getName().subSequence(0, 1).toString().equals("N"))                                                
@@ -274,7 +276,10 @@ public class ServiceWorker extends ServiceBase {
 					if (fileInfo.getName().subSequence(0, 1).toString().equals("I"))                                                     
 						mail = new MailSender(Constants.MAIL_ADMINISTRACION_2, title, content, file);                                      
 					else                                                                                                                 
-						mail = new MailSender(Constants.MAIL_ADMINISTRACION, title,  content, file);			                         
+						mail = new MailSender(Constants.MAIL_ADMINISTRACION, title,  content, file);
+
+					if (fileInfo.getName().subSequence(0, 1).toString().equals("E"))
+						mail = new MailSender(Constants.MAIL_FACTURACION, title,  content, file);
 					                                                                                                                     
 					title = title + (fileInfo.getName().replace(".pdf", Constants.EMPTY_STRING));                                        
 		                                                                                                                                 
