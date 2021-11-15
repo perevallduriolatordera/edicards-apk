@@ -937,21 +937,20 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 
 		if (_deposito.IdDeposito == null)
 			_deposito.save();
-		else if (_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Furgoneta) {
+		else {
 			_deposito.DeleteAllLines();
 			_deposito.update();
 		}
 
 		// Solo restamos stock, en el caso de que el deposito sea de tipo Furgoneta
+		for (LineaDeposito linea : _deposito.Lineas.values()) {
 
-		if (_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Furgoneta) {
-			for (LineaDeposito linea : _deposito.Lineas.values()) {
+			if (!_deposito.isDepositoRetirado()) {
 
-				if (!_deposito.isDepositoRetirado()) {
+				if (linea.UnidadesRepuestas > 0) {
+					linea.save();
 
-					if (linea.UnidadesRepuestas > 0) {
-						linea.save();
-
+					if (_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Furgoneta) {
 						linea.Articulo.InitializePersistance(_appConfig, _appConfig);
 						linea.Articulo.Activo = true;
 
@@ -978,8 +977,11 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 								+ linea.UnidadesDefectuosas;
 
 						linea.Articulo.update();
+					}
+				} else {
 
-					} else {
+					if (_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Furgoneta) {
+
 						linea.Articulo.InitializePersistance(_appConfig, _appConfig);
 						linea.Articulo.Activo = true;
 
@@ -1002,28 +1004,29 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 
 						linea.Articulo.update();
 					}
-
-					if (linea.UnidadesAbono > 0) {
-						linea.Articulo.InitializePersistance(_appConfig, _appConfig);
-						linea.Articulo.Activo = true;
-
-						linea.Articulo.Stock = linea.Articulo.Stock + linea.UnidadesAbono - linea.DefectuosasAbono;
-
-						linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesAbono
-								- linea.DefectuosasAbono;
-
-						linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.DefectuosasAbono;
-
-						linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
-								+ linea.Articulo.MovimientoStockDefectuosas + linea.DefectuosasAbono;
-
-						linea.Articulo.update();
-
-					}
 				}
 
+				if (linea.UnidadesAbono > 0 && _appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Furgoneta) {
+					linea.Articulo.InitializePersistance(_appConfig, _appConfig);
+					linea.Articulo.Activo = true;
+
+					linea.Articulo.Stock = linea.Articulo.Stock + linea.UnidadesAbono - linea.DefectuosasAbono;
+
+					linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesAbono
+							- linea.DefectuosasAbono;
+
+					linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.DefectuosasAbono;
+
+					linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
+							+ linea.Articulo.MovimientoStockDefectuosas + linea.DefectuosasAbono;
+
+					linea.Articulo.update();
+
+				}
 			}
+
 		}
+
 		// Guardamos el nuevo cliente
 
 		if (_deposito.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE)) {

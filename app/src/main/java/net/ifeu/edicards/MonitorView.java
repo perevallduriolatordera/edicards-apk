@@ -12,12 +12,19 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+
+import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.Services.ParserMonitor;
 import net.ifeu.edicards.Services.ServiceMonitor;
 import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Utils.MessageBoxType;
+
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class MonitorView extends Fragment {
 
@@ -64,8 +71,7 @@ public class MonitorView extends Fragment {
     	mainLinearLayout.addView(layout1);
 	}
 	
-    private void fillDataMonitor(ServiceMonitor monitor)
-    {
+    private void fillDataMonitor(ServiceMonitor monitor) {
     	    	
     	if (monitor == null) {
     		monitor = new ServiceMonitor();
@@ -266,13 +272,12 @@ public class MonitorView extends Fragment {
     	// Totales recuento enviados
     	
     	layout2.addView(this.createLabel("documentos de recuento enviados" , String.valueOf(monitor.RecuentoSend), false));
-    	
-    	layout.addView(layout2);
+
+		layout.addView(layout2);
     	layout2 = new LinearLayout(this.getActivity());
 		layout2.removeAllViews();
 		layout2.setOrientation(LinearLayout.HORIZONTAL);
-		
-		
+
 		// Totales albaranes enviados
 		
     	layout2.addView(this.createLabel("albaranes enviados" , String.valueOf(monitor.AlbaranesSend), false));
@@ -281,8 +286,38 @@ public class MonitorView extends Fragment {
 		
     	layout2.addView(this.createLabel("depósitos enviados" , String.valueOf(monitor.DepositosSend), false));
     	layout.addView(layout2);
- 
-    	mainLinearLayout.addView(layout);
+		layout2 = new LinearLayout(this.getActivity());
+		layout2.removeAllViews();
+		layout2.setOrientation(LinearLayout.HORIZONTAL);
+
+		// contadores de facturas
+
+		Contador contador = new Contador();
+		try {
+			contador.InitializePersistance(_appConfig, _appConfig);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		layout2.addView(this.createLabel("contador tipo A" , String.valueOf(contador.ContadorSerieA), false));
+		layout2.addView(this.createLabel("contador tipo B" , String.valueOf(contador.ContadorSerieB), false));
+
+
+		// Fecha de última modificación
+		Date lastModified = null;
+		try {
+			lastModified = this._appConfig.getDatabaseOperations().getLastbackupDatabase();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		if (lastModified != null) {
+			DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+			String backupDate = formatter.format(lastModified);
+			layout2.addView(this.createLabel("Fecha última copia", String.valueOf(backupDate), false, true));
+		}
+
+		layout.addView(layout2);
+		mainLinearLayout.addView(layout);
     }
     
     private LinearLayout createLabel(String text, String value, boolean compress) {
@@ -322,6 +357,44 @@ public class MonitorView extends Fragment {
     	
     	return layout;
     }
+
+	private LinearLayout createLabel(String text, String value, boolean compress, boolean compressContent) {
+
+		LinearLayout layout = new LinearLayout(this.getActivity());
+		layout.setOrientation(LinearLayout.HORIZONTAL);
+
+		android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.MATCH_PARENT);
+
+		RelativeLayout card = new RelativeLayout(this.getActivity());
+		card.setBackgroundResource(R.drawable.card_background);
+		card.setGravity(Gravity.CENTER);
+
+		params.width=225;
+		params.height=120;
+		card.setLayoutParams(params);
+		card.setPadding(20, 20, 20, 20);
+
+		LinearLayout layout1 = new LinearLayout(this.getActivity());
+		layout1.setOrientation(LinearLayout.VERTICAL);
+
+		LabelColor label = new LabelColor(this.getActivity(), Color.BLUE, true, Gravity.CENTER);
+		label.setText(text.toUpperCase());
+		label.setTextSize(compress ? 12 : 18);
+
+
+		LabelColor label2 = new LabelColor(this.getActivity(), Color.BLACK, true, Gravity.CENTER);
+		label2.setText(String.valueOf(value));
+		label2.setTextSize(compressContent ? 18 : 30);
+
+		layout1.addView(label);
+		layout1.addView(label2);
+
+		card.addView(layout1);
+
+		layout.addView(card);
+
+		return layout;
+	}
     
     private LinearLayout createLabelWaiting(String text, String value) {
     	

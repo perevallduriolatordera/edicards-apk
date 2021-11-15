@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
 
 import net.ifeu.edicards.Constants.Constants;
@@ -224,6 +225,17 @@ public class DatabaseOperations {
 	    output.flush();
 	    output.close();
 	    fis.close();
+	}
+
+	public Date getLastbackupDatabase() throws IOException {
+		String outFileName = "/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_DB_BACKUP + "/" +
+				Constants.DATABASE_NAME;
+
+		final File currentDb = new File(outFileName);
+		if (currentDb.exists())
+			return new Date(currentDb.lastModified());
+		else
+			return null;
 	}
 	
 	public boolean existsTable(String tableName) throws Exception
