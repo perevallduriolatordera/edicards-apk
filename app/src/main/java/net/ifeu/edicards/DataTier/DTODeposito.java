@@ -85,8 +85,6 @@ public class DTODeposito {
 	@Expose
 	public String TipoDeposito;
 	@Expose
-	public Boolean ActualizarStock;
-	@Expose
 	public LinkedHashMap<String, DTOLineaDeposito> Lineas = new LinkedHashMap<String, DTOLineaDeposito>();
 
 	public Totales Totales = new Totales();
@@ -204,7 +202,6 @@ public class DTODeposito {
 		this.Telefono2 = dto.Telefono2;
 		this.TipoDeposito = dto.TipoDeposito;
 		this.Web = dto.Web;
-		this.ActualizarStock = dto.ActualizarStock;
 
 		this.Lineas.clear();
 		for (DTOLineaDeposito linea : dto.Lineas.values()) {
