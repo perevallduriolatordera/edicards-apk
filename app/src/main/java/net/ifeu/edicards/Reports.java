@@ -30,6 +30,7 @@ import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.DataTier.DTODeposito;
 import net.ifeu.edicards.DataTier.Deposito;
+import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.Incidencia;
 import net.ifeu.edicards.DataTier.IncidenciaType;
@@ -523,6 +524,7 @@ public class Reports extends Fragment {
 								getActivity(), MessageBoxType.Error);		
 					}
 
+					_appConfig.getWorkingArea().CurrentDepositoModalidad = hist.ActualizarStock ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
 					boolean printDeposito = true;
 
 					if (!dto.isDepositoUpdated()) {

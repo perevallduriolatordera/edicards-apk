@@ -479,7 +479,6 @@ public class Historico extends Persistent implements IPersistable {
 			
 			if (cursor.getCount() > 0)
 			{
-				
 				cantidadPagada = Double.parseDouble(cursor.getString(cursor.getColumnIndex("CantidadPagada")));
 								
 				cursor.close();
