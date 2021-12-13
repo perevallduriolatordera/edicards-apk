@@ -48,19 +48,7 @@ public class Login extends Activity {
 
 	public void OnCancelClick(View view) {
 		boolean result;
-		
-		/*_appConfig.getMessageBox().ShowWithResult("Validación de usuario",
-				"Está seguro que quiere cancelar la validación de usuario", view.getContext(), new DialogSingleButtonListener() {
-	                public void onButtonClicked(boolean value) {
-	                     if (true) {
-	                    	 Intent intent = new Intent();
-	            			 setResult(0,intent);
-	            			 
-	            			 finish();
-	                     }
-	                }
-	       });*/
-		
+
 		result = _appConfig.getMessageBox().ShowWithResult("Validación de usuario",
 				"Está seguro que quiere cancelar la validación de usuario", view.getContext(), MessageBoxType.Error);
 

@@ -43,11 +43,9 @@ public class MainActivity extends Activity {
 			Log.i(tag, "Inicialitzem l'objecte appConfig després d'haver carregat la vista");
 	
 			// Inicialitzem l'objecte AppConfig
-						
 			 _appConfig = (AppConfig) this.getApplicationContext();
 			 this._serviceWorker = new ServiceWorker();
-			 
-		
+
 			// Activamos los dipositivos 
 			if (!Wifi.IsEnabled(_appConfig))                                                                                
 				Wifi.ActivateWifi(_appConfig);                                                                              

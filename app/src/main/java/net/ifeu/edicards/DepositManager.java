@@ -193,7 +193,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 					FillWindow();
 					this._dialogDepositoModalidad = new AdvancedMessageBox();
 					boolean resultDepositoModalidad = _dialogDepositoModalidad.Show("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", DepositManager.this.getContext(), MessageBoxType.Information);
-					this._appConfig.getWorkingArea().CurrentDepositoModalidad =resultDepositoModalidad ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
+					this._appConfig.getWorkingArea().CurrentDepositoModalidad = resultDepositoModalidad ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
 					TextView labelTipoEntrega = (TextView) getActivity().findViewById(R.id.lblTipoEntrega);
 					labelTipoEntrega.setText(_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
 
