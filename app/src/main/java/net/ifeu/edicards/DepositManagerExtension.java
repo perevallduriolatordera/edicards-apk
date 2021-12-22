@@ -114,8 +114,15 @@ public class DepositManagerExtension {
 			else
 				return Constants.EMPTY_STRING;
 		}
-		
-	}	
+
+		public static boolean isTransferPayment(FormaPago pago) {
+			return true;
+		}
+
+		public static boolean isTransferPayment(String descripcion) {
+			return true;
+		}
+	}
 	// ************************** FORMAT *************************************
 	
 	static class Format {
@@ -190,7 +197,7 @@ public class DepositManagerExtension {
 				pdf.createDeposito(GUID);
 	
 			if (deposito.isAlbaran())
-				pdf.createAlbaran(GUID);
+				pdf.createAlbaran(GUID, DataTier.isTransferPayment(deposito.formaPago));
 		}
 	
 		public static void GenerateAuthorization(String GUID, Deposito deposito, AppConfig config) throws FileNotFoundException, DocumentException {
@@ -540,7 +547,5 @@ public class DepositManagerExtension {
 			
 			return button;
 		}
-
 	}
-
 }

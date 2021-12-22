@@ -75,248 +75,222 @@ public class ServiceWorker extends ServiceBase {
 		WindowsCredentials credentials = new WindowsCredentials();                                                                   
 		credentials.User = "Tablet";                                                                                                 
 		credentials.Password = "tab2012let";                                                                                         
-                                                                                                                                     
-		String directory = Constants.EMPTY_STRING;                                                                                   
+
+		String directory = Constants.EMPTY_STRING;
 		List<String> files;                                                                                                          
 		                                                                                                                             
-		// * * * * * * * * * ENVIAMOS PDF * * * * * * * * * * * *                                                                    
-                                                                                                                                                                                                                                                           
-			directory = Constants.EMPTY_STRING;                                                                                      
-	                                                                                                                                 
-			directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"                     
-					+ Constants.FOLDER_PDF;                                                                                          
-	                                                                                                                                 
-			Log.i("ServiceWorker", "PDF FOLDER: " + directory);                                                                      
-	                                                                                                                                 
-			files = IOUtils.getFilesFromDirectory(directory);                                                                        
-	                                                                                                                                 
-			for (String file : files) {           
-				
-				try {
-	                                                                                                                                 
-					boolean isRectificativo = false;                                                                                     
-					                                                                                                                     
-					Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de pdf");                                                    
-		                                                                                                                                 
-					File fileInfo = new File(file);                                                                                      
-		                                                                                                                                 
-					String title = fileInfo.getName().subSequence(0, 1).equals("A") ? "Albaran " : "Deposito ";                          
-					                                                                                                                     
-					if (fileInfo.getName().subSequence(0, 1).equals("R")) {                                                              
-						title = "Albarán rectificativo";                                                                                 
-						isRectificativo = true;                                                                                          
-					}	                                                                                                                 
-					                                                                                                                     
-					if (!isRectificativo)                                                                                                
-						title = title + (fileInfo.getName().substring(2).replace(".pdf", Constants.EMPTY_STRING));                       
-					else                                                                                                                 
-						title = title + (fileInfo.getName().substring(4).replace(".pdf", Constants.EMPTY_STRING));                       
-					                                                                                                                     
-					 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");                                                 
-					 title = title + " generado a fecha " + sdf.format(fileInfo.lastModified());                                         
-		                                                                                                                                 
-		//			Mail mail = new Mail(Constants.MAIL_HOST, Constants.MAIL_PORT, Constants.MAIL_SPORT, Constants.MAIL_USER,            
-		//					Constants.MAIL_PASSWORD, Constants.MAIL_FROM, title, Constants.MAIL_TO, Constants.MAIL_BODY);                
-		                                                                                                                                 
-		//			mail.addAttachment(file, title + ".pdf");
+		// * * * * * * * * * ENVIAMOS PDF * * * * * * * * * * * *
 
-					// Comprovamos si está pendiente de stock, para enviar correo a ADMINISTRACION
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
+				+ Constants.FOLDER_PDF;
 
-					String[] parts = file.split("_");
-					if (parts.length > 3 && parts[3].startsWith("E") && fileInfo.getName().subSequence(0, 1).equals("A")) {
+		Log.i("ServiceWorker", "PDF FOLDER: " + directory);
+		files = IOUtils.getFilesFromDirectory(directory);
 
-						MailSender mailEnviosEdicards = new MailSender(Constants.MAIL_ENVIOS_EDICARDS, title,Constants.MAIL_BODY, file);
+		for (String file : files) {
 
+			try {
+
+				boolean isRectificativo = false;
+				Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de pdf");
+
+				File fileInfo = new File(file);
+				String title = fileInfo.getName().subSequence(0, 1).equals("A") ? "Albaran " : "Deposito ";
+
+				if (fileInfo.getName().subSequence(0, 1).equals("R")) {
+					title = "Albarán rectificativo ";
+					isRectificativo = true;
+				}
+
+				if (!isRectificativo)
+					title = title + (fileInfo.getName().substring(2).replace(".pdf", Constants.EMPTY_STRING));
+				else
+					title = title + (fileInfo.getName().substring(4).replace(".pdf", Constants.EMPTY_STRING));
+
+				 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+				 title = title + " generado a fecha " + sdf.format(fileInfo.lastModified());
+
+				// Comprovamos si está pendiente de stock, para enviar correo a ADMINISTRACION
+
+				String[] parts = file.split("_");
+				if (parts.length > 3 && parts[3].startsWith("E") && fileInfo.getName().subSequence(0, 1).equals("A")) {
+					MailSender mailEnviosEdicards = new MailSender(Constants.MAIL_ENVIOS_EDICARDS, title,Constants.MAIL_BODY, file);
+					try {
+						mailEnviosEdicards.send();
+					} catch (Exception e) {
+						continue;
+					}
+				}
+
+				if (isRectificativo) {
+					if (parts.length > 4 && parts[4].startsWith("E") && fileInfo.getName().subSequence(0, 5).equals("REC_A")) {
+						MailSender mailEnviosEdicards = new MailSender(Constants.MAIL_ENVIOS_EDICARDS, title, Constants.MAIL_BODY, file);
 						try {
 							mailEnviosEdicards.send();
 						} catch (Exception e) {
 							continue;
 						}
-
 					}
-
-					MailSender mail = new MailSender(Constants.MAIL_TO, title,Constants.MAIL_BODY, file);
-
-					try {
-						mail.send();
-					} catch (Exception e) {
-						continue;
-					}
-					
-					IOUtils.deleteFile(file);
-					this.Monitor().PdfSend++;
-					
-				} catch (Exception e) {                                                                                                      
-					continue;                                                                       
 				}
-			}
-                                                                                                                                     
-		// * * * * * * * * * ENVIAMOS AUTORIZACIONES * * * * * * * * * * * *                                                         
-		                                                                                                                                                                                                                                                                  
-			directory = Constants.EMPTY_STRING;                                                                                      
-	                                                                                                                                 
-			directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"                     
-					+ Constants.FOLDER_AUTORIZACIONES;                                                                               
-	                                                                                                                                 
-			Log.i("ServiceWorker", "AUTORIZACIONES FOLDER: " + directory);                                                           
-	                                                                                                                                 
-			List<String> filesAuth = IOUtils.getFilesFromDirectory(directory);                                                       
-	                                                                                                                                 
-			for (String file : filesAuth) {
-				
-				try {                                                                                                                        
-	                                                                                                                                 
-					Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de pdf");                                                    
-		                                                                                                                                 
-					File fileInfo = new File(file);                                                                                      
-		                                                                                                                                 
-					String title = "Autorización ";                                                                                      
-					title = title + (fileInfo.getName().substring(2).replace(".pdf", Constants.EMPTY_STRING));                           
-		                                                                                                                                 
-					Mail mail = new Mail(Constants.MAIL_HOST, Constants.MAIL_PORT, Constants.MAIL_SPORT, Constants.MAIL_USER,            
-							Constants.MAIL_PASSWORD, Constants.MAIL_FROM, title, Constants.MAIL_TO, Constants.MAIL_BODY);                
-		                                                                                                                                 
-					mail.addAttachment(file, title + ".pdf");                                                                            
-		                                                                                                                                 
-					try {
-						mail.send();
-					} catch (Exception e) {
-					    continue;                                                                                                     
-					}
-					                                                                                                     
-					IOUtils.deleteFile(file);                                                                                            
-					
-				} catch (Exception e) {                                                                                                      
-					continue;                                                                       
-				}                                                                                                                            
-					this.Monitor().AutorizacionesSend++;
-                                                                                                                                     
-			}                                                                                                                        
-		                                                                                                                             
-		// * * * * * * * * * ENVIAMOS GDPR * * * * * * * * * * * *                                                                   
-		                                                                                                                             
-		                                                                                                                        
-                                                                                                                                     
-			directory = Constants.EMPTY_STRING;                                                                                      
-	                                                                                                                                 
-			directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"                     
-					+ Constants.FOLDER_GDPR;                                                                                         
-	                                                                                                                                 
-			Log.i("ServiceWorker", "GDPR FOLDER: " + directory);                                                                     
-	                                                                                                                                 
-			List<String> filesGDPR = IOUtils.getFilesFromDirectory(directory);                                                       
-	                                                                                                                                 
-			for (String file : filesGDPR) {
-				
-				try {
-	                                                                                                                                 
-					Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de pdf");                                                    
-		                                                                                                                                 
-					File fileInfo = new File(file);                                                                                      
-		                                                                                                                                 
-					String title = "Documento GDPR del cliente ";                                                                        
-					title = title + (fileInfo.getName().replace(".pdf", Constants.EMPTY_STRING));                                        
-						                                                                                                                 
-					MailSender mail = new MailSender(Constants.MAIL_TO_GDPR, title,Constants.MAIL_BODY, file);                           
-		                                                                                                                                 
-					try {
-						mail.send();
-					} catch (Exception e) {
-					    continue;                                                                                                     
-					}
-					                                                                                                 
-					IOUtils.deleteFile(file);                                                                                       
-					this.Monitor().GDPRSend++;
-				} catch (Exception e) {                                                                                                      
-					continue;                                                                   
-				}                                                                                                                                 
-			}                                                                                                                        
-		                                                                                                                            
-                                                                                                                                     
-                                                                                                                                     
-		// * * * * * * * * * ENVIAMOS INCIDENCIAS * * * * * * * * * * * *                                                            
-                                                                                                                                                                                                                                                        
-			directory = Constants.EMPTY_STRING;                                                                                      
-	                                                                                                                                 
-			directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"                     
-					+ Constants.FOLDER_INCIDENCIAS;                                                                                  
-	                                                                                                                                 
-			List<String> incidencias = IOUtils.getFilesFromDirectory(directory);                                                     
-	                                                                                                                                 
-			for (String file : incidencias) {                                                                                        
-	                                              
-				try {
-					Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de incidencias");                                            
-		                                                                                                                                 
-					File fileInfo = new File(file);                                                                                      
-		                                                                                                                                 
-					String title = Constants.EMPTY_STRING;                                                                               
-		                                                                                                                                 
-					if (fileInfo.getName().subSequence(0, 1).toString().equals("A"))                                                     
-						title = "Albarán anulado enviado por " + app.getUser().User;
-					else if (fileInfo.getName().subSequence(0, 1).toString().equals("E"))
-						title = "Albarán anulado enviado por " + app.getUser().User;
-					else if (fileInfo.getName().subSequence(0, 1).toString().equals("B"))                                                
-						title = "Baja de cliente enviado por " + app.getUser().User;                                                     
-					else if (fileInfo.getName().subSequence(0, 1).toString().equals("N"))                                                
-						title = "Alta de nuevo cliente enviado por " + app.getUser().User;                                               
-					else if (fileInfo.getName().subSequence(0, 1).toString().equals("D"))                                                
-						title = "Datos fiscales modificados enviado por " + app.getUser().User;                                          
-					else if (fileInfo.getName().subSequence(0, 1).toString().equals("C"))                                                
-						title = "Datos de cuenta corriente introducidos/modificados enviado por " + app.getUser().User;                  
-					else if (fileInfo.getName().subSequence(0, 1).toString().equals("F"))                                                
-						title = "Datos de filiación de cliente modificados enviado por " + app.getUser().User;                           
-					else if (fileInfo.getName().subSequence(0, 1).toString().equals("I"))                                                
-						title = "Ingreso realizado por enviado por " + app.getUser().User;                                               
-		                                                                                                                                 
-					String content = "Este mensaje se ha generado automáticamente desde el dispositivo móvil.";                          
-		                                                                                                                                 
-					MailSender mail = null;                                                                                              
-					                                                                                                                     
-					if (fileInfo.getName().subSequence(0, 1).toString().equals("I"))                                                     
-						mail = new MailSender(Constants.MAIL_ADMINISTRACION_2, title, content, file);                                      
-					else                                                                                                                 
-						mail = new MailSender(Constants.MAIL_ADMINISTRACION, title,  content, file);
 
-					if (fileInfo.getName().subSequence(0, 1).toString().equals("E"))
-						mail = new MailSender(Constants.MAIL_FACTURACION, title,  content, file);
-					                                                                                                                     
-					title = title + (fileInfo.getName().replace(".pdf", Constants.EMPTY_STRING));                                        
-		                                                                                                                                 
-					try {
-						mail.send();
-						IOUtils.deleteFile(file);
-					} catch (Exception e) {
-					    continue;                                                                                                     
-					}
-					
+				MailSender mail = new MailSender(Constants.MAIL_TO, title,Constants.MAIL_BODY, file);
 
-					this.Monitor().IncidenciasSend++;
+				try {
+					mail.send();
 				} catch (Exception e) {
 					continue;
 				}
-			}                                                                                                                                                                                                                                                  
-		                                                                                                                             
-		// * * * * * * * * * ENVIAMOS ARTICULOS * * * * * * * * * * * *                                                              
+
+				IOUtils.deleteFile(file);
+				this.Monitor().PdfSend++;
+
+			} catch (Exception e) {
+				continue;
+			}
+		}
                                                                                                                                      
+		// * * * * * * * * * ENVIAMOS AUTORIZACIONES * * * * * * * * * * * *                                                         
+
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
+				+ Constants.FOLDER_AUTORIZACIONES;
+
+		Log.i("ServiceWorker", "AUTORIZACIONES FOLDER: " + directory);
+		List<String> filesAuth = IOUtils.getFilesFromDirectory(directory);
+		for (String file : filesAuth) {
+
+			try {
+
+				Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de pdf");
+				File fileInfo = new File(file);
+
+				String title = "Autorización ";
+				title = title + (fileInfo.getName().substring(2).replace(".pdf", Constants.EMPTY_STRING));
+
+				Mail mail = new Mail(Constants.MAIL_HOST, Constants.MAIL_PORT, Constants.MAIL_SPORT, Constants.MAIL_USER,
+						Constants.MAIL_PASSWORD, Constants.MAIL_FROM, title, Constants.MAIL_TO, Constants.MAIL_BODY);
+
+				mail.addAttachment(file, title + ".pdf");
+
+				try {
+					mail.send();
+				} catch (Exception e) {
+					continue;
+				}
+
+				IOUtils.deleteFile(file);
+
+			} catch (Exception e) {
+				continue;
+			}
+				this.Monitor().AutorizacionesSend++;
+		}
 		                                                                                                                             
+		// * * * * * * * * * ENVIAMOS GDPR * * * * * * * * * * * *                                                                   
+
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
+				+ Constants.FOLDER_GDPR;
+
+		Log.i("ServiceWorker", "GDPR FOLDER: " + directory);
+		List<String> filesGDPR = IOUtils.getFilesFromDirectory(directory);
+
+		for (String file : filesGDPR) {
+
+			try {
+
+				Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de pdf");
+
+				File fileInfo = new File(file);
+
+				String title = "Documento GDPR del cliente ";
+				title = title + (fileInfo.getName().replace(".pdf", Constants.EMPTY_STRING));
+
+				MailSender mail = new MailSender(Constants.MAIL_TO_GDPR, title,Constants.MAIL_BODY, file);
+
+				try {
+					mail.send();
+				} catch (Exception e) {
+					continue;
+				}
+
+				IOUtils.deleteFile(file);
+				this.Monitor().GDPRSend++;
+			} catch (Exception e) {
+				continue;
+			}
+		}
+
+		// * * * * * * * * * ENVIAMOS INCIDENCIAS * * * * * * * * * * * *
+
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
+				+ Constants.FOLDER_INCIDENCIAS;
+
+		List<String> incidencias = IOUtils.getFilesFromDirectory(directory);
+
+		for (String file : incidencias) {
+
+			try {
+				Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de incidencias");
+				File fileInfo = new File(file);
+				String title = Constants.EMPTY_STRING;
+
+				if (fileInfo.getName().subSequence(0, 1).toString().equals("A"))
+					title = "Albarán anulado enviado por " + app.getUser().User;
+				else if (fileInfo.getName().subSequence(0, 1).toString().equals("E"))
+					title = "Albarán anulado enviado por " + app.getUser().User;
+				else if (fileInfo.getName().subSequence(0, 1).toString().equals("B"))
+					title = "Baja de cliente enviado por " + app.getUser().User;
+				else if (fileInfo.getName().subSequence(0, 1).toString().equals("N"))
+					title = "Alta de nuevo cliente enviado por " + app.getUser().User;
+				else if (fileInfo.getName().subSequence(0, 1).toString().equals("D"))
+					title = "Datos fiscales modificados enviado por " + app.getUser().User;
+				else if (fileInfo.getName().subSequence(0, 1).toString().equals("C"))
+					title = "Datos de cuenta corriente introducidos/modificados enviado por " + app.getUser().User;
+				else if (fileInfo.getName().subSequence(0, 1).toString().equals("F"))
+					title = "Datos de filiación de cliente modificados enviado por " + app.getUser().User;
+				else if (fileInfo.getName().subSequence(0, 1).toString().equals("I"))
+					title = "Ingreso realizado por enviado por " + app.getUser().User;
+
+				String content = "Este mensaje se ha generado automáticamente desde el dispositivo móvil.";
+				MailSender mail = null;
+
+				if (fileInfo.getName().subSequence(0, 1).toString().equals("I"))
+					mail = new MailSender(Constants.MAIL_ADMINISTRACION_2, title, content, file);
+				else
+					mail = new MailSender(Constants.MAIL_ADMINISTRACION, title,  content, file);
+
+				if (fileInfo.getName().subSequence(0, 1).toString().equals("E"))
+					mail = new MailSender(Constants.MAIL_FACTURACION, title,  content, file);
+
+				title = title + (fileInfo.getName().replace(".pdf", Constants.EMPTY_STRING));
+
+				try {
+					mail.send();
+					IOUtils.deleteFile(file);
+				} catch (Exception e) {
+					continue;
+				}
+
+				this.Monitor().IncidenciasSend++;
+			} catch (Exception e) {
+				continue;
+			}
+		}
+
+		// * * * * * * * * * ENVIAMOS ARTICULOS * * * * * * * * * * * *                                                              
+
 		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"                         
 				+ Constants.FOLDER_STOCK;                                                                                            
                                                                                                                                                                                                                                       
-		files = IOUtils.getFilesFromDirectory(directory);                                                                            
-		                                                                                                                             
+		files = IOUtils.getFilesFromDirectory(directory);
 		String url = Constants.WS_ENVIAR_ARTICULOS;                                                                                  
                                                                                                                                      
 		for (String file : files) {                                                                                                  
 			String content = IOUtils.getFileContent(file);                                                                           
                                                                                                                                      
 			RestClient client = new RestClient();                                                                                    
-			ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();                                                       
-			                                                                                                                         
-			headers.add(new BasicNameValuePair("Authorization","Basic VGFibGV0OnRhYjIwMTJsZXQ="));                                   
-			                                                                                                                         
-			ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();                                                        
-			                                                                                                                         
+			ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
+			headers.add(new BasicNameValuePair("Authorization","Basic VGFibGV0OnRhYjIwMTJsZXQ="));
+			ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
 			params.add(new BasicNameValuePair("contingut", content));                                                                
 	                                                                                                                                 
 			boolean result;                                                                                                          
@@ -326,8 +300,7 @@ public class ServiceWorker extends ServiceBase {
 				                                                                                                                     
 				if (result) {                                                                                                        
 					IOUtils.deleteFile(file);                                                                                 
-					this.Monitor().IncidenciasSend++;	     
-					
+					this.Monitor().IncidenciasSend++;
 				}                                                                                                                    
 				else {                                                                                                               
 					continue;                        
@@ -342,176 +315,140 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 		// * * * * * * * * * ENVIAMOS GASTOS * * * * * * * * * * * *                                                                 
 		                                                                                                                             
-		boolean anyGastos = false;                                                                                                   
-		directory = Constants.EMPTY_STRING;                                                                                          
-                                                                                                                                     
+		boolean anyGastos = false;
 		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"                         
 				+ Constants.FOLDER_GASTOS;                                                                                           
-                                                                                                                                     
-		//files.clear();                                                                                                             
+
 		files = IOUtils.getFilesFromDirectory(directory);                                                                            
 		anyGastos = (files.size() > 0);                                                                                              
                                                                                                                                      
 		for (String file : files) {                                                                                                  
-			String content = encodeURIComponent(IOUtils.getFileContent(file));                                                       
-                                                                                                                                     
-			HttpService http = new HttpService();                                                                                    
-                                                                                                                                     
-			Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de gastos");                                                     
-                                                                                                                                     
-			http = new HttpService();                                                                                                
-                                                                                                                                     
-			url = Constants.WS_ENVIAR_GASTOS;                                                                                        
-                                                                                                                                     
-			Log.i("RunExport.Gastos", content);                                                                                      
+			String content = encodeURIComponent(IOUtils.getFileContent(file));
+			HttpService http = new HttpService();
+			Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de gastos");
+			http = new HttpService();
+			url = Constants.WS_ENVIAR_GASTOS;
 			                                                                                                                         
 			try {                                                                                                                    
 				http.CallWithoutResult(url + "?contingut=" + content, credentials);                                                  
-				IOUtils.deleteFile(file);                                                                                       
-				
+				IOUtils.deleteFile(file);
 				this.Monitor().GastosSend++;
 			} catch (Exception e) {                                                                                                  
 				continue;			
 			}                                                                                                                        
 		}                                                                                                                            
-	                                                                                                                                 
-                                                                                                                                     
-		// * * * * * * * * * GENERAMOS Y ENVIAMOS INVENTARIO * * * * * * * * * *                                                     
-		// * *                                                                                                                       
-                                                                                                                                     
-			directory = Constants.EMPTY_STRING;                                                                                  
-            
-			directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"                 
-					+ Constants.FOLDER_INVENTARIO;                                                                               
-                                                                                                                                 
-			List<String> inventario = IOUtils.getFilesFromDirectory(directory);
-			
-			if (anyGastos) {                                                                                                         
-				PdfInventory inventory = new PdfInventory(context, app);                                                             
-				inventory.createInventory();                                                                                         
-	                                                                                                                                 
-				for (String file : inventario) {
-					
-					try {
-					
-						if (!file.contains("Reciclado_")) {
-							Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de inventario");                                        
-	                        
-							File fileInfo = new File(file);                                                                                  
-			                                                                                                                                 
-							String title = "Inventario ";                                                                                    
-			                                                                                                                                 
-							title = title + (fileInfo.getName().replace(".pdf", Constants.EMPTY_STRING));                                    
-			                                                                                                                                 
-							Mail mail = new Mail(Constants.MAIL_HOST, Constants.MAIL_PORT, Constants.MAIL_SPORT,                             
-									Constants.MAIL_USER, Constants.MAIL_PASSWORD, Constants.MAIL_FROM, title, Constants.MAIL_TO,             
-									Constants.MAIL_BODY);                                                                                    
-			                                                                                                                                 
-							mail.addAttachment(file, title + ".pdf");                                                                        
-			                                                                                                                                 
-							try {
-								mail.send();
-							} catch (Exception e) {
-							    continue;                                                                                                     
-							}                                                                                           
-							                                                                               
-							IOUtils.deleteFile(file);
-							this.Monitor().InventarioSend++;
-						}
-					}
-					catch (Exception e) {
-						continue;
-					}
-					                                                                                                                	                                                                                                                                 
-				}                                                                                                                    
-			}
-			
+
+		// * * * * * * * * * GENERAMOS Y ENVIAMOS INVENTARIO * * * * * * * * * *
+
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
+				+ Constants.FOLDER_INVENTARIO;
+
+		List<String> inventario = IOUtils.getFilesFromDirectory(directory);
+
+		if (anyGastos) {
+			PdfInventory inventory = new PdfInventory(context, app);
+			inventory.createInventory();
+
 			for (String file : inventario) {
-				
+
 				try {
-					if (file.contains("Reciclado_")) {
-						Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de reciclado");                                        
-	                    
-						File fileInfo = new File(file);                                                                                  
-		                                                                                                                                 
-						String title = "Inventario de reciclado ";                                                                                    
-		                                                                                                                                 
-						title = title + (fileInfo.getName().replace(".pdf", Constants.EMPTY_STRING).replace("Reciclado_", Constants.EMPTY_STRING));
-						
-						MailSender mail = null;                                                                                                                                                                                         
-	                                                                                    
-						mail = new MailSender(Constants.MAIL_FACTURACION, title, Constants.EMPTY_STRING, file);                                      
-	                               
+
+					if (!file.contains("Reciclado_")) {
+						Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de inventario");
+						File fileInfo = new File(file);
+						String title = "Inventario ";
+						title = title + (fileInfo.getName().replace(".pdf", Constants.EMPTY_STRING));
+						Mail mail = new Mail(Constants.MAIL_HOST, Constants.MAIL_PORT, Constants.MAIL_SPORT,
+								Constants.MAIL_USER, Constants.MAIL_PASSWORD, Constants.MAIL_FROM, title, Constants.MAIL_TO,
+								Constants.MAIL_BODY);
+
+						mail.addAttachment(file, title + ".pdf");
+
 						try {
 							mail.send();
 						} catch (Exception e) {
-						    continue;                                                                                                     
-						}                                                                                                                
-	                                                                                       	                                                                                                                                 	                                                                                                                                                                                                                                
-						IOUtils.deleteFile(file);                                                                               
+							continue;
+						}
+
+						IOUtils.deleteFile(file);
 						this.Monitor().InventarioSend++;
-		                                                                                                                                 
 					}
 				}
 				catch (Exception e) {
 					continue;
 				}
+
 			}
-				                                                                                                                	                                                                                                                                 
-				                                                                                                                             
-		// * * * * * * * * * ENVIAMOS RECUENTO * * * * * * * * * * * *                                                               
-                                                                                                                                                                                                                                                         
-			directory = Constants.EMPTY_STRING;                                                                                      
-	                                                                                                                                 
-			directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"                     
-					+ Constants.FOLDER_RECUENTO;                                                                                     
-	                                                                                                                                 
-			List<String> recuento = IOUtils.getFilesFromDirectory(directory);                                                        
-	                                                                                                                                 
-			for (String file : recuento) {
-				
-				try {    
-	                                                                                                                                 
-					Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de recuento");                                               
-		                                                                                                                                 
-					String content = IOUtils.getFileContent(file);                                                                       
-		                                                                                                                                 	                                                                                                                                 
-					url = Constants.WS_ENVIAR_STOCKS;                                                                                    
-					                                                                                                                     
-					RestClient client = new RestClient();                                                                                
-					ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();                                                   
-					                                                                                                                     
-					headers.add(new BasicNameValuePair("Authorization","Basic VGFibGV0OnRhYjIwMTJsZXQ="));                               
-					                                                                                                                     
-					ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();                                                    
-					                                                                                                                     
-					params.add(new BasicNameValuePair("contingut", content));                                                            
-					                                                                                                                     
-					boolean result = client.Execute(RequestMethod.POST, url, headers, params);                                           
-	                                                                                                                                     
-					Log.i("RunExport.Recuento", content);                                                                                
-                                                                                                                                     
-				if (result) {                                                                                                        
-					IOUtils.deleteFile(file);                                                                                 
-					this.Monitor().RecuentoSend++;
-				}                                                                                                                    
-				else {                                                                                                               
-					continue;                         
+		}
+
+		for (String file : inventario) {
+
+			try {
+				if (file.contains("Reciclado_")) {
+					Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de reciclado");
+					File fileInfo = new File(file);
+					String title = "Inventario de reciclado ";
+					title = title + (fileInfo.getName().replace(".pdf", Constants.EMPTY_STRING).replace("Reciclado_", Constants.EMPTY_STRING));
+					MailSender mail = null;
+					mail = new MailSender(Constants.MAIL_FACTURACION, title, Constants.EMPTY_STRING, file);
+
+					try {
+						mail.send();
+					} catch (Exception e) {
+						continue;
+					}
+
+					IOUtils.deleteFile(file);
+					this.Monitor().InventarioSend++;
+
 				}
-				
-				} catch (Exception e) {                                                                                                      
-					continue;                                                                       
-				}                                                                                                                            
-		        
-			}                                                                                                                        
+			}
+			catch (Exception e) {
+				continue;
+			}
+		}
+
+		// * * * * * * * * * ENVIAMOS RECUENTO * * * * * * * * * * * *                                                               
+
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
+				+ Constants.FOLDER_RECUENTO;
+
+		List<String> recuento = IOUtils.getFilesFromDirectory(directory);
+
+		for (String file : recuento) {
+
+			try {
+
+				Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de recuento");
+				String content = IOUtils.getFileContent(file);
+				url = Constants.WS_ENVIAR_STOCKS;
+				RestClient client = new RestClient();
+				ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
+				headers.add(new BasicNameValuePair("Authorization","Basic VGFibGV0OnRhYjIwMTJsZXQ="));
+				ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
+				params.add(new BasicNameValuePair("contingut", content));
+				boolean result = client.Execute(RequestMethod.POST, url, headers, params);
+				Log.i("RunExport.Recuento", content);
+
+			if (result) {
+				IOUtils.deleteFile(file);
+				this.Monitor().RecuentoSend++;
+			}
+			else {
+				continue;
+			}
+
+			} catch (Exception e) {
+				continue;
+			}
+
+		}
 		                                                                                                                             
 		// * * * * * * * * * ENVIAMOS STOCK DIARIO * * * * * * * * * * * *                                                           
                                                                                                                                      
 		XmlCreator creator = new XmlCreator(app, app);                                                                               
 		creator.createXmlDailyStock();                                                                                               
-                                                                                                                                     
-		directory = Constants.EMPTY_STRING;                                                                                          
-                                                                                                                                     
+
 		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"                         
 				+ Constants.FOLDER_DAILYSTOCK;                                                                                       
                                                                                                                                      
@@ -519,28 +456,21 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 		for (String file : stockDiario) {   
                                                                                                                                      
-			Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de stock diario");                                               
-                                                                                                                                     
-			String content = IOUtils.getFileContent(file);                                                                           
-                                                                                                                                                                                                                                                                                                                                                                        
-			url = Constants.WS_ENVIAR_STOCKS;                                                                                        
-                                                                                                                                     
+			Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de stock diario");
+			String content = IOUtils.getFileContent(file);
+			url = Constants.WS_ENVIAR_STOCKS;
 			Log.i("RunExport.DailyStock", content);                                                                                                                                       
 			                                                                                                                         
 			RestClient client = new RestClient();                                                                                    
-			ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();                                                       
-			                                                                                                                         
-			headers.add(new BasicNameValuePair("Authorization","Basic VGFibGV0OnRhYjIwMTJsZXQ="));                                   
-			                                                                                                                         
-			ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();                                                        
-			                                                                                                                         
+			ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
+			headers.add(new BasicNameValuePair("Authorization","Basic VGFibGV0OnRhYjIwMTJsZXQ="));
+			ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
 			params.add(new BasicNameValuePair("contingut", content));                                                                
 			                                                                                                                         
 			boolean result;                                                                                                          
 			                                                                                                                         
 			try {                                                                                                                    
-				result = client.Execute(RequestMethod.POST, url, headers, params);                                                   
-				                                                                                                                     
+				result = client.Execute(RequestMethod.POST, url, headers, params);
 				if (result) {                                                                                                        
 					IOUtils.deleteFile(file);                                                                                                                             
 					this.Monitor().StockDiarioSend++;
@@ -553,35 +483,25 @@ public class ServiceWorker extends ServiceBase {
 			}                                                                                                                        
 			                                                                                                                                                                                                                                                                                                                                                                                        
 		}                                                                                                                            
-		                                                                                                                             
-                                                                                                                                     
+
 		// * * * * * * * * * ENVIAMOS ALBARANES * * * * * * * * * * * *                                                              
-                                                                                                                                     
-		directory = Constants.EMPTY_STRING;                                                                                          
-                                                                                                                                     
+
 		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"                         
 				+ Constants.FOLDER_ALBARANES;                                                                                        
-                                                                                                                                     
-		//files.clear();                                                                                                             
+
 		files = IOUtils.getFilesFromDirectory(directory);                                                                            
                                                                                                                                      
 		for (String file : files) {                                                                                                  
-			String content = encodeURIComponent(IOUtils.getFileContent(file));                                                       
-                                                                                                                                     
-			HttpService http = new HttpService();                                                                                    
-                                                                                                                                     
-			Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de albaranes");                                                  
-                                                                                                                                     
-			http = new HttpService();                                                                                                
-				                                                                                                                     
-			url = Constants.WS_ENVIAR_ALBARANES;                                                                                     
-                                                                                                                                     
+			String content = encodeURIComponent(IOUtils.getFileContent(file));
+			HttpService http = new HttpService();
+			Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de albaranes");
+			http = new HttpService();
+			url = Constants.WS_ENVIAR_ALBARANES;
 			Log.i("RunExport.Albaranes", content);                                                                                   
 			                                                                                                                         
 			try {                                                                                                                    
 				http.CallWithoutResult(url + "?contingut=" + content, credentials);                                                  
-				IOUtils.deleteFile(file);                                                                                      				
-				
+				IOUtils.deleteFile(file);
 				this.Monitor().AlbaranesSend++;
 				
 			} catch (Exception e) {                                                                                                  
@@ -589,48 +509,34 @@ public class ServiceWorker extends ServiceBase {
 			}                                                                                                                        
                                                                                                                                      
 		}                                                                                                                            
-	                                                                                                                                 
-                                                                                                                                     
+
 		// * * * * * * * * * ENVIAMOS DEPOSITOS * * * * * * * * * * * *                                                              
-			                                                                                                                         
-		directory = Constants.EMPTY_STRING;                                                                                          
-                                                                                                                                     
+
 		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"                         
 				+ Constants.FOLDER_DEPOSITOS;                                                                                        
                                                                                                                                      
 		files = IOUtils.getFilesFromDirectory(directory);                                                                            
                                                                                                                                      
 		for (String file : files) {                                                                                                  
-			String content = encodeURIComponent(IOUtils.getFileContent(file));                                                       
-                                                                                                                                     
-			HttpService http = new HttpService();                                                                                    
-                                                                                                                                     
-			Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de depósitos");                                                  
-                                                                                                                                     
-			http = new HttpService();                                                                                                
-                                                                                                                                     
-			url = Constants.WS_ENVIAR_DEPOSITOS;                                                                                     
-                                                                                                                                     
+			String content = encodeURIComponent(IOUtils.getFileContent(file));
+			HttpService http = new HttpService();
+			Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de depósitos");
+			http = new HttpService();
+			url = Constants.WS_ENVIAR_DEPOSITOS;
 			Log.i("RunExport.Depositos", content);                                                                                   
 			                                                                                                                         
 			try {                                                                                                                    
 				http.CallWithoutResult(url + "?contingut=" + content, credentials);                                                  
-				IOUtils.deleteFile(file);                                                                                       
-				
+				IOUtils.deleteFile(file);
 				this.Monitor().DepositosSend++;
 			} catch (Exception e) {                                                                                                  
 				continue;
-			}                                                                                                                        
-                                                                                                                                     
-		}                                                                                                                            
-				                                                                                                                     
+			}
+		}
 	}                                                                                                                                
                                                                                                                                      
 	public boolean RunImport(Context context, boolean compress) throws Exception {                                                   
-		                         
-		//String deb = "DEBUG";
-		//if (deb == "DEBUG") return true;
-		
+
 		AppConfig app;                                                                                                               
 		app = (AppConfig) context;                                                                                                   
 		Boolean result = true;       
@@ -638,8 +544,7 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 		// Habilitamos la conexión Wifi y 3G                                                                                         
                                                                                                                                                                                                                                                              
-		this.createFolders();                                                                                                        
-                                                                                                                                     
+		this.createFolders();
 		try {                                                                                                                        
 			int debug = 0;                                                                                                           
 			// Asignamos las credenciales                                                                                            
@@ -648,22 +553,8 @@ public class ServiceWorker extends ServiceBase {
 			credentials.User = "Tablet";                                                                                             
 			credentials.Password = "tab2012let";                                                                                     
                                                                                                                                      
-			try {                                                                                                                    
-                                                                                                                                     
-				app.getDatabaseOperations().openDB(context);                                                                         
-                                                                                                                                     
-				/*if (debug == 1)
-					app.getDatabaseOperations().createDatabaseStructure();                                                           
-				                                                                                                                     
-				if (!app.getDatabaseOperations().existsTable(Constants.TABLE_ARTICULOS)) {
-					boolean resultRestore =app.getDatabaseOperations().restoreDatabase();
-					if (!resultRestore) {
-						app.getDatabaseOperations().createDatabaseStructure();
-					}
-				}
-				else                                                                                                                 
-					app.getDatabaseOperations().createDatabaseStructureIfNecessary();*/
-                                                                                                                                     
+			try {
+				app.getDatabaseOperations().openDB(context);
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                      
 			}                                                                                                                        
@@ -681,8 +572,7 @@ public class ServiceWorker extends ServiceBase {
 				result = false;                                                                                                                                                                         
 			}                                                                                                                        
                                                                                                                                      
-			if (contador.getRecordsCount() == 0) {                                                                                   
-                                                                                                                                     
+			if (contador.getRecordsCount() == 0) {
 				if (isNumeric(app.getUser().InitSerieA))                                                                             
 					contador.ContadorSerieA = Integer.parseInt(app.getUser().InitSerieA);                                            
 				else                                                                                                                 
@@ -691,14 +581,12 @@ public class ServiceWorker extends ServiceBase {
 				if (isNumeric(app.getUser().InitSerieB))                                                                             
 					contador.ContadorSerieB = Integer.parseInt(app.getUser().InitSerieB);                                            
 				else                                                                                                                 
-					contador.ContadorSerieB = 0;                                                                                     
-                                                                                                                                     
+					contador.ContadorSerieB = 0;
 				try {                                                                                                                
 					contador.save();                                                                                                 
 				} catch (Exception e) {                                                                                              
 					result = false;                                                                                                  
-				}                                                                                                                    
-                                                                                                                                     
+				}
 			}                                                                                                                        
                                                                                                                                      
 			contador.ReleasePersistance();                                                                                           
@@ -712,35 +600,30 @@ public class ServiceWorker extends ServiceBase {
 				formaPago.InitializePersistance(app, context);                                                                       
                                                                                                                                      
 			} catch (Exception e) {                                                                                                  
-				result = false;                                                                                                      
-				//app.getErrorTrace().Send(app.getUser().User, e);                                                                   
+				result = false;
 			}                                                                                                                        
 			                                                                                                                         
-			Log.i("RunImport", "Formas Pago Total: " + String.valueOf(formaPago.getRecordsCount()));                                 
-                                                                                                                                     
+			Log.i("RunImport", "Formas Pago Total: " + String.valueOf(formaPago.getRecordsCount()));
 			http = new HttpService();                                                                                                
                                                                                                                                      
 			try {                                                                                                                    
-				all = true; // (formaPago.getRecordsCount() == 0);                                                                   
+				all = true;
 				String url = compress ? Constants.WS_FPAGO_ZIP : Constants.WS_FPAGO;                                                 
                                                                                                                                      
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
 						+ "&Tots=" + String.valueOf(all), credentials);                                                              
-                                                                                                                                                                                                                              
-                                                                                                                                     
+
 				parser.parseFormasPago(document, context, app, formaPago, compress);                                                 
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                     				
 			}                                                                                                                        
                                                                                                                                              
-			formaPago.ReleasePersistance();                                                                                          
-                                                                                                                                     
+			formaPago.ReleasePersistance();
 			Log.i("ServiceWorker", "Finalizamos proceso llamada Formas de Pago");                                                    
                                                                                                                                      
 			// * * * * * * * * * * LLAMADA A TIPOS DE IVA * * * * * * * * * *                                                        
                                                                                                                                      
-			Log.i("ServiceWorker", "Iniciamos proceso llamada Tipos de IVA");                                                        
-                                                                                                                                     
+			Log.i("ServiceWorker", "Iniciamos proceso llamada Tipos de IVA");
 			TipoIVA iva = new TipoIVA();                                                                                             
 			try {                                                                                                                    
 				iva.InitializePersistance(app, context);                                                                             
@@ -765,8 +648,7 @@ public class ServiceWorker extends ServiceBase {
 				result = false;                                                                                                                                                                         
 			}                                                                                                                        
 			                                                                                                                         
-			iva.ReleasePersistance();                                                                                                
-                                                                                                                                     
+			iva.ReleasePersistance();
 			Log.i("ServiceWorker", "Finalizamos proceso llamada Tipos de IVA");                                                      
                                                                                                                                      
 			// * * * * * * * * * * LLAMADA A ARTICULOS * * * * * * * * * *                                                           
@@ -843,8 +725,7 @@ public class ServiceWorker extends ServiceBase {
 				result = false;
 			}
                                                                                                                                      
-			http = new HttpService();                                                                                                
-                                                                                                                                     
+			http = new HttpService();
 			Log.i("ServiceWorker", "Iniciamos proceso llamada Traspaso Almacen");                                                    
                                                                                                                                      
 			boolean resultTraspaso = false;                                                                                          
@@ -865,8 +746,7 @@ public class ServiceWorker extends ServiceBase {
 				resultTraspaso = false;                                                                                              
 			}                                                                                                                        
                                                                                                                                      
-			articulo.ReleasePersistance();                                                                                           
-                                                                                                                                     
+			articulo.ReleasePersistance();
 			Log.i("ServiceWorker", "Finalizamos proceso llamada Traspaso Almacen");                                                  
                                                                                                                     
 			// * * * * * * * * * * LLAMADA A VALIDACIÓN TRASPASO * * * * * * * *                                                     
@@ -991,10 +871,8 @@ public class ServiceWorker extends ServiceBase {
 			                                                                                                                                     
 			// Obtenemos el total de registros                                                                                       
                                                                                                                                      
-			Long totalLineasDeposito = (long) 0;                                                                                     
-                                                                                                                                     
-			http = new HttpService();                                                                                                
-                                                                                                                                     
+			Long totalLineasDeposito = (long) 0;
+			http = new HttpService();
 			try {                                                                                                                    
 				document = null;                                                                                                     
                                                                                                                                      
@@ -1021,28 +899,22 @@ public class ServiceWorker extends ServiceBase {
 			all = (deposito.getRecordsCount() == 0 || app.getWorkingArea().UpgradeDataPost);                                         
 			if (all) {                                                                                                               
                                                                                                                                      
-				try {                                                                                                                
-					                                                                                                                 
-					deposito.clean();                                                                                                
-                                                                                                                                     
+				try {
+					deposito.clean();
 					for (Long i = (long) 1; i < totalLineasDeposito; i = i + Constants.WS_PAGINACION) {                              
-                                                                                                                                     
-                                                                                                                                     
+
 						boolean successful = false;                                                                                  
                                                                                                                                      
 						int maxAttempts = 0;                                                                                         
-						while (!successful && maxAttempts < Constants.WS_MAX_INTENTOS) {                                             
-                                                                                                                                     
+						while (!successful && maxAttempts < Constants.WS_MAX_INTENTOS) {
 							try {
 								Log.i("Depositos Indice Inicial", String.valueOf(i));
 								Log.i("Depositos Indice Final", String.valueOf(i + Constants.WS_PAGINACION));
                                                                                                                                      
 								document = null;                                                                                     
                                                                                                                                      
-								String url = compress ? Constants.WS_DEPOSITOS_ZIP : Constants.WS_DEPOSITOS_PAGINACION;              
-                                                                                                                                     
-								http = new HttpService();                                                                            
-                                                                                                                                     
+								String url = compress ? Constants.WS_DEPOSITOS_ZIP : Constants.WS_DEPOSITOS_PAGINACION;
+								http = new HttpService();
 								document = http.Call(                                                                                
 										url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User               
 												+ "&Tots=" + String.valueOf(all) + "&desde=" + String.valueOf(i)                     
@@ -1062,21 +934,15 @@ public class ServiceWorker extends ServiceBase {
 					result = false;                                                                                                  
 				}                                                                                                                    
                                                                                                                                               
-				deposito.ReleasePersistance();                                                                                       
-                                                                                                                                     
+				deposito.ReleasePersistance();
 				Log.i("ServiceWorker", "Finalizamos proceso llamada Depositos");                                                     
 			}                                                                                                                        
                                                                                                                                      
 			// * * * * * * * * * * HACEMOS BACKUP A BASE DE DATOS * * * * * * *                                                      
-			                                                                                                
-            
+
 			app.getDatabaseOperations().closeDB();          
 			
 			app.getDatabaseOperations().backupDatabase();
-			/*app.getDatabaseOperations().backupDatabase(                                                                              
-					new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_DB_BACKUP + "/",                            
-							Constants.DATABASE_NAME));*/                                                                               
-                                                                                                                                     
 			app.getDatabaseOperations().openDB(context);                                                                                   
                                                                                                                                      
 		} catch (Exception e) {                                                                                                      

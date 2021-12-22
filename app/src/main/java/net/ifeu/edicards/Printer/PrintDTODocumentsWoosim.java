@@ -28,7 +28,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("dd/MM/yyyy");
-		String pago = (Tipo == 1) ? "\n" : "Pago: " + deposito.PagoDescripcion
+		String pago = (Tipo == Constants.TIPO_DOCUMENTO_DEPOSITO) ? "\n" : "Pago: " + deposito.PagoDescripcion
 				+ "\n";
 
 		String header = ("Fecha: " + formatter.format(deposito.FechaDeposito)
@@ -58,7 +58,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 
 		String total;
 
-		if (tipo == 2)
+		if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN)
 			total = padLeft("TOTAL", 10);
 		else
 			total = Constants.EMPTY_STRING;
@@ -75,13 +75,13 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 	}
 
 	private void printTotals(Context context, AppConfig app, int tipo,
-			DTODeposito deposito) throws IOException {
+			DTODeposito deposito, boolean isTransferPayment) throws IOException {
 
 		Log.i("PrintDTODocumento", "Entro a printTotals");
 
 		DecimalFormat df = new DecimalFormat("0.00");
 
-		if (tipo == 1) {
+		if (tipo == Constants.TIPO_DOCUMENTO_DEPOSITO) {
 			try {
 				deposito.CalculateDeposito();
 			} catch (Exception e) {
@@ -301,17 +301,19 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 					_woosim.saveSpool(LANGUAGE,
 							"Conforme - Firma Cliente:\n", 0, false);
 					this.Print();
-
 					this.PrintBitmapSignature();
 				}
 
 			}
 
-			if (tipo == 2 &&  app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
+			if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN &&  app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
 				_woosim.saveSpool (LANGUAGE, "MERCANCIA PENDIENTE DE ENVIO" + "\n", 0, true);
 				this.Print();
 			}
 
+			if (isTransferPayment) {
+				// Aquí pintarem
+			}
 		}
 
 		this.LineFeed();
@@ -322,9 +324,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 			DTODeposito deposito) throws StarIOPortException {
 
 		DecimalFormat df = new DecimalFormat("0.00");
-
 		List<DTOLineaDeposito> tempList = new ArrayList<DTOLineaDeposito>();
-
 		for (DTOLineaDeposito linea : deposito.Lineas.values()) {
 			tempList.add(linea);
 		}
@@ -332,7 +332,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 		Collections.sort(tempList,
 				new DTOLineaDeposito().new ArticuloComparator());
 
-		if (tipo == 2)
+		if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN)
 			for (DTOLineaDeposito linea : tempList) {
 				if (linea.UnidadesFacturadas > 0) {
 					String desc;
@@ -410,7 +410,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 	}
 
 	public boolean printAlbaran(DTODeposito deposito, Context context,
-			AppConfig app, String guid) {
+			AppConfig app, String guid, boolean isTransferPayment) {
 
 		_GUID = guid;
 
@@ -447,14 +447,10 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 						0, true);
 				this.Print();
 			}
-			this.printHeaderData(context, deposito, app, 2);
-
-			printHeaderFields(context, 2, app);
-
-			printHeaderDetail(context, app, 2, deposito);
-
-			printTotals(context, app, 2, deposito);
-
+			this.printHeaderData(context, deposito, app, Constants.TIPO_DOCUMENTO_ALBARAN);
+			printHeaderFields(context, Constants.TIPO_DOCUMENTO_ALBARAN, app);
+			printHeaderDetail(context, app, Constants.TIPO_DOCUMENTO_ALBARAN, deposito);
+			printTotals(context, app, Constants.TIPO_DOCUMENTO_ALBARAN, deposito, isTransferPayment);
 			closePage();
 
 		} catch (Exception e) {
@@ -479,22 +475,17 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 		try {
 
 			this.Initialize();
-
 			printHeader(context);
 
 			String depositoText = ("DEPOSITO: NUM " + app.getUser().User + "/"
 					+ String.valueOf(deposito.IdDeposito) + "\n");
 
 			_woosim.saveSpool(LANGUAGE, depositoText, 0, true);
-
-			this.printHeaderData(context, deposito, app, 1);
-
-			printHeaderFields(context, 1, app);
-
-			printHeaderDetail(context, app, 1, deposito);
-
+			this.printHeaderData(context, deposito, app, Constants.TIPO_DOCUMENTO_DEPOSITO);
+			printHeaderFields(context, Constants.TIPO_DOCUMENTO_DEPOSITO, app);
+			printHeaderDetail(context, app, Constants.TIPO_DOCUMENTO_DEPOSITO, deposito);
 			Log.i("PrintDTODocumento", "Abans d'iniciar printTotals");
-			printTotals(context, app, 1, deposito);
+			printTotals(context, app, Constants.TIPO_DOCUMENTO_DEPOSITO, deposito, false);
 
 			_woosim.saveSpool(LANGUAGE,
 					"\nOPERACION ASEGURADA EN CREDITO Y CAUCION\n\n", 0, false);
@@ -510,9 +501,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 			
 			_woosim.saveSpool(LANGUAGE, "Conforme - Firma Cliente:\n", 0, false);
 			this.Print();
-			//
 			this.PrintBitmapSignature();
-
 			closePage();
 
 		} catch (Exception e) {

@@ -47,15 +47,9 @@ public class PdfCreator extends pdfBase{
 	private void printHeader() throws DocumentException, FileNotFoundException {
 
 		this.addLogo();
-
 		String text = Constants.EMPTY_STRING;
-
 		text = "\nGRUP EDICIONES ESTER JAEN SL\n"
-				+
-				// "Editora y Distribuidora de Tarjetas de Felicitacion\n" +
-				// "Postales  Stickers  Llaveros\n" +
-				// "Libros de Colorear  Gifts  Manualidades  Papel Fantasia\n" +
-				"NIF: B-61806808\n"
+				+ "NIF: B-61806808\n"
 				+ "Ediciones Ester Jaen S.L.  Pol. Ind Pla de la Bruguera\n"
 				+ "C/Solsones, 68  08211\n"
 				+ "Castellar del Valles  (Spain)\n"
@@ -67,7 +61,6 @@ public class PdfCreator extends pdfBase{
 		paragraph.setAlignment(Element.ALIGN_CENTER);
 
 		_document.add(paragraph);
-
 		this.insertSeparators();
 
 	}
@@ -97,10 +90,9 @@ public class PdfCreator extends pdfBase{
 	private void printHeaderFields(int tipo) throws DocumentException {
 
 		this.insertSeparators();
-
 		String total;
 
-		if (tipo == 2)
+		if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN)
 			total = padLeft("TOTAL", 10);
 		else
 			total = Constants.EMPTY_STRING;
@@ -109,15 +101,14 @@ public class PdfCreator extends pdfBase{
 				+ padLeft("UNID.", 10) + padLeft("PRECIO.", 10) + total + "\n";
 
 		_document.add(new Paragraph(text, _fontNormal));
-
 		this.insertSeparators();
 	}
 
-	private void printTotals(int tipo) throws DocumentException,
+	private void printTotals(int tipo, boolean isTransferPayment) throws DocumentException,
 			MalformedURLException, IOException {
 		DecimalFormat df = new DecimalFormat("0.00");
 
-		if (tipo == 1) {
+		if (tipo == Constants.TIPO_DOCUMENTO_DEPOSITO) {
 			try {
 				_deposito.CalculateDeposito();
 			} catch (Exception e) {
@@ -191,7 +182,6 @@ public class PdfCreator extends pdfBase{
 										+ _deposito.Totales.TotalRecargo)), 10);
 
 				_document.add(new Paragraph(impuestos + "\n", _fontBold));
-
 			}
 
 			String total = Constants.EMPTY_STRING;
@@ -220,17 +210,9 @@ public class PdfCreator extends pdfBase{
 			_document.add(new Paragraph(total + "\n", _fontBold));
 
 			if (_deposito.Serie.equals(_app.getUser().SerialInvoiceB)) {
-
 				_document.add(new Paragraph("\nIVA NO INCLUIDO\n", _fontBold));
-
 				_document.add(new Paragraph(_deposito.PagoDescripcion + "\n",
 						_fontBold));
-
-				/*
-				 * if (isMadeInSpain(deposito.CodigoPostal))
-				 * this.PrintBitmapImage(context, PORT, SETTINGS,
-				 * context.getResources(), R.drawable.madeinspain, 1500);
-				 */
 
 			} else {
 				for (Totales.Base base : _deposito.Totales.Bases.values()) {
@@ -259,12 +241,6 @@ public class PdfCreator extends pdfBase{
 					_document.add(new Paragraph(formaPagoText, _fontBold));
 
 					if (_deposito.Pagado) {
-						/*
-						 * if (isMadeInSpain(deposito.CodigoPostal))
-						 * this.PrintBitmapImage(context, PORT, SETTINGS,
-						 * context.getResources(), R.drawable.madeinspain,
-						 * 1500);
-						 */
 
 						_document.add(new Paragraph(
 								"Conforme   firma cliente:\n", _fontNormal));
@@ -296,59 +272,40 @@ public class PdfCreator extends pdfBase{
 						}
 
 						_document.add(new Paragraph("\n"));
-
 						_document.add(new Paragraph("\n"));
-
 						String firmaVendedorText = "FIRMA VENDEDOR: "
 								+ _app.getUser().Name + "\n";
-
 						_document.add(new Paragraph(firmaVendedorText,
 								_fontNormal));
 
-						this.addSignature(2);
-						// this.PrintBitmapSignatureVendor(context, PORT,
-						// SETTINGS, 150);
+						this.addSignature(Constants.TIPO_DOCUMENTO_ALBARAN);
 
 						_document.add(new Paragraph("\n"));
-
 						String firmaClienteText = "FIRMA CLIENTE\n";
 
 						_document.add(new Paragraph(firmaClienteText,
 								_fontNormal));
 
-						this.addSignature(1);
-						// this.PrintBitmapSignature(context, PORT, SETTINGS,
-						// 150);
+						this.addSignature(Constants.TIPO_DOCUMENTO_DEPOSITO);
 
 					} else {
-						// _document
-						// .add(new Paragraph(
-						// "\nOPERACION ASEGURADA EN CREDITO Y CAUCION\n\n"));
-
-						/*
-						 * if (isMadeInSpain(deposito.CodigoPostal))
-						 * this.PrintBitmapImage(context, PORT, SETTINGS,
-						 * context.getResources(), R.drawable.madeinspain,
-						 * 1500);
-						 */
-
 						_document.add(new Paragraph(
 								"Conforme - Firma Cliente:\n", _fontNormal));
-
 						this.addSignature(1);
-						// this.PrintBitmapSignature(context, PORT, SETTINGS,
-						// 150);
 					}
-
 				}
 			}
 
-			if (tipo == 2 &&  this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
+			if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN &&  this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
 				String pendienteEnvioText = "MERCANCIA PENDIENTE DE ENVIO"
 						+ "\n";
 
 				_document.add(new Paragraph(pendienteEnvioText,
 						_fontBoldExtra));
+			}
+
+			if (isTransferPayment) {
+				// Aquí pintarem
 			}
 		}
 	}
@@ -356,7 +313,6 @@ public class PdfCreator extends pdfBase{
 	private void printHeaderDetail(int tipo) throws DocumentException {
 
 		DecimalFormat df = new DecimalFormat("0.00");
-
 		List<LineaDeposito> tempList = new ArrayList<LineaDeposito>();
 
 		for (LineaDeposito linea : _deposito.Lineas.values()) {
@@ -366,7 +322,7 @@ public class PdfCreator extends pdfBase{
 		Collections
 				.sort(tempList, new LineaDeposito().new ArticuloComparator());
 
-		if (tipo == 2)
+		if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN)
 			for (LineaDeposito linea : tempList) {
 				if (linea.UnidadesFacturadas > 0) {
 					String desc;
@@ -443,7 +399,6 @@ public class PdfCreator extends pdfBase{
 				}
 			}
 		}
-
 	}
 
 	@Override
@@ -458,7 +413,7 @@ public class PdfCreator extends pdfBase{
 
 	}
 
-	public boolean createAlbaran(String guid) throws FileNotFoundException,
+	public boolean createAlbaran(String guid, boolean isTransferPayment) throws FileNotFoundException,
 			DocumentException {
 
 		_GUID = guid;
@@ -500,14 +455,10 @@ public class PdfCreator extends pdfBase{
 				_document.add(new Paragraph(albaranText, _fontBold));
 			}
 
-			this.printHeaderData(2);
-
-			printHeaderFields(2);
-
-			printHeaderDetail(2);
-
-			printTotals(2);
-
+			this.printHeaderData(Constants.TIPO_DOCUMENTO_ALBARAN);
+			printHeaderFields(Constants.TIPO_DOCUMENTO_ALBARAN);
+			printHeaderDetail(Constants.TIPO_DOCUMENTO_ALBARAN);
+			printTotals(Constants.TIPO_DOCUMENTO_ALBARAN, isTransferPayment);
 			closePage();
 
 		} catch (Exception e) {
@@ -545,23 +496,15 @@ public class PdfCreator extends pdfBase{
 
 		_document.add(new Paragraph(depositoNum, _fontBold));
 
-		this.printHeaderData(1);
-
-		printHeaderFields(1);
-
-		printHeaderDetail(1);
-
-		printTotals(1);
+		this.printHeaderData(Constants.TIPO_DOCUMENTO_DEPOSITO);
+		printHeaderFields(Constants.TIPO_DOCUMENTO_DEPOSITO);
+		printHeaderDetail(Constants.TIPO_DOCUMENTO_DEPOSITO);
+		printTotals(Constants.TIPO_DOCUMENTO_DEPOSITO, false);
 
 		String firmaCliente = "Conforme - Firma Cliente:\n";
-
 		_document.add(new Paragraph(firmaCliente, _fontNormal));
-
-		this.addSignature(1);
-		// this.PrintBitmapSignature(context, PORT, SETTINGS, 150);
-
+		this.addSignature(Constants.TIPO_DOCUMENTO_DEPOSITO);
 		closePage();
 
 	}
-
 }

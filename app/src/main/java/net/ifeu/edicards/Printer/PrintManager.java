@@ -52,13 +52,12 @@ public class PrintManager {
 
 	}
 
-
 	public boolean printAlbaran(Deposito deposito, Context context,
-			AppConfig app, String guid) throws Exception {
+			AppConfig app, String guid, boolean isTransferPayment) throws Exception {
 		if (_print == null)
 			throw new Exception("No se ha encontrado impresora");
 
-		return _print.printAlbaran(deposito, context, app, guid);
+		return _print.printAlbaran(deposito, context, app, guid, isTransferPayment);
 
 	}
 
@@ -72,11 +71,11 @@ public class PrintManager {
 	}
 	
 	public boolean printAlbaran(DTODeposito deposito, Context context,
-			AppConfig app, String guid) throws Exception {
+			AppConfig app, String guid, boolean isTransferPayment) throws Exception {
 		if (_printDTO == null)
 			throw new Exception("No se ha encontrado impresora");
 
-		return _printDTO.printAlbaran(deposito, context, app, guid);
+		return _printDTO.printAlbaran(deposito, context, app, guid, isTransferPayment);
 
 	}
 
@@ -95,5 +94,4 @@ public class PrintManager {
 			_printDTO.Release();
 			
 	}
-
 }

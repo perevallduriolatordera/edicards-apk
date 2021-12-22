@@ -311,7 +311,6 @@ public class DTODeposito {
 			lineaDeposito.UnidadesAbono = linea.UnidadesAbono;
 
 			dep.Lineas.put(String.valueOf(lineaDeposito.Articulo.CodigoArticulo), lineaDeposito);
-
 		}
 		
 		return dep;

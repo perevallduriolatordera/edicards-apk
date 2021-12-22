@@ -10,7 +10,7 @@ public interface IPrintDTO {
 			boolean showMessages);
 	
 	public boolean printAlbaran(DTODeposito deposito, Context context,
-			AppConfig app, String guid);
+			AppConfig app, String guid, boolean isTransferPayment);
 	
 	public boolean printDeposito(DTODeposito deposito, Context context,
 			AppConfig app, String guid);

@@ -90,7 +90,6 @@ public class PrintDocumentsWoosim implements IPrint {
 	}
 
 	public void Release() {
-		//_woosim.clearSpool();
 		_woosim.closeConnection();
 	}
 
@@ -113,7 +112,6 @@ public class PrintDocumentsWoosim implements IPrint {
 
 		_woosim.saveSpool(LANGUAGE, header, 0, false);
 		this.Print();
-
 		this.AlignLeft();
 
 		_woosim.saveSpool(
@@ -122,7 +120,6 @@ public class PrintDocumentsWoosim implements IPrint {
 				0, false);
 
 		this.LineFeed();
-
 		this.Print();
 
 	}
@@ -132,7 +129,7 @@ public class PrintDocumentsWoosim implements IPrint {
 
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("dd/MM/yyyy");
-		String pago = (Tipo == 1) ? "\n" : "Pago: " + deposito.PagoDescripcion
+		String pago = (Tipo == Constants.TIPO_DOCUMENTO_DEPOSITO) ? "\n" : "Pago: " + deposito.PagoDescripcion
 				+ "\n";
 
 		String header = ("Fecha: " + formatter.format(deposito.FechaDeposito)
@@ -162,7 +159,7 @@ public class PrintDocumentsWoosim implements IPrint {
 
 		String total;
 
-		if (tipo == 2)
+		if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN)
 			total = padLeft("TOTAL", 10);
 		else
 			total = Constants.EMPTY_STRING;
@@ -179,13 +176,12 @@ public class PrintDocumentsWoosim implements IPrint {
 	}
 
 	private void printTotals(Context context, AppConfig app, int tipo,
-			Deposito deposito) throws Exception {
+			Deposito deposito, boolean isTransferPayment) throws Exception {
 
 		Log.i("PrintDocumento", "Entro a printTotals");
-
 		DecimalFormat df = new DecimalFormat("0.00");
 
-		if (tipo == 1) {
+		if (tipo == Constants.TIPO_DOCUMENTO_DEPOSITO) {
 			try {
 				deposito.CalculateDeposito();
 			} catch (Exception e) {
@@ -280,7 +276,6 @@ public class PrintDocumentsWoosim implements IPrint {
 
 				_woosim.saveSpool(LANGUAGE, "\n" + total + "\n", 0, true);
 				this.Print();
-
 			}
 			
 			if (deposito.Serie.equals(app.getUser().SerialInvoiceB)) {
@@ -410,11 +405,14 @@ public class PrintDocumentsWoosim implements IPrint {
 
 			}
 
-			if (tipo == 2 &&  app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
+			if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN &&  app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
 				_woosim.saveSpool (LANGUAGE, "MERCANCIA PENDIENTE DE ENVIO" + "\n", 0, true);
 				this.Print();
 			}
 
+			if (isTransferPayment) {
+				// Aquí pintarem
+			}
 		}
 
 		this.LineFeed();
@@ -425,7 +423,6 @@ public class PrintDocumentsWoosim implements IPrint {
 			Deposito deposito) throws StarIOPortException {
 
 		DecimalFormat df = new DecimalFormat("0.00");
-
 		List<LineaDeposito> tempList = new ArrayList<LineaDeposito>();
 
 		for (LineaDeposito linea : deposito.Lineas.values()) {
@@ -435,7 +432,7 @@ public class PrintDocumentsWoosim implements IPrint {
 		Collections
 				.sort(tempList, new LineaDeposito().new ArticuloComparator());
 
-		if (tipo == 2)
+		if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN)
 			for (LineaDeposito linea : tempList) {
 				if (linea.UnidadesFacturadas > 0) {
 					String desc;
@@ -529,13 +526,11 @@ public class PrintDocumentsWoosim implements IPrint {
 				0, false);
 
 		this.LineFeed();
-
 		this.Print();
-
 	}
 
 	public boolean printAlbaran(Deposito deposito, Context context,
-			AppConfig app, String guid) throws Exception {
+			AppConfig app, String guid, boolean istransferPayment) throws Exception {
 
 		_GUID = guid;
 
@@ -572,13 +567,10 @@ public class PrintDocumentsWoosim implements IPrint {
 						0, true);
 				this.Print();
 			}
-			this.printHeaderData(context, deposito, app, 2);
-
-			printHeaderFields(context, 2, app);
-
-			printHeaderDetail(context, app, 2, deposito);
-
-			printTotals(context, app, 2, deposito);
+			this.printHeaderData(context, deposito, app, Constants.TIPO_DOCUMENTO_ALBARAN);
+			printHeaderFields(context, Constants.TIPO_DOCUMENTO_ALBARAN, app);
+			printHeaderDetail(context, app, Constants.TIPO_DOCUMENTO_ALBARAN, deposito);
+			printTotals(context, app, Constants.TIPO_DOCUMENTO_ALBARAN, deposito, istransferPayment);
 
 			closePage();
 
@@ -604,22 +596,16 @@ public class PrintDocumentsWoosim implements IPrint {
 		try {
 
 			this.Initialize();
-
 			printHeader(context);
-
 			String depositoText = ("DEPOSITO: NUM " + app.getUser().User + "/"
 					+ String.valueOf(deposito.IdDeposito) + "\n");
-
 			_woosim.saveSpool(LANGUAGE, depositoText, 0, true);
-
-			this.printHeaderData(context, deposito, app, 1);
-
-			printHeaderFields(context, 1, app);
-
-			printHeaderDetail(context, app, 1, deposito);
+			this.printHeaderData(context, deposito, app, Constants.TIPO_DOCUMENTO_DEPOSITO);
+			printHeaderFields(context, Constants.TIPO_DOCUMENTO_DEPOSITO, app);
+			printHeaderDetail(context, app, Constants.TIPO_DOCUMENTO_DEPOSITO, deposito);
 
 			Log.i("PrintDTODocumento", "Abans d'iniciar printTotals");
-			printTotals(context, app, 1, deposito);
+			printTotals(context, app, Constants.TIPO_DOCUMENTO_DEPOSITO, deposito, false);
 
 			_woosim.saveSpool(LANGUAGE,
 					"\nOPERACION ASEGURADA EN CREDITO Y CAUCION\n\n", 0, false);
@@ -635,9 +621,7 @@ public class PrintDocumentsWoosim implements IPrint {
 
 			_woosim.saveSpool(LANGUAGE, "Conforme - Firma Cliente:\n\n\n", 0, false);
 			this.Print();
-			//
 			this.PrintBitmapSignature();
-
 			closePage();
 
 		} catch (Exception e) {

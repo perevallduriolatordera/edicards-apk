@@ -97,18 +97,8 @@ public class PrintDocumentsStar implements IPrint {
 																// Center, 2
 																// Right)
 
-		// outputByteBuffer = ("[Print Stored Logo Below]\n\n").getBytes();
-		// port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
-		//
-		// port.writePort(new byte[]{0x1b, 0x66, 0x00}, 0, 3); //Stored Logo
-		// Printing <ESC> f n (n = Store Logo # = 0 or 1 or 2 etc.)
-
 		outputByteBuffer = ("\nGRUP EDICIONES ESTER JAEN S L\n"
-				+
-				// "Editora y Distribuidora de Tarjetas de Felicitacion\n" +
-				// "Postales  Stickers  Llaveros\n" +
-				// "Libros de Colorear  Gifts  Manualidades  Papel Fantasia\n" +
-				"NIF: B-61806808\n"
+				+ "NIF: B-61806808\n"
 				+ "Ediciones Ester Jaen S.L.  Pol. Ind Pla de la Bruguera\n"
 				+ "C/Solsones, 68  08211\n"
 				+ "Castellar del Valles  (Spain)\n"
@@ -117,9 +107,7 @@ public class PrintDocumentsStar implements IPrint {
 				+ "e-mail: edicards@edicards.com    Web: www.edicards.com\n\n")
 				.getBytes();
 		port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
-
 		port.writePort(new byte[] { 0x1b, 0x61, 0x00 }, 0, 3); // Left Alignment
-
 		port.writePort(new byte[] { 0x1b, 0x44, 0x02, 0x1b, 0x34, 0x00 }, 0, 6); // Setting
 																					// Horizontal
 																					// Tab
@@ -138,7 +126,7 @@ public class PrintDocumentsStar implements IPrint {
 
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("dd/MM/yyyy");
-		String pago = (Tipo == 1) ? "\n" : "Pago: " + deposito.PagoDescripcion
+		String pago = (Tipo == Constants.TIPO_DOCUMENTO_DEPOSITO) ? "\n" : "Pago: " + deposito.PagoDescripcion
 				+ "\n";
 
 		outputByteBuffer = ("Fecha: "
@@ -167,23 +155,16 @@ public class PrintDocumentsStar implements IPrint {
 			} catch (InterruptedException e) {
 			}
 
-			this.printHeaderFields(port, context, 1, app);
-			this.printHeaderDetail(port, context, app, 1, deposito);
+			this.printHeaderFields(port, context, Constants.TIPO_DOCUMENTO_DEPOSITO, app);
+			this.printHeaderDetail(port, context, app, Constants.TIPO_DOCUMENTO_DEPOSITO, deposito);
 
-			this.printHeaderFields(port, context, 2, app);
-			this.printHeaderDetail(port, context, app, 2, deposito);
+			this.printHeaderFields(port, context, Constants.TIPO_DOCUMENTO_ALBARAN, app);
+			this.printHeaderDetail(port, context, app, Constants.TIPO_DOCUMENTO_ALBARAN, deposito);
 
-			this.printTotals(port, context, app, 1, deposito);
-			this.printTotals(port, context, app, 2, deposito);
+			this.printTotals(port, context, app, Constants.TIPO_DOCUMENTO_DEPOSITO, deposito, false);
+			this.printTotals(port, context, app, Constants.TIPO_DOCUMENTO_ALBARAN, deposito, false);
 
 		} catch (StarIOPortException e) {
-			/*
-			 * Builder dialog = new AlertDialog.Builder(context);
-			 * dialog.setNegativeButton("Ok", null); AlertDialog alert =
-			 * dialog.create(); alert.setTitle("Error de impresión");
-			 * alert.setMessage("Error al conectar con la impresora");
-			 * alert.show();
-			 */
 			app.getMessageBox().Show("Estado de impresión",
 					"Error al conectar con la impresora", context,
 					MessageBoxType.Error);
@@ -209,7 +190,7 @@ public class PrintDocumentsStar implements IPrint {
 
 		String total;
 
-		if (tipo == 2)
+		if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN)
 			total = padLeft("TOTAL", 10);
 		else
 			total = Constants.EMPTY_STRING;
@@ -225,12 +206,12 @@ public class PrintDocumentsStar implements IPrint {
 	}
 
 	private void printTotals(StarIOPort port, Context context, AppConfig app,
-			int tipo, Deposito deposito) throws StarIOPortException {
+			int tipo, Deposito deposito, boolean isTransferPayment) throws StarIOPortException {
 
 		DecimalFormat df = new DecimalFormat("0.00");
 		byte[] outputByteBuffer = null;
 
-		if (tipo == 1) {
+		if (tipo == Constants.TIPO_DOCUMENTO_DEPOSITO) {
 			try {
 				deposito.CalculateDeposito();
 			} catch (Exception e) {
@@ -348,10 +329,6 @@ public class PrintDocumentsStar implements IPrint {
 						+ deposito.PagoDescripcion + "\n").getBytes();
 				port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
 
-				// outputByteBuffer =
-				// ("\nFABRICADO EN ESPAÑA.  Todo el proceso de diseño y fabricacion de nuestros productos ha sido realizado íntegramente en España. Consumir productos españoles asegura el futuro, la economía del país y el afianzamiento del empleo.\n\n").getBytes();
-				// port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
-
 				if (isMadeInSpain(deposito.CodigoPostal))
 					this.PrintBitmapImage(context, PORT, SETTINGS,
 							context.getResources(), R.drawable.madeinspain,
@@ -404,10 +381,6 @@ public class PrintDocumentsStar implements IPrint {
 				}
 				
 				if (deposito.Pagado) {
-					// outputByteBuffer =
-					// ("\nFABRICADO EN ESPAÑA.  Todo el proceso de diseño y fabricación de nuestros productos ha sido realizado íntegramente en España. Consumir productos españoles asegura el futuro, la economía del país y el afianzamiento del empleo.\n\n").getBytes();
-					// port.writePort(outputByteBuffer, 0,
-					// outputByteBuffer.length);
 					if (isMadeInSpain(deposito.CodigoPostal))
 						this.PrintBitmapImage(context, PORT, SETTINGS,
 								context.getResources(),
@@ -473,11 +446,6 @@ public class PrintDocumentsStar implements IPrint {
 					port.writePort(outputByteBuffer, 0,
 							outputByteBuffer.length);
 
-					// outputByteBuffer =
-					// ("\nFABRICADO EN ESPAÑA.  Todo el proceso de diseño y fabricación de nuestros productos ha sido realizado íntegramente en España. Consumir productos españoles asegura el futuro, la economía del país y el afianzamiento del empleo.\n\n").getBytes();
-					// port.writePort(outputByteBuffer, 0,
-					// outputByteBuffer.length);
-
 					if (isMadeInSpain(deposito.CodigoPostal))
 						this.PrintBitmapImage(context, PORT, SETTINGS,
 								context.getResources(),
@@ -496,7 +464,7 @@ public class PrintDocumentsStar implements IPrint {
 				}
 			}
 
-			if (tipo == 2 &&  app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
+			if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN &&  app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
 
 				port.writePort(new byte[]{0x1b, 0x45, 0x01}, 0, 3);
 
@@ -506,6 +474,10 @@ public class PrintDocumentsStar implements IPrint {
 						outputByteBuffer.length);
 
 				port.writePort(new byte[]{0x1b, 0x45, 0x00}, 0, 3);
+			}
+
+			if (isTransferPayment) {
+				// Aquí pintarem
 			}
 		}
 	}
@@ -526,7 +498,7 @@ public class PrintDocumentsStar implements IPrint {
 		Collections
 				.sort(tempList, new LineaDeposito().new ArticuloComparator());
 
-		if (tipo == 2)
+		if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN)
 			for (LineaDeposito linea : tempList) {
 				if (linea.UnidadesFacturadas > 0) {
 					String desc;
@@ -620,7 +592,7 @@ public class PrintDocumentsStar implements IPrint {
 	}
 
 	public boolean printAlbaran(Deposito deposito, Context context,
-			AppConfig app, String guid) {
+			AppConfig app, String guid, boolean isTransferPayment) {
 		_GUID = guid;
 
 		StarIOPort port = null;
@@ -665,19 +637,16 @@ public class PrintDocumentsStar implements IPrint {
 																	// command
 																	// as on)
 
-			this.printHeaderData(port, context, deposito, app, 2);
+			this.printHeaderData(port, context, deposito, app, Constants.TIPO_DOCUMENTO_ALBARAN);
 
 			port.writePort(new byte[] { 0x1b, 0x45, 0x01 }, 0, 3); // Set
 																	// Emphasized
 																	// Printing
 																	// ON
 
-			printHeaderFields(port, context, 2, app);
-
-			printHeaderDetail(port, context, app, 2, deposito);
-
-			printTotals(port, context, app, 2, deposito);
-
+			printHeaderFields(port, context, Constants.TIPO_DOCUMENTO_ALBARAN, app);
+			printHeaderDetail(port, context, app, Constants.TIPO_DOCUMENTO_ALBARAN, deposito);
+			printTotals(port, context, app, Constants.TIPO_DOCUMENTO_ALBARAN, deposito, isTransferPayment);
 			port.writePort(new byte[] { 0x1b, 0x45, 0x00 }, 0, 3); // Set
 																	// Emphasized
 																	// Printing
@@ -688,16 +657,6 @@ public class PrintDocumentsStar implements IPrint {
 			closePage(port);
 
 		} catch (StarIOPortException e) {
-			/*
-			 * Builder dialog = new AlertDialog.Builder(context);
-			 * dialog.setNegativeButton("Ok", null); AlertDialog alert =
-			 * dialog.create(); alert.setTitle("Error de impresión");
-			 * alert.setMessage("Error al conectar con la impresora");
-			 * alert.show();
-			 */
-			// app.getMessageBox().Show("Estado de impresión",
-			// "Error al conectar con la impresora", context,
-			// MessageBoxType.Error);
 			return false;
 		}
 
@@ -749,19 +708,15 @@ public class PrintDocumentsStar implements IPrint {
 																	// command
 																	// as on)
 
-			this.printHeaderData(port, context, deposito, app, 1);
-
+			this.printHeaderData(port, context, deposito, app, Constants.TIPO_DOCUMENTO_DEPOSITO);
 			port.writePort(new byte[] { 0x1b, 0x45, 0x01 }, 0, 3); // Set
 																	// Emphasized
 																	// Printing
 																	// ON
 
-			printHeaderFields(port, context, 1, app);
-
-			printHeaderDetail(port, context, app, 1, deposito);
-
-			printTotals(port, context, app, 1, deposito);
-
+			printHeaderFields(port, context, Constants.TIPO_DOCUMENTO_DEPOSITO, app);
+			printHeaderDetail(port, context, app, Constants.TIPO_DOCUMENTO_DEPOSITO, deposito);
+			printTotals(port, context, app, Constants.TIPO_DOCUMENTO_DEPOSITO, deposito, false);
 			outputByteBuffer = ("\nOPERACION ASEGURADA EN CREDITO Y CAUCION\n\n")
 					.getBytes();
 			port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
@@ -777,39 +732,6 @@ public class PrintDocumentsStar implements IPrint {
 			this.PrintBitmapImage(context, PORT, SETTINGS,
 					context.getResources(), R.drawable.contract, 1500);
 
-			/*
-			 * outputByteBuffer =
-			 * ("\nCONDICIONES CONTRATO DEPOSITO\n\n").getBytes();
-			 * port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
-			 * 
-			 * port.writePort(new byte[]{0x1b, 0x45, 0x00}, 0, 3); //Set
-			 * Emphasized Printing OFF (same command as on)
-			 * 
-			 * 
-			 * outputByteBuffer = (
-			 * "1.- Los expositores proporcionados con el deposito son exclusivos para este producto. El mueble expositor SIEMPRE será en deposito y propiedad de nuestra empresa.\n"
-			 * ).getBytes(); port.writePort(outputByteBuffer, 0,
-			 * outputByteBuffer.length); outputByteBuffer = (
-			 * "2.- Los agentes comerciales podran efectuar la revision de los depositos cuando lo consideren oportuno.\n"
-			 * ).getBytes(); port.writePort(outputByteBuffer, 0,
-			 * outputByteBuffer.length); outputByteBuffer = (
-			 * "3.- El producto suministrado se mantendra, en todo momento, expuesto al publico y en un estado de conservacion adecuado. En caso de rotura, deterioro o perdida, estara obligado a abonar su importe total.\n"
-			 * ).getBytes(); port.writePort(outputByteBuffer, 0,
-			 * outputByteBuffer.length); outputByteBuffer = (
-			 * "4.- En caso de traspaso o cierre, el cliente se compromete a dar aviso, al menos con una antelacion de QUINCE DIAS y en caso contrario, estara obligado al pago de la totalidad del genero depositado.\n"
-			 * ).getBytes(); port.writePort(outputByteBuffer, 0,
-			 * outputByteBuffer.length); outputByteBuffer = (
-			 * "5.- Todas las facturas deberan ser atendidas en su totalidad al vencimiento de la misma, en caso de incumplimiento injustificado, Ediciones Ester Jaen S.L., se reserva el derecho de emitir un cargo, equivalente a los gastos de devolucion, generados por dicho acto.\n"
-			 * ).getBytes(); port.writePort(outputByteBuffer, 0,
-			 * outputByteBuffer.length); outputByteBuffer = (
-			 * "6.- Una vez facilitados los datos bancarios a la empresa, el cliente autoriza a Ediciones Ester Jaen S.L. a proceder  al giro de los recibos.\n"
-			 * ).getBytes(); port.writePort(outputByteBuffer, 0,
-			 * outputByteBuffer.length); outputByteBuffer = (
-			 * "7.- Los impagos de una factura o bien los generados por cierre o traspaso, seran causa suficiente para la retirada de los depositos y los cobros seran gestionados por CREDITO Y CAUCION.\n\n"
-			 * ).getBytes(); port.writePort(outputByteBuffer, 0,
-			 * outputByteBuffer.length);
-			 */
-
 			port.writePort(new byte[] { 0x1b, 0x45, 0x01 }, 0, 3); // Set
 																	// Emphasized
 																	// Printing
@@ -817,9 +739,7 @@ public class PrintDocumentsStar implements IPrint {
 
 			outputByteBuffer = ("Conforme - Firma Cliente:\n").getBytes();
 			port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
-
 			this.PrintBitmapSignature(context, PORT, SETTINGS, 150);
-
 			port.writePort(new byte[] { 0x1b, 0x45, 0x00 }, 0, 3); // Set
 																	// Emphasized
 																	// Printing
@@ -830,17 +750,6 @@ public class PrintDocumentsStar implements IPrint {
 			closePage(port);
 
 		} catch (StarIOPortException e) {
-			/*
-			 * Builder dialog = new AlertDialog.Builder(context);
-			 * dialog.setNegativeButton("Ok", null); AlertDialog alert =
-			 * dialog.create(); alert.setTitle("Error de impresión");
-			 * alert.setMessage("Error al conectar con la impresora");
-			 * alert.show();
-			 */
-
-			// app.getMessageBox().Show("Estado de impresión",
-			// "Error al conectar con la impresora", context,
-			// MessageBoxType.Error);
 			return false;
 		}
 
@@ -864,7 +773,6 @@ public class PrintDocumentsStar implements IPrint {
 		Bitmap bm = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_FIRMAS + "/" + "C_" + _GUID + ".png", options);
 		
 		StarBitmap starbitmap = new StarBitmap(bm, false, maxWidth);
-		
 		StarIOPort port = null;
 		try 
     	{
@@ -888,13 +796,6 @@ public class PrintDocumentsStar implements IPrint {
 		}
     	catch (StarIOPortException e)
     	{
-    		/*Builder dialog = new AlertDialog.Builder(context);
-    		dialog.setNegativeButton("Ok", null);
-    		AlertDialog alert = dialog.create();
-    		alert.setTitle("Error");
-    		alert.setMessage("Error al conectar a la impresora");
-    		alert.show();*/
-
     	}
 		finally
 		{
@@ -939,13 +840,6 @@ public class PrintDocumentsStar implements IPrint {
 		}
     	catch (StarIOPortException e)
     	{
-    		/*Builder dialog = new AlertDialog.Builder(context);
-    		dialog.setNegativeButton("Ok", null);
-    		AlertDialog alert = dialog.create();
-    		alert.setTitle("Error");
-    		alert.setMessage("Error al conectar a la impresora");
-    		alert.show();*/
-    		//app.getMessageBox().Show("Estado de impresión", "Error al conectar con la impresora", context, MessageBoxType.Error);
     	}
 		finally
 		{
@@ -960,21 +854,13 @@ public class PrintDocumentsStar implements IPrint {
 
 	public void PrintBitmapImage(Context context, String portName,
 			String portSettings, Resources res, int source, int maxWidth) {
+
 		Bitmap bm = BitmapFactory.decodeResource(res, source);
 		StarBitmap starbitmap = new StarBitmap(bm, false, maxWidth);
 
 		StarIOPort port = null;
 		try {
-			/*
-			 * using StarIOPort3.1.jar (support USB Port) Android OS Version:
-			 * upper 2.2
-			 */
 			port = StarIOPort.getPort(portName, portSettings, 10000, context);
-			/*
-			 * using StarIOPort.jar Android OS Version: under 2.1 port =
-			 * StarIOPort.getPort(portName, portSettings, 10000);
-			 */
-
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
@@ -983,26 +869,11 @@ public class PrintDocumentsStar implements IPrint {
 			byte[] command = starbitmap.getImageEscPosDataForPrinting();
 			port.writePort(command, 0, command.length);
 
-			/*
-			 * if (406 == maxWidth) { // } else { port.writePort(command, 0,
-			 * command.length); }
-			 */
-
 			try {
 				Thread.sleep(3000);
 			} catch (InterruptedException e) {
 			}
 		} catch (StarIOPortException e) {
-			/*
-			 * Builder dialog = new AlertDialog.Builder(context);
-			 * dialog.setNegativeButton("Ok", null); AlertDialog alert =
-			 * dialog.create(); alert.setTitle("Error");
-			 * alert.setMessage("Error al conectar a la impresora");
-			 * alert.show();
-			 */
-			// app.getMessageBox().Show("Estado de impresión",
-			// "Error al conectar con la impresora", context,
-			// MessageBoxType.Error);
 		} finally {
 			if (port != null) {
 				try {

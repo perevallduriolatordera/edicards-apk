@@ -10,7 +10,7 @@ public interface IPrint {
 			boolean showMessages) throws Exception;
 	
 	public boolean printAlbaran(Deposito deposito, Context context,
-			AppConfig app, String guid) throws Exception;
+			AppConfig app, String guid, boolean isTransferPayment) throws Exception;
 	
 	public boolean printDeposito(Deposito deposito, Context context,
 			AppConfig app, String guid) throws Exception;

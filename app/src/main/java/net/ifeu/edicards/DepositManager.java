@@ -1349,7 +1349,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 						cancel = false;
 						if (_deposito.isAlbaran()) {
 							do {
-								result = printManager.printAlbaran(_deposito, this.getActivity(), _appConfig, GUID);
+								result = printManager.printAlbaran(_deposito, this.getActivity(), _appConfig, GUID, DepositManagerExtension.DataTier.isTransferPayment(_deposito.formaPago));
 								if (!result)
 									cancel = _appConfig.getMessageBox().ShowWithResult("Impresión de depósito",
 											"No se pudo imprimir el albarán. Desea volverlo a intentar?",

@@ -168,8 +168,6 @@ public class Reports extends Fragment {
 			if (hist.Total != 0)
 				reporting.totales.Visitas = reporting.totales.Visitas + 1;
 
-			// if (hist.Serie.equals(_appConfig.getUser().SerialInvoiceB) ||
-			// hist.Serie != null)
 			if (hist.Serie.equals(_appConfig.getUser().SerialInvoiceB)) {
 				if (reporting.totales.InicialSerieB
 						.equals(Constants.EMPTY_STRING))
@@ -282,7 +280,6 @@ public class Reports extends Fragment {
 
 			reporting.totales.Facturado = reporting.totales.Facturado
 					+ hist.Total;
-
 		}
 
 		_appConfig.getWorkingArea().CurrentReporting = reporting;
@@ -317,11 +314,8 @@ public class Reports extends Fragment {
 		label.setTextSize(24);
 		
     	layout1.addView(label);
-    	
     	card.addView(layout1);
-    	
     	layout.addView(card);
-    	
     	return layout;
     	
 	}
@@ -359,7 +353,6 @@ public class Reports extends Fragment {
     	layout1.addView(label2);
     	
     	card.addView(layout1);
-    	
     	layout.addView(card);
     	
     	return layout;
@@ -537,16 +530,6 @@ public class Reports extends Fragment {
 										MessageBoxType.Information);
 					}
 
-					// try {
-					// _appConfig.getMessageBox().Show("Atención",
-					// hist.Serializacion, getActivity(),
-					// MessageBoxType.Error);
-					// } catch (Exception e) {
-					// // TODO Auto-generated catch block
-					// _appConfig.getErrorTrace().Send(
-					// _appConfig.getUser().User, e);
-					// }
-
 					// Comprobamos que el dispositivo esté funcionando
 					// correctamente
 
@@ -618,10 +601,6 @@ public class Reports extends Fragment {
 						result = false;
 						cancel = false;
 
-						Log.i("Reports", "Previ a imprimir albarà com a DTO");
-						Log.i("Reports",
-								"Longitut Lineas: "
-										+ String.valueOf(dto.Lineas.size()));
 						Log.i("Reports",
 								"Resultat isAlbaran;: "
 										+ String.valueOf(dto.isAlbaran()));
@@ -632,9 +611,10 @@ public class Reports extends Fragment {
 								Log.i("Reports",
 										"Entro a imprimir albarà com a DTO");
 								try {
+
 									result = printManager.printAlbaran(dto,
 											getActivity(), _appConfig,
-											hist.GUID);
+											hist.GUID, DepositManagerExtension.DataTier.isTransferPayment(dto.PagoDescripcion));
 								} catch (Exception e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
@@ -691,7 +671,6 @@ public class Reports extends Fragment {
 							that.upgradeDeposito(hist);
 							that.sendIncidencia(hist);
 
-														
 							// CREAMOS EL NUEVO ALBARÁN DE ABONO
 							
 							DTODeposito dto = new DTODeposito(_appConfig, getActivity());
@@ -718,9 +697,7 @@ public class Reports extends Fragment {
 							}
 
 							that.GenerateAlbaran(dto, hist);
-							
 							hist.delete();
-							
 							getHistoricos();
 							
 						}
@@ -745,12 +722,9 @@ public class Reports extends Fragment {
 		LabelColor blank = new LabelColor(this.getActivity(), color, true);
 		blank.setText("     ");
 		blank.setTextSize(TEXT_SIZE);
-		//header.setLayoutParams(params);
 		layout.addView(blank);
 
 		mainLinearLayout.addView(layout);
-
-		// this.getActivity().addContentView(layout, layoutParams);
 
 	}
 	
@@ -848,8 +822,6 @@ public class Reports extends Fragment {
 			
 			for (LineaHistorico historicoLinea : historico.Lineas.values()) {
 				
-				//LineaDeposito linea = deposito.Lineas.get(historicoLinea.Articulo.CodigoArticulo);
-				
 				switch (historicoLinea.Tipo) {
 					case Constants.TIPO_LINEA_HISTORICO_UNIDADES_INICIALES: {
 						
@@ -879,11 +851,7 @@ public class Reports extends Fragment {
 					
 				}			
 			}
-					
-			//if (deposito.isDepositoRetirado()) {
-			//	deposito.delete();
-			//}
-		
+
 		} catch (Exception e) {
 			_appConfig.getMessageBox().Show("Atención",
 					_appConfig.getStackTrace(e),
@@ -902,26 +870,20 @@ public class Reports extends Fragment {
 		if (deposito.Serie.equals(_appConfig.getUser().SerialInvoiceA)) {
 			contador.ContadorSerieA = contador.ContadorSerieA + 1;
 			deposito.NumeroAlbaran = String.valueOf(contador.ContadorSerieA);
-			//historico.NumeroAlbaran = _deposito.NumeroAlbaran;
 		} else {
 			contador.ContadorSerieB = contador.ContadorSerieB + 1;
 			deposito.NumeroAlbaran = String.valueOf(contador.ContadorSerieB);
-			//historico.NumeroAlbaran = _deposito.NumeroAlbaran;
 		}
 		
 		contador.update();
-		
 		deposito.cancel();
-		
 		deposito.Calculate();
 		
 		XmlCreator creator = new XmlCreator(_appConfig, _appConfig);
-
 		creator.createXmlAlbaran(deposito, historico.NumeroAlbaran);
-		
 		PdfDTOCreator pdf = new PdfDTOCreator(deposito, _appConfig, _appConfig);
 
-		pdf.createAlbaran(historico.GUID);
+		pdf.createAlbaran(historico.GUID, !historico.ActualizarStock);
 		
 		try {
 			this.sendData();	
@@ -952,8 +914,6 @@ public class Reports extends Fragment {
 					worker.RunExport(context);
 
 				} catch (Exception e) {
-
-					//_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
 				}
 
 				progressDialog.dismiss();
@@ -1082,53 +1042,40 @@ public class Reports extends Fragment {
 		footerLinearLayout.setOrientation(LinearLayout.VERTICAL);
 		footerLinearLayout.addView(layout);
 		footerLinearLayout.addView(layout2);
-		// this.getActivity().addContentView(footerLinearLayout, layoutParams);
 
 	}
 
 	private void StartPotenciadosDialog() throws FileNotFoundException {
 
 		_appConfig = (AppConfig) getActivity().getApplicationContext();
-
 		Intent intent = new Intent(this.getActivity(),
 				Reporting_Potenciados.class);
-
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
 		this.startActivityForResult(intent, 1);
 	}
 
 	private void StartRetiradosDialog() throws FileNotFoundException {
 
 		_appConfig = (AppConfig) getActivity().getApplicationContext();
-
 		Intent intent = new Intent(this.getActivity(),
 				Reporting_Retirados.class);
-
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
 		this.startActivityForResult(intent, 1);
 	}
 
 	private void StartPiezasDialog() {
 
 		_appConfig = (AppConfig) getActivity().getApplicationContext();
-
 		Intent intent = new Intent(this.getActivity(), Reporting_Piezas.class);
-
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
 		this.startActivityForResult(intent, 1);
 	}
 
 	private void StartTotalesDialog() {
 
 		_appConfig = (AppConfig) getActivity().getApplicationContext();
-
 		Intent intent = new Intent(this.getActivity(), Reporting_Totales.class);
-
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
 		this.startActivityForResult(intent, 1);
 	}
 

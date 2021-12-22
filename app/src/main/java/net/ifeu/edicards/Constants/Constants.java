@@ -180,4 +180,7 @@ public final class Constants {
 	public static final String PREFILL_COMPANY = "E_ESTERJ";
 	public static final String PREFILL_INVOICE_A = "A";
 	public static final String PREFILL_INVOICE_B = "B";
+
+	public static final int TIPO_DOCUMENTO_DEPOSITO = 1;
+	public static final int TIPO_DOCUMENTO_ALBARAN = 2;
 }
