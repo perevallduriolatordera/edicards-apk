@@ -116,11 +116,21 @@ public class DepositManagerExtension {
 		}
 
 		public static boolean isTransferPayment(FormaPago pago) {
-			return true;
+			return pago.CodigoFormaPago.equals("T 30")
+					|| pago.CodigoFormaPago.equals("003")
+					|| pago.CodigoFormaPago.equals("0062")
+					|| pago.CodigoFormaPago.equals("0040")
+					|| pago.CodigoFormaPago.equals("0061")
+					|| pago.CodigoFormaPago.equals("0064");
 		}
 
 		public static boolean isTransferPayment(String descripcion) {
-			return true;
+			return descripcion.startsWith("TRANSFERENCIA 30 DIAS F.F.")
+					|| descripcion.equals("TRANSFERENCIA")
+					|| descripcion.startsWith("HACER TRANSFERENCIA 60 D.F.F.")
+					|| descripcion.startsWith("HACER TRANSFERENCIA 30 D.F.F.")
+					|| descripcion.startsWith("HACER TRANSFERENCIA")
+					|| descripcion.startsWith("HACE TRANSFERENCIA (30 Y 60 D)");
 		}
 	}
 	// ************************** FORMAT *************************************

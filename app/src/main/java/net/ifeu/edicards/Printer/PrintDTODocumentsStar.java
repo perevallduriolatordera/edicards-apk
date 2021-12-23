@@ -260,7 +260,6 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 			if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN &&  app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
 
 				port.writePort(new byte[]{0x1b, 0x45, 0x01}, 0, 3);
-
 				outputByteBuffer = ("MERCANCIA PENDIENTE DE ENVIO" + "\n").getBytes();
 
 				port.writePort(outputByteBuffer, 0,
@@ -270,7 +269,21 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 			}
 
 			if (isTransferPayment) {
-				// Aquí pintarem
+				outputByteBuffer = ("\nHACER TRANSFERENCIA EN UNO DE LOS SIGUIENTES NUMEROS DE CUENTA:\n"
+						+ "\n"
+						+ "BANCO SABADELL\n"
+						+ "ES48 0081 0470 0500 0104 3307\n\n"
+						+ "LA CAIXA\n"
+						+ "ES08 2100 4652 0222 0002 2712\n\n"
+						+ "BANCO SANTADER\n"
+						+ "ES92 0075 1133 4405 0006 9237\n\n"
+						+ "Poner en el concepto: " + deposito.Nombre + " y nº de albarán " +  deposito.NumeroAlbaran + "\n\n")
+						.getBytes();
+				port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
+				port.writePort(new byte[] { 0x1b, 0x61, 0x00 }, 0, 3); // Left Alignment
+				port.writePort(new byte[] { 0x1b, 0x44, 0x02, 0x1b, 0x34, 0x00 }, 0, 6); // Setting
+				// Horizontal
+				// Tab
 			}
 
 		}

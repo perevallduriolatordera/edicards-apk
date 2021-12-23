@@ -411,7 +411,21 @@ public class PrintDocumentsWoosim implements IPrint {
 			}
 
 			if (isTransferPayment) {
-				// Aquí pintarem
+				this.AlignCenter();
+
+				String transferInfo ="\nHACER TRANSFERENCIA EN UNO DE LOS SIGUIENTES NUMEROS DE CUENTA:\n"
+						+ "\n"
+						+ "BANCO SABADELL\n"
+						+ "ES48 0081 0470 0500 0104 3307\n\n"
+						+ "LA CAIXA\n"
+						+ "ES08 2100 4652 0222 0002 2712\n\n"
+						+ "BANCO SANTADER\n"
+						+ "ES92 0075 1133 4405 0006 9237\n\n"
+						+ "Poner en el concepto: " + deposito.Nombre + " y nº de albarán " +  deposito.NumeroAlbaran + "\n\n";
+
+				_woosim.saveSpool(LANGUAGE, transferInfo, 0, false);
+				this.Print();
+				this.LineFeed();
 			}
 		}
 
