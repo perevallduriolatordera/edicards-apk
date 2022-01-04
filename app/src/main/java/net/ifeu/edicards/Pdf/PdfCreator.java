@@ -305,7 +305,7 @@ public class PdfCreator extends pdfBase{
 				this.insertSeparators();
 			}
 
-			if (isTransferPayment) {
+			if (isTransferPayment && tipo == Constants.TIPO_DOCUMENTO_ALBARAN) {
 				String transferText = Constants.EMPTY_STRING;
 				transferText = "\nHACER TRANSFERENCIA EN UNO DE LOS SIGUIENTES NUMEROS DE CUENTA:\n"
 						+ "\n"
@@ -314,10 +314,17 @@ public class PdfCreator extends pdfBase{
 						+ "LA CAIXA\n"
 						+ "ES08 2100 4652 0222 0002 2712\n\n"
 						+ "BANCO SANTADER\n"
-						+ "ES92 0075 1133 4405 0006 9237\n\n"
-						+ "Poner en el concepto: " + _deposito.Nombre + " y nº de albarán " +  _deposito.NumeroAlbaran + "\n\n";
+						+ "ES92 0075 1133 4405 0006 9237\n\n";
 
 				Paragraph paragraph = new Paragraph(transferText, _fontNormal);
+				paragraph.setAlignment(Element.ALIGN_CENTER);
+
+				_document.add(paragraph);
+
+				transferText = Constants.EMPTY_STRING;
+				transferText = "Poner en el concepto: " + _deposito.Nombre + " y num de albaran " + _app.getUser().User + "/" + _deposito.NumeroAlbaran + "\n\n";
+
+				paragraph = new Paragraph(transferText, _fontBold);
 				paragraph.setAlignment(Element.ALIGN_CENTER);
 
 				_document.add(paragraph);

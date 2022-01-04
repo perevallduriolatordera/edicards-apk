@@ -54,7 +54,6 @@ public class Reports extends Fragment {
 
 	AppConfig _appConfig;
 	Date _fecha1;
-
 	Date _fecha2;
 	private Calendar _calendar1;
 	private Calendar _calendar2;

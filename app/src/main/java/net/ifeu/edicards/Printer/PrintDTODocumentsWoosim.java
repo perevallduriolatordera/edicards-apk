@@ -311,7 +311,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 				this.Print();
 			}
 
-			if (isTransferPayment) {
+			if (isTransferPayment && tipo == Constants.TIPO_DOCUMENTO_ALBARAN) {
 				this.AlignCenter();
 
 				String transferInfo ="\nHACER TRANSFERENCIA EN UNO DE LOS SIGUIENTES NUMEROS DE CUENTA:\n"
@@ -322,7 +322,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 						+ "ES08 2100 4652 0222 0002 2712\n\n"
 						+ "BANCO SANTADER\n"
 						+ "ES92 0075 1133 4405 0006 9237\n\n"
-						+ "Poner en el concepto: " + deposito.Nombre + " y nº de albarán " +  deposito.NumeroAlbaran + "\n\n";
+						+ "Poner en el concepto: " + deposito.Nombre + " y num de albaran " +  deposito.NumeroAlbaran + "\n\n";
 
 				_woosim.saveSpool(LANGUAGE, transferInfo, 0, false);
 				this.Print();
