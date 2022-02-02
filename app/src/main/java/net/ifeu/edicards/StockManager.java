@@ -32,6 +32,7 @@ import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
+import net.ifeu.library.LogBook.LogBookWriter;
 import net.ifeu.library.Utils.MessageBoxType;
 
 public class StockManager extends Fragment {
@@ -169,11 +170,12 @@ public class StockManager extends Fragment {
 			try {
 				articulo.InitializePersistance(_appConfig, getActivity());
 				
-				if (!onlyReciclado)
+				if (!onlyReciclado) {
 					articulo.Stock = 0;
-				
+					LogBookWriter.write("Inicialización de almacén. Se deja a 0 unidades el artículo " + articulo.Descripcion + " (" + articulo.CodigoArticulo + ")");
+				}
+
 				articulo.StockDefectuoso = 0;
-				
 				articulo.update();
 				
 			} catch (Exception e) {
@@ -640,13 +642,12 @@ public class StockManager extends Fragment {
 							if (that._isManagerPasswordMode) {
 								
 								_lastTextBox = (TextBoxColor) view;
-								
 								EditText textBox = (EditText) view;
-								
 								int unidades = Integer.parseInt(textBox.getText().toString());
-								
+
 								((Articulo) unidadesRecuento.getTag()).Stock = unidades;
-										
+								LogBookWriter.write("Asignación de almacén. Se deja a " + unidades + " unidades el artículo " + ((Articulo) unidadesRecuento.getTag()).Descripcion + " (" + ((Articulo) unidadesRecuento.getTag()).CodigoArticulo + ")");
+
 							} else {
 								
 								String password = _appConfig.getMessageBox().InputBox("Recuento de artículo", "introduzca la contraseña", getActivity());
@@ -654,15 +655,13 @@ public class StockManager extends Fragment {
 								if (password.equals(Constants.MANAGER_PASSWORD)) {
 									
 									that._isManagerPasswordMode = true;
-								
 									_lastTextBox = (TextBoxColor) view;
-				
 									EditText textBox = (EditText) view;
 									
 									int unidades = Integer.parseInt(textBox.getText().toString());
-									
 									((Articulo) unidadesRecuento.getTag()).Stock = unidades;
-									
+									LogBookWriter.write("Asignación de almacén. Se deja a " + unidades + " unidades el artículo " + ((Articulo) unidadesRecuento.getTag()).Descripcion + " (" + ((Articulo) unidadesRecuento.getTag()).CodigoArticulo + ")");
+
 								} else {
 									_appConfig.getMessageBox().Show(
 											"Error",
@@ -756,6 +755,7 @@ public class StockManager extends Fragment {
 					MessageBoxType.Error);
 
 		swap.Articulo.Stock = swap.Articulo.Stock + entradas - salidas;
+		LogBookWriter.write("Asignación de almacén. Se deja a " + swap.Articulo.Stock + " unidades el artículo " + swap.Articulo.Descripcion + " (" + swap.Articulo.CodigoArticulo + ")");
 		swap.Articulo.Entradas = entradas;
 		swap.Articulo.Salidas = salidas;
 		swap.Articulo.Tipo = tipo;

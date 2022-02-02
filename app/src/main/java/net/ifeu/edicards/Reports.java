@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
@@ -43,6 +44,7 @@ import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
+import net.ifeu.library.LogBook.LogBookWriter;
 import net.ifeu.library.Utils.Inactivate;
 import net.ifeu.library.Utils.MessageBoxType;
 
@@ -776,20 +778,56 @@ public class Reports extends Fragment {
 			
 			switch (linea.Tipo) {
 				case Constants.TIPO_LINEA_HISTORICO_FACTURADAS: {
-					linea.Articulo.Stock = (int) (linea.Articulo.Stock
-							+ linea.Unidades);
+					int stockInicial = linea.Articulo.Stock;
+					linea.Articulo.Stock = (int) (stockInicial + linea.Unidades);
+
+					if (stockInicial != linea.Articulo.Stock) {
+						List<String> logBookTrace = new ArrayList<String>();
+						logBookTrace.add("--- ANULACIÓN DE ARTÍCULO FACTURADO --- ");
+						logBookTrace.add("Cliente: " + historico.Cliente.CodigoCliente + ". " + historico.Cliente.Razon);
+						logBookTrace.add("Albarán: " + historico.NumeroAlbaran);
+						logBookTrace.add("Código artículo: " + linea.Articulo.CodigoArticulo + ". " + linea.Articulo.Descripcion);
+						logBookTrace.add("Stock inicial: " + stockInicial);
+						logBookTrace.add("Stock final: " + linea.Articulo.Stock);
+						logBookTrace.add("Unidades añadidas: " + linea.Unidades);
+						LogBookWriter.write(logBookTrace);
+					}
 					break;
 				}
 				
 				case Constants.TIPO_LINEA_HISTORICO_POTENCIADAS: {
-					linea.Articulo.Stock = (int) (linea.Articulo.Stock
-							+ linea.Unidades);
+					int stockInicial = linea.Articulo.Stock;
+					linea.Articulo.Stock = (int) (stockInicial + linea.Unidades);
+
+					if (stockInicial != linea.Articulo.Stock) {
+						List<String> logBookTrace = new ArrayList<String>();
+						logBookTrace.add("--- ANULACIÓN DE ARTÍCULO POTENCIADO --- ");
+						logBookTrace.add("Cliente: " + historico.Cliente.CodigoCliente + ". " + historico.Cliente.Razon);
+						logBookTrace.add("Albarán: " + historico.NumeroAlbaran);
+						logBookTrace.add("Código artículo: " + linea.Articulo.CodigoArticulo + ". " + linea.Articulo.Descripcion);
+						logBookTrace.add("Stock inicial: " + stockInicial);
+						logBookTrace.add("Stock final: " + linea.Articulo.Stock);
+						logBookTrace.add("Unidades añadidas: " + linea.Unidades);
+						LogBookWriter.write(logBookTrace);
+					}
 					break;
 				}
 				
 				case Constants.TIPO_LINEA_HISTORICO_BAJAS: {
-					linea.Articulo.Stock = (int) (linea.Articulo.Stock
-							- linea.Unidades);
+					int stockInicial = linea.Articulo.Stock;
+					linea.Articulo.Stock = (int) (stockInicial - linea.Unidades);
+
+					if (stockInicial != linea.Articulo.Stock) {
+						List<String> logBookTrace = new ArrayList<String>();
+						logBookTrace.add("--- ANULACIÓN DE ARTÍCULO BAJA --- ");
+						logBookTrace.add("Cliente: " + historico.Cliente.CodigoCliente + ". " + historico.Cliente.Razon);
+						logBookTrace.add("Albarán: " + historico.NumeroAlbaran);
+						logBookTrace.add("Código artículo: " + linea.Articulo.CodigoArticulo + ". " + linea.Articulo.Descripcion);
+						logBookTrace.add("Stock inicial: " + stockInicial);
+						logBookTrace.add("Stock final: " + linea.Articulo.Stock);
+						logBookTrace.add("Unidades restadas: " + linea.Unidades);
+						LogBookWriter.write(logBookTrace);
+					}
 					break;
 				}
 				

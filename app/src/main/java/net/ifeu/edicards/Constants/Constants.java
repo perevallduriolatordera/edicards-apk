@@ -36,9 +36,7 @@ public final class Constants {
 	public static final String INDEX_TARIFA_IDARTICULO_CODIGOTARIFA = "idx_Tarifa_IdArt_codTar";
 	public static final String INDEX_PACTOS_IDARTICULO = "idx_Pactos_IdArticulo";
 	public static final String INDEX_ARTICULOS_ACTIVO_TIPO = "idx_Articulos_Activo_Tipo";
-	
-	
-	
+
 	public static final String TIPO_DEPOSITO_CONVENCIONAL = "1";
 	public static final String TIPO_DEPOSITO_CAMPANA = "2";
 	
@@ -62,12 +60,14 @@ public final class Constants {
 	public static final String FOLDER_DAILYSTOCK = "StockDiario";
 	public static final String FOLDER_GDPR = "GDPR";
 	public static final String FOLDER_SERVICES = "Servicios";
+	public static final String FOLDER_LOGBOOK = "LogBook";
 	
 	public static final String FILE_FIRMAS = "Firma.jpg";
 	public static final String FILE_FIRMA_COMERCIAL = "FirmaComercial.jpg";
 	public static final String FILE_STOCK = "Stock.xml";
 	public static final String FILE_RECUENTO = "Recuento.xml";
 	public static final String FILE_DAILY_STOCK =  "StockDiario.xml";
+	public static final String FILE_LOGBOOLK = "LogBook_{0}.txt";
 	
 	public static String DATABASE_NAME = "Edicards.db";
 	public  static int DATABASE_VERSION = 2;
@@ -138,6 +138,7 @@ public final class Constants {
 	public static final String MAIL_TO = "testtabletedi@gmail.com";
 	public static final String MAIL_TO_GDPR = "gdprtabletedi@gmail.com";
 	public static final String MAIL_TO_INCIDENCIAS = "incidenciastabletedi@gmail.com";
+	public static final String MAIL_TO_LOGBOOK = "logbooktabletedi@gmail.com";
 	//public static final String MAIL_TO = "valldu@hotmail.com";
 	public static final String MAIL_FROM = "testtabletedi@gmail.com";
 	public static final String MAIL_BODY = "Enviado desde dispositivo movil";
@@ -183,4 +184,6 @@ public final class Constants {
 
 	public static final int TIPO_DOCUMENTO_DEPOSITO = 1;
 	public static final int TIPO_DOCUMENTO_ALBARAN = 2;
+
+	public static final String AUTHORIZATION_HEADER_SERVICES = "Basic VGFibGV0OnRhYjIwMTJsZXQ=";
 }

@@ -42,7 +42,8 @@ import net.ifeu.library.Firebase.ArticuloStock;
 import net.ifeu.library.Firebase.ArticuloStockResponse;
 import net.ifeu.library.Firebase.FireStoreCaller;
 import net.ifeu.library.IO.IOUtils;
-import net.ifeu.library.Mail.Mail;                                                                                                   
+import net.ifeu.library.LogBook.LogBookWriter;
+import net.ifeu.library.Mail.Mail;
 import net.ifeu.library.Mail.MailSender;                                                                                             
 import org.apache.http.NameValuePair;                                                                                                
 import org.apache.http.message.BasicNameValuePair;                                                                                   
@@ -56,29 +57,29 @@ import android.os.Environment;
 import android.util.Log;                                                                                                                                                                                                                
                                                                                                                                      
 public class ServiceWorker extends ServiceBase {
-	
+
 	public ServiceWorker() {
 		super();
 	}
-	                                                                                                                                 
-	@SuppressLint("SimpleDateFormat")                                                                                                
-	public void RunExport(Context context) throws Exception {                                                                        
-         	
+
+	@SuppressLint("SimpleDateFormat")
+	public void RunExport(Context context) throws Exception {
+
 		//String debug = "DEBUG";
 		//if (debug == "DEBUG") return;
-		
-		AppConfig app;                                                                                                               
-		app = (AppConfig) context;                                                                                                   
-                                                                                                                                     
+
+		AppConfig app;
+		app = (AppConfig) context;
+
 		// Asignamos las credenciales5                                                                                               
-                                                                                                                                     
-		WindowsCredentials credentials = new WindowsCredentials();                                                                   
-		credentials.User = "Tablet";                                                                                                 
-		credentials.Password = "tab2012let";                                                                                         
+
+		WindowsCredentials credentials = new WindowsCredentials();
+		credentials.User = "Tablet";
+		credentials.Password = "tab2012let";
 
 		String directory = Constants.EMPTY_STRING;
-		List<String> files;                                                                                                          
-		                                                                                                                             
+		List<String> files;
+
 		// * * * * * * * * * ENVIAMOS PDF * * * * * * * * * * * *
 
 		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
@@ -107,14 +108,14 @@ public class ServiceWorker extends ServiceBase {
 				else
 					title = title + (fileInfo.getName().substring(4).replace(".pdf", Constants.EMPTY_STRING));
 
-				 SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-				 title = title + " generado a fecha " + sdf.format(fileInfo.lastModified());
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+				title = title + " generado a fecha " + sdf.format(fileInfo.lastModified());
 
 				// Comprovamos si está pendiente de stock, para enviar correo a ADMINISTRACION
 
 				String[] parts = file.split("_");
 				if (parts.length > 3 && parts[3].startsWith("E") && fileInfo.getName().subSequence(0, 1).equals("A")) {
-					MailSender mailEnviosEdicards = new MailSender(Constants.MAIL_ENVIOS_EDICARDS, title,Constants.MAIL_BODY, file);
+					MailSender mailEnviosEdicards = new MailSender(Constants.MAIL_ENVIOS_EDICARDS, title, Constants.MAIL_BODY, file);
 					try {
 						mailEnviosEdicards.send();
 					} catch (Exception e) {
@@ -133,7 +134,7 @@ public class ServiceWorker extends ServiceBase {
 					}
 				}
 
-				MailSender mail = new MailSender(Constants.MAIL_TO, title,Constants.MAIL_BODY, file);
+				MailSender mail = new MailSender(Constants.MAIL_TO, title, Constants.MAIL_BODY, file);
 
 				try {
 					mail.send();
@@ -148,7 +149,7 @@ public class ServiceWorker extends ServiceBase {
 				continue;
 			}
 		}
-                                                                                                                                     
+
 		// * * * * * * * * * ENVIAMOS AUTORIZACIONES * * * * * * * * * * * *                                                         
 
 		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
@@ -182,9 +183,9 @@ public class ServiceWorker extends ServiceBase {
 			} catch (Exception e) {
 				continue;
 			}
-				this.Monitor().AutorizacionesSend++;
+			this.Monitor().AutorizacionesSend++;
 		}
-		                                                                                                                             
+
 		// * * * * * * * * * ENVIAMOS GDPR * * * * * * * * * * * *                                                                   
 
 		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
@@ -204,7 +205,7 @@ public class ServiceWorker extends ServiceBase {
 				String title = "Documento GDPR del cliente ";
 				title = title + (fileInfo.getName().replace(".pdf", Constants.EMPTY_STRING));
 
-				MailSender mail = new MailSender(Constants.MAIL_TO_GDPR, title,Constants.MAIL_BODY, file);
+				MailSender mail = new MailSender(Constants.MAIL_TO_GDPR, title, Constants.MAIL_BODY, file);
 
 				try {
 					mail.send();
@@ -216,6 +217,40 @@ public class ServiceWorker extends ServiceBase {
 				this.Monitor().GDPRSend++;
 			} catch (Exception e) {
 				continue;
+			}
+		}
+
+		// * * * * * * * * * ENVIAMOS LOGBOOK * * * * * * * * * * * *
+
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
+				+ Constants.FOLDER_LOGBOOK;
+
+		Log.i("ServiceWorker", "LogBook FOLDER: " + directory);
+		List<String> filesLogBook = IOUtils.getFilesFromDirectory(directory);
+
+		for (String file : filesLogBook) {
+
+			if (!file.contains(LogBookWriter.getTodayFileFormat())) {
+				try {
+
+					Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de trazabilidad a logBook");
+					File fileInfo = new File(file);
+
+					String title = "Documento LogBook del comercial " + app.getUser().User + " ";
+					title = title + (fileInfo.getName().replace(".log", Constants.EMPTY_STRING));
+
+					MailSender mail = new MailSender(Constants.MAIL_TO_LOGBOOK, title, Constants.MAIL_BODY, file);
+
+					try {
+						mail.send();
+					} catch (Exception e) {
+						continue;
+					}
+
+					IOUtils.deleteFile(file);
+				} catch (Exception e) {
+					continue;
+				}
 			}
 		}
 
@@ -289,7 +324,7 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 			RestClient client = new RestClient();                                                                                    
 			ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
-			headers.add(new BasicNameValuePair("Authorization","Basic VGFibGV0OnRhYjIwMTJsZXQ="));
+			headers.add(new BasicNameValuePair("Authorization",Constants.AUTHORIZATION_HEADER_SERVICES));
 			ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
 			params.add(new BasicNameValuePair("contingut", content));                                                                
 	                                                                                                                                 
@@ -300,12 +335,14 @@ public class ServiceWorker extends ServiceBase {
 				                                                                                                                     
 				if (result) {                                                                                                        
 					IOUtils.deleteFile(file);                                                                                 
-					this.Monitor().IncidenciasSend++;
+					this.Monitor().ArticulosSend++;
+					LogBookWriter.write("Enviamos artículos al servicio de Dimoni.");
 				}                                                                                                                    
 				else {                                                                                                               
 					continue;                        
 				}                                                                                                                    
-			} catch (Exception e) {                                                                                                  
+			} catch (Exception e) {
+				LogBookWriter.write("Se ha producido un error enviando artículos al servicio de Dimoni. Motivo: " + e.getMessage());
 				continue;                                                              
 			}                                                                                                                        
                                                                                                                                      
@@ -424,21 +461,25 @@ public class ServiceWorker extends ServiceBase {
 				url = Constants.WS_ENVIAR_STOCKS;
 				RestClient client = new RestClient();
 				ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
-				headers.add(new BasicNameValuePair("Authorization","Basic VGFibGV0OnRhYjIwMTJsZXQ="));
+				headers.add(new BasicNameValuePair("Authorization",Constants.AUTHORIZATION_HEADER_SERVICES));
 				ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
 				params.add(new BasicNameValuePair("contingut", content));
 				boolean result = client.Execute(RequestMethod.POST, url, headers, params);
 				Log.i("RunExport.Recuento", content);
+				LogBookWriter.write("Enviamos recuento al servicio de Dimoni.");
 
-			if (result) {
-				IOUtils.deleteFile(file);
-				this.Monitor().RecuentoSend++;
-			}
-			else {
-				continue;
-			}
+
+				if (result) {
+					IOUtils.deleteFile(file);
+					this.Monitor().RecuentoSend++;
+				}
+				else {
+					LogBookWriter.write("Se ha producido un error enviando recuento al servicio de Dimoni");
+					continue;
+				}
 
 			} catch (Exception e) {
+				LogBookWriter.write("Se ha producido un error enviando recuento al servicio de Dimoni. Motivo: " + e.getMessage());
 				continue;
 			}
 
@@ -463,7 +504,7 @@ public class ServiceWorker extends ServiceBase {
 			                                                                                                                         
 			RestClient client = new RestClient();                                                                                    
 			ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
-			headers.add(new BasicNameValuePair("Authorization","Basic VGFibGV0OnRhYjIwMTJsZXQ="));
+			headers.add(new BasicNameValuePair("Authorization",Constants.AUTHORIZATION_HEADER_SERVICES));
 			ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
 			params.add(new BasicNameValuePair("contingut", content));                                                                
 			                                                                                                                         
@@ -471,14 +512,17 @@ public class ServiceWorker extends ServiceBase {
 			                                                                                                                         
 			try {                                                                                                                    
 				result = client.Execute(RequestMethod.POST, url, headers, params);
+				LogBookWriter.write("Enviamos stock diario al servicio de Dimoni.");
 				if (result) {                                                                                                        
 					IOUtils.deleteFile(file);                                                                                                                             
 					this.Monitor().StockDiarioSend++;
 				}                                                                                                                    
-				else {                                                                                                               
+				else {
+					LogBookWriter.write("Se ha producido un error enviando stock diario al servicio de Dimoni");
 					continue;                     
 				}                                                                                                                    
-			} catch (Exception e) {                                                                                                  
+			} catch (Exception e) {
+				LogBookWriter.write("Se ha producido un error enviando stock diario al servicio de Dimoni. Motivo: " + e.getMessage());
 				continue;                                                                   
 			}                                                                                                                        
 			                                                                                                                                                                                                                                                                                                                                                                                        
@@ -682,7 +726,6 @@ public class ServiceWorker extends ServiceBase {
 			// * * * * * * * * * * LLAMADA A ARTICULOS-STOCK DE FIRECLOUD * * * * * * * * * *
 
 			try {
-
 				Log.i("ServiceWorker", "Invocamos la obtención del token de firestore");
 				FireStoreCaller fireStoreServices = new FireStoreCaller();
 				String idToken = fireStoreServices.getToken();
@@ -739,7 +782,6 @@ public class ServiceWorker extends ServiceBase {
 						+ "&Tots=" + String.valueOf(all), credentials);        
 				
 				this.saveDocumentToFile(this.DocumentToString(document), "TraspasoStock.xml");
-                                                                                                                                     
 				resultTraspaso = parser.ParserTraspasoAlmacen(document, context, app, articulo, compress);                           
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                      
@@ -755,14 +797,11 @@ public class ServiceWorker extends ServiceBase {
 				http = new HttpService();                                                                                            
                                                                                                                                      
 				try {                                                                                                                
-					document = null;                                                                                                 
-                                                                                                                                     
-					String url = compress ? Constants.WS_VALIDAR_TRASPASO : Constants.WS_VALIDAR_TRASPASO;                           
-                                                                                                                                     
+					document = null;
+					String url = compress ? Constants.WS_VALIDAR_TRASPASO : Constants.WS_VALIDAR_TRASPASO;
 					document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User,             
 							credentials);                                                                                            
-					                                                                                                                 
-					                                                                                                                 
+
 				} catch (Exception e) {                                                                                              
 					parser.UndoTraspasoAlmacen(context, app);                                                                        
 					result = false;                                                                                                  
@@ -772,8 +811,7 @@ public class ServiceWorker extends ServiceBase {
 				result = false;
 			}
 			                                                                                                                         
-			app.getTraspasoAlmacen().clear();                                                                                        
-			                                                                                                                         
+			app.getTraspasoAlmacen().clear();
                                                                                                                                      
 			// * * * * * * * * * * LLAMADA A CLIENTES * * * * * * * * * *                                                            
                                                                                                                                      
@@ -1007,6 +1045,9 @@ public class ServiceWorker extends ServiceBase {
 		
 		File services = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_SERVICES + "/");                                
 		services.mkdirs();
+
+		File logBook = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_LOGBOOK + "/");
+		logBook.mkdirs();
                                                                                                                                      
 	}                                                                                                                                
                                                                                                                                      
