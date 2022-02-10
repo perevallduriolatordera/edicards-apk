@@ -1804,6 +1804,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		TextBoxColor unidadesDefectuosas = DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT, 
 				String.valueOf(lineaDeposito.UnidadesDefectuosas), TEXT_SIZE, 100, params, true, lineaDeposito);
 
+		unidadesDefectuosas.setFocusable(false);
 		unidadesDefectuosas.setOnFocusChangeListener(new OnFocusChangeListener() {
 			public void onFocusChange(View view, boolean hasFocus) {
 				if (!hasFocus) {
@@ -2045,7 +2046,10 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		
 		ButtonColor modoAbono = DepositManagerExtension.UI.addButton(getActivity(), Color.GREEN, "ABONO", 
 				10, 70, params, lineaDeposito);
-		
+
+		if (_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards)
+			modoAbono.setEnabled(false);
+
 		modoAbono.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -2173,6 +2177,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		TextBoxColor defectuosasAbono = DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT, 
 				String.valueOf(lineaDeposito.DefectuosasAbono), TEXT_SIZE, 100, params, true, lineaDeposito);
 
+		defectuosasAbono.setFocusable(false);
 		defectuosasAbono.setOnFocusChangeListener(new OnFocusChangeListener() {
 			public void onFocusChange(View view, boolean hasFocus) {
 				if (!hasFocus) {
