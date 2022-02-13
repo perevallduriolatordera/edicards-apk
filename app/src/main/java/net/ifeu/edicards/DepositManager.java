@@ -350,7 +350,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		_textBoxCantidadPagada = DepositManagerExtension.UI.addEdit(getActivity(), Color.GREEN, Gravity.LEFT, 
 				"0", TEXT_SIZE, 100, params2, false);
 
-		_textBoxCantidadPagada.setOnFocusChangeListener(new OnFocusChangeListener() {
+		/*_textBoxCantidadPagada.setOnFocusChangeListener(new OnFocusChangeListener() {
 			public void onFocusChange(View view, boolean hasFocus) {
 				if (!hasFocus) {
 					TextBoxColor textBox = (TextBoxColor) view;
@@ -366,7 +366,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 					_deposito.CantidadPagada = Double.parseDouble(textBox.getText().toString());
 				}
 			}
-		});
+		});*/
 		
 		// descuento 1
 		
@@ -1159,8 +1159,16 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 			_appConfig.getWorkingArea().CurrentDeposito.Serie = _appConfig.getUser().SerialInvoiceB;
 		}
 
-		if ((_checkPagado.isChecked())
+		double cantidadPagada;
+		String cantidadPagadaText = _textBoxCantidadPagada.getText().toString();
 
+		if (_textBoxCantidadPagada.getText().toString().equals(Constants.EMPTY_STRING))
+			cantidadPagada = Double.parseDouble("0");
+		else
+			cantidadPagada = Double.parseDouble(cantidadPagadaText);
+
+		_deposito.CantidadPagada = cantidadPagada;
+		if ((_checkPagado.isChecked())
 				&& (DepositManagerExtension.Format.RoundTo2Decimals(_deposito.CantidadPagada) > DepositManagerExtension.Format.RoundTo2Decimals(_deposito.Totales.Total))
 				&& (_deposito.Totales.Total > 0)) {
 			_appConfig.getMessageBox().Show("Atención",
@@ -1171,6 +1179,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 
 			return;
 
+		} else if ((!_checkPagado.isChecked())) {
+			_deposito.CantidadPagada = 0;
 		}
 
 		boolean close = _appConfig.getMessageBox().ShowWithResult("Cierre de operación",
