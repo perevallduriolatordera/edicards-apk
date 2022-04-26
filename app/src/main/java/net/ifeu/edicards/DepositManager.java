@@ -668,7 +668,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		});
 
 		print.setVisibility(View.GONE);
-
 		
 		layout2.addView(datos);
 		layout2.addView(totales);
@@ -686,8 +685,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 
 	}
 
-
-	
 	private void FillWindow() throws Exception {
 
 		this.createHeaderLabels();
@@ -793,7 +790,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 				// TODO Auto-generated catch block
 				_appConfig.getMessageBox().Show("Atención",
 						_appConfig.getStackTrace(e1),
-						getActivity(), MessageBoxType.Error);			}
+						getActivity(), MessageBoxType.Error);
+			}
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -1814,7 +1812,11 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		TextBoxColor unidadesDefectuosas = DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT, 
 				String.valueOf(lineaDeposito.UnidadesDefectuosas), TEXT_SIZE, 100, params, true, lineaDeposito);
 
-		unidadesDefectuosas.setFocusable(false);
+		//unidadesDefectuosas.setFocusable(false);
+
+		unidadesDefectuosas.setEnabled(false);
+		unidadesDefectuosas.setInputType(InputType.TYPE_NULL);
+
 		unidadesDefectuosas.setOnFocusChangeListener(new OnFocusChangeListener() {
 			public void onFocusChange(View view, boolean hasFocus) {
 				if (!hasFocus) {
@@ -2187,7 +2189,10 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		TextBoxColor defectuosasAbono = DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT, 
 				String.valueOf(lineaDeposito.DefectuosasAbono), TEXT_SIZE, 100, params, true, lineaDeposito);
 
-		defectuosasAbono.setFocusable(false);
+		//defectuosasAbono.setFocusable(false);
+		defectuosasAbono.setEnabled(false);
+		defectuosasAbono.setInputType(InputType.TYPE_NULL);
+
 		defectuosasAbono.setOnFocusChangeListener(new OnFocusChangeListener() {
 			public void onFocusChange(View view, boolean hasFocus) {
 				if (!hasFocus) {

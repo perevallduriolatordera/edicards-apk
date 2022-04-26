@@ -16,6 +16,8 @@ import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.Totales;
+import net.ifeu.library.LogBook.LogBookWriter;
+
 import android.content.Context;
 import android.os.Environment;
 import com.itextpdf.text.Document;
@@ -484,6 +486,7 @@ public class PdfCreator extends pdfBase{
 			closePage();
 
 		} catch (Exception e) {
+			LogBookWriter.write("Se ha producido un error generando  el albarán " + _deposito.NumeroAlbaran + ". Motivo: " + e.getStackTrace());
 			return false;
 		}
 

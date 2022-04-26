@@ -71,7 +71,7 @@ public class ServiceWorker extends ServiceBase {
 		AppConfig app;
 		app = (AppConfig) context;
 
-		// Asignamos las credenciales5                                                                                               
+		// Asignamos las credenciales
 
 		WindowsCredentials credentials = new WindowsCredentials();
 		credentials.User = "Tablet";
