@@ -138,11 +138,10 @@ public class ServiceWorker extends ServiceBase {
 
 				try {
 					mail.send();
+					IOUtils.deleteFile(file);
 				} catch (Exception e) {
 					continue;
 				}
-
-				IOUtils.deleteFile(file);
 				this.Monitor().PdfSend++;
 
 			} catch (Exception e) {
@@ -174,11 +173,10 @@ public class ServiceWorker extends ServiceBase {
 
 				try {
 					mail.send();
+					IOUtils.deleteFile(file);
 				} catch (Exception e) {
 					continue;
 				}
-
-				IOUtils.deleteFile(file);
 
 			} catch (Exception e) {
 				continue;
@@ -243,11 +241,11 @@ public class ServiceWorker extends ServiceBase {
 
 					try {
 						mail.send();
+						IOUtils.deleteFile(file);
 					} catch (Exception e) {
 						continue;
 					}
 
-					IOUtils.deleteFile(file);
 				} catch (Exception e) {
 					continue;
 				}
@@ -403,11 +401,10 @@ public class ServiceWorker extends ServiceBase {
 
 						try {
 							mail.send();
+							IOUtils.deleteFile(file);
 						} catch (Exception e) {
 							continue;
 						}
-
-						IOUtils.deleteFile(file);
 						this.Monitor().InventarioSend++;
 					}
 				}
@@ -431,11 +428,11 @@ public class ServiceWorker extends ServiceBase {
 
 					try {
 						mail.send();
+						IOUtils.deleteFile(file);
 					} catch (Exception e) {
 						continue;
 					}
 
-					IOUtils.deleteFile(file);
 					this.Monitor().InventarioSend++;
 
 				}

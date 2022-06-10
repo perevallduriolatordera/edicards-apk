@@ -8,7 +8,6 @@ public final class Constants {
 	public static final int CUSTOMER_FILTER_CITY = 3;
 	
 	public static final int ARTICLE_FILTER_NAME = 0;
-	
 	public static final String TABLE_CLIENTES = "Clientes";
 	public static final String TABLE_ARTICULOS = "Articulos";
 	public static final String TABLE_MOVIMIENTOS_ALMACEN = "MovimientosAlmacen";
@@ -131,8 +130,11 @@ public final class Constants {
 	//public static final String MAIL_USER = "testtabletedi@gmail.com";
 	//public static final String MAIL_PASSWORD = "tablet2013";
 	
-	public static final String MAIL_USER = "edicardssender@gmail.com";
-	public static final String MAIL_PASSWORD = "ger0svk0";
+	//public static final String MAIL_USER = "edicardssender@gmail.com";
+	//public static final String MAIL_PASSWORD = "ger0svk0";
+
+	public static final String MAIL_USER = "tablet@grupediciones.com";
+	public static final String MAIL_PASSWORD = "Table23@Edi";
 	
 	public static final String MAIL_SUBJECT = "Envio desde dispositivo movil";
 	public static final String MAIL_TO = "testtabletedi@gmail.com";
@@ -140,7 +142,8 @@ public final class Constants {
 	public static final String MAIL_TO_INCIDENCIAS = "incidenciastabletedi@gmail.com";
 	public static final String MAIL_TO_LOGBOOK = "logbooktabletedi@gmail.com";
 	//public static final String MAIL_TO = "valldu@hotmail.com";
-	public static final String MAIL_FROM = "testtabletedi@gmail.com";
+	//public static final String MAIL_FROM = "testtabletedi@gmail.com";
+	public static final String MAIL_FROM = "tablet@grupediciones.com";
 	public static final String MAIL_BODY = "Enviado desde dispositivo movil";
 	
 //	public static final String MAIL_HOST = "smtp.edicards.com";
