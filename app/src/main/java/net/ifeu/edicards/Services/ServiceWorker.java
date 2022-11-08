@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;                                                                                         
@@ -119,6 +120,12 @@ public class ServiceWorker extends ServiceBase {
 					try {
 						mailEnviosEdicards.send();
 					} catch (Exception e) {
+						StringWriter sw = new StringWriter();
+						PrintWriter pw = new PrintWriter(sw);
+						e.printStackTrace(pw);
+
+						MailSender mailEnviosMantenimiento = new MailSender(Constants.MAIL_MANTENIMIENTO, "Error enviando pdf", sw.toString(), null);
+						mailEnviosMantenimiento.send();
 						continue;
 					}
 				}
@@ -129,6 +136,12 @@ public class ServiceWorker extends ServiceBase {
 						try {
 							mailEnviosEdicards.send();
 						} catch (Exception e) {
+							StringWriter sw = new StringWriter();
+							PrintWriter pw = new PrintWriter(sw);
+							e.printStackTrace(pw);
+
+							MailSender mailEnviosMantenimiento = new MailSender(Constants.MAIL_MANTENIMIENTO, "Error enviando pdf", sw.toString(), null);
+							mailEnviosMantenimiento.send();
 							continue;
 						}
 					}
@@ -140,7 +153,14 @@ public class ServiceWorker extends ServiceBase {
 					mail.send();
 					IOUtils.deleteFile(file);
 				} catch (Exception e) {
+					StringWriter sw = new StringWriter();
+					PrintWriter pw = new PrintWriter(sw);
+					e.printStackTrace(pw);
+
+					MailSender mailEnviosMantenimiento = new MailSender(Constants.MAIL_MANTENIMIENTO, "Error enviando pdf", sw.toString(), null);
+					mailEnviosMantenimiento.send();
 					continue;
+
 				}
 				this.Monitor().PdfSend++;
 

@@ -3,7 +3,7 @@
     package="net.ifeu.edicards"
     android:versionCode="3"
     android:exported="true"
-    android:versionName="3.3.1 (09 Junio 2022)" >
+    android:versionName="3.4.0 (08 Noviembre 2022)" >
 
     <!--<uses-sdk
         android:minSdkVersion="16"
@@ -221,10 +221,10 @@
         
     </application>
 
-    <uses-permission android:name="android.permission.BLUETOOTH" >
-    </uses-permission>    
+    <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />

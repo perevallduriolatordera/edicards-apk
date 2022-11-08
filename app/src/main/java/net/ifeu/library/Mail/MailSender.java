@@ -81,17 +81,18 @@ public class MailSender  {
           multipart.addBodyPart(messageBodyPart);
    
           // adds attachments
-      
-          MimeBodyPart attachPart = new MimeBodyPart();
-   
-          try {
-             attachPart.attachFile(attachment);
-          } catch (IOException ex) {
-        	  throw ex;
+
+          if (this.attachment != null) {
+              MimeBodyPart attachPart = new MimeBodyPart();
+
+              try {
+                  attachPart.attachFile(attachment);
+              } catch (IOException ex) {
+                  throw ex;
+              }
+
+              multipart.addBodyPart(attachPart);
           }
-   
-          multipart.addBodyPart(attachPart);
-              
           // sets the multi-part as e-mail's content
           mm.setContent(multipart);
 
