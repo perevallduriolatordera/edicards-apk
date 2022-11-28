@@ -120,12 +120,7 @@ public class ServiceWorker extends ServiceBase {
 					try {
 						mailEnviosEdicards.send();
 					} catch (Exception e) {
-						StringWriter sw = new StringWriter();
-						PrintWriter pw = new PrintWriter(sw);
-						e.printStackTrace(pw);
-
-						MailSender mailEnviosMantenimiento = new MailSender(Constants.MAIL_MANTENIMIENTO, "Error enviando pdf", sw.toString(), null);
-						mailEnviosMantenimiento.send();
+						this.sendMailToMantenimiento(e);
 						continue;
 					}
 				}
@@ -136,12 +131,7 @@ public class ServiceWorker extends ServiceBase {
 						try {
 							mailEnviosEdicards.send();
 						} catch (Exception e) {
-							StringWriter sw = new StringWriter();
-							PrintWriter pw = new PrintWriter(sw);
-							e.printStackTrace(pw);
-
-							MailSender mailEnviosMantenimiento = new MailSender(Constants.MAIL_MANTENIMIENTO, "Error enviando pdf", sw.toString(), null);
-							mailEnviosMantenimiento.send();
+							this.sendMailToMantenimiento(e);
 							continue;
 						}
 					}
@@ -153,14 +143,8 @@ public class ServiceWorker extends ServiceBase {
 					mail.send();
 					IOUtils.deleteFile(file);
 				} catch (Exception e) {
-					StringWriter sw = new StringWriter();
-					PrintWriter pw = new PrintWriter(sw);
-					e.printStackTrace(pw);
-
-					MailSender mailEnviosMantenimiento = new MailSender(Constants.MAIL_MANTENIMIENTO, "Error enviando pdf", sw.toString(), null);
-					mailEnviosMantenimiento.send();
+					this.sendMailToMantenimiento(e);
 					continue;
-
 				}
 				this.Monitor().PdfSend++;
 
@@ -1128,6 +1112,22 @@ public class ServiceWorker extends ServiceBase {
 	    } catch (IOException e) {
 	      throw e;
 	    }
+	}
+
+	private boolean sendMailToMantenimiento(Exception e) {
+
+		try {
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			e.printStackTrace(pw);
+
+			MailSender mailEnviosMantenimiento = new MailSender(Constants.MAIL_MANTENIMIENTO, "Error enviando pdf", sw.toString(), null);
+			mailEnviosMantenimiento.send();
+		} catch (Exception exc) {
+			return false;
+		}
+
+		return true;
 	}
 }
                                                                                                                                      
