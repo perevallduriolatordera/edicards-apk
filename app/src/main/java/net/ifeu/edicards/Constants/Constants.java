@@ -164,6 +164,7 @@ public final class Constants {
 	public static final String MAIL_FACTURACION = "facturacion@edicards.com";
 	public static final String MAIL_ENVIOS_EDICARDS = "almacenedicards@gmail.com";
 	public static final String MAIL_MANTENIMIENTO = "valldu@hotmail.com";
+	public static final String MAIL_SEGUIMIENTO = "fernandoedicards@gmail.com";
 
 	public static final String MANAGER_PASSWORD = "manager";
 	

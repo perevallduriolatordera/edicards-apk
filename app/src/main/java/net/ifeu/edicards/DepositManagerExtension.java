@@ -2,6 +2,8 @@ package net.ifeu.edicards;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.text.DecimalFormat;
@@ -41,6 +43,7 @@ import net.ifeu.library.Controls.ComboBox;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
 import net.ifeu.library.Devices.BlueTooth;
+import net.ifeu.library.Mail.MailSender;
 
 public class DepositManagerExtension {
 
@@ -205,6 +208,7 @@ public class DepositManagerExtension {
 	
 			if (deposito.isDeposito()) // && _deposito.isDepositoUpdated())
 				pdf.createDeposito(GUID);
+			else
 	
 			if (deposito.isAlbaran())
 				pdf.createAlbaran(GUID, DataTier.isTransferPayment(deposito.formaPago));
@@ -218,7 +222,7 @@ public class DepositManagerExtension {
 			if (deposito.CCCUpdated)
 				pdf.createAuthorization();
 		}
-		
+
 		public static void sendData(Activity activity, final AppConfig config) throws Exception {
 			// Envíamos los datos pendientes
 

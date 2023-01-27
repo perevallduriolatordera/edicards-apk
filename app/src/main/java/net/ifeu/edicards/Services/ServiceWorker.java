@@ -98,16 +98,21 @@ public class ServiceWorker extends ServiceBase {
 
 				File fileInfo = new File(file);
 				String title = fileInfo.getName().subSequence(0, 1).equals("A") ? "Albaran " : "Deposito ";
+				String albaran = "";
 
 				if (fileInfo.getName().subSequence(0, 1).equals("R")) {
 					title = "Albarán rectificativo ";
 					isRectificativo = true;
 				}
 
-				if (!isRectificativo)
-					title = title + (fileInfo.getName().substring(2).replace(".pdf", Constants.EMPTY_STRING));
-				else
-					title = title + (fileInfo.getName().substring(4).replace(".pdf", Constants.EMPTY_STRING));
+				if (!isRectificativo) {
+					albaran = (fileInfo.getName().substring(2).replace(".pdf", Constants.EMPTY_STRING));
+					title = title + albaran;
+
+				} else {
+					albaran = (fileInfo.getName().substring(4).replace(".pdf", Constants.EMPTY_STRING));
+					title = title + albaran;
+				}
 
 				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 				title = title + " generado a fecha " + sdf.format(fileInfo.lastModified());
@@ -120,7 +125,7 @@ public class ServiceWorker extends ServiceBase {
 					try {
 						mailEnviosEdicards.send();
 					} catch (Exception e) {
-						this.sendMailToMantenimiento(e);
+						this.sendMailToMantenimiento(e, app.getUser().User, albaran);
 						continue;
 					}
 				}
@@ -131,7 +136,7 @@ public class ServiceWorker extends ServiceBase {
 						try {
 							mailEnviosEdicards.send();
 						} catch (Exception e) {
-							this.sendMailToMantenimiento(e);
+							this.sendMailToMantenimiento(e, app.getUser().User, albaran);
 							continue;
 						}
 					}
@@ -143,7 +148,7 @@ public class ServiceWorker extends ServiceBase {
 					mail.send();
 					IOUtils.deleteFile(file);
 				} catch (Exception e) {
-					this.sendMailToMantenimiento(e);
+					this.sendMailToMantenimiento(e, app.getUser().User, albaran);
 					continue;
 				}
 				this.Monitor().PdfSend++;
@@ -1114,15 +1119,20 @@ public class ServiceWorker extends ServiceBase {
 	    }
 	}
 
-	private boolean sendMailToMantenimiento(Exception e) {
+	private boolean sendMailToMantenimiento(Exception e, String user, String albaran) {
 
 		try {
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
 
-			MailSender mailEnviosMantenimiento = new MailSender(Constants.MAIL_MANTENIMIENTO, "Error enviando pdf", sw.toString(), null);
+			String title = "Error enviando pdf del albarán " + albaran + " del comercial " + user;
+
+			MailSender mailEnviosMantenimiento = new MailSender(Constants.MAIL_MANTENIMIENTO, title, sw.toString(), null);
 			mailEnviosMantenimiento.send();
+
+			MailSender mailEnviosSeguimiento = new MailSender(Constants.MAIL_SEGUIMIENTO, title   + user, sw.toString(), null);
+			mailEnviosSeguimiento.send();
 		} catch (Exception exc) {
 			return false;
 		}

@@ -3,6 +3,8 @@ package net.ifeu.edicards.Pdf;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -17,6 +19,7 @@ import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.Totales;
 import net.ifeu.library.LogBook.LogBookWriter;
+import net.ifeu.library.Mail.MailSender;
 
 import android.content.Context;
 import android.os.Environment;
@@ -437,26 +440,26 @@ public class PdfCreator extends pdfBase{
 
 	}
 
-	public boolean createAlbaran(String guid, boolean isTransferPayment) throws FileNotFoundException,
-			DocumentException {
-
-		_GUID = guid;
-
-		_document = new Document();
-		String tipoEnvio = this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "E" : "F";
-
-		_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
-				+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_PDF + "/"
-				+ "A_" + _app.getUser().User + " " + _deposito.NumeroAlbaran
-				+ "_" + this.getDateTimeFormat() + "_" + tipoEnvio + ".pdf";
-
-		_document.addTitle(_app.getUser().User + "_" + _deposito.NumeroAlbaran
-				+ "_" + String.valueOf(new Date(0)));
-
-		PdfWriter.getInstance(_document, new FileOutputStream(_pdfName));
-		_document.open();
+	public boolean createAlbaran(String guid, boolean isTransferPayment)
+	{
 
 		try {
+			_GUID = guid;
+
+			_document = new Document();
+			String tipoEnvio = this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "E" : "F";
+
+			_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
+					+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_PDF + "/"
+					+ "A_" + _app.getUser().User + " " + _deposito.NumeroAlbaran
+					+ "_" + this.getDateTimeFormat() + "_" + tipoEnvio + ".pdf";
+
+			_document.addTitle(_app.getUser().User + "_" + _deposito.NumeroAlbaran
+					+ "_" + String.valueOf(new Date(0)));
+
+			PdfWriter.getInstance(_document, new FileOutputStream(_pdfName));
+			_document.open();
+
 			if (_deposito.Serie.equals(_app.getUser().SerialInvoiceA))
 				printHeader();
 
@@ -487,49 +490,79 @@ public class PdfCreator extends pdfBase{
 
 		} catch (Exception e) {
 			LogBookWriter.write("Se ha producido un error generando  el albarán " + _deposito.NumeroAlbaran + ". Motivo: " + e.getStackTrace());
+			sendMailToMantenimiento(e, _app.getUser().User, _deposito.NumeroAlbaran, "albarán");
 			return false;
 		}
 
 		return true;
 	}
 
-	public void createDeposito(String guid)
-			throws DocumentException, MalformedURLException, IOException {
+	public boolean createDeposito(String guid)
+	{
 
-		_GUID = guid;
+		try {
+			_GUID = guid;
 
-		_document = new Document();
-		String tipoEnvio = this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "E" : "F";
+			_document = new Document();
+			String tipoEnvio = this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "E" : "F";
 
-		_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
-				+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_PDF + "/"
-				+ "D_" + _app.getUser().User + " " + _deposito.IdDeposito + "_"
-				+ this.getDateTimeFormat() + "_" + tipoEnvio + ".pdf";
+			_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
+					+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_PDF + "/"
+					+ "D_" + _app.getUser().User + " " + _deposito.IdDeposito + "_"
+					+ this.getDateTimeFormat() + "_" + tipoEnvio + ".pdf";
 
-		_document.addTitle(_app.getUser().User + "_" + _deposito.IdDeposito
-				+ "_" + String.valueOf(new Date(0)));
+			_document.addTitle(_app.getUser().User + "_" + _deposito.IdDeposito
+					+ "_" + String.valueOf(new Date(0)));
 
-		_writer = PdfWriter.getInstance(_document, new FileOutputStream(
-				_pdfName));
-		_document.open();
+			_writer = PdfWriter.getInstance(_document, new FileOutputStream(
+					_pdfName));
+			_document.open();
 
-		
-		printHeader();
 
-		String depositoNum = "DEPOSITO: NUM " + _app.getUser().User + "/"
-				+ String.valueOf(_deposito.IdDeposito) + "\n";
+			printHeader();
 
-		_document.add(new Paragraph(depositoNum, _fontBold));
+			String depositoNum = "DEPOSITO: NUM " + _app.getUser().User + "/"
+					+ String.valueOf(_deposito.IdDeposito) + "\n";
 
-		this.printHeaderData(Constants.TIPO_DOCUMENTO_DEPOSITO);
-		printHeaderFields(Constants.TIPO_DOCUMENTO_DEPOSITO);
-		printHeaderDetail(Constants.TIPO_DOCUMENTO_DEPOSITO);
-		printTotals(Constants.TIPO_DOCUMENTO_DEPOSITO, false);
+			_document.add(new Paragraph(depositoNum, _fontBold));
 
-		String firmaCliente = "Conforme - Firma Cliente:\n";
-		_document.add(new Paragraph(firmaCliente, _fontNormal));
-		this.addSignature(Constants.TIPO_DOCUMENTO_DEPOSITO);
-		closePage();
+			this.printHeaderData(Constants.TIPO_DOCUMENTO_DEPOSITO);
+			printHeaderFields(Constants.TIPO_DOCUMENTO_DEPOSITO);
+			printHeaderDetail(Constants.TIPO_DOCUMENTO_DEPOSITO);
+			printTotals(Constants.TIPO_DOCUMENTO_DEPOSITO, false);
 
+			String firmaCliente = "Conforme - Firma Cliente:\n";
+			_document.add(new Paragraph(firmaCliente, _fontNormal));
+			this.addSignature(Constants.TIPO_DOCUMENTO_DEPOSITO);
+			closePage();
+		} catch (Exception e) {
+			LogBookWriter.write("Se ha producido un error generando  el albarán " + _deposito.NumDoc + ". Motivo: " + e.getStackTrace());
+			sendMailToMantenimiento(e, _app.getUser().User, _deposito.NumDoc, "depósito");
+			return false;
+
+		}
+
+		return true;
+	}
+
+	private boolean sendMailToMantenimiento(Exception e, String user, String id, String tipo) {
+
+		try {
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			e.printStackTrace(pw);
+
+			String title = "Error enviando pdf del " + tipo + " num " + id + " del comercial " + user;
+
+			MailSender mailEnviosMantenimiento = new MailSender(Constants.MAIL_MANTENIMIENTO, title, sw.toString(), null);
+			mailEnviosMantenimiento.send();
+
+			MailSender mailEnviosSeguimiento = new MailSender(Constants.MAIL_SEGUIMIENTO, title   + user, sw.toString(), null);
+			mailEnviosSeguimiento.send();
+		} catch (Exception exc) {
+			return false;
+		}
+
+		return true;
 	}
 }
