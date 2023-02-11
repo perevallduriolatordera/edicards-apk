@@ -32,7 +32,7 @@ import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
-import net.ifeu.library.LogBook.LogBookWriter;
+import net.ifeu.library.LogBook.LogBook;
 import net.ifeu.library.Utils.MessageBoxType;
 
 public class StockManager extends Fragment {
@@ -165,14 +165,22 @@ public class StockManager extends Fragment {
 	}
 	
 	private void initializeStock(boolean onlyReciclado) {
-		
+
 		for (Articulo articulo : _articulos.values()) {
 			try {
+
+				LogBook logBookWriter = new LogBook();
+				logBookWriter.InitializePersistance(_appConfig, _appConfig);
+
 				articulo.InitializePersistance(_appConfig, getActivity());
 				
 				if (!onlyReciclado) {
 					articulo.Stock = 0;
-					LogBookWriter.write("Inicialización de almacén. Se deja a 0 unidades el artículo " + articulo.Descripcion + " (" + articulo.CodigoArticulo + ")");
+					logBookWriter.setData("INICIALIZACIÓN DE ALMACÉN", Constants.EMPTY_STRING,
+							Constants.EMPTY_STRING, articulo.CodigoArticulo, articulo.Descripcion,
+							articulo.Stock, 0, 0, 0, 0, 0, 0, 0,0);
+
+					logBookWriter.save();
 				}
 
 				articulo.StockDefectuoso = 0;
@@ -615,13 +623,16 @@ public class StockManager extends Fragment {
 		
 		unidadesRecuento.setOnFocusChangeListener(new OnFocusChangeListener() {
 			public void onFocusChange(View view, boolean hasFocus) {
+
 				if (!hasFocus) {
-					
 					Deposito deposito = new Deposito();
 					
 					try {
 						deposito.InitializePersistance(_appConfig, 
 								that.getActivity());
+
+						LogBook logBookWriter = new LogBook();
+						logBookWriter.InitializePersistance(_appConfig, _appConfig);
 						
 						if (deposito.getDepositosToday().size() > 0) {
 							_appConfig.getMessageBox().Show(
@@ -646,7 +657,11 @@ public class StockManager extends Fragment {
 								int unidades = Integer.parseInt(textBox.getText().toString());
 
 								((Articulo) unidadesRecuento.getTag()).Stock = unidades;
-								LogBookWriter.write("Asignación de almacén. Se deja a " + unidades + " unidades el artículo " + ((Articulo) unidadesRecuento.getTag()).Descripcion + " (" + ((Articulo) unidadesRecuento.getTag()).CodigoArticulo + ")");
+								logBookWriter.setData("ASIGNACION DE ALMACÉN", Constants.EMPTY_STRING,
+										Constants.EMPTY_STRING, ((Articulo) unidadesRecuento.getTag()).CodigoArticulo, ((Articulo) unidadesRecuento.getTag()).Descripcion,
+										articulo.Stock, unidades, 0, 0, 0, 0, 0, 0,0);
+
+								logBookWriter.save();
 
 							} else {
 								
@@ -660,7 +675,12 @@ public class StockManager extends Fragment {
 									
 									int unidades = Integer.parseInt(textBox.getText().toString());
 									((Articulo) unidadesRecuento.getTag()).Stock = unidades;
-									LogBookWriter.write("Asignación de almacén. Se deja a " + unidades + " unidades el artículo " + ((Articulo) unidadesRecuento.getTag()).Descripcion + " (" + ((Articulo) unidadesRecuento.getTag()).CodigoArticulo + ")");
+
+									logBookWriter.setData("ASIGNACION DE ALMACÉN", Constants.EMPTY_STRING,
+											Constants.EMPTY_STRING, ((Articulo) unidadesRecuento.getTag()).CodigoArticulo, ((Articulo) unidadesRecuento.getTag()).Descripcion,
+											articulo.Stock, unidades, 0, 0, 0, 0, 0, 0,0);
+
+									logBookWriter.save();
 
 								} else {
 									_appConfig.getMessageBox().Show(
@@ -754,8 +774,18 @@ public class StockManager extends Fragment {
 							+ swap.Articulo.Descripcion, getActivity(),
 					MessageBoxType.Error);
 
-		swap.Articulo.Stock = swap.Articulo.Stock + entradas - salidas;
-		LogBookWriter.write("Asignación de almacén. Se deja a " + swap.Articulo.Stock + " unidades el artículo " + swap.Articulo.Descripcion + " (" + swap.Articulo.CodigoArticulo + ")");
+		int stockInicial = swap.Articulo.Stock;
+		swap.Articulo.Stock = stockInicial + entradas - salidas;
+
+		LogBook logBookWriter = new LogBook();
+		logBookWriter.InitializePersistance(_appConfig,	_appConfig);
+
+		logBookWriter.setData("ASIGNACION DE ALMACÉN", Constants.EMPTY_STRING,
+				Constants.EMPTY_STRING, swap.Articulo.CodigoArticulo, swap.Articulo.Descripcion,
+				stockInicial, swap.Articulo.Stock, entradas, 0, salidas, 0, 0, 0,0);
+
+		logBookWriter.save();
+
 		swap.Articulo.Entradas = entradas;
 		swap.Articulo.Salidas = salidas;
 		swap.Articulo.Tipo = tipo;

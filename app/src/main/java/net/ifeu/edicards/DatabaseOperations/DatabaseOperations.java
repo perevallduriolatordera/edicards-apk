@@ -504,6 +504,7 @@ public class DatabaseOperations {
 			createGastosInfoTable();
 			createIngresosTable();
 			createGDPRTable();
+			createLogBookTable();
 		}
 		catch (Exception e) {
 			throw e;
@@ -531,6 +532,8 @@ public class DatabaseOperations {
 					 new ArrayList<String>(Arrays.asList("IdArticulo")));
 			createIndex(Constants.INDEX_ARTICULOS_ACTIVO_TIPO, Constants.TABLE_ARTICULOS, 
 					 new ArrayList<String>(Arrays.asList("Activo","Tipo")));
+			createIndex(Constants.INDEX_LOGBOOK_FECHA, Constants.TABLE_LOGBOOK,
+					new ArrayList<String>(Arrays.asList("Fecha")));
 		}
 		catch (Exception e) {
 			throw e;
@@ -557,6 +560,7 @@ public class DatabaseOperations {
 			dropTable(Constants.TABLE_GASTOS_INFO);
 			dropTable(Constants.TABLE_INGRESOS);
 			dropTable(Constants.TABLE_GDPR);
+			dropTable(Constants.TABLE_LOGBOOK);
 			
 		}
 		catch (Exception e) {
@@ -1078,6 +1082,39 @@ public class DatabaseOperations {
 			throw new Exception("Error creando la tabla " + Constants.TABLE_GDPR + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
+	}
+
+	private void createLogBookTable() throws Exception
+	{
+		if (_databaseConnection.getDatabase().isOpen())
+		{
+			try {
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + Constants.TABLE_LOGBOOK + " ( IdLogBook integer primary key autoincrement, "
+						+ "Fecha date default CURRENT_DATE," +
+						  "TipoMovimiento text not null," +
+						  "CodigoCliente text not null," +
+						  "NombreCliente text not null," +
+						  "CodigoArticulo text not null," +
+						  "NombreArticulo text not null," +
+						  "StockInicial integer not null," +
+						  "StockFinal integer not null," +
+						  "UnidadesDevueltas integer," +
+						  "UnidadesDefectuosas integer," +
+						  "UnidadesRepuestas integer," +
+						  "UnidadesFacturadas integer," +
+						  "UnidadesIniciales integer," +
+						  "UnidadesAbono integer, " +
+						  "UnidadesDefectuosasAbono integer); ");
+			}
+			catch (Exception e) {
+				throw new Exception("Error creando la tabla " + Constants.TABLE_LOGBOOK + ". Motivo: " + e.getMessage().toString());
+			}
+
+		}
+		else {
+			throw new Exception("Error creando la tabla " + Constants.TABLE_LOGBOOK + ". Motivo: La Base de datos no ha podido ser abierta.");
+		}
+
 	}
 	
 	private void alterStructure() throws Exception {

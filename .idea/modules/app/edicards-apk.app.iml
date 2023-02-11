@@ -25,7 +25,7 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_6">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/../../../app/build/intermediates/javac/debug/classes" />
     <output-test url="file://$MODULE_DIR$/../../../app/build/intermediates/javac/debugUnitTest/classes" />
     <exclude-output />
@@ -42,9 +42,9 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 19 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:multidex-instrumentation:1.0.2@aar" level="project" />
     <orderEntry type="library" name="Gradle: ./app/libs/activation.jar" level="project" />
     <orderEntry type="library" name="Gradle: ./app/libs/additionnal.jar" level="project" />
-    <orderEntry type="library" name="Gradle: ./app/libs/commons-codec-1.10.jar" level="project" />
     <orderEntry type="library" name="Gradle: ./app/libs/commons-logging-1.2.jar" level="project" />
     <orderEntry type="library" name="Gradle: ./app/libs/fluent-hc-4.5.6.jar" level="project" />
     <orderEntry type="library" name="Gradle: ./app/libs/httpclient-4.5.6.jar" level="project" />
@@ -62,6 +62,16 @@
     <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.8.0" level="project" />
     <orderEntry type="library" name="Gradle: com.squareup.okhttp3:okhttp:3.6.0" level="project" />
     <orderEntry type="library" name="Gradle: com.squareup.okio:okio:1.11.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.poi:poi-ooxml:3.10-FINAL" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.poi:poi-scratchpad:3.10-FINAL" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.poi:poi:3.10-FINAL" level="project" />
+    <orderEntry type="library" name="Gradle: commons-codec:commons-codec:1.5" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.poi:poi-ooxml-schemas:3.10-FINAL" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.xmlbeans:xmlbeans:2.3.0" level="project" />
+    <orderEntry type="library" name="Gradle: stax:stax-api:1.0.1" level="project" />
+    <orderEntry type="library" name="Gradle: dom4j:dom4j:1.6.1" level="project" />
+    <orderEntry type="library" name="Gradle: xml-apis:xml-apis:1.0.b2" level="project" />
+    <orderEntry type="library" name="Gradle: com.android.support:multidex:1.0.2@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:support-v4:24.2.1@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:support-fragment:24.2.1@aar" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:support-media-compat:24.2.1@aar" level="project" />

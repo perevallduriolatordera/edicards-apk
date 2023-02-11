@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
@@ -44,7 +43,7 @@ import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
-import net.ifeu.library.LogBook.LogBookWriter;
+import net.ifeu.library.LogBook.LogBook;
 import net.ifeu.library.Utils.Inactivate;
 import net.ifeu.library.Utils.MessageBoxType;
 
@@ -753,99 +752,97 @@ public class Reports extends Fragment {
 
 		if (!historico.ActualizarStock) return;
 
-		long lastId = 0;
-		int lastStock = 0;
-		int lastStockDefectuoso = 0;
-		
-		for (LineaHistorico linea : historico.Lineas.values()) {
-			
-			if (lastId == linea.Articulo.IdArticulo) {
-				linea.Articulo.Stock = lastStock;
-				linea.Articulo.StockDefectuoso = lastStockDefectuoso;
+		try {
+
+			long lastId = 0;
+			int lastStock = 0;
+			int lastStockDefectuoso = 0;
+
+			LogBook logBookWriter= new LogBook();
+			logBookWriter.InitializePersistance(_appConfig, _appConfig);
+
+			for (LineaHistorico linea : historico.Lineas.values()) {
+
+				if (lastId == linea.Articulo.IdArticulo) {
+					linea.Articulo.Stock = lastStock;
+					linea.Articulo.StockDefectuoso = lastStockDefectuoso;
+				}
+
+				linea.Articulo.InitializePersistance(
+						_appConfig, _appConfig);
+
+				switch (linea.Tipo) {
+					case Constants.TIPO_LINEA_HISTORICO_FACTURADAS: {
+						int stockInicial = linea.Articulo.Stock;
+						linea.Articulo.Stock = (int) (stockInicial + linea.Unidades);
+
+						if (stockInicial != linea.Articulo.Stock) {
+
+							logBookWriter.setData("ANULACIÓN DE ARTÍCULO FACTURADO", historico.Cliente.CodigoCliente,
+									historico.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+									stockInicial, linea.Articulo.Stock, linea.Unidades, 0,
+									0, 0, 0,
+									0, 0);
+
+							logBookWriter.save();
+						}
+						break;
+					}
+
+					case Constants.TIPO_LINEA_HISTORICO_POTENCIADAS: {
+						int stockInicial = linea.Articulo.Stock;
+						linea.Articulo.Stock = (int) (stockInicial + linea.Unidades);
+
+						if (stockInicial != linea.Articulo.Stock) {
+
+							logBookWriter.setData("ANULACIÓN DE ARTÍCULO POTENCIADO", historico.Cliente.CodigoCliente,
+									historico.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+									stockInicial, linea.Articulo.Stock, linea.Unidades, 0,
+									0, 0, 0,
+									0, 0);
+
+							logBookWriter.save();
+
+						}
+						break;
+					}
+
+					case Constants.TIPO_LINEA_HISTORICO_BAJAS: {
+						int stockInicial = linea.Articulo.Stock;
+						linea.Articulo.Stock = (int) (stockInicial - linea.Unidades);
+
+						if (stockInicial != linea.Articulo.Stock) {
+
+							logBookWriter.setData("ANULACIÓN DE ARTÍCULO BAJA", historico.Cliente.CodigoCliente,
+									historico.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+									stockInicial, linea.Articulo.Stock, 0, 0,
+									linea.Unidades, 0, 0,
+									0, 0);
+
+							logBookWriter.save();
+						}
+						break;
+					}
+
+					case Constants.TIPO_LINEA_HISTORICO_DEFECTUOSAS: {
+						linea.Articulo.StockDefectuoso = (int) (linea.Articulo.StockDefectuoso
+								- linea.Unidades);
+						break;
+					}
+
+				}
+
+				lastId = linea.Articulo.IdArticulo;
+				lastStock = linea.Articulo.Stock;
+				lastStockDefectuoso = linea.Articulo.StockDefectuoso;
+
+				linea.Articulo.update();
 			}
-			
-			Log.i("Reports", "Stock: "
-					+ linea.Articulo.Descripcion);
-			Log.i("Reports",
-					"Tipo: " + String.valueOf(linea.Tipo));
-			Log.i("Reports",
-					String.valueOf(linea.MovimientoStock));
-			Log.i("Reports",
-					String.valueOf(linea.MovimientoStockDefectuosas));
-			
-			linea.Articulo.InitializePersistance(
-					_appConfig, _appConfig);
-			
-			switch (linea.Tipo) {
-				case Constants.TIPO_LINEA_HISTORICO_FACTURADAS: {
-					int stockInicial = linea.Articulo.Stock;
-					linea.Articulo.Stock = (int) (stockInicial + linea.Unidades);
-
-					if (stockInicial != linea.Articulo.Stock) {
-						List<String> logBookTrace = new ArrayList<String>();
-						logBookTrace.add("--- ANULACIÓN DE ARTÍCULO FACTURADO --- ");
-						logBookTrace.add("Cliente: " + historico.Cliente.CodigoCliente + ". " + historico.Cliente.Razon);
-						logBookTrace.add("Albarán: " + historico.NumeroAlbaran);
-						logBookTrace.add("Código artículo: " + linea.Articulo.CodigoArticulo + ". " + linea.Articulo.Descripcion);
-						logBookTrace.add("Stock inicial: " + stockInicial);
-						logBookTrace.add("Stock final: " + linea.Articulo.Stock);
-						logBookTrace.add("Unidades añadidas: " + linea.Unidades);
-						LogBookWriter.write(logBookTrace);
-					}
-					break;
-				}
-				
-				case Constants.TIPO_LINEA_HISTORICO_POTENCIADAS: {
-					int stockInicial = linea.Articulo.Stock;
-					linea.Articulo.Stock = (int) (stockInicial + linea.Unidades);
-
-					if (stockInicial != linea.Articulo.Stock) {
-						List<String> logBookTrace = new ArrayList<String>();
-						logBookTrace.add("--- ANULACIÓN DE ARTÍCULO POTENCIADO --- ");
-						logBookTrace.add("Cliente: " + historico.Cliente.CodigoCliente + ". " + historico.Cliente.Razon);
-						logBookTrace.add("Albarán: " + historico.NumeroAlbaran);
-						logBookTrace.add("Código artículo: " + linea.Articulo.CodigoArticulo + ". " + linea.Articulo.Descripcion);
-						logBookTrace.add("Stock inicial: " + stockInicial);
-						logBookTrace.add("Stock final: " + linea.Articulo.Stock);
-						logBookTrace.add("Unidades añadidas: " + linea.Unidades);
-						LogBookWriter.write(logBookTrace);
-					}
-					break;
-				}
-				
-				case Constants.TIPO_LINEA_HISTORICO_BAJAS: {
-					int stockInicial = linea.Articulo.Stock;
-					linea.Articulo.Stock = (int) (stockInicial - linea.Unidades);
-
-					if (stockInicial != linea.Articulo.Stock) {
-						List<String> logBookTrace = new ArrayList<String>();
-						logBookTrace.add("--- ANULACIÓN DE ARTÍCULO BAJA --- ");
-						logBookTrace.add("Cliente: " + historico.Cliente.CodigoCliente + ". " + historico.Cliente.Razon);
-						logBookTrace.add("Albarán: " + historico.NumeroAlbaran);
-						logBookTrace.add("Código artículo: " + linea.Articulo.CodigoArticulo + ". " + linea.Articulo.Descripcion);
-						logBookTrace.add("Stock inicial: " + stockInicial);
-						logBookTrace.add("Stock final: " + linea.Articulo.Stock);
-						logBookTrace.add("Unidades restadas: " + linea.Unidades);
-						LogBookWriter.write(logBookTrace);
-					}
-					break;
-				}
-				
-				case Constants.TIPO_LINEA_HISTORICO_DEFECTUOSAS: {
-					linea.Articulo.StockDefectuoso = (int) (linea.Articulo.StockDefectuoso
-							- linea.Unidades);
-					break;
-				}
-				
-			}
-			
-			lastId = linea.Articulo.IdArticulo;
-			lastStock = linea.Articulo.Stock;
-			lastStockDefectuoso = linea.Articulo.StockDefectuoso;
-
-			linea.Articulo.update();
+		} catch (Exception ex) {
+			_appConfig.getMessageBox().Show("Atención",
+					_appConfig.getStackTrace(ex),
+					getActivity(), MessageBoxType.Error);
 		}
-
 	}
 	
 	private void upgradeDeposito(Historico historico) throws Exception {

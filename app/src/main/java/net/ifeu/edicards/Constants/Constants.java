@@ -25,6 +25,7 @@ public final class Constants {
 	public static final String TABLE_GASTOS_INFO = "GastosInfo";
 	public static final String TABLE_INGRESOS = "Ingresos";
 	public static final String TABLE_GDPR = "GDPR";
+	public static final String TABLE_LOGBOOK = "LogBook";
 	
 	public static final String INDEX_DEPOSITO_CODIGOCLIENTE = "idx_Deposito_CodigoCliente";
 	public static final String INDEX_DEPOSITO_NUMDOC = "idx_Deposito_NumDoc";
@@ -35,6 +36,7 @@ public final class Constants {
 	public static final String INDEX_TARIFA_IDARTICULO_CODIGOTARIFA = "idx_Tarifa_IdArt_codTar";
 	public static final String INDEX_PACTOS_IDARTICULO = "idx_Pactos_IdArticulo";
 	public static final String INDEX_ARTICULOS_ACTIVO_TIPO = "idx_Articulos_Activo_Tipo";
+	public static final String INDEX_LOGBOOK_FECHA  = "idx_LogBook_Fecha";
 
 	public static final String TIPO_DEPOSITO_CONVENCIONAL = "1";
 	public static final String TIPO_DEPOSITO_CAMPANA = "2";
@@ -140,7 +142,7 @@ public final class Constants {
 	public static final String MAIL_TO = "testtabletedi@gmail.com";
 	public static final String MAIL_TO_GDPR = "gdprtabletedi@gmail.com";
 	public static final String MAIL_TO_INCIDENCIAS = "incidenciastabletedi@gmail.com";
-	public static final String MAIL_TO_LOGBOOK = "logbooktabletedi@gmail.com";
+	public static final String MAIL_TO_LOGBOOK = "trazabilidadtabletedi@gmail.com";
 	//public static final String MAIL_TO = "valldu@hotmail.com";
 	//public static final String MAIL_FROM = "testtabletedi@gmail.com";
 	public static final String MAIL_FROM = "tablet@grupediciones.com";

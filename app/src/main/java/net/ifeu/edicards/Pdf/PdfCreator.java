@@ -18,7 +18,6 @@ import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.Totales;
-import net.ifeu.library.LogBook.LogBookWriter;
 import net.ifeu.library.Mail.MailSender;
 
 import android.content.Context;
@@ -489,7 +488,6 @@ public class PdfCreator extends pdfBase{
 			closePage();
 
 		} catch (Exception e) {
-			LogBookWriter.write("Se ha producido un error generando  el albarán " + _deposito.NumeroAlbaran + ". Motivo: " + e.getStackTrace());
 			sendMailToMantenimiento(e, _app.getUser().User, _deposito.NumeroAlbaran, "albarán");
 			return false;
 		}
@@ -536,7 +534,6 @@ public class PdfCreator extends pdfBase{
 			this.addSignature(Constants.TIPO_DOCUMENTO_DEPOSITO);
 			closePage();
 		} catch (Exception e) {
-			LogBookWriter.write("Se ha producido un error generando  el albarán " + _deposito.NumDoc + ". Motivo: " + e.getStackTrace());
 			sendMailToMantenimiento(e, _app.getUser().User, _deposito.NumDoc, "depósito");
 			return false;
 

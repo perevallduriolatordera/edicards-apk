@@ -13,9 +13,9 @@ import java.text.NumberFormat;
 import java.text.ParsePosition;                                                                                                      
 import java.text.SimpleDateFormat;                                                                                                   
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -43,7 +43,7 @@ import net.ifeu.library.Firebase.ArticuloStock;
 import net.ifeu.library.Firebase.ArticuloStockResponse;
 import net.ifeu.library.Firebase.FireStoreCaller;
 import net.ifeu.library.IO.IOUtils;
-import net.ifeu.library.LogBook.LogBookWriter;
+import net.ifeu.library.LogBook.LogBook;
 import net.ifeu.library.Mail.Mail;
 import net.ifeu.library.Mail.MailSender;                                                                                             
 import org.apache.http.NameValuePair;                                                                                                
@@ -237,27 +237,24 @@ public class ServiceWorker extends ServiceBase {
 
 		for (String file : filesLogBook) {
 
-			if (!file.contains(LogBookWriter.getTodayFileFormat())) {
+			try {
+
+				Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de trazabilidad a logBook");
+				File fileInfo = new File(file);
+
+				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+				String title = "Documento Trazabilidad del comercial " + app.getUser().User + " " + "con fecha " + formatter.format(new Date());
+				MailSender mail = new MailSender(Constants.MAIL_TO_LOGBOOK, title, Constants.MAIL_BODY, file);
+
 				try {
-
-					Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de trazabilidad a logBook");
-					File fileInfo = new File(file);
-
-					String title = "Documento LogBook del comercial " + app.getUser().User + " ";
-					title = title + (fileInfo.getName().replace(".log", Constants.EMPTY_STRING));
-
-					MailSender mail = new MailSender(Constants.MAIL_TO_LOGBOOK, title, Constants.MAIL_BODY, file);
-
-					try {
-						mail.send();
-						IOUtils.deleteFile(file);
-					} catch (Exception e) {
-						continue;
-					}
-
+					mail.send();
+					IOUtils.deleteFile(file);
 				} catch (Exception e) {
 					continue;
 				}
+
+			} catch (Exception e) {
+				continue;
 			}
 		}
 
@@ -343,13 +340,11 @@ public class ServiceWorker extends ServiceBase {
 				if (result) {                                                                                                        
 					IOUtils.deleteFile(file);                                                                                 
 					this.Monitor().ArticulosSend++;
-					LogBookWriter.write("Enviamos artículos al servicio de Dimoni.");
 				}                                                                                                                    
 				else {                                                                                                               
 					continue;                        
 				}                                                                                                                    
 			} catch (Exception e) {
-				LogBookWriter.write("Se ha producido un error enviando artículos al servicio de Dimoni. Motivo: " + e.getMessage());
 				continue;                                                              
 			}                                                                                                                        
                                                                                                                                      
@@ -472,20 +467,16 @@ public class ServiceWorker extends ServiceBase {
 				params.add(new BasicNameValuePair("contingut", content));
 				boolean result = client.Execute(RequestMethod.POST, url, headers, params);
 				Log.i("RunExport.Recuento", content);
-				LogBookWriter.write("Enviamos recuento al servicio de Dimoni.");
-
 
 				if (result) {
 					IOUtils.deleteFile(file);
 					this.Monitor().RecuentoSend++;
 				}
 				else {
-					LogBookWriter.write("Se ha producido un error enviando recuento al servicio de Dimoni");
 					continue;
 				}
 
 			} catch (Exception e) {
-				LogBookWriter.write("Se ha producido un error enviando recuento al servicio de Dimoni. Motivo: " + e.getMessage());
 				continue;
 			}
 
@@ -518,17 +509,14 @@ public class ServiceWorker extends ServiceBase {
 			                                                                                                                         
 			try {                                                                                                                    
 				result = client.Execute(RequestMethod.POST, url, headers, params);
-				LogBookWriter.write("Enviamos stock diario al servicio de Dimoni.");
 				if (result) {                                                                                                        
 					IOUtils.deleteFile(file);                                                                                                                             
 					this.Monitor().StockDiarioSend++;
 				}                                                                                                                    
 				else {
-					LogBookWriter.write("Se ha producido un error enviando stock diario al servicio de Dimoni");
 					continue;                     
 				}                                                                                                                    
 			} catch (Exception e) {
-				LogBookWriter.write("Se ha producido un error enviando stock diario al servicio de Dimoni. Motivo: " + e.getMessage());
 				continue;                                                                   
 			}                                                                                                                        
 			                                                                                                                                                                                                                                                                                                                                                                                        

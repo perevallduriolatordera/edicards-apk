@@ -1,10 +1,12 @@
 package net.ifeu.edicards;
 
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Excel.LogBookCreator;
 import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.library.Devices.BlueTooth;
 import net.ifeu.library.Devices.Wifi;
 import net.ifeu.library.Devices._3G;
+import net.ifeu.library.LogBook.LogBook;
 import net.ifeu.library.Utils.Inactivate;
 import net.ifeu.library.Utils.MessageBoxType;
 import android.app.Activity;
@@ -77,6 +79,21 @@ public class MainActivity extends Activity {
 				StartNewUser();
 			} else {
 				this.setContentView(R.layout.activity_main);
+			}
+
+			// Creamos excel de trazabilidad si es necesario
+
+
+			try {
+				LogBook logBook = new LogBook();
+				logBook.InitializePersistance(_appConfig, _appConfig);
+
+				if (!logBook.hasLogBookCurrentWeek()) {
+					LogBookCreator logBookCreator = new LogBookCreator(_appConfig);
+					logBookCreator.createExcel30Days();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 			
 			Log.i(tag, "Fi activitat");

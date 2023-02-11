@@ -4,10 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -23,7 +21,7 @@ import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.Pactos;
 import net.ifeu.edicards.DataTier.Tarifa;
 import net.ifeu.edicards.DataTier.TipoIVA;
-import net.ifeu.library.LogBook.LogBookWriter;
+import net.ifeu.library.LogBook.LogBook;
 
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.DOMException;
@@ -523,8 +521,6 @@ public class ParserResponse extends ParserBase {
 			doc.getDocumentElement().normalize();
 			NodeList articulos = doc.getElementsByTagName("TrStock");
 
-			List<String> logBookTrace = new ArrayList<String>();
-
 			Log.i("ParserResponse", String.valueOf(articulos.getLength()));
 			int length = articulos.getLength();
 			for (int i = 0; i < length; i++) {
@@ -543,21 +539,28 @@ public class ParserResponse extends ParserBase {
 
 					Double stockDouble = new Double(getCharacterDataFromElement(unidadesValue));
 					articulo.Entradas = stockDouble.intValue();
-					articulo.Stock = articulo.Stock + articulo.Entradas;
+					int stockInicial = articulo.Stock;
+					articulo.Stock = stockInicial + articulo.Entradas;
 
 					articulo.update();
 
 					app.getTraspasoAlmacen().put(articulo.CodigoArticulo, stockDouble);
-					logBookTrace.add("Traspaso Almacén. Se suman " + articulo.Entradas + " quedando un stock de " + articulo.Stock + " unidades para el artículo " + articulo.Descripcion + " (" + articulo.CodigoArticulo + ")");
+
+					LogBook logBookTrace = new LogBook();
+					logBookTrace.InitializePersistance(app, app);
+					logBookTrace.setData("TRASPASO ALMACÉN", "","",
+							articulo.CodigoArticulo, articulo.Descripcion,
+							stockInicial, articulo.Stock, articulo.Entradas, 0,
+							0, 0, 0,
+							0,0);
+
+					logBookTrace.save();
 				}
 			}
 
-			LogBookWriter.write(logBookTrace);
-			
 			return true;
 		} catch (Exception e) {
 			app.getErrorTrace().Send(app.getUser().User, e);
-			LogBookWriter.write("Traspaso almacén. Se ha producido un error. Motivo: " + e.getMessage());
 			return false;
 		}
 
@@ -573,8 +576,6 @@ public class ParserResponse extends ParserBase {
 		
 		try {
 
-			List<String> logBookTrace = new ArrayList<String>();
-
 			for (String key : app.getTraspasoAlmacen().keySet()) {
 				String codigoValue = key;
 				
@@ -583,22 +584,27 @@ public class ParserResponse extends ParserBase {
 
 					Double stockDouble = new Double(app.getTraspasoAlmacen().get(codigoValue));
 					articulo.Entradas = stockDouble.intValue();
-					articulo.Stock = articulo.Stock - articulo.Entradas; 
+					int stockInicial = articulo.Stock;
+					articulo.Stock = stockInicial - articulo.Entradas;
 
 					articulo.update();
 
 					this.Monitor().ArticuloUpdateCounter++;
-					logBookTrace.add("Deshacer Traspaso Almacén. Se restan " + articulo.Entradas + " quedando un stock de " + articulo.Stock + " unidades para el artículo " + articulo.Descripcion + " (" + articulo.CodigoArticulo + ")");
+
+					LogBook logBookTrace = new LogBook();
+					logBookTrace.InitializePersistance(app, app);
+					logBookTrace.setData("DESHACER TRASPASO ALMACÉN", "","",
+							articulo.CodigoArticulo, articulo.Descripcion,
+							stockInicial, articulo.Stock, 0, 0,
+							articulo.Entradas, 0, 0,
+							0,0);
+
+					logBookTrace.save();
 				}
-				
 			}
 
-			LogBookWriter.write(logBookTrace);
-			
 			return true;
 		} catch (Exception e) {
-
-			LogBookWriter.write("Deshacer Traspaso almacén. Se ha producido un error. Motivo: " + e.getMessage());
 			app.getErrorTrace().Send(app.getUser().User, e);
 			return false;
 		}

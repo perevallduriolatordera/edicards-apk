@@ -102,10 +102,7 @@ public class PdfInventoryRecycled extends pdfBase {
 				// TODO Auto-generated catch block
 				_app.getErrorTrace().Send(_app.getUser().User, e);
 			}
-        
-		
 		}
-
 	}
 
 	public boolean createInventory() throws FileNotFoundException,
@@ -125,11 +122,8 @@ public class PdfInventoryRecycled extends pdfBase {
 		try {
 
 			printHeader();
-
 			printHeaderFields();
-
 			printHeaderDetail();
-
 			closePage();
 
 		} catch (Exception e) {

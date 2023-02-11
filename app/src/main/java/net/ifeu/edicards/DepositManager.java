@@ -58,7 +58,7 @@ import net.ifeu.library.Controls.ComboBox;
 import net.ifeu.library.Controls.IComboBoxChangeEvent;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
-import net.ifeu.library.LogBook.LogBookWriter;
+import net.ifeu.library.LogBook.LogBook;
 import net.ifeu.library.Utils.AdvancedMessageBox;
 import net.ifeu.library.Utils.MessageBoxType;
 
@@ -940,9 +940,9 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 			_deposito.DeleteAllLines();
 			_deposito.update();
 		}
-
 		// Solo restamos stock, en el caso de que el deposito sea de tipo Furgoneta
-		List<String> logBookTrace = new ArrayList<String>();
+		LogBook logBookTrace = new LogBook();
+		logBookTrace.InitializePersistance(_appConfig,_appConfig);
 
 		for (LineaDeposito linea : _deposito.Lineas.values()) {
 
@@ -962,16 +962,14 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 									- (linea.UnidadesFacturadas - (linea.UnidadesInicialesFijas - linea.UnidadesDevueltas));
 
 							if (stockInicial != linea.Articulo.Stock) {
-								logBookTrace.add("--- VENTA DIRECTA CON UNIDADES REPUESTAS --- ");
-								logBookTrace.add("Cliente: " + _deposito.Cliente.CodigoCliente + ". " + _deposito.Cliente.Razon);
-								logBookTrace.add("Código artículo: " + linea.Articulo.CodigoArticulo + ". " + linea.Articulo.Descripcion);
-								logBookTrace.add("Stock inicial: " + stockInicial);
-								logBookTrace.add("Stock final: " + linea.Articulo.Stock);
-								logBookTrace.add("Unidades devueltas: " + linea.UnidadesDevueltas);
-								logBookTrace.add("Unidades defectuosas: " + linea.UnidadesDefectuosas);
-								logBookTrace.add("Unidades repuestas: " + linea.UnidadesRepuestas);
-								logBookTrace.add("Unidades facturadas: " + linea.UnidadesFacturadas);
-								logBookTrace.add("Unidades Iniciales: " + linea.UnidadesInicialesFijas);
+								logBookTrace.setData("VENTA DIRECTA CON UNIDADES REPUESTAS", _deposito.Cliente.CodigoCliente,
+										_deposito.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
+										linea.UnidadesAbono, linea.UnidadesDefectuosas);
+
+								logBookTrace.save();
+
 							}
 
 							linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesDevueltas
@@ -984,14 +982,14 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 									- linea.UnidadesRepuestas;
 
 							if (stockInicial != linea.Articulo.Stock) {
-								logBookTrace.add("--- VENTA CONVENCIONAL (NO DIRECTA) CON UNIDADES REPUESTAS --- ");
-								logBookTrace.add("Cliente: " + _deposito.Cliente.CodigoCliente + ". " + _deposito.Cliente.Razon);
-								logBookTrace.add("Código artículo: " + linea.Articulo.CodigoArticulo + ". " + linea.Articulo.Descripcion);
-								logBookTrace.add("Stock inicial: " + stockInicial);
-								logBookTrace.add("Stock final: " + linea.Articulo.Stock);
-								logBookTrace.add("Unidades devueltas: " + linea.UnidadesDevueltas);
-								logBookTrace.add("Unidades defectuosas: " + linea.UnidadesDefectuosas);
-								logBookTrace.add("Unidades repuestas: " + linea.UnidadesRepuestas);
+
+								logBookTrace.setData("VENTA CONVENCIONAL (NO DIRECTA) CON UNIDADES REPUESTAS", _deposito.Cliente.CodigoCliente,
+										_deposito.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
+										linea.UnidadesAbono, linea.UnidadesDefectuosas);
+
+								logBookTrace.save();
 							}
 
 							linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesDevueltas
@@ -1017,12 +1015,14 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 							linea.Articulo.Stock = stockInicial - linea.UnidadesFacturadas;
 
 							if (stockInicial != linea.Articulo.Stock) {
-								logBookTrace.add("--- VENTA DIRECTA SIN UNIDADES REPUESTAS --- ");
-								logBookTrace.add("Cliente: " + _deposito.Cliente.CodigoCliente + ". " + _deposito.Cliente.Razon);
-								logBookTrace.add("Código artículo: " + linea.Articulo.CodigoArticulo + ". " + linea.Articulo.Descripcion);
-								logBookTrace.add("Stock inicial: " + stockInicial);
-								logBookTrace.add("Stock final: " + linea.Articulo.Stock);
-								logBookTrace.add("Unidades facturadas: " + linea.UnidadesFacturadas);
+
+								logBookTrace.setData("VENTA DIRECTA SIN UNIDADES REPUESTAS", _deposito.Cliente.CodigoCliente,
+										_deposito.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
+										linea.UnidadesAbono, linea.UnidadesDefectuosas);
+
+								logBookTrace.save();
 							}
 
 							linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock - linea.UnidadesFacturadas;
@@ -1031,15 +1031,16 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 							linea.Articulo.Stock = stockInicial + linea.UnidadesDevueltas - linea.UnidadesDefectuosas
 									- linea.UnidadesRepuestas;
 
+
 							if (stockInicial != linea.Articulo.Stock) {
-								logBookTrace.add("--- VENTA CONVENCIONAL (NO DIRECTA) CON UNIDADES REPUESTAS --- ");
-								logBookTrace.add("Cliente: " + _deposito.Cliente.CodigoCliente + ". " + _deposito.Cliente.Razon);
-								logBookTrace.add("Código artículo: " + linea.Articulo.CodigoArticulo + ". " + linea.Articulo.Descripcion);
-								logBookTrace.add("Stock inicial: " + stockInicial);
-								logBookTrace.add("Stock final: " + linea.Articulo.Stock);
-								logBookTrace.add("Unidades devueltas: " + linea.UnidadesDevueltas);
-								logBookTrace.add("Unidades defectuosas: " + linea.UnidadesDefectuosas);
-								logBookTrace.add("Unidades repuestas: " + linea.UnidadesRepuestas);
+
+								logBookTrace.setData("VENTA CONVENCIONAL (NO DIRECTA) CON UNIDADES REPUESTAS", _deposito.Cliente.CodigoCliente,
+										_deposito.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
+										linea.UnidadesAbono, linea.UnidadesDefectuosas);
+
+								logBookTrace.save();
 							}
 
 							linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesDevueltas
@@ -1063,13 +1064,14 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 					linea.Articulo.Stock = stockInicial + linea.UnidadesAbono - linea.DefectuosasAbono;
 
 					if (stockInicial != linea.Articulo.Stock) {
-						logBookTrace.add("--- VENTA ABONO ---");
-						logBookTrace.add("Cliente: " + _deposito.Cliente.CodigoCliente + ". " + _deposito.Cliente.Razon);
-						logBookTrace.add("Código artículo: " + linea.Articulo.CodigoArticulo + ". " + linea.Articulo.Descripcion);
-						logBookTrace.add("Stock inicial: " + stockInicial);
-						logBookTrace.add("Stock final: " + linea.Articulo.Stock);
-						logBookTrace.add("Unidades abono: " + linea.UnidadesAbono);
-						logBookTrace.add("Unidades defectuosas abono: " + linea.DefectuosasAbono);
+
+						logBookTrace.setData("VENTA ABONO", _deposito.Cliente.CodigoCliente,
+								_deposito.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+								stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+								linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
+								linea.UnidadesAbono, linea.UnidadesDefectuosas);
+
+						logBookTrace.save();
 					}
 
 					linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesAbono
@@ -1085,8 +1087,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 				}
 			}
 		}
-
-		LogBookWriter.write(logBookTrace);
 
 		// Guardamos el nuevo cliente
 
@@ -1230,25 +1230,23 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 				for (LineaDeposito linea : _deposito.Lineas.values()) {
 					
 					if (linea.UnidadesDevueltas > 0) {
-						
-						List<String> logBookTrace = new ArrayList<String>();
+						LogBook logBookTrace = new LogBook();
+						logBookTrace.InitializePersistance(_appConfig,_appConfig);
+
 						int stockInicial = linea.Articulo.Stock;
 						linea.Articulo.Stock = stockInicial + linea.UnidadesDevueltas - linea.UnidadesDefectuosas
 								- linea.UnidadesRepuestas
 								- (linea.UnidadesFacturadas - (linea.UnidadesInicialesFijas - linea.UnidadesDevueltas));
 
 						if (stockInicial != linea.Articulo.Stock) {
-							logBookTrace.add("--- DEPOSITO RETIRADO --- ");
-							logBookTrace.add("Cliente: " + _deposito.Cliente.CodigoCliente + ". " + _deposito.Cliente.Razon);
-							logBookTrace.add("Código artículo: " + linea.Articulo.CodigoArticulo + ". " + linea.Articulo.Descripcion);
-							logBookTrace.add("Stock inicial: " + stockInicial);
-							logBookTrace.add("Stock final: " + linea.Articulo.Stock);
-							logBookTrace.add("Unidades devueltas: " + linea.UnidadesDevueltas);
-							logBookTrace.add("Unidades defectuosas: " + linea.UnidadesDefectuosas);
-							logBookTrace.add("Unidades repuestas: " + linea.UnidadesRepuestas);
-							logBookTrace.add("Unidades facturadas: " + linea.UnidadesFacturadas);
-							logBookTrace.add("Unidades Iniciales: " + linea.UnidadesInicialesFijas);
-							LogBookWriter.write(logBookTrace);
+
+							logBookTrace.setData("DEPOSITO RETIRADO", _deposito.Cliente.CodigoCliente,
+									_deposito.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+									stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+									linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
+									linea.UnidadesAbono, linea.UnidadesDefectuosas);
+
+							logBookTrace.save();
 						}
 
 						linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesDevueltas
@@ -1259,12 +1257,9 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 						
 						linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
 								+ linea.UnidadesDefectuosas;
-			
-						
-			
+
 						linea.Articulo.update();	
 					}
-					
 				}	
 				
 				_deposito.DeleteAllLines();
@@ -2695,6 +2690,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		if (initializeAttributes) {
 			_searched = false;
 			_newDeposit = true;
+			_abonoMode = false;
 			_appConfig.getWorkingArea().CurrentCliente = null;
 			_appConfig.getWorkingArea().CurrentDeposito = null;
 

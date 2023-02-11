@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import net.ifeu.edicards.DataTier.Contador;
+import net.ifeu.edicards.Excel.LogBookCreator;
 import net.ifeu.edicards.Services.ParserMonitor;
 import net.ifeu.edicards.Services.ServiceMonitor;
 import net.ifeu.edicards.Services.ServiceWorker;
@@ -57,7 +58,7 @@ public class MonitorView extends Fragment {
 		this.fillDataMonitor(monitor);
 	}
 	
-	private void showWaiting() {
+	private void showWaiting(String message) {
 		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.mainLinearLayout);
     	mainLinearLayout.removeAllViews();
     	mainLinearLayout.setOrientation(LinearLayout.HORIZONTAL);
@@ -67,7 +68,7 @@ public class MonitorView extends Fragment {
 		layout1.setOrientation(LinearLayout.VERTICAL);
 		layout1.setGravity(Gravity.CENTER);
     	    	   		 
-    	layout1.addView(this.createLabelWaiting("Espere unos instantes..." ,"Se está ejecutando la sincronización"));
+    	layout1.addView(this.createLabelWaiting("Espere unos instantes..." ,message));
     	mainLinearLayout.addView(layout1);
 	}
 	
@@ -87,8 +88,7 @@ public class MonitorView extends Fragment {
     	mainLinearLayout.removeAllViews();
     	mainLinearLayout.setOrientation(LinearLayout.VERTICAL);
     	mainLinearLayout.setGravity(Gravity.CENTER);
-    	    	   		 
-    	    	
+
     	ButtonColor sync = new ButtonColor(getActivity(), Color.RED);
 
     	sync.setText("Sincronización");
@@ -101,81 +101,36 @@ public class MonitorView extends Fragment {
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-				try {
-					
-					that.showWaiting();
-					
-					final Context context = _appConfig;
-					_appConfig.getWorkingArea().UpgradeDataPost = true;
-					
-					boolean result = _appConfig.getMessageBox().ShowWithResult("Sincronización",
-							"Desea resincronizar los datos con la central. Si sigue adelante, espere unos instantes hasta que reciba la notificación de que el proceso ha terminado",
-							getActivity(), MessageBoxType.Information);
-					
-					if (!result) {
-						_appConfig = (AppConfig) that.getActivity().getApplicationContext();
-				        that.fillDataMonitor(_appConfig.getWorkingArea().Monitor);
-						return;
-					}
-					
-					
-					final ServiceWorker worker = new ServiceWorker();
-					
-					Thread syncThread = new Thread() {
-			
-						@Override
-						public void run() {
-							
-							try {
-								
-								that.SyncResult = worker.RunImport(context, false);
-								worker.RunExport(context);
-								_appConfig = (AppConfig) that.getActivity().getApplicationContext();
-								_appConfig.getWorkingArea().Monitor = worker.Monitor();
-						    	
-							} catch (Exception e) {
-							}
-						}
-			
-					};
-					
-					syncThread.start();
-				    try {
-				    	syncThread.join();
-				        
-				        _appConfig = (AppConfig) that.getActivity().getApplicationContext();
-						_appConfig.getWorkingArea().Monitor = worker.Monitor();
-				        that.fillDataMonitor(_appConfig.getWorkingArea().Monitor);
-				        
-				        if (that.SyncResult) {
-				        	_appConfig.getMessageBox().Show("Sincronización",
-									"El proceso de sincronizacón ha finalizado CORRECTAMENTE. Revise los indicadores para comprobar si se ha realizado correctamente",
-									getActivity(), MessageBoxType.Information);
-				        } else {
-				        	_appConfig.getMessageBox().Show("Sincronización",
-									"El proceso de sincronizacón ha finalizado CON ERRORES. Revise los indicadores para comprobar si se ha realizado correctamente",
-									getActivity(), MessageBoxType.Information);
-								
-				        }
-				        
-				    }
-				    catch (InterruptedException e) {
-				        e.printStackTrace();
-				    }
-				
-				} catch (Exception ex) {
-					_appConfig.getMessageBox().Show("Error de Sincronización",
-							ex.getMessage(),
-							getActivity(), MessageBoxType.Information);
-
-				}
-				
+				that.executeSync("Se está ejecutando la sincronización");
 			}
 		});
     	
     	mainLinearLayout.addView(sync);
-    	
-    	LinearLayout layout = new LinearLayout(this.getActivity());
+
+		ButtonColor logBookReport = new ButtonColor(getActivity(), Color.RED);
+
+		logBookReport.setText("Enviar trazabilidad de stock");
+		logBookReport.setTextSize(TEXT_SIZE_BUTTON);
+		logBookReport.setWidth(BUTTONS_WIDTH);
+
+		logBookReport.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+
+				that.showWaiting("Generando reporte de trazabilidad de stock");
+				LogBookCreator logBookCreator = new LogBookCreator(_appConfig);
+				try {
+					logBookCreator.createExcel30Days();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				that.executeSync("Enviar trazabilidad de stock");
+			}
+		});
+
+		mainLinearLayout.addView(logBookReport);
+
+		LinearLayout layout = new LinearLayout(this.getActivity());
 		layout.setOrientation(LinearLayout.VERTICAL);
     	android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.MATCH_PARENT);
     	layout.setLayoutParams(params);
@@ -302,7 +257,6 @@ public class MonitorView extends Fragment {
 		layout2.addView(this.createLabel("contador tipo A" , String.valueOf(contador.ContadorSerieA), false));
 		layout2.addView(this.createLabel("contador tipo B" , String.valueOf(contador.ContadorSerieB), false));
 
-
 		// Fecha de última modificación
 		Date lastModified = null;
 		try {
@@ -311,7 +265,7 @@ public class MonitorView extends Fragment {
 			e.printStackTrace();
 		}
 		if (lastModified != null) {
-			DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+			DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 			String backupDate = formatter.format(lastModified);
 			layout2.addView(this.createLabel("Fecha última copia", String.valueOf(backupDate), false, true));
 		}
@@ -433,4 +387,75 @@ public class MonitorView extends Fragment {
     	
     	return layout;
     }
+
+    private void executeSync(String message) {
+		try {
+			final MonitorView that = this;
+			that.showWaiting(message);
+
+			final Context context = _appConfig;
+			_appConfig.getWorkingArea().UpgradeDataPost = true;
+
+			boolean result = _appConfig.getMessageBox().ShowWithResult("Sincronización",
+					"Desea resincronizar los datos con la central. Si sigue adelante, espere unos instantes hasta que reciba la notificación de que el proceso ha terminado",
+					getActivity(), MessageBoxType.Information);
+
+			if (!result) {
+				_appConfig = (AppConfig) that.getActivity().getApplicationContext();
+				that.fillDataMonitor(_appConfig.getWorkingArea().Monitor);
+				return;
+			}
+
+
+			final ServiceWorker worker = new ServiceWorker();
+
+			Thread syncThread = new Thread() {
+
+				@Override
+				public void run() {
+
+					try {
+
+						that.SyncResult = worker.RunImport(context, false);
+						worker.RunExport(context);
+						_appConfig = (AppConfig) that.getActivity().getApplicationContext();
+						_appConfig.getWorkingArea().Monitor = worker.Monitor();
+
+					} catch (Exception e) {
+					}
+				}
+
+			};
+
+			syncThread.start();
+			try {
+				syncThread.join();
+
+				_appConfig = (AppConfig) that.getActivity().getApplicationContext();
+				_appConfig.getWorkingArea().Monitor = worker.Monitor();
+				that.fillDataMonitor(_appConfig.getWorkingArea().Monitor);
+
+				if (that.SyncResult) {
+					_appConfig.getMessageBox().Show("Sincronización",
+							"El proceso de sincronizacón ha finalizado CORRECTAMENTE. Revise los indicadores para comprobar si se ha realizado correctamente",
+							getActivity(), MessageBoxType.Information);
+				} else {
+					_appConfig.getMessageBox().Show("Sincronización",
+							"El proceso de sincronizacón ha finalizado CON ERRORES. Revise los indicadores para comprobar si se ha realizado correctamente",
+							getActivity(), MessageBoxType.Information);
+
+				}
+
+			}
+			catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+		} catch (Exception ex) {
+			_appConfig.getMessageBox().Show("Error de Sincronización",
+					ex.getMessage(),
+					getActivity(), MessageBoxType.Information);
+
+		}
+	}
 }
