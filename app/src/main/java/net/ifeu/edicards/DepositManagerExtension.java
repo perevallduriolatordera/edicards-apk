@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.widget.LinearLayout.LayoutParams;
 import android.text.method.DigitsKeyListener;
 import android.util.DisplayMetrics;
@@ -208,9 +209,8 @@ public class DepositManagerExtension {
 	
 			if (deposito.isDeposito()) // && _deposito.isDepositoUpdated())
 				pdf.createDeposito(GUID);
-			else
-	
-			if (deposito.isAlbaran())
+			//if (deposito.isAlbaran())
+			if (!TextUtils.isEmpty(deposito.NumeroAlbaran))
 				pdf.createAlbaran(GUID, DataTier.isTransferPayment(deposito.formaPago));
 		}
 	

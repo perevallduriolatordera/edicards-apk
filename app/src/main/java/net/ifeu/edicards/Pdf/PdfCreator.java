@@ -18,9 +18,11 @@ import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.Totales;
+import net.ifeu.library.Debugger.Debugger;
 import net.ifeu.library.Mail.MailSender;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Environment;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -441,8 +443,9 @@ public class PdfCreator extends pdfBase{
 
 	public boolean createAlbaran(String guid, boolean isTransferPayment)
 	{
-
 		try {
+
+			Debugger.Debug(_context, _app.getUser().User,"Generando albarán " + _deposito.NumeroAlbaran, null);
 			_GUID = guid;
 
 			_document = new Document();
@@ -490,6 +493,14 @@ public class PdfCreator extends pdfBase{
 		} catch (Exception e) {
 			sendMailToMantenimiento(e, _app.getUser().User, _deposito.NumeroAlbaran, "albarán");
 			return false;
+		} finally {
+			{
+				try {
+					Debugger.Debug(_context, _app.getUser().User,"Se ha generado el albarán " + _deposito.NumeroAlbaran, _pdfName);
+				} catch (PackageManager.NameNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		return true;
@@ -549,17 +560,14 @@ public class PdfCreator extends pdfBase{
 			PrintWriter pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
 
-			String title = "Error enviando pdf del " + tipo + " num " + id + " del comercial " + user;
+			String title = "Error generando pdf del " + tipo + " num " + id + " del comercial " + user + ":";
+			Debugger.Debug(_context, _app.getUser().User, title + "\n\n" + sw.toString(), null);
 
-			MailSender mailEnviosMantenimiento = new MailSender(Constants.MAIL_MANTENIMIENTO, title, sw.toString(), null);
-			mailEnviosMantenimiento.send();
-
-			MailSender mailEnviosSeguimiento = new MailSender(Constants.MAIL_SEGUIMIENTO, title   + user, sw.toString(), null);
-			mailEnviosSeguimiento.send();
 		} catch (Exception exc) {
 			return false;
 		}
 
 		return true;
 	}
+
 }

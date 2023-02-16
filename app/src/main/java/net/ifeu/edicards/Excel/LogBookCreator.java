@@ -1,6 +1,5 @@
 package net.ifeu.edicards.Excel;
 
-import android.content.Context;
 import android.os.Environment;
 
 import net.ifeu.edicards.AppConfig;
@@ -10,7 +9,6 @@ import net.ifeu.library.LogBook.LogBook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
@@ -40,7 +38,7 @@ public class LogBookCreator {
         LogBook logBook = new LogBook();
         logBook.InitializePersistance(this._app, this._app);
 
-        ArrayList<LogBook> trace = logBook.getLogBookLastMonth (today);
+        ArrayList<LogBook> trace = logBook.getLogBookLastPeriod(today);
 
         if (this.createExcel(trace))
             logBook.purge(today);
@@ -87,7 +85,7 @@ public class LogBookCreator {
         cellStyle.setFillForegroundColor(IndexedColors.BLACK.getIndex());
         cellStyle.setFillPattern((short) 1);
 
-        cellStyle.setShrinkToFit(true);
+        //cellStyle.setShrinkToFit(true);
 
         cell.setCellStyle(cellStyle);
     }
@@ -125,6 +123,26 @@ public class LogBookCreator {
         this.setCellHeaderStyle(wb, cell);
 
         cell = row.createCell(++index);
+        cell.setCellValue("Depósito Inicial");
+        this.setCellHeaderStyle(wb, cell);
+
+        cell = row.createCell(++index);
+        cell.setCellValue("Depósito Final");
+        this.setCellHeaderStyle(wb, cell);
+
+        cell = row.createCell(++index);
+        cell.setCellValue("Unidades Contadas");
+        this.setCellHeaderStyle(wb, cell);
+
+        cell = row.createCell(++index);
+        cell.setCellValue("Unidades Facturadas");
+        this.setCellHeaderStyle(wb, cell);
+
+        cell = row.createCell(++index);
+        cell.setCellValue("Unidades Abonadas");
+        this.setCellHeaderStyle(wb, cell);
+
+        cell = row.createCell(++index);
         cell.setCellValue("Stock inicial");
         this.setCellHeaderStyle(wb, cell);
 
@@ -132,33 +150,6 @@ public class LogBookCreator {
         cell.setCellValue("Stock final");
         this.setCellHeaderStyle(wb, cell);
 
-        cell = row.createCell(++index);
-        cell.setCellValue("Unidades devueltas");
-        this.setCellHeaderStyle(wb, cell);
-
-        cell = row.createCell(++index);
-        cell.setCellValue("Unidades defectuosas");
-        this.setCellHeaderStyle(wb, cell);
-
-        cell = row.createCell(++index);
-        cell.setCellValue("Unidades repuestas");
-        this.setCellHeaderStyle(wb, cell);
-
-        cell = row.createCell(++index);
-        cell.setCellValue("Unidades facturadas");
-        this.setCellHeaderStyle(wb, cell);
-
-        cell = row.createCell(++index);
-        cell.setCellValue("Unidades iniciales depósito");
-        this.setCellHeaderStyle(wb, cell);
-
-        cell = row.createCell(++index);
-        cell.setCellValue("Unidades abonadas");
-        this.setCellHeaderStyle(wb, cell);
-
-        cell = row.createCell(++index);
-        cell.setCellValue("Unidades abonadas defectuosas");
-        this.setCellHeaderStyle(wb, cell);
     }
 
     private void createRow(Row row, LogBook logBook) {
@@ -187,31 +178,26 @@ public class LogBookCreator {
         cell.setCellValue(logBook.TipoMovimiento);
 
         cell = row.createCell(++index);
-        cell.setCellValue(logBook.StockInicial);
-
-        cell = row.createCell(++index);
-        cell.setCellValue(logBook.StockFinal);
-
-        cell = row.createCell(++index);
-        cell.setCellValue(logBook.UnidadesDevueltas);
-
-        cell = row.createCell(++index);
-        cell.setCellValue(logBook.UnidadesDefectuosas);
+        cell.setCellValue(logBook.UnidadesIniciales);
 
         cell = row.createCell(++index);
         cell.setCellValue(logBook.UnidadesRepuestas);
 
         cell = row.createCell(++index);
-        cell.setCellValue(logBook.UnidadesFacturadas);
+        cell.setCellValue(logBook.UnidadesDevueltas);
 
         cell = row.createCell(++index);
-        cell.setCellValue(logBook.UnidadesIniciales);
+        cell.setCellValue(logBook.UnidadesFacturadas);
 
         cell = row.createCell(++index);
         cell.setCellValue(logBook.UnidadesAbono);
 
         cell = row.createCell(++index);
-        cell.setCellValue(logBook.UnidadesDefectuosasAbono);
+        cell.setCellValue(logBook.StockInicial);
+
+        cell = row.createCell(++index);
+        cell.setCellValue(logBook.StockFinal);
+
     }
 
     public void saveExcelFile(Workbook workbook) {

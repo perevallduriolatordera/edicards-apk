@@ -39,6 +39,7 @@ import net.ifeu.edicards.DataTier.TipoIVA;
 import net.ifeu.edicards.Pdf.PdfInventory;                                                                                           
 import net.ifeu.edicards.Services.RestClient.RequestMethod;                                                                          
 import net.ifeu.edicards.Xml.XmlCreator;
+import net.ifeu.library.Debugger.Debugger;
 import net.ifeu.library.Firebase.ArticuloStock;
 import net.ifeu.library.Firebase.ArticuloStockResponse;
 import net.ifeu.library.Firebase.FireStoreCaller;
@@ -117,15 +118,14 @@ public class ServiceWorker extends ServiceBase {
 				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 				title = title + " generado a fecha " + sdf.format(fileInfo.lastModified());
 
-				// Comprovamos si está pendiente de stock, para enviar correo a ADMINISTRACION
-
 				String[] parts = file.split("_");
 				if (parts.length > 3 && parts[3].startsWith("E") && fileInfo.getName().subSequence(0, 1).equals("A")) {
 					MailSender mailEnviosEdicards = new MailSender(Constants.MAIL_ENVIOS_EDICARDS, title, Constants.MAIL_BODY, file);
 					try {
 						mailEnviosEdicards.send();
+						Debugger.Debug(context, app.getUser().User,"Se ha enviado el albarán " + albaran + " al almacén de envios Edicards", file);
 					} catch (Exception e) {
-						this.sendMailToMantenimiento(e, app.getUser().User, albaran);
+						this.sendMailToMantenimiento(context,  e, app.getUser().User, albaran);
 						continue;
 					}
 				}
@@ -135,8 +135,9 @@ public class ServiceWorker extends ServiceBase {
 						MailSender mailEnviosEdicards = new MailSender(Constants.MAIL_ENVIOS_EDICARDS, title, Constants.MAIL_BODY, file);
 						try {
 							mailEnviosEdicards.send();
+							Debugger.Debug(context, app.getUser().User,"Se ha enviado el albarán " + albaran  + " al almacén de envios Edicards", file);
 						} catch (Exception e) {
-							this.sendMailToMantenimiento(e, app.getUser().User, albaran);
+							this.sendMailToMantenimiento(context, e, app.getUser().User, albaran);
 							continue;
 						}
 					}
@@ -147,8 +148,9 @@ public class ServiceWorker extends ServiceBase {
 				try {
 					mail.send();
 					IOUtils.deleteFile(file);
+					Debugger.Debug(context, app.getUser().User,"Se ha enviado el albarán " + albaran + " a la cuenta de gmail de Edicards", file);
 				} catch (Exception e) {
-					this.sendMailToMantenimiento(e, app.getUser().User, albaran);
+					this.sendMailToMantenimiento(context, e, app.getUser().User, albaran);
 					continue;
 				}
 				this.Monitor().PdfSend++;
@@ -1107,20 +1109,16 @@ public class ServiceWorker extends ServiceBase {
 	    }
 	}
 
-	private boolean sendMailToMantenimiento(Exception e, String user, String albaran) {
+	private boolean sendMailToMantenimiento(Context context, Exception e, String user, String albaran) {
 
 		try {
 			StringWriter sw = new StringWriter();
 			PrintWriter pw = new PrintWriter(sw);
 			e.printStackTrace(pw);
 
-			String title = "Error enviando pdf del albarán " + albaran + " del comercial " + user;
+			String title = "Error enviando pdf del albarán " + albaran + " del comercial " + user + ":";
+			Debugger.Debug(context, user, title + "\n\n" + sw.toString(), null);
 
-			MailSender mailEnviosMantenimiento = new MailSender(Constants.MAIL_MANTENIMIENTO, title, sw.toString(), null);
-			mailEnviosMantenimiento.send();
-
-			MailSender mailEnviosSeguimiento = new MailSender(Constants.MAIL_SEGUIMIENTO, title   + user, sw.toString(), null);
-			mailEnviosSeguimiento.send();
 		} catch (Exception exc) {
 			return false;
 		}

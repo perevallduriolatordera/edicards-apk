@@ -40,7 +40,7 @@ public class LogBook extends Persistent implements IPersistable {
     public int UnidadesAbono;
     public int UnidadesDefectuosasAbono;
 
-    private static final int DAYS_BY_MONTH = -30;
+    private static final int DAYS_BY_EXTRACT = -60;
 
     public void setData(String tipoMovimiento, String codigoCliente, String nombreCliente,
                      String codigoArticulo, String nombreArticulo,
@@ -128,42 +128,6 @@ public class LogBook extends Persistent implements IPersistable {
         return sdf.format(new Date());
     }
 
-    public static void write1(String content)  {
-
-        try {
-            File file = new File(getTodayFilename());
-            FileWriter fr = new FileWriter(file, true);
-            BufferedWriter br = new BufferedWriter(fr);
-            PrintWriter pr = new PrintWriter(br);
-            pr.println(getTimestamp() + "#" + content);
-            pr.close();
-            br.close();
-            fr.close();
-        } catch (IOException e) {
-           //nothing
-        }
-    }
-
-    public static void write2(List<String> content)  {
-
-        try {
-            File file = new File(getTodayFilename());
-            FileWriter fr = new FileWriter(file, true);
-            BufferedWriter br = new BufferedWriter(fr);
-            PrintWriter pr = new PrintWriter(br);
-
-            for (String text : content) {
-                pr.println(getTimestamp() + "#" + text);
-            }
-
-            pr.close();
-            br.close();
-            fr.close();
-        } catch (IOException e) {
-            //nothing
-        }
-    }
-
     public boolean hasLogBookCurrentWeek() throws Exception
     {
         SimpleDateFormat formatter;
@@ -220,7 +184,7 @@ public class LogBook extends Persistent implements IPersistable {
         return result;
     }
 
-    public ArrayList<LogBook> getLogBookLastMonth(Date today) throws Exception
+    public ArrayList<LogBook> getLogBookLastPeriod(Date today) throws Exception
     {
         SimpleDateFormat formatter;
         formatter = new SimpleDateFormat("yyyyMMdd");
@@ -228,7 +192,7 @@ public class LogBook extends Persistent implements IPersistable {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(today);
 
-        calendar.add( Calendar.DAY_OF_YEAR, DAYS_BY_MONTH);
+        calendar.add( Calendar.DAY_OF_YEAR, DAYS_BY_EXTRACT);
         Date firstDate = calendar.getTime();
 
         Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_LOGBOOK + " WHERE substr(Fecha,1,4)||substr(Fecha,6,2)||substr(Fecha,9,2) " +
@@ -283,7 +247,7 @@ public class LogBook extends Persistent implements IPersistable {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(today);
 
-        calendar.add( Calendar.DAY_OF_YEAR, DAYS_BY_MONTH);
+        calendar.add( Calendar.DAY_OF_YEAR, DAYS_BY_EXTRACT);
         Date firstDate = calendar.getTime();
 
         Cursor cursor = super.getDatabaseOperations().executeSentence("DELETE FROM " + Constants.TABLE_LOGBOOK + " WHERE Fecha < '" + formatter.format(today) + "'");
