@@ -42,7 +42,6 @@ public class LogBookCreator {
 
         if (this.createExcel(trace))
             logBook.purge(today);
-
     }
 
     private boolean createExcel(ArrayList<LogBook> list) {

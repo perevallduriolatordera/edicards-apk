@@ -1326,7 +1326,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 					DepositManagerExtension.Dialogs.StartSignatureVendorDialog(this);
 				}
 
-				
 				// Generem el consentiment GDPR si és necessari
 				
 				if (!_deposito.Cliente.hasGDPRSigned()) {
@@ -1338,6 +1337,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 						_appConfig.getMessageBox().Show("Cierre de operación",
 							"Se ha producido un error al generar el documento GDPR. Contacte con el servicio técnico",
 							this.getActivity(), MessageBoxType.Error);
+
+					DepositManagerExtension.Documents.GenerateAuthorization(GUID, _deposito, _appConfig);
 				}
 			}
 
@@ -1360,6 +1361,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		}
 
 		if (_deposito.isDeposito() || _deposito.isAlbaran()) {
+
+			DepositManagerExtension.Documents.GeneratePdf(GUID, _deposito, _appConfig);
 
 			boolean resultImp = _appConfig.getMessageBox().ShowWithResult("Impresión de documentos",
 					"Desea iniciar la impresión ?", this.getActivity(), MessageBoxType.Information);
@@ -1697,9 +1700,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 	private void closeOperation(String GUID) throws Exception {
 
 		try {
-
-			DepositManagerExtension.Documents.GeneratePdf(GUID, _deposito, _appConfig);
-			DepositManagerExtension.Documents.GenerateAuthorization(GUID, _deposito, _appConfig);
 
 			_appConfig.getMessageBox().Show("Cierre de operación", "La operación se ha cerrado correctamente.",
 					this.getActivity(), MessageBoxType.Information);

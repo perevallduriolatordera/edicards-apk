@@ -7,6 +7,7 @@ import android.os.Environment;
 
 import net.ifeu.edicards.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.IPersistable;
 import net.ifeu.edicards.DataTier.Persistent;
 
@@ -77,6 +78,31 @@ public class LogBook extends Persistent implements IPersistable {
 
     @Override
     public void save() throws Exception {
+
+        Articulo articuloHomonimo = new Articulo();
+        articuloHomonimo.InitializePersistance(appConfig, context);
+
+        boolean isCH = false;
+        boolean isFound = false;
+        if (this.CodigoArticulo.startsWith("CH")) {
+            isFound = articuloHomonimo.setArticuloByCodigo(this.CodigoArticulo.substring(2));
+            isCH = true;
+        } else {
+            isFound = articuloHomonimo.setArticuloByCodigo("CH" + this.CodigoArticulo);
+        }
+
+        //PVT 03-03-2023
+        if (isFound) {
+            if (isCH) {
+                this.CodigoArticulo = articuloHomonimo.CodigoArticulo;
+                this.NombreArticulo = articuloHomonimo.Descripcion;
+                this.StockInicial += articuloHomonimo.Stock;
+                this.StockFinal += articuloHomonimo.Stock;
+            } else {
+                this.StockInicial += articuloHomonimo.Stock;
+                this.StockFinal += articuloHomonimo.Stock;
+            }
+        }
 
         ContentValues values = new ContentValues();
         values.put("TipoMovimiento", this.TipoMovimiento);
@@ -250,7 +276,7 @@ public class LogBook extends Persistent implements IPersistable {
         calendar.add( Calendar.DAY_OF_YEAR, DAYS_BY_EXTRACT);
         Date firstDate = calendar.getTime();
 
-        Cursor cursor = super.getDatabaseOperations().executeSentence("DELETE FROM " + Constants.TABLE_LOGBOOK + " WHERE Fecha < '" + formatter.format(today) + "'");
+        Cursor cursor = super.getDatabaseOperations().executeSentence("DELETE FROM " + Constants.TABLE_LOGBOOK + " WHERE Fecha < '" + formatter.format(firstDate) + "'");
 
         if (cursor != null)
             cursor.close();

@@ -209,7 +209,7 @@ public class DepositManagerExtension {
 	
 			if (deposito.isDeposito()) // && _deposito.isDepositoUpdated())
 				pdf.createDeposito(GUID);
-			//if (deposito.isAlbaran())
+
 			if (!TextUtils.isEmpty(deposito.NumeroAlbaran))
 				pdf.createAlbaran(GUID, DataTier.isTransferPayment(deposito.formaPago));
 		}
