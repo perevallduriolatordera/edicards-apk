@@ -34,6 +34,12 @@ public class MainActivity extends Activity {
 
 	private AppConfig _appConfig;
 	private ServiceWorker _serviceWorker;
+
+	@Override
+	public void onBackPressed() {
+		// super.onBackPressed();
+		// Not calling **super**, disables back button in current screen.
+	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState)  {

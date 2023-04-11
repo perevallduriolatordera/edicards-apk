@@ -4,10 +4,14 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -22,6 +26,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -86,6 +91,9 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 	
 	private LinkedList<String> _articles = new LinkedList<String>();
 	private AdvancedMessageBox _dialogDepositoModalidad;
+
+	private LinearLayout _headerLayout;
+	private LinearLayout _headerAbonoLayout;
 
 	private final int TEXT_SIZE = 14;
 	private final int TEXT_SIZE_LARGE = 16;
@@ -350,24 +358,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		_textBoxCantidadPagada = DepositManagerExtension.UI.addEdit(getActivity(), Color.GREEN, Gravity.LEFT, 
 				"0", TEXT_SIZE, 100, params2, false);
 
-		/*_textBoxCantidadPagada.setOnFocusChangeListener(new OnFocusChangeListener() {
-			public void onFocusChange(View view, boolean hasFocus) {
-				if (!hasFocus) {
-					TextBoxColor textBox = (TextBoxColor) view;
-					double cantidadPagada;
-					String cantidadPagadaText = textBox.getText().toString();
-
-					if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
-						cantidadPagada = Double.parseDouble("0");
-					else
-						cantidadPagada = Double.parseDouble(cantidadPagadaText);
-
-					textBox.setText(DepositManagerExtension.Format.CurrencyFormat(cantidadPagada));
-					_deposito.CantidadPagada = Double.parseDouble(textBox.getText().toString());
-				}
-			}
-		});*/
-		
 		// descuento 1
 		
 		LabelColor labelDescuento1 = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
@@ -403,13 +393,14 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 				} else {
 					_lastTextBox = (TextBoxColor) view;
 				}
-				
+
 				try {
 					refreshTotals();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+
 			}
 		});
 
@@ -841,9 +832,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
         this._myAutoComplete.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> listView, View view,
                         int position, long id) {
-                // Get the cursor, positioned to the corresponding row in the
-                // result set
-            	
+
             	String selectedArticle =  listView.getItemAtPosition(position).toString().trim().toUpperCase();
             	
             	LinearLayout layout = (LinearLayout) that.getActivity()
@@ -881,7 +870,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		
 		LinkedHashMap<String, Articulo> articulos = articulo.getAllArticulos(1);
 
-		//for (Articulo articuloInCatalgo : _appConfig.getCache().getAllArticulos().values())
 		for (Articulo articuloInCatalgo : articulos.values())
 			try {
 				
@@ -1226,7 +1214,9 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 				} while (motivo.trim().equals(null) || motivo.trim().equals(Constants.EMPTY_STRING));
 				
 				_deposito.MotivoRetirado = motivo;
-				
+
+				Map<String, LineaDeposito> processed = new HashMap<String, LineaDeposito>();
+
 				for (LineaDeposito linea : _deposito.Lineas.values()) {
 					
 					if (linea.UnidadesDevueltas > 0) {
@@ -1240,13 +1230,17 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 
 						if (stockInicial != linea.Articulo.Stock) {
 
-							logBookTrace.setData("DEPOSITO RETIRADO", _deposito.Cliente.CodigoCliente,
-									_deposito.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
-									stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
-									linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
-									linea.UnidadesAbono, linea.UnidadesDefectuosas);
+							if (!processed.containsKey(linea.Articulo.CodigoArticulo))
+							{
+								logBookTrace.setData("DEPOSITO RETIRADO", _deposito.Cliente.CodigoCliente,
+										_deposito.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
+										linea.UnidadesAbono, linea.UnidadesDefectuosas);
 
-							logBookTrace.save();
+								logBookTrace.save();
+								processed.put(linea.Articulo.CodigoArticulo, linea);
+							}
 						}
 
 						linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesDevueltas
@@ -1728,411 +1722,435 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 	
 	private void addLineHeader(LineaDeposito lineaDeposito, final LinearLayout layoutGrid) throws Exception {
 
+		final DepositManager that = this;
+
 		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout6);
 		mainLinearLayout.removeAllViews();
 
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
-		final LinearLayout layout = new LinearLayout(_appConfig);
-		layout.setOrientation(LinearLayout.HORIZONTAL);
-
+		boolean createHeaderLayout = _headerLayout == null;
 		int color = Color.WHITE;
-		
-		LabelColor codigoArticulo = DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				lineaDeposito.Articulo.CodigoArticulo, TEXT_SIZE, 8, params, true);
-		
-		LabelColor articuloDescripcion = DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				lineaDeposito.Articulo.Descripcion.trim(), TEXT_SIZE, 12,
-						params, true, lineaDeposito.Articulo);
-		 
-		final DepositManager that = this;
 
-		articuloDescripcion.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				DepositManagerExtension.Dialogs.StartArticuloDialog((Articulo) ((LabelColor) v).getTag(), (Fragment) that);
-			}
-		});
-		
-		LabelColor unidadesInicialesFijas = DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				String.valueOf(lineaDeposito.UnidadesInicialesFijas), TEXT_SIZE, 13, params, true, lineaDeposito);
-
-		LabelColor unidadesIniciales = DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				String.valueOf(lineaDeposito.UnidadesIniciales), TEXT_SIZE, 13, params, true, lineaDeposito);
-		
-		TextBoxColor unidadesDevueltas = DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT, 
-				String.valueOf(lineaDeposito.UnidadesDevueltas), TEXT_SIZE, 100, params, true, lineaDeposito);
+		if (createHeaderLayout) {
+			_headerLayout = new LinearLayout(_appConfig);
+			_headerLayout.setOrientation(LinearLayout.HORIZONTAL);
+		}
 
 
-		unidadesDevueltas.setOnFocusChangeListener(new OnFocusChangeListener() {
-			public void onFocusChange(View view, boolean hasFocus) {
-				if (!hasFocus) {
+		try {
+			LabelColor codigoArticulo = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
+					lineaDeposito.Articulo.CodigoArticulo, TEXT_SIZE, 8, params, true)
+					: (LabelColor) _headerLayout.getChildAt(0);
+			codigoArticulo.setText(lineaDeposito.Articulo.CodigoArticulo);
 
-					_lastTextBox = (TextBoxColor) view;
-					TextBoxColor textBox = (TextBoxColor) view;
-					int unidadesDevueltas;
+			LabelColor articuloDescripcion = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
+					lineaDeposito.Articulo.Descripcion.trim(), TEXT_SIZE, 12,
+					params, true, lineaDeposito.Articulo)
+					: (LabelColor) _headerLayout.getChildAt(1);
+			articuloDescripcion.setText(lineaDeposito.Articulo.Descripcion.trim());
+			articuloDescripcion.setTag(lineaDeposito.Articulo);
 
-					if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
-						unidadesDevueltas = Integer.parseInt(textBox.getHint().toString());
-					else
-						unidadesDevueltas = Integer.parseInt(textBox.getText().toString());
+			articuloDescripcion.setOnClickListener(new View.OnClickListener() {
+				public void onClick(View v) {
+					DepositManagerExtension.Dialogs.StartArticuloDialog((Articulo) ((LabelColor) v).getTag(), (Fragment) that);
+				}
+			});
 
-					LineaDeposito lineaDeposito = (LineaDeposito) view.getTag();
-					if ((unidadesDevueltas) > lineaDeposito.UnidadesInicialesFijas) {
-						_appConfig.getMessageBox()
-								.Show("Atención",
-										"La cantidad devuelta no puede ser superior a la inicial en el artículo "
-												+ lineaDeposito.Articulo.Descripcion,
-										getActivity(), MessageBoxType.Error);
+			LabelColor unidadesInicialesFijas = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+					String.valueOf(lineaDeposito.UnidadesInicialesFijas), TEXT_SIZE, 13, params, true, lineaDeposito)
+					: (LabelColor) _headerLayout.getChildAt(2);
+			unidadesInicialesFijas.setText(String.valueOf(lineaDeposito.UnidadesInicialesFijas));
+			unidadesInicialesFijas.setTag(lineaDeposito);
 
-						unidadesDevueltas = lineaDeposito.UnidadesInicialesFijas;
-						textBox.setText(String.valueOf(unidadesDevueltas));
-						((LineaDeposito) view.getTag()).UnidadesDevueltas = unidadesDevueltas;
-					} else {
-						((LineaDeposito) view.getTag()).UnidadesDevueltas = unidadesDevueltas;
-						Log.i("Text_Devueltas", String.valueOf(unidadesDevueltas));
-						try {
-							refreshLayout(layout, layoutGrid, lineaDeposito, false);
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							_appConfig.getMessageBox().Show("Atención",
-									_appConfig.getStackTrace(e),
-									getActivity(), MessageBoxType.Error);						}
+			TextBoxColor unidadesDevueltas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
+					String.valueOf(lineaDeposito.UnidadesDevueltas), TEXT_SIZE, 100, params, true, lineaDeposito)
+					: (TextBoxColor) _headerLayout.getChildAt(3);
+			unidadesDevueltas.setText(String.valueOf(lineaDeposito.UnidadesDevueltas));
+			unidadesDevueltas.setTag(lineaDeposito);
 
-					}
-				} else
-					_lastTextBox = (TextBoxColor) view;
-			}
-		});
-		
-		TextBoxColor unidadesDefectuosas = DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT, 
-				String.valueOf(lineaDeposito.UnidadesDefectuosas), TEXT_SIZE, 100, params, true, lineaDeposito);
+			unidadesDevueltas.setOnFocusChangeListener(new OnFocusChangeListener() {
+				public void onFocusChange(View view, boolean hasFocus) {
+					if (!hasFocus) {
 
-		//unidadesDefectuosas.setFocusable(false);
+						_lastTextBox = (TextBoxColor) view;
+						TextBoxColor textBox = (TextBoxColor) view;
+						int unidadesDevueltas;
 
-		unidadesDefectuosas.setEnabled(false);
-		unidadesDefectuosas.setInputType(InputType.TYPE_NULL);
-
-		unidadesDefectuosas.setOnFocusChangeListener(new OnFocusChangeListener() {
-			public void onFocusChange(View view, boolean hasFocus) {
-				if (!hasFocus) {
-					_lastTextBox = (TextBoxColor) view;
-					EditText textBox = (EditText) view;
-					int unidadesDefectuosas;
-
-					if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
-						unidadesDefectuosas = Integer.parseInt(((EditText) view).getHint().toString());
-					else
-						unidadesDefectuosas = Integer.parseInt(((EditText) view).getText().toString());
-
-					LineaDeposito lineaDeposito = (LineaDeposito) view.getTag();
-
-					if ((unidadesDefectuosas) > lineaDeposito.UnidadesDevueltas) {
-						_appConfig.getMessageBox()
-								.Show("Atención",
-										"La cantidad de defectuosas no puede ser superior a las devueltas en el artículo "
-												+ lineaDeposito.Articulo.Descripcion,
-										getActivity(), MessageBoxType.Error);
-
-						unidadesDefectuosas = 0;
-						textBox.setText(String.valueOf(unidadesDefectuosas));
-						((LineaDeposito) view.getTag()).UnidadesDefectuosas = unidadesDefectuosas;
-						textBox.setHint(String.valueOf(unidadesDefectuosas));
-					} else {
-						((LineaDeposito) view.getTag()).UnidadesDefectuosas = unidadesDefectuosas;
-						Log.i("Text_Defectuosas", String.valueOf(unidadesDefectuosas));
-						try {
-							refreshLayout(layout, layoutGrid, lineaDeposito, false);
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							_appConfig.getMessageBox().Show("Atención",
-									_appConfig.getStackTrace(e),
-									getActivity(), MessageBoxType.Error);						}
-
-					}
-				} else
-					_lastTextBox = (TextBoxColor) view;
-			}
-		});
-		
-		TextBoxColor unidadesFacturadas = DepositManagerExtension.UI.addEdit(getActivity(), Color.rgb(0, 128, 0), Gravity.LEFT, 
-				String.valueOf(lineaDeposito.UnidadesFacturadas), TEXT_SIZE, 100, params, true, lineaDeposito);
-
-		unidadesFacturadas.setOnFocusChangeListener(new OnFocusChangeListener() {
-			public void onFocusChange(View view, boolean hasFocus) {
-				if (!hasFocus) {
-					_lastTextBox = (TextBoxColor) view;
-					EditText textBox = (EditText) view;
-					int unidadesFacturadas = 0;
-
-					if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
-						unidadesFacturadas = Integer.parseInt(((EditText) view).getHint().toString());
-					else
-						unidadesFacturadas = Integer.parseInt(((EditText) view).getText().toString());
-
-					LineaDeposito lineaDeposito = (LineaDeposito) view.getTag();
-
-					lineaDeposito.IsVentaDirecta = false;
-					boolean directa = false;
-
-					if (unidadesFacturadas < (lineaDeposito.UnidadesIniciales - lineaDeposito.UnidadesDevueltas)
-							&& (!lineaDeposito.IsNew)) {
-						_appConfig.getMessageBox().Show("Unidades Facturadas",
-								"No puede realizar una venta directa con una cantidad inferior a la devuelta",
-								getActivity(), MessageBoxType.Information);
-
-						unidadesFacturadas = lineaDeposito.UnidadesIniciales - lineaDeposito.UnidadesDevueltas;
-						((EditText) view).setText(String.valueOf(unidadesFacturadas));
-						((LineaDeposito) view.getTag()).UnidadesFacturadas = unidadesFacturadas;
-					} else {
-						if (unidadesFacturadas > 0 && (unidadesFacturadas != (lineaDeposito.UnidadesInicialesFijas
-								- lineaDeposito.UnidadesDevueltas))) {
-
-							directa = true;
-
-						}
-
-						lineaDeposito.IsVentaDirecta = directa;
-						if (lineaDeposito.IsVentaDirecta) {
-							((LineaDeposito) view.getTag()).UnidadesFacturadas = unidadesFacturadas;
-
-						}
-
-						try {
-							refreshLayout(layout, layoutGrid, lineaDeposito, false);
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							_appConfig.getMessageBox().Show("Atención",
-									_appConfig.getStackTrace(e),
-									getActivity(), MessageBoxType.Error);						}
-					}
-
-				} else
-					_lastTextBox = (TextBoxColor) view;
-			}
-		});
-
-		TextBoxColor unidadesRepuestas = DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT, 
-				String.valueOf(lineaDeposito.UnidadesRepuestas), TEXT_SIZE, 100, params, true, lineaDeposito);
-
-		unidadesRepuestas.setOnFocusChangeListener(new OnFocusChangeListener() {
-			public void onFocusChange(View view, boolean hasFocus) {
-				if (!hasFocus) {
-					_lastTextBox = (TextBoxColor) view;
-					EditText textBox = (EditText) view;
-					int unidadesRepuestas;
-
-					if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
-						unidadesRepuestas = Integer.parseInt(((EditText) view).getHint().toString());
-					else
-						unidadesRepuestas = Integer.parseInt(((EditText) view).getText().toString());
-
-					LineaDeposito lineaDeposito = (LineaDeposito) view.getTag();
-
-					((LineaDeposito) view.getTag()).UnidadesRepuestas = unidadesRepuestas;
-
-					try {
-						refreshLayout(layout, layoutGrid, lineaDeposito, false);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						_appConfig.getMessageBox().Show("Atención",
-								_appConfig.getStackTrace(e),
-								getActivity(), MessageBoxType.Error);					}
-
-				} else
-					_lastTextBox = (TextBoxColor) view;
-			}
-		});
-		
-		
-		TextBoxColor pvp = DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT, 
-				DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP), 
-				TEXT_SIZE, 100, params, true, lineaDeposito);
-
-		pvp.setOnFocusChangeListener(new OnFocusChangeListener() {
-			public void onFocusChange(View view, boolean hasFocus) {
-				if (!hasFocus) {
-					_lastTextBox = (TextBoxColor) view;
-					EditText textBox = (EditText) view;
-					float pvp;
-
-					if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
-						pvp = Float.parseFloat(textBox.getHint().toString());
-					else {
-						pvp = Float.parseFloat(textBox.getText().toString());
-						((LineaDeposito) view.getTag()).PVPAnterior = pvp;
-					}
-
-					((LineaDeposito) view.getTag()).PVP = pvp;
-					LineaDeposito lineaDeposito = (LineaDeposito) view.getTag();
-					try {
-						refreshLayout(layout, layoutGrid, lineaDeposito, false);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						_appConfig.getMessageBox().Show("Atención",
-								_appConfig.getStackTrace(e),
-								getActivity(), MessageBoxType.Error);					}
-				} else
-					_lastTextBox = (TextBoxColor) view;
-			}
-		});
-		
-		TextBoxColor descuento1 = DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT, 
-				DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.Descuento1), 
-				TEXT_SIZE, 100, params, true, lineaDeposito);
-
-		descuento1.setOnFocusChangeListener(new OnFocusChangeListener() {
-			public void onFocusChange(View view, boolean hasFocus) {
-				if (!hasFocus) {
-					_lastTextBox = (TextBoxColor) view;
-					EditText textBox = (EditText) view;
-					float descuento1;
-
-					if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
-						descuento1 = Float.parseFloat(textBox.getHint().toString());
-					else
-						descuento1 = Float.parseFloat(textBox.getText().toString());
-
-					if (descuento1 > 100) {
-						_appConfig.getMessageBox().Show("Error", "El porcentage de descuento es incorrecto",
-								getActivity(), MessageBoxType.Error);
-					} else {
-
-						((LineaDeposito) view.getTag()).Descuento1 = descuento1;
+						if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+							unidadesDevueltas = Integer.parseInt(textBox.getHint().toString());
+						else
+							unidadesDevueltas = Integer.parseInt(textBox.getText().toString());
 
 						LineaDeposito lineaDeposito = (LineaDeposito) view.getTag();
+						if ((unidadesDevueltas) > lineaDeposito.UnidadesInicialesFijas) {
+							_appConfig.getMessageBox()
+									.Show("Atención",
+											"La cantidad devuelta no puede ser superior a la inicial en el artículo "
+													+ lineaDeposito.Articulo.Descripcion,
+											getActivity(), MessageBoxType.Error);
+
+							unidadesDevueltas = lineaDeposito.UnidadesInicialesFijas;
+							textBox.setText(String.valueOf(unidadesDevueltas));
+							((LineaDeposito) view.getTag()).UnidadesDevueltas = unidadesDevueltas;
+						} else {
+							((LineaDeposito) view.getTag()).UnidadesDevueltas = unidadesDevueltas;
+							Log.i("Text_Devueltas", String.valueOf(unidadesDevueltas));
+							try {
+								refreshLayout(lineaDeposito, layoutGrid, false);
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								_appConfig.getMessageBox().Show("Atención",
+										_appConfig.getStackTrace(e),
+										getActivity(), MessageBoxType.Error);
+							}
+
+						}
+					} else
+						_lastTextBox = (TextBoxColor) view;
+
+					that.closeKeyboard((EditText) view);
+				}
+
+			});
+
+			TextBoxColor unidadesDefectuosas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
+					String.valueOf(lineaDeposito.UnidadesDefectuosas), TEXT_SIZE, 100, params, true, lineaDeposito)
+					: (TextBoxColor) _headerLayout.getChildAt(4);
+			unidadesDefectuosas.setText(String.valueOf(lineaDeposito.UnidadesDefectuosas));
+			unidadesDefectuosas.setTag(lineaDeposito);
+
+			unidadesDefectuosas.setEnabled(false);
+			unidadesDefectuosas.setInputType(InputType.TYPE_NULL);
+
+			unidadesDefectuosas.setOnFocusChangeListener(new OnFocusChangeListener() {
+				public void onFocusChange(View view, boolean hasFocus) {
+					if (!hasFocus) {
+						_lastTextBox = (TextBoxColor) view;
+						EditText textBox = (EditText) view;
+						int unidadesDefectuosas;
+
+						if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+							unidadesDefectuosas = Integer.parseInt(((EditText) view).getHint().toString());
+						else
+							unidadesDefectuosas = Integer.parseInt(((EditText) view).getText().toString());
+
+						LineaDeposito lineaDeposito = (LineaDeposito) view.getTag();
+
+						if ((unidadesDefectuosas) > lineaDeposito.UnidadesDevueltas) {
+							_appConfig.getMessageBox()
+									.Show("Atención",
+											"La cantidad de defectuosas no puede ser superior a las devueltas en el artículo "
+													+ lineaDeposito.Articulo.Descripcion,
+											getActivity(), MessageBoxType.Error);
+
+							unidadesDefectuosas = 0;
+							textBox.setText(String.valueOf(unidadesDefectuosas));
+							((LineaDeposito) view.getTag()).UnidadesDefectuosas = unidadesDefectuosas;
+							textBox.setHint(String.valueOf(unidadesDefectuosas));
+						} else {
+							((LineaDeposito) view.getTag()).UnidadesDefectuosas = unidadesDefectuosas;
+							Log.i("Text_Defectuosas", String.valueOf(unidadesDefectuosas));
+							try {
+								refreshLayout(lineaDeposito, layoutGrid, false);
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								_appConfig.getMessageBox().Show("Atención",
+										_appConfig.getStackTrace(e),
+										getActivity(), MessageBoxType.Error);
+							}
+
+						}
+					} else
+						_lastTextBox = (TextBoxColor) view;
+
+					that.closeKeyboard((EditText) view);
+				}
+			});
+
+			TextBoxColor pvp = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT,
+					DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP),
+					TEXT_SIZE, 100, params, true, lineaDeposito)
+					: (TextBoxColor) _headerLayout.getChildAt(5);
+			pvp.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP));
+			pvp.setTag(lineaDeposito);
+
+			pvp.setOnFocusChangeListener(new OnFocusChangeListener() {
+				public void onFocusChange(View view, boolean hasFocus) {
+					if (!hasFocus) {
+						_lastTextBox = (TextBoxColor) view;
+						EditText textBox = (EditText) view;
+						float pvp;
+
+						if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+							pvp = Float.parseFloat(textBox.getHint().toString());
+						else {
+							pvp = Float.parseFloat(textBox.getText().toString());
+							((LineaDeposito) view.getTag()).PVPAnterior = pvp;
+						}
+
+						((LineaDeposito) view.getTag()).PVP = pvp;
+						LineaDeposito lineaDeposito = (LineaDeposito) view.getTag();
 						try {
-							refreshLayout(layout, layoutGrid, lineaDeposito, false);
+							refreshLayout(lineaDeposito, layoutGrid, false);
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							_appConfig.getMessageBox().Show("Atención",
 									_appConfig.getStackTrace(e),
-									getActivity(), MessageBoxType.Error);						}
-					}
-				} else
-					_lastTextBox = (TextBoxColor) view;
-				
-				
-			}
-		});
-		
-		TextBoxColor pvpAnterior = DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT, 
-				DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAnterior), 
-				TEXT_SIZE, 100, params, true, lineaDeposito);
+									getActivity(), MessageBoxType.Error);
+						}
+					} else
+						_lastTextBox = (TextBoxColor) view;
 
-		pvpAnterior.setOnFocusChangeListener(new OnFocusChangeListener() {
-			public void onFocusChange(View view, boolean hasFocus) {
-				if (!hasFocus) {
-					_lastTextBox = (TextBoxColor) view;
-					EditText textBox = (EditText) view;
-					float pvpAnterior;
+					that.closeKeyboard((EditText) view);
+				}
+			});
 
-					if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
-						pvpAnterior = Float.parseFloat(textBox.getHint().toString());
-					else
-						pvpAnterior = Float.parseFloat(textBox.getText().toString());
+			TextBoxColor unidadesFacturadas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.rgb(0, 128, 0), Gravity.LEFT,
+					String.valueOf(lineaDeposito.UnidadesFacturadas), TEXT_SIZE, 100, params, true, lineaDeposito)
+					: (TextBoxColor) _headerLayout.getChildAt(6);
+			unidadesFacturadas.setText(String.valueOf(lineaDeposito.UnidadesFacturadas));
+			unidadesFacturadas.setTag(lineaDeposito);
 
-					((LineaDeposito) view.getTag()).PVPAnterior = pvpAnterior;
-					LineaDeposito lineaDeposito = (LineaDeposito) view.getTag();
+
+			unidadesFacturadas.setOnFocusChangeListener(new OnFocusChangeListener() {
+				public void onFocusChange(View view, boolean hasFocus) {
+					if (!hasFocus) {
+						_lastTextBox = (TextBoxColor) view;
+						EditText textBox = (EditText) view;
+						int unidadesFacturadas = 0;
+
+						if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+							unidadesFacturadas = Integer.parseInt(((EditText) view).getHint().toString());
+						else
+							unidadesFacturadas = Integer.parseInt(((EditText) view).getText().toString());
+
+						LineaDeposito lineaDeposito = (LineaDeposito) view.getTag();
+
+						lineaDeposito.IsVentaDirecta = false;
+						boolean directa = false;
+
+						if (unidadesFacturadas < (lineaDeposito.UnidadesIniciales - lineaDeposito.UnidadesDevueltas)
+								&& (!lineaDeposito.IsNew)) {
+							_appConfig.getMessageBox().Show("Unidades Facturadas",
+									"No puede realizar una venta directa con una cantidad inferior a la devuelta",
+									getActivity(), MessageBoxType.Information);
+
+							unidadesFacturadas = lineaDeposito.UnidadesIniciales - lineaDeposito.UnidadesDevueltas;
+							((EditText) view).setText(String.valueOf(unidadesFacturadas));
+							((LineaDeposito) view.getTag()).UnidadesFacturadas = unidadesFacturadas;
+						} else {
+							if (unidadesFacturadas > 0 && (unidadesFacturadas != (lineaDeposito.UnidadesInicialesFijas
+									- lineaDeposito.UnidadesDevueltas))) {
+
+								directa = true;
+
+							}
+
+							lineaDeposito.IsVentaDirecta = directa;
+							if (lineaDeposito.IsVentaDirecta) {
+								((LineaDeposito) view.getTag()).UnidadesFacturadas = unidadesFacturadas;
+
+							}
+
+							try {
+								refreshLayout(lineaDeposito, layoutGrid, false);
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								_appConfig.getMessageBox().Show("Atención",
+										_appConfig.getStackTrace(e),
+										getActivity(), MessageBoxType.Error);
+							}
+						}
+
+					} else
+						_lastTextBox = (TextBoxColor) view;
+
+					that.closeKeyboard((EditText) view);
+				}
+			});
+
+			TextBoxColor unidadesRepuestas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT,
+					String.valueOf(lineaDeposito.UnidadesRepuestas), TEXT_SIZE, 100, params, true, lineaDeposito)
+					: (TextBoxColor) _headerLayout.getChildAt(7);
+			unidadesRepuestas.setText(String.valueOf(lineaDeposito.UnidadesRepuestas));
+			unidadesRepuestas.setTag(lineaDeposito);
+
+			unidadesRepuestas.setOnFocusChangeListener(new OnFocusChangeListener() {
+				public void onFocusChange(View view, boolean hasFocus) {
+					if (!hasFocus) {
+						_lastTextBox = (TextBoxColor) view;
+						EditText textBox = (EditText) view;
+						int unidadesRepuestas;
+
+						if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+							unidadesRepuestas = Integer.parseInt(((EditText) view).getHint().toString());
+						else
+							unidadesRepuestas = Integer.parseInt(((EditText) view).getText().toString());
+
+						LineaDeposito lineaDeposito = (LineaDeposito) view.getTag();
+
+						((LineaDeposito) view.getTag()).UnidadesRepuestas = unidadesRepuestas;
+
+						try {
+							refreshLayout(lineaDeposito, layoutGrid, false);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							_appConfig.getMessageBox().Show("Atención",
+									_appConfig.getStackTrace(e),
+									getActivity(), MessageBoxType.Error);
+						}
+
+					} else
+						_lastTextBox = (TextBoxColor) view;
+
+					that.closeKeyboard((EditText) view);
+				}
+			});
+
+			TextBoxColor pvpAnterior = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT,
+					DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAnterior),
+					TEXT_SIZE, 100, params, true, lineaDeposito)
+					: (TextBoxColor) _headerLayout.getChildAt(8);
+			pvpAnterior.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAnterior));
+			pvpAnterior.setTag(lineaDeposito);
+
+			pvpAnterior.setOnFocusChangeListener(new OnFocusChangeListener() {
+				public void onFocusChange(View view, boolean hasFocus) {
+					if (!hasFocus) {
+						_lastTextBox = (TextBoxColor) view;
+						EditText textBox = (EditText) view;
+						float pvpAnterior;
+
+						if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+							pvpAnterior = Float.parseFloat(textBox.getHint().toString());
+						else
+							pvpAnterior = Float.parseFloat(textBox.getText().toString());
+
+						((LineaDeposito) view.getTag()).PVPAnterior = pvpAnterior;
+						LineaDeposito lineaDeposito = (LineaDeposito) view.getTag();
+						try {
+							refreshLayout(lineaDeposito, layoutGrid, false);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							_appConfig.getMessageBox().Show("Atención",
+									_appConfig.getStackTrace(e),
+									getActivity(), MessageBoxType.Error);
+						}
+					} else
+						_lastTextBox = (TextBoxColor) view;
+
+					that.closeKeyboard((EditText) view);
+				}
+			});
+
+			double total = (lineaDeposito.UnidadesFacturadas * lineaDeposito.PVP);
+
+			LabelColor totalLinea = createHeaderLayout ? DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+					String.valueOf(DepositManagerExtension.Format.round(total, 2)), TEXT_SIZE, 50, params, true, lineaDeposito)
+					: (LabelColor) _headerLayout.getChildAt(9);
+
+			totalLinea.setText(String.valueOf(DepositManagerExtension.Format.round(total, 2)));
+			totalLinea.setTag(lineaDeposito);
+
+			// Botón Abono
+
+			ButtonColor modoAbono = createHeaderLayout ? DepositManagerExtension.UI.addButton(getActivity(), Color.GREEN, "ABONO",
+					10, 70, params, lineaDeposito)
+					: (ButtonColor) _headerLayout.getChildAt(10);
+
+			modoAbono.setTag(lineaDeposito);
+			if (_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards)
+				modoAbono.setEnabled(false);
+
+			modoAbono.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View arg0) {
+					// TODO Auto-generated method stub
+
+					_abonoMode = true;
+					LineaDeposito lineaDeposito = (LineaDeposito) arg0.getTag();
 					try {
-						refreshLayout(layout, layoutGrid, lineaDeposito, false);
+						refreshLayout(lineaDeposito, layoutGrid, true);
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						_appConfig.getMessageBox().Show("Atención",
 								_appConfig.getStackTrace(e),
-								getActivity(), MessageBoxType.Error);					}
-				} else
-					_lastTextBox = (TextBoxColor) view;
+								getActivity(), MessageBoxType.Error);
+					}
+				}
+			});
+
+
+			if (createHeaderLayout) {
+				_headerLayout.addView(codigoArticulo);
+				_headerLayout.addView(articuloDescripcion);
+				_headerLayout.addView(unidadesInicialesFijas);
+				_headerLayout.addView(unidadesDevueltas);
+				_headerLayout.addView(unidadesDefectuosas);
+				_headerLayout.addView(pvp);
+				_headerLayout.addView(unidadesFacturadas);
+				_headerLayout.addView(unidadesRepuestas);
+				_headerLayout.addView(pvpAnterior);
+				_headerLayout.addView(totalLinea);
+				_headerLayout.addView(modoAbono);
 			}
-		});
-		
-		double total = (lineaDeposito.UnidadesFacturadas * lineaDeposito.PVP);
-		LabelColor totalLinea = DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				String.valueOf(DepositManagerExtension.Format.round(total, 2)), TEXT_SIZE, 50, params, true, lineaDeposito);
+			mainLinearLayout.addView(_headerLayout);
+			_textBoxColorRequestFocus = unidadesDefectuosas;
 
-		// Botón Abono
-		
-		ButtonColor modoAbono = DepositManagerExtension.UI.addButton(getActivity(), Color.GREEN, "ABONO", 
-				10, 70, params, lineaDeposito);
-
-		if (_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards)
-			modoAbono.setEnabled(false);
-
-		modoAbono.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
-
-				_abonoMode = true;
-				LineaDeposito lineaDeposito = (LineaDeposito) arg0.getTag();
-				try {
-					refreshLayout(layout, layoutGrid, lineaDeposito, true);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getMessageBox().Show("Atención",
-							_appConfig.getStackTrace(e),
-							getActivity(), MessageBoxType.Error);				}
-			}
-		});
-
-		ArrayList<TextView> controls = new ArrayList<TextView>();
-		controls.add(unidadesIniciales);
-		controls.add(unidadesFacturadas);
-		controls.add(totalLinea);
-		controls.add(pvpAnterior);
-
-		layout.setTag(controls);
-
-		layout.addView(codigoArticulo);
-		layout.addView(articuloDescripcion);
-		layout.addView(unidadesInicialesFijas);
-		layout.addView(unidadesDevueltas);
-		layout.addView(unidadesDefectuosas);
-		layout.addView(pvp);
-		layout.addView(unidadesFacturadas);
-		layout.addView(unidadesRepuestas);
-		layout.addView(pvpAnterior);
-		layout.addView(totalLinea);
-		layout.addView(modoAbono);
-
-		mainLinearLayout.addView(layout);
-
-		_textBoxColorRequestFocus = unidadesDefectuosas;
+		} catch (Exception e) {
+			_appConfig.getMessageBox().Show("Atención",
+					_appConfig.getStackTrace(e),
+					getActivity(), MessageBoxType.Error);
+		}
 
 	}
 
-	private void addLineHeaderAbono(LineaDeposito lineaDeposito, final LinearLayout layoutGrid) throws Exception {
+	private void addLineHeaderAbono(LineaDeposito lineaDeposito,  final LinearLayout layoutGrid) throws Exception {
+
+		final DepositManager that = this;
 
 		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout6);
 		mainLinearLayout.removeAllViews();
 
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
-		
-		final LinearLayout layout = new LinearLayout(_appConfig);
-		layout.setOrientation(LinearLayout.HORIZONTAL);
-
+		boolean createHeaderLayout = _headerAbonoLayout	 == null;
 		int color = Color.WHITE;
 
-		LabelColor codigoArticulo = DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				lineaDeposito.Articulo.CodigoArticulo, TEXT_SIZE, 8, params, true);
-		
-		
-		LabelColor articuloDescripcion = DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
+		if (createHeaderLayout) {
+			_headerAbonoLayout = new LinearLayout(_appConfig);
+			_headerAbonoLayout.setOrientation(LinearLayout.HORIZONTAL);
+		}
+
+		LabelColor codigoArticulo = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
+				lineaDeposito.Articulo.CodigoArticulo, TEXT_SIZE, 8, params, true)
+				: (LabelColor) _headerAbonoLayout.getChildAt(0);
+		codigoArticulo.setText(lineaDeposito.Articulo.CodigoArticulo);
+
+		LabelColor articuloDescripcion = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				lineaDeposito.Articulo.Descripcion.trim() + " (Abono) ", TEXT_SIZE, 13,
-						params, true, lineaDeposito.Articulo);
-		final DepositManager that = this;
+						params, true, lineaDeposito.Articulo)
+				: (LabelColor) _headerAbonoLayout.getChildAt(1);
+		articuloDescripcion.setText((lineaDeposito.Articulo.Descripcion.trim()));
+		articuloDescripcion.setTag(lineaDeposito.Articulo);
+
 		articuloDescripcion.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				DepositManagerExtension.Dialogs.StartArticuloDialog((Articulo) ((LabelColor) v).getTag(), (Fragment) that);
 			}
 		});
 
-		LabelColor labelCantidadAbono = DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"Cantidad", TEXT_SIZE, 100, params, true);
-		
-		TextBoxColor unidadesAbono = DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT, 
-				String.valueOf(lineaDeposito.UnidadesAbono), TEXT_SIZE, 100, params, true, lineaDeposito);
+		LabelColor labelCantidadAbono = createHeaderLayout ?  DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
+				"Cantidad", TEXT_SIZE, 100, params, true)
+				: (LabelColor) _headerAbonoLayout.getChildAt(2);
+
+		TextBoxColor unidadesAbono =  createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
+				String.valueOf(lineaDeposito.UnidadesAbono), TEXT_SIZE, 100, params, true, lineaDeposito)
+				: (TextBoxColor) _headerAbonoLayout.getChildAt(3);
+		unidadesAbono.setText(String.valueOf(lineaDeposito.UnidadesAbono));
+		unidadesAbono.setTag(lineaDeposito);
 
 		unidadesAbono.setOnFocusChangeListener(new OnFocusChangeListener() {
 			public void onFocusChange(View view, boolean hasFocus) {
@@ -2166,7 +2184,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 					}
 
 					try {
-						refreshLayout(layout, layoutGrid, lineaDeposito, false);
+						refreshLayout(lineaDeposito, layoutGrid,false);
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						_appConfig.getMessageBox().Show("Atención",
@@ -2175,16 +2193,22 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 
 				} else
 					_lastTextBox = (TextBoxColor) view;
+
+				that.closeKeyboard((EditText) view);
 			}
 		});
 
-		LabelColor labelDefectuosasAbono = DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"Defect.", TEXT_SIZE, 100, params, true);
-		
-		TextBoxColor defectuosasAbono = DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT, 
-				String.valueOf(lineaDeposito.DefectuosasAbono), TEXT_SIZE, 100, params, true, lineaDeposito);
+		LabelColor labelDefectuosasAbono =  createHeaderLayout ? DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
+				"Defect.", TEXT_SIZE, 100, params, true)
+				: (LabelColor) _headerAbonoLayout.getChildAt(4);
 
-		//defectuosasAbono.setFocusable(false);
+		
+		TextBoxColor defectuosasAbono = createHeaderLayout ?  DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
+				String.valueOf(lineaDeposito.DefectuosasAbono), TEXT_SIZE, 100, params, true, lineaDeposito)
+				: (TextBoxColor) _headerAbonoLayout.getChildAt(5);
+		defectuosasAbono.setText(String.valueOf(lineaDeposito.DefectuosasAbono));
+		defectuosasAbono.setTag(lineaDeposito);
+
 		defectuosasAbono.setEnabled(false);
 		defectuosasAbono.setInputType(InputType.TYPE_NULL);
 
@@ -2219,7 +2243,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 					}
 
 					try {
-						refreshLayout(layout, layoutGrid, lineaDeposito, false);
+						refreshLayout(lineaDeposito, layoutGrid,false);
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						_appConfig.getMessageBox().Show("Atención",
@@ -2228,14 +2252,20 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 
 				} else
 					_lastTextBox = (TextBoxColor) view;
+
+				that.closeKeyboard((EditText) view);
 			}
 		});
 		
-		LabelColor labelPVPAbono = DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"PVP", TEXT_SIZE, 100, params, true);
+		LabelColor labelPVPAbono = createHeaderLayout ?  DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
+				"PVP", TEXT_SIZE, 100, params, true)
+				: (LabelColor) _headerAbonoLayout.getChildAt(6);
 		
-		TextBoxColor pvpAbono = DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT, 
-				DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAbono), TEXT_SIZE, 100, params, true, lineaDeposito);
+		TextBoxColor pvpAbono =  createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
+				DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAbono), TEXT_SIZE, 100, params, true, lineaDeposito)
+				:(TextBoxColor) _headerAbonoLayout.getChildAt(7);
+		pvpAbono.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAbono));
+		pvpAbono.setTag(lineaDeposito);
 
 		pvpAbono.setOnFocusChangeListener(new OnFocusChangeListener() {
 			public void onFocusChange(View view, boolean hasFocus) {
@@ -2252,7 +2282,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 					((LineaDeposito) view.getTag()).PVPAbono = pvpAbono;
 					LineaDeposito lineaDeposito = (LineaDeposito) view.getTag();
 					try {
-						refreshLayout(layout, layoutGrid, lineaDeposito, false);
+						refreshLayout(lineaDeposito, layoutGrid,false);
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						_appConfig.getMessageBox().Show("Atención",
@@ -2260,22 +2290,27 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 								getActivity(), MessageBoxType.Error);					}
 				} else
 					_lastTextBox = (TextBoxColor) view;
+
+				that.closeKeyboard((EditText) view);
 			}
 		});
 
-		LabelColor labelTotalAbono = DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"Total", TEXT_SIZE, 100, params, true);
-
 		double totalAbonoImporte = lineaDeposito.TotalAbono;
 		
-		LabelColor totalAbono = DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.RIGHT, InputType.TYPE_CLASS_NUMBER,
-				DepositManagerExtension.Format.CurrencyFormat(totalAbonoImporte), TEXT_SIZE, 100, params, true);
+		LabelColor totalAbono =  createHeaderLayout ?  DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.RIGHT, InputType.TYPE_CLASS_NUMBER,
+				DepositManagerExtension.Format.CurrencyFormat(totalAbonoImporte), TEXT_SIZE, 100, params, true)
+				: (LabelColor) _headerAbonoLayout.getChildAt(8);
+		totalAbono.setText(DepositManagerExtension.Format.CurrencyFormat(totalAbonoImporte));
+		totalAbono.setTag(lineaDeposito);
 				
 		// Botón Venta
 		
-		ButtonColor modoVenta = DepositManagerExtension.UI.addButton(getActivity(), Color.GREEN, "Venta", 
-				10, 70, params, lineaDeposito);
-		
+		ButtonColor modoVenta = createHeaderLayout ?  DepositManagerExtension.UI.addButton(getActivity(), Color.GREEN, "Venta",
+				10, 70, params, lineaDeposito)
+				: (ButtonColor) _headerAbonoLayout.getChildAt(9);
+
+		modoVenta.setTag(lineaDeposito);
+
 		modoVenta.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -2285,7 +2320,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 				_abonoMode = false;
 				LineaDeposito lineaDeposito = (LineaDeposito) arg0.getTag();
 				try {
-					refreshLayout(layout, layoutGrid, lineaDeposito, true);
+					refreshLayout(lineaDeposito, layoutGrid,true);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					_appConfig.getMessageBox().Show("Atención",
@@ -2294,26 +2329,21 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 			}
 		});
 
-		ArrayList<TextView> controls = new ArrayList<TextView>();
-		controls.add(totalAbono);
+		if (createHeaderLayout) {
 
-		layout.setTag(controls);
+			_headerAbonoLayout.addView(codigoArticulo);
+			_headerAbonoLayout.addView(articuloDescripcion);
+			_headerAbonoLayout.addView(labelCantidadAbono);
+			_headerAbonoLayout.addView(unidadesAbono);
+			_headerAbonoLayout.addView(labelDefectuosasAbono);
+			_headerAbonoLayout.addView(defectuosasAbono);
+			_headerAbonoLayout.addView(labelPVPAbono);
+			_headerAbonoLayout.addView(pvpAbono);
+			_headerAbonoLayout.addView(totalAbono);
+			_headerAbonoLayout.addView(modoVenta);
+		}
 
-		layout.setTag(controls);
-		layout.addView(codigoArticulo);
-		layout.addView(articuloDescripcion);
-		layout.addView(labelCantidadAbono);
-		layout.addView(unidadesAbono);
-		layout.addView(labelDefectuosasAbono);
-		layout.addView(defectuosasAbono);
-		layout.addView(labelPVPAbono);
-		layout.addView(pvpAbono);
-		// layout.addView(labelTotalAbono);
-		layout.addView(totalAbono);
-		layout.addView(modoVenta);
-
-		mainLinearLayout.addView(layout);
-
+		mainLinearLayout.addView(_headerAbonoLayout);
 		_textBoxColorRequestFocus = defectuosasAbono;
 
 	}
@@ -2392,15 +2422,9 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		layout.setOrientation(LinearLayout.HORIZONTAL);
 
 		int color = lineaDeposito.IsNew ? Color.BLUE : Color.BLACK;
-		
-		//LabelColor codigoArticulo = DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-		//		lineaDeposito.Articulo.CodigoArticulo, TEXT_SIZE, labelCodigoWidth - 30, params, true);
-		
+
 		LabelColor codigoArticulo = DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				lineaDeposito.Articulo.CodigoArticulo.trim(), TEXT_SIZE, 8, params, true);
-
-		//LayoutParams params2 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		//params2.setMargins(0, 0, 10, 0);
 
 		LabelColor articuloDescripcion = DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				lineaDeposito.Articulo.Descripcion.trim(), TEXT_SIZE, 12, params, true, lineaDeposito.Articulo);
@@ -2408,7 +2432,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		LabelColor unidadesInicialesFijas = DepositManagerExtension.UI.addLabelByText(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				String.valueOf(lineaDeposito.UnidadesInicialesFijas), TEXT_SIZE, 13, params, true, lineaDeposito);
 
-		lineaDeposito.UnidadesIniciales = lineaDeposito.UnidadesIniciales;
 		LabelColor unidadesIniciales = DepositManagerExtension.UI.addLabelByText(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				String.valueOf(lineaDeposito.UnidadesIniciales), TEXT_SIZE, 13, params, true, lineaDeposito);
 
@@ -2424,7 +2447,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		LabelColor unidadesFacturadas = DepositManagerExtension.UI.addLabelByText(_appConfig, Color.rgb(0, 128, 0), Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				String.valueOf(lineaDeposito.UnidadesFacturadas), TEXT_SIZE, 13, params, true, lineaDeposito);
 
-		
 		lineaDeposito.UnidadesRepuestas = lineaDeposito.UnidadesInicialesFijas;
 		LabelColor unidadesRepuestas = DepositManagerExtension.UI.addLabelByText(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				String.valueOf(lineaDeposito.UnidadesRepuestas), TEXT_SIZE, 13, params, true, lineaDeposito);
@@ -2436,31 +2458,12 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 				DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP), TEXT_SIZE, 13, params, true, lineaDeposito);
 
 		lineaDeposito.Descuento1 = lineaDeposito.getDte(_cliente, lineaDeposito.Articulo);
-		
-		LabelColor descuento1 = DepositManagerExtension.UI.addLabelByText(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				String.valueOf(lineaDeposito.Descuento1), TEXT_SIZE, 13, params, true, lineaDeposito);
 
 		LabelColor pvpAnterior = DepositManagerExtension.UI.addLabelByText(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAnterior), TEXT_SIZE, 13, params, true, lineaDeposito);
 
 		LabelColor totalLinea = DepositManagerExtension.UI.addLabelByText(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				DepositManagerExtension.Format.CurrencyFormat(0), TEXT_SIZE, 13, params, true, lineaDeposito);
-
-		LabelColor conAbono = DepositManagerExtension.UI.addLabel(_appConfig, Color.RED, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				Constants.EMPTY_STRING, TEXT_SIZE, 100, params, true, lineaDeposito);
-
-		ArrayList<View> controls = new ArrayList<View>();
-		controls.add(unidadesIniciales);
-		controls.add(unidadesDevueltas);
-		controls.add(unidadesDefectuosas);
-		controls.add(unidadesFacturadas);
-		controls.add(unidadesRepuestas);
-		controls.add(pvp);
-		controls.add(totalLinea);
-		controls.add(pvpAnterior);
-		//controls.add(conAbono);
-
-		layout.setTag(controls);
 
 		layout.addView(codigoArticulo);
 		layout.addView(articuloDescripcion);
@@ -2470,10 +2473,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		layout.addView(pvp);
 		layout.addView(unidadesFacturadas);
 		layout.addView(unidadesRepuestas);
-		// layout.addView(unidadesIniciales);
 		layout.addView(pvpAnterior);
 		layout.addView(totalLinea);
-		//layout.addView(conAbono);
 
 		ImageView imageView = new ImageView(this._appConfig);
 		if (lineaDeposito.Articulo.StockPropio)
@@ -2484,7 +2485,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		LinearLayout.LayoutParams layoutParamsImage = new LinearLayout.LayoutParams(25, 25);
 		imageView.setLayoutParams(layoutParamsImage);
 		layout.addView(imageView);
-		controls.add(imageView);
 
 		layout.setClickable(true);
 		layout.setOnClickListener(new View.OnClickListener() {
@@ -2495,13 +2495,13 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 				
 				if (_lastSelectedLayout != null)
 					_lastSelectedLayout.setBackgroundColor(Color.TRANSPARENT);
-				//setTransparentLayouts();
+
 				v.setBackgroundColor(Color.rgb(240,140,40));
 				_lastSelectedLayout = (LinearLayout) v;
 
 				if (_abonoMode)
 					try {
-						addLineHeaderAbono(lineaDeposito, (LinearLayout) v);
+						addLineHeaderAbono(lineaDeposito, _lastSelectedLayout);
 						refreshTotals();
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
@@ -2509,14 +2509,12 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 					}
 				else
 					try {
-						addLineHeader(lineaDeposito, (LinearLayout) v);
+						addLineHeader(lineaDeposito, _lastSelectedLayout);
 						
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-
-				//refreshTotals();
 				}
 		});
 
@@ -2524,24 +2522,14 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 
 	}
 
-	private void setTransparentLayouts() {
-		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity()
-				.findViewById(R.id.mainLinearLayoutDepositManager);
-
-		for (int i = 0; i < mainLinearLayout.getChildCount(); i++) {
-			mainLinearLayout.getChildAt(i).setBackgroundColor(Color.TRANSPARENT);
-		}
-
-	}
-
-	private void refreshLayout(LinearLayout layout, LinearLayout layoutGrid, LineaDeposito linea, boolean redraw)
+	private void refreshLayout(LineaDeposito linea, LinearLayout layoutGrid,  boolean redraw)
 			throws Exception {
 
 		if (redraw) {
 			if (_abonoMode)
-				addLineHeaderAbono(linea, (LinearLayout) layoutGrid);
+				addLineHeaderAbono(linea, layoutGrid);
 			else
-				addLineHeader(linea, (LinearLayout) layoutGrid);
+				addLineHeader(linea, layoutGrid);
 		}
 
 		linea.StockInicial = linea.Articulo.Stock + linea.UnidadesDevueltas - linea.UnidadesRepuestas;
@@ -2561,49 +2549,39 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		double totalLinea = DepositManagerExtension.Format.round((linea.UnidadesFacturadas * linea.PVP)
 				- ((linea.UnidadesFacturadas * linea.PVP) * (linea.Descuento1 / 100)), 2);
 
-		ArrayList<View> controlsGrid = (ArrayList<View>) layoutGrid.getTag();
-		((LabelColor) controlsGrid.get(0)).setText(String.valueOf(linea.UnidadesIniciales));
-		((LabelColor) controlsGrid.get(1)).setText(String.valueOf(linea.UnidadesDevueltas));
 
-		
-		
-		((LabelColor) controlsGrid.get(2)).setText(String.valueOf(linea.UnidadesDefectuosas));
+		//((LabelColor) controlsGrid.get(0)).setText(String.valueOf(linea.UnidadesIniciales));
+		((LabelColor) layoutGrid.getChildAt(3)).setText(String.valueOf(linea.UnidadesDevueltas));
 
-		((LabelColor) controlsGrid.get(3)).setText(String.valueOf(linea.UnidadesFacturadas));
-		((LabelColor) controlsGrid.get(4)).setText(String.valueOf(linea.UnidadesRepuestas));
-		((LabelColor) controlsGrid.get(5)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(linea.PVP)));
+		((LabelColor) layoutGrid.getChildAt(4)).setText(String.valueOf(linea.UnidadesDefectuosas));
 
-		((LabelColor) controlsGrid.get(6)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(totalLinea)));
-		((LabelColor) controlsGrid.get(7)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(linea.PVPAnterior)));
+		((LabelColor) layoutGrid.getChildAt(6)).setText(String.valueOf(linea.UnidadesFacturadas));
+		((LabelColor) layoutGrid.getChildAt(7)).setText(String.valueOf(linea.UnidadesRepuestas));
+		//((LabelColor) controlsGrid.get(5)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(linea.PVP)));
+
+		((LabelColor) layoutGrid.getChildAt(9)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(totalLinea)));
+		((LabelColor) layoutGrid.getChildAt(8)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(linea.PVPAnterior)));
 
 		if (linea.TotalAbono < 0)
-			((ImageView) controlsGrid.get(8)).setImageResource(R.drawable.abono);
+			((ImageView) layoutGrid.getChildAt(10)).setImageResource(R.drawable.abono);
 		else
 			if (linea.Articulo.StockPropio)
-				((ImageView) controlsGrid.get(8)).setImageResource(R.drawable.stock_ok);
+				((ImageView) layoutGrid.getChildAt(10)).setImageResource(R.drawable.stock_ok);
 			else
-				((ImageView) controlsGrid.get(8)).setImageResource(R.drawable.stock_ko);
-
-		//else
-		//	((LabelColor) controlsGrid.get(8)).setText(Constants.EMPTY_STRING);
+				((ImageView) layoutGrid.getChildAt(10)).setImageResource(R.drawable.stock_ko);
 
 		if (!_abonoMode) {
 
-			ArrayList<TextView> controls = (ArrayList<TextView>) layout.getTag();
-			if (controls.size() > 1) {
-				((TextView) controls.get(0)).setText(String.valueOf(linea.UnidadesIniciales));
-				((TextView) controls.get(1)).setText(String.valueOf(linea.UnidadesFacturadas));
-				((TextView) controls.get(2)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(totalLinea)));
-				((TextView) controls.get(3)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(linea.PVPAnterior)));	
+			if (_headerLayout != null) {
+				((TextView) _headerLayout.getChildAt(3)).setText(String.valueOf(linea.UnidadesIniciales));
+				((TextView) _headerLayout.getChildAt(6)).setText(String.valueOf(linea.UnidadesFacturadas));
+				((TextView) _headerLayout.getChildAt(8)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(linea.PVPAnterior)));
+				((TextView) _headerLayout.getChildAt(9)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(totalLinea)));
 			}
-
 		} else {
-			ArrayList<TextView> controls = (ArrayList<TextView>) layout.getTag();
 
-			((LabelColor) controls.get(0)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(linea.TotalAbono)));
+			((LabelColor) _headerAbonoLayout.getChildAt(8)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(linea.TotalAbono)));
 		}
-
-
 	}
 
 	final private void CheckIfNewFiliacion(String filiacion) throws Exception {
@@ -2664,10 +2642,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 			TextView label3 = (TextView) getActivity().findViewById(R.id.lblTipoEntrega);
 			label3.setText(Constants.EMPTY_STRING);
 		}
-
 	}
 
-		
 	private void resetDeposit(boolean initializeAttributes, boolean callOnResume) {
 
 		try {
@@ -2693,6 +2669,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 			_abonoMode = false;
 			_appConfig.getWorkingArea().CurrentCliente = null;
 			_appConfig.getWorkingArea().CurrentDeposito = null;
+			_headerLayout = null;
+			_headerAbonoLayout = null;
 
 			if (callOnResume)
 				onResume();
@@ -2703,6 +2681,11 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		resetHeader();
 		resetLines();
 		resetFooter();
+	}
+
+	private void closeKeyboard(EditText editText) {
+		InputMethodManager imm = (InputMethodManager) this.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
 	}
 
 	@Override
@@ -2722,5 +2705,4 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		// TODO Auto-generated method stub
 		
 	}
-
 }
