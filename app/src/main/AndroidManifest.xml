@@ -3,7 +3,7 @@
     package="net.ifeu.edicards"
     android:versionCode="3"
     android:exported="true"
-    android:versionName="3.7.1 (11 Abril 2023)" >
+    android:versionName="3.7.4 (12 Mayo 2023)" >
 
     <!--<uses-sdk
         android:minSdkVersion="16"
