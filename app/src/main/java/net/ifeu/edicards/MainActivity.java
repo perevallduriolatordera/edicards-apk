@@ -11,8 +11,10 @@ import net.ifeu.library.Utils.Inactivate;
 import net.ifeu.library.Utils.MessageBoxType;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -35,10 +37,34 @@ public class MainActivity extends Activity {
 	private AppConfig _appConfig;
 	private ServiceWorker _serviceWorker;
 
+	private IntentFilter _intentFilter;
+
+	private final BroadcastReceiver m_timeChangedReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			final String action = intent.getAction();
+
+			if (action.equals(Intent.ACTION_TIME_CHANGED) ||
+					action.equals(Intent.ACTION_TIMEZONE_CHANGED)) {
+				// a ver que hacemos
+			}
+		}
+	};
+
 	@Override
 	public void onBackPressed() {
 		// super.onBackPressed();
 		// Not calling **super**, disables back button in current screen.
+	}
+
+	private void initializeReceivers() {
+		_intentFilter = new IntentFilter();
+		_intentFilter.addAction(Intent.ACTION_TIME_TICK);
+		_intentFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
+		_intentFilter.addAction(Intent.ACTION_TIME_CHANGED);
+
+		registerReceiver(m_timeChangedReceiver, _intentFilter);
+
 	}
 	
 	@Override
@@ -48,11 +74,15 @@ public class MainActivity extends Activity {
 			
 			 super.onCreate(savedInstanceState);
 			
-			Log.i(tag, "Inicialitzem l'objecte appConfig després d'haver carregat la vista");
+			 Log.i(tag, "Inicialitzem l'objecte appConfig després d'haver carregat la vista");
 	
 			// Inicialitzem l'objecte AppConfig
 			 _appConfig = (AppConfig) this.getApplicationContext();
 			 this._serviceWorker = new ServiceWorker();
+
+			 // Inicializamos receivers
+
+			this.initializeReceivers();
 
 			// Activamos los dipositivos 
 			if (!Wifi.IsEnabled(_appConfig))                                                                                
@@ -87,21 +117,6 @@ public class MainActivity extends Activity {
 				this.setContentView(R.layout.activity_main);
 			}
 
-			// Creamos excel de trazabilidad si es necesario
-
-
-			try {
-				LogBook logBook = new LogBook();
-				logBook.InitializePersistance(_appConfig, _appConfig);
-
-				if (!logBook.hasLogBookCurrentWeek()) {
-					LogBookCreator logBookCreator = new LogBookCreator(_appConfig);
-					logBookCreator.createExcel30Days();
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
 			Log.i(tag, "Fi activitat");
 
 		}
@@ -109,6 +124,10 @@ public class MainActivity extends Activity {
 			StringWriter errors = new StringWriter();
         	ex.printStackTrace(new PrintWriter(errors));
         	Log.e("Error al iniciar la app de edicards", errors.toString());
+
+			_appConfig.getMessageBox().Show("Atención",
+					_appConfig.getStackTrace(ex),
+					this, MessageBoxType.Error);
 		}
 
 	}

@@ -35,8 +35,9 @@ import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.FormaPago;                                                                                         
 import net.ifeu.edicards.DataTier.Pactos;                                                                                            
 import net.ifeu.edicards.DataTier.Tarifa;                                                                                            
-import net.ifeu.edicards.DataTier.TipoIVA;                                                                                           
-import net.ifeu.edicards.Pdf.PdfInventory;                                                                                           
+import net.ifeu.edicards.DataTier.TipoIVA;
+import net.ifeu.edicards.Excel.LogBookCreator;
+import net.ifeu.edicards.Pdf.PdfInventory;
 import net.ifeu.edicards.Services.RestClient.RequestMethod;                                                                          
 import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Debugger.Debugger;
@@ -981,8 +982,22 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 		} catch (Exception e) {                                                                                                      
 			result = false;                                                                                                          
-		}                       
-		
+		}
+
+		// Creamos excel de trazabilidad si es necesario
+
+		try {
+			LogBook logBook = new LogBook();
+			logBook.InitializePersistance(app, app);
+
+			if (!logBook.hasLogBookCurrentWeek()) {
+				LogBookCreator logBookCreator = new LogBookCreator(app);
+				logBookCreator.createExcel30Days();
+			}
+		} catch (Exception e) {
+			result = false;
+		}
+
 		this.Monitor().ParserMonitor = parser.Monitor();
 		return result;                                                                                                               
 	}                                                                                                                                

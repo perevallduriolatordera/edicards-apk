@@ -1806,8 +1806,10 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 							}
 
 						}
-					} else
+					} else {
+						((TextBoxColor) view).setText(Constants.EMPTY_STRING);
 						_lastTextBox = (TextBoxColor) view;
+					}
 
 					that.closeKeyboard((EditText) view);
 				}
@@ -1861,8 +1863,10 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 							}
 
 						}
-					} else
+					} else {
+						((TextBoxColor) view).setText(Constants.EMPTY_STRING);
 						_lastTextBox = (TextBoxColor) view;
+					}
 
 					that.closeKeyboard((EditText) view);
 				}
@@ -1899,8 +1903,10 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 									_appConfig.getStackTrace(e),
 									getActivity(), MessageBoxType.Error);
 						}
-					} else
+					} else {
+						((TextBoxColor) view).setText(Constants.EMPTY_STRING);
 						_lastTextBox = (TextBoxColor) view;
+					}
 
 					that.closeKeyboard((EditText) view);
 				}
@@ -1963,8 +1969,10 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 							}
 						}
 
-					} else
+					} else {
+						((TextBoxColor) view).setText(Constants.EMPTY_STRING);
 						_lastTextBox = (TextBoxColor) view;
+					}
 
 					that.closeKeyboard((EditText) view);
 				}
@@ -2001,8 +2009,10 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 									getActivity(), MessageBoxType.Error);
 						}
 
-					} else
+					} else {
+						((TextBoxColor) view).setText(Constants.EMPTY_STRING);
 						_lastTextBox = (TextBoxColor) view;
+					}
 
 					that.closeKeyboard((EditText) view);
 				}
@@ -2037,8 +2047,11 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 									_appConfig.getStackTrace(e),
 									getActivity(), MessageBoxType.Error);
 						}
-					} else
+					} else {
+						((TextBoxColor) view).setText(Constants.EMPTY_STRING);
 						_lastTextBox = (TextBoxColor) view;
+					}
+
 
 					that.closeKeyboard((EditText) view);
 				}
@@ -2191,8 +2204,10 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 								_appConfig.getStackTrace(e),
 								getActivity(), MessageBoxType.Error);					}
 
-				} else
+				} else {
+					((TextBoxColor) view).setText(Constants.EMPTY_STRING);
 					_lastTextBox = (TextBoxColor) view;
+				}
 
 				that.closeKeyboard((EditText) view);
 			}
@@ -2250,8 +2265,10 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 								_appConfig.getStackTrace(e),
 								getActivity(), MessageBoxType.Error);					}
 
-				} else
+				} else {
+					((TextBoxColor) view).setText(Constants.EMPTY_STRING);
 					_lastTextBox = (TextBoxColor) view;
+				}
 
 				that.closeKeyboard((EditText) view);
 			}
@@ -2288,8 +2305,10 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 						_appConfig.getMessageBox().Show("Atención",
 								_appConfig.getStackTrace(e),
 								getActivity(), MessageBoxType.Error);					}
-				} else
+				} else {
+					((TextBoxColor) view).setText(Constants.EMPTY_STRING);
 					_lastTextBox = (TextBoxColor) view;
+				}
 
 				that.closeKeyboard((EditText) view);
 			}
@@ -2555,8 +2574,10 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 
 		((LabelColor) layoutGrid.getChildAt(4)).setText(String.valueOf(linea.UnidadesDefectuosas));
 
+		((LabelColor) layoutGrid.getChildAt(5)).setText(String.valueOf(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(linea.PVP))));
 		((LabelColor) layoutGrid.getChildAt(6)).setText(String.valueOf(linea.UnidadesFacturadas));
 		((LabelColor) layoutGrid.getChildAt(7)).setText(String.valueOf(linea.UnidadesRepuestas));
+
 		//((LabelColor) controlsGrid.get(5)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(linea.PVP)));
 
 		((LabelColor) layoutGrid.getChildAt(9)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(totalLinea)));
