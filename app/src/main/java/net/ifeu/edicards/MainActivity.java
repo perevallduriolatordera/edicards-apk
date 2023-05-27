@@ -39,17 +39,6 @@ public class MainActivity extends Activity {
 
 	private IntentFilter _intentFilter;
 
-	private final BroadcastReceiver m_timeChangedReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			final String action = intent.getAction();
-
-			if (action.equals(Intent.ACTION_TIME_CHANGED) ||
-					action.equals(Intent.ACTION_TIMEZONE_CHANGED)) {
-				// a ver que hacemos
-			}
-		}
-	};
 
 	@Override
 	public void onBackPressed() {
@@ -57,16 +46,6 @@ public class MainActivity extends Activity {
 		// Not calling **super**, disables back button in current screen.
 	}
 
-	private void initializeReceivers() {
-		_intentFilter = new IntentFilter();
-		_intentFilter.addAction(Intent.ACTION_TIME_TICK);
-		_intentFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
-		_intentFilter.addAction(Intent.ACTION_TIME_CHANGED);
-
-		registerReceiver(m_timeChangedReceiver, _intentFilter);
-
-	}
-	
 	@Override
 	public void onCreate(Bundle savedInstanceState)  {
 		
@@ -79,10 +58,6 @@ public class MainActivity extends Activity {
 			// Inicialitzem l'objecte AppConfig
 			 _appConfig = (AppConfig) this.getApplicationContext();
 			 this._serviceWorker = new ServiceWorker();
-
-			 // Inicializamos receivers
-
-			this.initializeReceivers();
 
 			// Activamos los dipositivos 
 			if (!Wifi.IsEnabled(_appConfig))                                                                                

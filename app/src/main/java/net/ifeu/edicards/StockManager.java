@@ -708,10 +708,15 @@ public class StockManager extends Fragment {
 
 		ImageView imageView = new ImageView(this._appConfig);
 
+		LinearLayout.LayoutParams imageViewParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+		imageViewParams.gravity = Gravity.CENTER_VERTICAL;
+
+		imageView.setLayoutParams(imageViewParams);
+
 		if (!articulo.StockPropio)
-			imageView.setImageResource(R.drawable.stock_ko);
+			imageView.setImageResource(R.drawable.stock_ko_png);
 		else
-			imageView.setImageResource(R.drawable.stock_ok);
+			imageView.setImageResource(R.drawable.stock_ok_png);
 
 		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(150, 60);
 		imageView.setLayoutParams(layoutParams);

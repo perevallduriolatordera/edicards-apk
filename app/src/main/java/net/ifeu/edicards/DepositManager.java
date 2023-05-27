@@ -67,7 +67,7 @@ import net.ifeu.library.LogBook.LogBook;
 import net.ifeu.library.Utils.AdvancedMessageBox;
 import net.ifeu.library.Utils.MessageBoxType;
 
-public class DepositManager extends Fragment implements IComboBoxChangeEvent, TextWatcher {
+public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 
 	private Deposito _deposito;
 	private Cliente _cliente;
@@ -821,7 +821,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		final DepositManager that = this;
 		
     	this._myAutoComplete = (AutoCompleteTextView) getActivity().findViewById(R.id.myautocomplete);
-        this._myAutoComplete.addTextChangedListener(this);	
+        this._myAutoComplete.addTextChangedListener(new DepositManagerTextWatcher());
         
         this._myAutoComplete.setThreshold(1);
         this._myAutoComplete.setCompletionHint("Pulse el artículo que desea visualizar");
@@ -2496,10 +2496,15 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		layout.addView(totalLinea);
 
 		ImageView imageView = new ImageView(this._appConfig);
+		LinearLayout.LayoutParams imageViewParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+		imageViewParams.gravity = Gravity.CENTER_VERTICAL;
+
+		imageView.setLayoutParams(imageViewParams);
+
 		if (lineaDeposito.Articulo.StockPropio)
-			imageView.setImageResource(R.drawable.stock_ok);
+			imageView.setImageResource(R.drawable.stock_ok_png);
 		else
-			imageView.setImageResource(R.drawable.stock_ko);
+			imageView.setImageResource(R.drawable.stock_ko_png);
 
 		LinearLayout.LayoutParams layoutParamsImage = new LinearLayout.LayoutParams(25, 25);
 		imageView.setLayoutParams(layoutParamsImage);
@@ -2587,9 +2592,9 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 			((ImageView) layoutGrid.getChildAt(10)).setImageResource(R.drawable.abono);
 		else
 			if (linea.Articulo.StockPropio)
-				((ImageView) layoutGrid.getChildAt(10)).setImageResource(R.drawable.stock_ok);
+				((ImageView) layoutGrid.getChildAt(10)).setImageResource(R.drawable.stock_ok_png);
 			else
-				((ImageView) layoutGrid.getChildAt(10)).setImageResource(R.drawable.stock_ko);
+				((ImageView) layoutGrid.getChildAt(10)).setImageResource(R.drawable.stock_ko_png);
 
 		if (!_abonoMode) {
 
@@ -2709,21 +2714,4 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, Te
 		imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
 	}
 
-	@Override
-	public void afterTextChanged(Editable arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-		// TODO Auto-generated method stub
-		
-	}
 }
