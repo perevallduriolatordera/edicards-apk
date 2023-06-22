@@ -22,6 +22,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
@@ -38,6 +39,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
 import net.ifeu.edicards.Constants.Constants;
@@ -156,17 +158,36 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 
 	@Override
 	public void onAttach(Activity activity) {
-		super.onAttach(activity);
+		super.onAttach(activity); System.gc();
 	}
 	
 	@Override
 	public void onStop() {
-		super.onStop();
+		super.onStop();System.gc();
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		_comboPago = null;
+		_comboCopias = null;
+		_comboSerie = null;
+		_comboFiliacion = null;
+		_textBoxCantidadPagada = null;
+		_checkPagado = null;
+
+		_textBoxColorRequestFocus = null;
+		_lastTextBox = null;
+		_lastSelectedLayout = null;
+		_myAutoComplete = null;
+
+		_articles = null;
+		_dialogDepositoModalidad = null;
+
+		_headerLayout = null;
+		_headerAbonoLayout = null;
+		super.onDestroyView();
+		System.gc();
 	}
 
 	@Override
@@ -175,6 +196,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 
 		if (_dialogDepositoModalidad != null)
 			_dialogDepositoModalidad.Close();
+
+		System.gc();
 	}
 
 	@Override
@@ -211,6 +234,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 				}
 			}
 		}
+		System.gc();
 	}
 	
 	public void callback (String id, String text) {
@@ -677,6 +701,18 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 	}
 
 	private void FillWindow() throws Exception {
+
+		final DepositManager that = this;
+
+		ScrollView yourScrollViewName= (ScrollView) this.getActivity().findViewById(R.id.svcScroll);
+		yourScrollViewName.setOnTouchListener(new View.OnTouchListener() {
+			@Override
+			public boolean onTouch(View view, MotionEvent motionEvent) {
+				InputMethodManager imm = (InputMethodManager) that.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+				imm.hideSoftInputFromWindow(that.getActivity().getWindow().getCurrentFocus().getWindowToken(), 0);
+				return false;
+			}
+		});
 
 		this.createHeaderLabels();
 		
@@ -1767,6 +1803,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 					String.valueOf(lineaDeposito.UnidadesDevueltas), TEXT_SIZE, 100, params, true, lineaDeposito)
 					: (TextBoxColor) _headerLayout.getChildAt(3);
 			unidadesDevueltas.setText(String.valueOf(lineaDeposito.UnidadesDevueltas));
+			unidadesDevueltas.setWidth(100);
 			unidadesDevueltas.setTag(lineaDeposito);
 
 			unidadesDevueltas.setOnFocusChangeListener(new OnFocusChangeListener() {
@@ -1820,6 +1857,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 					String.valueOf(lineaDeposito.UnidadesDefectuosas), TEXT_SIZE, 100, params, true, lineaDeposito)
 					: (TextBoxColor) _headerLayout.getChildAt(4);
 			unidadesDefectuosas.setText(String.valueOf(lineaDeposito.UnidadesDefectuosas));
+			unidadesDefectuosas.setWidth(100);
 			unidadesDefectuosas.setTag(lineaDeposito);
 
 			unidadesDefectuosas.setEnabled(false);
@@ -1877,6 +1915,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 					TEXT_SIZE, 100, params, true, lineaDeposito)
 					: (TextBoxColor) _headerLayout.getChildAt(5);
 			pvp.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP));
+			pvp.setWidth(100);
 			pvp.setTag(lineaDeposito);
 
 			pvp.setOnFocusChangeListener(new OnFocusChangeListener() {
@@ -1916,6 +1955,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 					String.valueOf(lineaDeposito.UnidadesFacturadas), TEXT_SIZE, 100, params, true, lineaDeposito)
 					: (TextBoxColor) _headerLayout.getChildAt(6);
 			unidadesFacturadas.setText(String.valueOf(lineaDeposito.UnidadesFacturadas));
+			unidadesFacturadas.setWidth(100);
 			unidadesFacturadas.setTag(lineaDeposito);
 
 
@@ -1982,6 +2022,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 					String.valueOf(lineaDeposito.UnidadesRepuestas), TEXT_SIZE, 100, params, true, lineaDeposito)
 					: (TextBoxColor) _headerLayout.getChildAt(7);
 			unidadesRepuestas.setText(String.valueOf(lineaDeposito.UnidadesRepuestas));
+			unidadesRepuestas.setWidth(100);
 			unidadesRepuestas.setTag(lineaDeposito);
 
 			unidadesRepuestas.setOnFocusChangeListener(new OnFocusChangeListener() {
@@ -2023,6 +2064,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 					TEXT_SIZE, 100, params, true, lineaDeposito)
 					: (TextBoxColor) _headerLayout.getChildAt(8);
 			pvpAnterior.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAnterior));
+			pvpAnterior.setWidth(100);
 			pvpAnterior.setTag(lineaDeposito);
 
 			pvpAnterior.setOnFocusChangeListener(new OnFocusChangeListener() {

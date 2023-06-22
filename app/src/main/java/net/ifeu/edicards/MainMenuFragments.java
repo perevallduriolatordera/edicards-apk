@@ -47,9 +47,11 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 	private int _currentTab;
 	private AppConfig _appConfig;
 
-	private CustomerSearch _customerSearch = new CustomerSearch();
+	private Fragment _currentFragment;
+
+	/*private CustomerSearch _customerSearch = new CustomerSearch();
 	private ArticleSearch _articleSearch = new ArticleSearch();
-	private StockManager _stockManager = new StockManager();
+	private StockManager _stockManager = new StockManager();*/
 
 	@Override
 	public void onAttach(Activity activity) {
@@ -190,29 +192,35 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 			Log.d(TAG, "updateTab(): tabId=" + tabId);
 	
 			FragmentManager fragmentManager = getFragmentManager();
-	
+
+			if (_currentFragment != null)
+				fragmentManager.beginTransaction().remove(_currentFragment).commit();
+
 			if (tabId.equals("clientes")) {
 	
 				if (fragmentManager.findFragmentByTag(tabId) == null) {
+
+					CustomerSearch customerSearch = new CustomerSearch();
 					Log.d(TAG, "BeginTransaction clientes: tabId=" + tabId);
 					fragmentManager
 							.beginTransaction()
-							.replace(R.id.fragment_placeholder, _customerSearch)
+							.replace(R.id.fragment_placeholder, customerSearch)
 							.setTransition(
-									FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-							.addToBackStack(null).commit();
+									FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
+					_currentFragment = customerSearch;
 				}
 			} else if (tabId.equals("articulos")) {
 	
 				if (fragmentManager.findFragmentByTag(tabId) == null) {
-					// Log.d(TAG, "BeginTransaction articulos: tabId=" + tabId);
-					// ginTransaction articulos: tabId=" + tabId);
+					Log.d(TAG, "BeginTransaction articulos: tabId=" + tabId);
+					ArticleSearch articleSearch = new ArticleSearch();
 					fragmentManager
 							.beginTransaction()
-							.replace(R.id.fragment_placeholder, _articleSearch)
+							.replace(R.id.fragment_placeholder, articleSearch)
 							.setTransition(
-									FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-							.addToBackStack(null).commit();
+									FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
+
+					_currentFragment = articleSearch;
 				}
 			} else if (tabId.equals("dietas")) {
 				GastosManager gastos = new GastosManager();
@@ -222,8 +230,9 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 							.beginTransaction()
 							.replace(R.id.fragment_placeholder, gastos)
 							.setTransition(
-									FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-							.addToBackStack(null).commit();
+									FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
+
+					_currentFragment = gastos;
 				}
 			} else if (tabId.equals("informes")) {
 				Reports reports = new Reports();
@@ -233,18 +242,22 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 							.beginTransaction()
 							.replace(R.id.fragment_placeholder, reports)
 							.setTransition(
-									FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-							.addToBackStack(null).commit();
+									FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
+
+					_currentFragment = reports;
 				}
 			} else if (tabId.equals("stock")) {
 				if (fragmentManager.findFragmentByTag(tabId) == null) {
 					Log.d(TAG, "BeginTransaction stock: tabId=" + tabId);
+
+					StockManager stockManager = new StockManager();
 					fragmentManager
 							.beginTransaction()
-							.replace(R.id.fragment_placeholder, _stockManager)
+							.replace(R.id.fragment_placeholder, stockManager)
 							.setTransition(
-									FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-							.addToBackStack(null).commit();
+									FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
+
+					_currentFragment = stockManager;
 				}
 			} else if (tabId.equals("deposito")) {
 				DepositManager deposito = new DepositManager();
@@ -254,8 +267,9 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 							.beginTransaction()
 							.replace(R.id.fragment_placeholder, deposito)
 							.setTransition(
-									FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-							.addToBackStack(null).commit();
+									FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
+
+					_currentFragment = deposito;
 				} 
 			} else if (tabId.equals("ingresos")) {
 					
@@ -267,8 +281,9 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 								.beginTransaction()
 								.replace(R.id.fragment_placeholder, ingresos)
 								.setTransition(
-										FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-								.addToBackStack(null).commit();
+										FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
+
+						_currentFragment = ingresos;
 				}
 			}
 	
@@ -287,8 +302,9 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 							.beginTransaction()
 							.replace(R.id.fragment_placeholder, monitor)
 							.setTransition(
-									FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-							.addToBackStack(null).commit();
+									FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
+
+					_currentFragment = monitor;
 			}
 	
 			else if (tabId.equals("notificaciones")) {
@@ -300,11 +316,14 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 							.beginTransaction()
 							.replace(R.id.fragment_placeholder, sender)
 							.setTransition(
-									FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-							.addToBackStack(null).commit();
+									FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
+
+					_currentFragment = sender;
 					}
 				}
 			}
+
+			System.gc();
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e1);
