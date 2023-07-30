@@ -11,7 +11,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.DTODeposito;
@@ -28,8 +28,8 @@ import android.os.Environment;
 
 public class XmlCreator {
 
-	private AppConfig _appConfig;
-	private Context _context;
+	private final AppConfig _appConfig;
+	private final Context _context;
 
 	public XmlCreator(AppConfig appConfig, Context context) {
 		_appConfig = appConfig;
@@ -52,11 +52,11 @@ public class XmlCreator {
 				+ "/"
 				+ Constants.FILE_STOCK
 				+ "."
-				+ String.valueOf(0));
+				+ 0);
 		try {
 			newxmlfile.createNewFile();
 		} catch (IOException e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		FileOutputStream fileos = null;
@@ -64,17 +64,11 @@ public class XmlCreator {
 			fileos = new FileOutputStream(newxmlfile);
 
 		} catch (FileNotFoundException e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		Articulo articulo = new Articulo();
-
-		try {
-			articulo.InitializePersistance(_appConfig,
-					_context.getApplicationContext());
-		} catch (Exception e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-		}
+		articulo.InitializePersistance(_appConfig,_context.getApplicationContext());
 
 		// Obtenemos el histórico a partir de la fecha del día
 
@@ -110,8 +104,7 @@ public class XmlCreator {
 		fileos.write(("<Articulos>")
 				.getBytes());
 
-
-		for (Articulo articuloInCatalgo : articulo.getAllArticulos(1).values()) {
+		for (Articulo articuloInCatalgo : _appConfig.getCache().getAllArticulos().values()) {
 			
 			try {
 				fileos.write("<A>".getBytes());
@@ -159,8 +152,8 @@ public class XmlCreator {
 				fileos.write("</A>".getBytes());
 
 			} catch (Exception e) {
-				_appConfig.getErrorTrace().Send(_appConfig.getUser().User,
-						e);
+				throw new RuntimeException(e);
+
 			}
 			
 		}
@@ -183,7 +176,7 @@ public class XmlCreator {
 		try {
 			newxmlfile.createNewFile();
 		} catch (IOException e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		FileOutputStream fileos = null;
@@ -191,18 +184,13 @@ public class XmlCreator {
 			fileos = new FileOutputStream(newxmlfile);
 
 		} catch (FileNotFoundException e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		Articulo articulo = new Articulo();
+		articulo.InitializePersistance(_appConfig,
+				_context.getApplicationContext());
 
-		try {
-			articulo.InitializePersistance(_appConfig,
-					_context.getApplicationContext());
-		} catch (Exception e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-		}
-		
 		fileos.write("<StockDiario>".getBytes());
 		
 		fileos.write("<US>".getBytes());
@@ -220,7 +208,7 @@ public class XmlCreator {
 		
 		fileos.write("<Articulos>".getBytes());
 
-		for (Articulo articuloInCatalgo : articulo.getAllArticulos(1).values()) {
+		for (Articulo articuloInCatalgo : _appConfig.getCache().getAllArticulos().values()) {
 			
 			try {
 				
@@ -238,8 +226,8 @@ public class XmlCreator {
 				fileos.write("</A>".getBytes());
 
 			} catch (Exception e) {
-				_appConfig.getErrorTrace().Send(_appConfig.getUser().User,
-						e);
+				throw new RuntimeException(e);
+
 			}
 				
 		}
@@ -247,155 +235,6 @@ public class XmlCreator {
 		fileos.write("</Articulos>".getBytes());
 		fileos.write("</StockDiario>".getBytes());
 
-		fileos.close();
-	}
-
-	public void createXmlArticulos(int block) throws Exception {
-
-		File newxmlfile = new File(Environment.getExternalStorageDirectory()
-				.toString()
-				+ "/"
-				+ Constants.FOLDER_ROOT
-				+ "/"
-				+ Constants.FOLDER_STOCK
-				+ "/"
-				+ Constants.FILE_STOCK
-				+ "."
-				+ String.valueOf(block));
-		try {
-			newxmlfile.createNewFile();
-		} catch (IOException e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-		}
-
-		FileOutputStream fileos = null;
-		try {
-			fileos = new FileOutputStream(newxmlfile);
-
-		} catch (FileNotFoundException e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-		}
-
-		Articulo articulo = new Articulo();
-
-		try {
-			articulo.InitializePersistance(_appConfig,
-					_context.getApplicationContext());
-		} catch (Exception e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-		}
-
-		// Obtenemos el histórico a partir de la fecha del día
-
-		Historico historico = new Historico();
-		historico.InitializePersistance(_appConfig,
-				_context.getApplicationContext());
-
-		Calendar calendar1 = this.setWeekStart(Calendar.getInstance());
-		Calendar calendar2 = Calendar.getInstance();
-		calendar2.add(Calendar.DATE, 7);
-
-		ArrayList<Historico> list = historico.getHistoricosBetweenDates(
-				calendar1.getTime(), calendar2.getTime());
-
-		HashMap<String, Reports> report = this.getReports(list);
-
-		fileos.write(("<Articulos index='" + String.valueOf(block) + "'>")
-				.getBytes());
-
-		int total = articulo.getAllArticulos(1).size();
-		int start;
-		int end;
-
-		if (block == 1) {
-			start = 0;
-			end = total / 2;
-		} else {
-			start = (total / 2) + 1;
-			end = total - 1;
-		}
-
-		int i = 0;
-
-		for (Articulo articuloInCatalgo : articulo.getAllArticulos(1).values()) {
-
-			if (i >= start && i <= end) {
-				try {
-					fileos.write("<A>".getBytes());
-
-					fileos.write("<EM>".getBytes());
-					fileos.write(_appConfig.getUser().Company.getBytes());
-					fileos.write("</EM>".getBytes());
-
-					fileos.write("<US>".getBytes());
-					fileos.write(_appConfig.getUser().User.getBytes());
-					fileos.write("</US>".getBytes());
-
-					fileos.write("<CA>".getBytes());
-					fileos.write(articuloInCatalgo.CodigoArticulo.getBytes());
-					fileos.write("</CA>".getBytes());
-
-					fileos.write("<SC>".getBytes());
-					fileos.write(String.valueOf(articuloInCatalgo.Stock)
-							.getBytes());
-					fileos.write("</SC>".getBytes());
-
-					fileos.write("<SD>".getBytes());
-					fileos.write(String.valueOf(
-							articuloInCatalgo.StockDefectuoso).getBytes());
-					fileos.write("</SD>".getBytes());
-
-					SimpleDateFormat formatter;
-					formatter = new SimpleDateFormat("dd/MM/yyyy");
-
-					if (!report.containsKey(articuloInCatalgo.CodigoArticulo)) {
-						fileos.write("<FR>".getBytes());
-						fileos.write(String.valueOf(
-								formatter.format(calendar1.getTime()))
-								.getBytes());
-						fileos.write("</FR>".getBytes());
-
-						fileos.write("<PR>".getBytes());
-						fileos.write(String.valueOf(0).getBytes());
-						fileos.write("</PR>".getBytes());
-
-						fileos.write("<RR>".getBytes());
-						fileos.write(String.valueOf(0).getBytes());
-						fileos.write("</RR>".getBytes());
-
-					} else {
-						Reports item = (Reports) report
-								.get(articuloInCatalgo.CodigoArticulo);
-
-						fileos.write("<FR>".getBytes());
-						fileos.write(String.valueOf(
-								formatter.format(calendar1.getTime()))
-								.getBytes());
-						fileos.write("</FR>".getBytes());
-
-						fileos.write("<PR>".getBytes());
-						fileos.write(String.valueOf(item.Potenciados)
-								.getBytes());
-						fileos.write("</PR>".getBytes());
-
-						fileos.write("<RR>".getBytes());
-						fileos.write(String.valueOf(item.Retirados).getBytes());
-						fileos.write("</RR>".getBytes());
-
-					}
-
-					fileos.write("</A>".getBytes());
-
-				} catch (Exception e) {
-					_appConfig.getErrorTrace().Send(_appConfig.getUser().User,
-							e);
-				}
-			}
-
-			i++;
-		}
-
-		fileos.write("</Articulos>".getBytes());
 		fileos.close();
 	}
 
@@ -421,7 +260,7 @@ public class XmlCreator {
 		try {
 			newxmlfile.createNewFile();
 		} catch (IOException e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		FileOutputStream fileos = null;
@@ -429,7 +268,7 @@ public class XmlCreator {
 			fileos = new FileOutputStream(newxmlfile);
 
 		} catch (FileNotFoundException e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		GastosInfo gastosInfo = new GastosInfo();
@@ -482,8 +321,7 @@ public class XmlCreator {
 				} catch (Exception e) {
 					fileos.write("</Gastos>".getBytes());
 					fileos.close();
-					_appConfig.getErrorTrace().Send(_appConfig.getUser().User,
-							e);
+					throw new RuntimeException(e);
 				} 
 			}
 		}
@@ -542,7 +380,7 @@ public class XmlCreator {
 		} catch (Exception e) {
 			fileos.write("</Gastos>".getBytes());
 			fileos.close();
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		try {
@@ -578,7 +416,7 @@ public class XmlCreator {
 		} catch (Exception e) {
 			fileos.write("</Gastos>".getBytes());
 			fileos.close();
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		fileos.write("</Gastos>".getBytes());
@@ -598,12 +436,12 @@ public class XmlCreator {
 				+ "/"
 				+ Constants.FOLDER_ALBARANES
 				+ "/"
-				+ String.valueOf(deposito.Serie)
-				+ String.valueOf(deposito.NumeroAlbaran) + ".xml");
+				+ deposito.Serie
+				+ deposito.NumeroAlbaran + ".xml");
 		try {
 			newxmlfile.createNewFile();
 		} catch (IOException e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		FileOutputStream fileos = null;
@@ -611,7 +449,7 @@ public class XmlCreator {
 			fileos = new FileOutputStream(newxmlfile);
 
 		} catch (FileNotFoundException e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		fileos.write("<Albaran>".getBytes());
@@ -631,10 +469,10 @@ public class XmlCreator {
 		fileos.write("<Serie>".getBytes());
 
 		if (deposito.Serie.equals(_appConfig.getUser().SerialInvoiceA))
-			fileos.write(String.valueOf(Constants.SERIE_A_VALUE).getBytes());
+			fileos.write(Constants.SERIE_A_VALUE.getBytes());
 		else
 			
-			fileos.write(String.valueOf(Constants.SERIE_B_VALUE).getBytes());
+			fileos.write(Constants.SERIE_B_VALUE.getBytes());
 
 		fileos.write("</Serie>".getBytes());
 
@@ -668,25 +506,25 @@ public class XmlCreator {
 		fileos.write("<Direccion1>".getBytes());
 		if (deposito.Direccion1 != Constants.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Direccion1).getBytes());
-		;
+
 		fileos.write("</Direccion1>".getBytes());
 
 		fileos.write("<Direccion2>".getBytes());
 		if (deposito.Direccion2 != Constants.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Direccion2).getBytes());
-		;
+
 		fileos.write("</Direccion2>".getBytes());
 
 		fileos.write("<CodigoPostal>".getBytes());
 		if (deposito.CodigoPostal != Constants.EMPTY_STRING)
 			fileos.write(deposito.CodigoPostal.getBytes());
-		;
+
 		fileos.write("</CodigoPostal>".getBytes());
 
 		fileos.write("<Poblacion>".getBytes());
 		if (deposito.Poblacion != Constants.EMPTY_STRING)
 			fileos.write(deposito.Poblacion.getBytes());
-		;
+
 		fileos.write("</Poblacion>".getBytes());
 
 		fileos.write("<Provincia>".getBytes());
@@ -697,31 +535,31 @@ public class XmlCreator {
 		fileos.write("<Telefono1>".getBytes());
 		if (deposito.Telefono1 != Constants.EMPTY_STRING)
 			fileos.write(deposito.Telefono1.getBytes());
-		;
+
 		fileos.write("</Telefono1>".getBytes());
 
 		fileos.write("<Telefono2>".getBytes());
 		if (deposito.Telefono2 != Constants.EMPTY_STRING)
 			fileos.write(deposito.Telefono2.getBytes());
-		;
+
 		fileos.write("</Telefono2>".getBytes());
 
 		fileos.write("<Fax>".getBytes());
 		if (deposito.Fax != Constants.EMPTY_STRING)
 			fileos.write(deposito.Fax.getBytes());
-		;
+
 		fileos.write("</Fax>".getBytes());
 
 		fileos.write("<Mail>".getBytes());
 		if (deposito.Mail != Constants.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Mail).getBytes());
-		;
+
 		fileos.write("</Mail>".getBytes());
 
 		fileos.write("<Web>".getBytes());
 		if (deposito.Web != Constants.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Web).getBytes());
-		;
+
 		fileos.write("</Web>".getBytes());
 
 		fileos.write("<DescuentoComercial>".getBytes());
@@ -820,7 +658,7 @@ public class XmlCreator {
 				}
 
 			} catch (Exception e) {
-				_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+				throw new RuntimeException(e);
 			}
 		}
 
@@ -838,12 +676,12 @@ public class XmlCreator {
 				+ "/"
 				+ Constants.FOLDER_ALBARANES
 				+ "/REC_"
-				+ String.valueOf(deposito.Serie)
-				+ String.valueOf(deposito.NumeroAlbaran) + ".xml");
+				+ deposito.Serie
+				+ deposito.NumeroAlbaran + ".xml");
 		try {
 			newxmlfile.createNewFile();
 		} catch (IOException e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		FileOutputStream fileos = null;
@@ -851,7 +689,7 @@ public class XmlCreator {
 			fileos = new FileOutputStream(newxmlfile);
 
 		} catch (FileNotFoundException e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		fileos.write("<Albaran>".getBytes());
@@ -871,10 +709,10 @@ public class XmlCreator {
 		fileos.write("<Serie>".getBytes());
 
 		if (deposito.Serie.equals(_appConfig.getUser().SerialInvoiceA))
-			fileos.write(String.valueOf(Constants.SERIE_A_VALUE).getBytes());
+			fileos.write(Constants.SERIE_A_VALUE.getBytes());
 		else
 			
-			fileos.write(String.valueOf(Constants.SERIE_B_VALUE).getBytes());
+			fileos.write(Constants.SERIE_B_VALUE.getBytes());
 
 		fileos.write("</Serie>".getBytes());
 
@@ -908,25 +746,25 @@ public class XmlCreator {
 		fileos.write("<Direccion1>".getBytes());
 		if (deposito.Direccion1 != Constants.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Direccion1).getBytes());
-		;
+
 		fileos.write("</Direccion1>".getBytes());
 
 		fileos.write("<Direccion2>".getBytes());
 		if (deposito.Direccion2 != Constants.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Direccion2).getBytes());
-		;
+
 		fileos.write("</Direccion2>".getBytes());
 
 		fileos.write("<CodigoPostal>".getBytes());
 		if (deposito.CodigoPostal != Constants.EMPTY_STRING)
 			fileos.write(deposito.CodigoPostal.getBytes());
-		;
+
 		fileos.write("</CodigoPostal>".getBytes());
 
 		fileos.write("<Poblacion>".getBytes());
 		if (deposito.Poblacion != Constants.EMPTY_STRING)
 			fileos.write(deposito.Poblacion.getBytes());
-		;
+
 		fileos.write("</Poblacion>".getBytes());
 
 		fileos.write("<Provincia>".getBytes());
@@ -937,31 +775,31 @@ public class XmlCreator {
 		fileos.write("<Telefono1>".getBytes());
 		if (deposito.Telefono1 != Constants.EMPTY_STRING)
 			fileos.write(deposito.Telefono1.getBytes());
-		;
+
 		fileos.write("</Telefono1>".getBytes());
 
 		fileos.write("<Telefono2>".getBytes());
 		if (deposito.Telefono2 != Constants.EMPTY_STRING)
 			fileos.write(deposito.Telefono2.getBytes());
-		;
+
 		fileos.write("</Telefono2>".getBytes());
 
 		fileos.write("<Fax>".getBytes());
 		if (deposito.Fax != Constants.EMPTY_STRING)
 			fileos.write(deposito.Fax.getBytes());
-		;
+
 		fileos.write("</Fax>".getBytes());
 
 		fileos.write("<Mail>".getBytes());
 		if (deposito.Mail != Constants.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Mail).getBytes());
-		;
+
 		fileos.write("</Mail>".getBytes());
 
 		fileos.write("<Web>".getBytes());
 		if (deposito.Web != Constants.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Web).getBytes());
-		;
+
 		fileos.write("</Web>".getBytes());
 
 		fileos.write("<DescuentoComercial>".getBytes());
@@ -1060,7 +898,7 @@ public class XmlCreator {
 				}
 
 			} catch (Exception e) {
-				_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+				throw new RuntimeException(e);
 			}
 		}
 
@@ -1081,11 +919,11 @@ public class XmlCreator {
 				+ "/"
 				+ Constants.FOLDER_DEPOSITOS
 				+ "/"
-				+ String.valueOf(deposito.IdDeposito) + ".xml");
+				+ deposito.IdDeposito + ".xml");
 		try {
 			newxmlfile.createNewFile();
 		} catch (IOException e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		FileOutputStream fileos = null;
@@ -1093,7 +931,7 @@ public class XmlCreator {
 			fileos = new FileOutputStream(newxmlfile);
 
 		} catch (FileNotFoundException e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		fileos.write("<Deposito>".getBytes());
@@ -1236,27 +1074,18 @@ public class XmlCreator {
 						fileos.write("<MovimientoStock>".getBytes());
 						fileos.write(String.valueOf(movimientos.TotalMovimientoDeposito).getBytes());
 						fileos.write("</MovimientoStock>".getBytes());
-						
-						//fileos.write("<MovimientoStockDefectuoso>".getBytes());
-						//fileos.write(String.valueOf(movimientos.TotalDefectuoso).getBytes());
-						//fileos.write("</MovimientoStockDefectuoso>".getBytes());
-						
+
 						fileos.write("<MovimientoStockAbono>".getBytes());
 						fileos.write(String.valueOf(movimientos.TotalAbono).getBytes());
 						fileos.write("</MovimientoStockAbono>".getBytes());
-						
-						//fileos.write("<MovimientoStockAbonoDefectuoso>".getBytes());
-						//fileos.write(String.valueOf(movimientos.TotalAbonoDefectuoso).getBytes());
-						//fileos.write("</MovimientoStockAbonoDefectuoso>".getBytes());
-	
+
 						fileos.write("</Linea>".getBytes());
 					}
 
 				}
 
 			} catch (Exception e) {
-				_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-				return;
+				throw new RuntimeException(e);
 			}
 		}
 
@@ -1279,7 +1108,7 @@ public class XmlCreator {
 
 	private HashMap<String, Reports> getReports(ArrayList<Historico> list) {
 
-		HashMap<String, Reports> result = new HashMap<String, Reports>();
+		HashMap<String, Reports> result = new HashMap<>();
 
 		for (Historico hist : list) {
 			for (LineaHistorico linea : hist.Lineas.values()) {
@@ -1318,7 +1147,7 @@ public class XmlCreator {
 		return "<![CDATA[" + text + "]]>";
 	}
 
-	private class Reports {
+	private static class Reports {
 		public float Potenciados;
 		public float Retirados;
 	}

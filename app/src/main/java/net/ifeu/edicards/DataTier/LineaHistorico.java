@@ -2,13 +2,14 @@ package net.ifeu.edicards.DataTier;
 
 import java.util.LinkedHashMap;
 
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
-import net.ifeu.library.Utils.MessageBoxType;
+import net.ifeu.edicards.DataTier.Persistance.IPersistable;
+import net.ifeu.edicards.DataTier.Persistance.Persistent;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 
 public class LineaHistorico extends Persistent implements IPersistable {
 
@@ -24,8 +25,7 @@ public class LineaHistorico extends Persistent implements IPersistable {
 	public int MovimientoStockDefectuosas;
 	
 	@Override
-	public void InitializePersistance(AppConfig appConfig, Context context) throws Exception {
-		// TODO Auto-generated method stub
+	public void InitializePersistance(AppConfig appConfig, Context context) {
 		super.InitializePersistance(appConfig, context);
 	}
 	
@@ -50,7 +50,7 @@ public class LineaHistorico extends Persistent implements IPersistable {
 			this.IdLineaHistorico = super.getDatabaseOperations().insert(Constants.TABLE_LINEAS_HISTORICO, null , values);
 		}
 		catch (Exception e) {
-			throw e;
+			throw new RuntimeException(e);
 		}
 		
 	}
@@ -81,7 +81,7 @@ public class LineaHistorico extends Persistent implements IPersistable {
 	
 	public LinkedHashMap<String, LineaHistorico> getLineasHistoricoByHistorico(Historico historico) throws Exception
 	{
-			LinkedHashMap<String,LineaHistorico> list = new LinkedHashMap<String,LineaHistorico>();
+			LinkedHashMap<String,LineaHistorico> list = new LinkedHashMap<>();
 			
 			Cursor cursor = super.getDatabaseOperations().getRecordsFromFieldNumeric(Constants.TABLE_LINEAS_HISTORICO, "IdHistorico", String.valueOf(historico.IdHistorico), Constants.EMPTY_STRING, null);
 			
@@ -91,9 +91,6 @@ public class LineaHistorico extends Persistent implements IPersistable {
 				
 				if (cursor.getCount() > 0)
 				{
-					
-					Log.i("Historico","Lineas Historico Count: " + String.valueOf(cursor.getCount()));
-					
 					do {
 						LineaHistorico linea = new LineaHistorico();
 						
@@ -114,8 +111,7 @@ public class LineaHistorico extends Persistent implements IPersistable {
 						try {
 							articulo.InitializePersistance(super.appConfig, super.context);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							super.appConfig.getMessageBox().Show("Error", e.getMessage().toString(), super.appConfig, MessageBoxType.Error);
+							throw new RuntimeException(e);
 						}
 						
 						if (articulo.setArticuloById(cursor.getString(cursor.getColumnIndex("IdArticulo"))))

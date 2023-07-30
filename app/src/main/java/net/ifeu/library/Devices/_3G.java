@@ -1,19 +1,13 @@
 package net.ifeu.library.Devices;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.provider.Settings;
-import android.telephony.TelephonyManager;
-import net.ifeu.edicards.AppConfig;
-import net.ifeu.library.Utils.MessageBoxType;
+
+import net.ifeu.edicards.Application.AppConfig;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 public class _3G {
 	public static boolean IsEnabled(Context context) {
@@ -26,7 +20,7 @@ public class _3G {
 	            .getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED);
 	}
 	
-	public static void Activate3G(AppConfig config, boolean enable) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ClassNotFoundException, NoSuchFieldException, NameNotFoundException {
+	public static void Activate3G(AppConfig config, boolean enable) throws IllegalArgumentException {
 
 		try {
 			final ConnectivityManager conman = (ConnectivityManager) config.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -43,9 +37,7 @@ public class _3G {
 		} catch (Exception e) {
 			return;
 		}
-		
-		return;
-	
+
 	}
 	
 }

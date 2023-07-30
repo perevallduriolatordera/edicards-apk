@@ -1,12 +1,15 @@
 package net.ifeu.edicards.DataTier;
 
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Persistance.IPersistable;
+import net.ifeu.edicards.DataTier.Persistance.Persistent;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
-public class ClienteInfo extends Persistent implements IPersistable{
+public class ClienteInfo extends Persistent implements IPersistable {
 	
 	public Cliente Cliente;
 	public String CCC;
@@ -18,7 +21,6 @@ public class ClienteInfo extends Persistent implements IPersistable{
 		this.CCC = Constants.EMPTY_STRING;
 		this.Representante = Constants.EMPTY_STRING;
 		this.DniRepresentante = Constants.EMPTY_STRING;
-		//this.Cliente = new Cliente();
 	}
 	
 	public void assignCCC(String codigoBanco, String codigoAgencia, String digitoControl, String numeroCuenta, String iban)
@@ -33,8 +35,8 @@ public class ClienteInfo extends Persistent implements IPersistable{
 	}
 	
 	@Override
-	public void InitializePersistance(AppConfig appConfig, Context context) throws Exception {
-		// TODO Auto-generated method stub
+	public void InitializePersistance(AppConfig appConfig, Context context)  {
+		
 		super.InitializePersistance(appConfig, context);
 	}
 	
@@ -58,7 +60,7 @@ public class ClienteInfo extends Persistent implements IPersistable{
 				super.getDatabaseOperations().insert(Constants.TABLE_CLIENTES_INFO, null , values);
 			}
 			catch (Exception e) {
-				throw e;
+				throw new RuntimeException(e);
 			}	
 		}
 		
@@ -103,7 +105,7 @@ public class ClienteInfo extends Persistent implements IPersistable{
 	public boolean ExistsClienteInfoByCliente(Cliente cliente) throws Exception
 	{
 		
-		Boolean result;
+		boolean result;
 		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(Constants.TABLE_CLIENTES_INFO, "IdCliente", String.valueOf(cliente.IdCliente), false);
 		
 		if (cursor != null)

@@ -1,44 +1,34 @@
 package net.ifeu.edicards;
 
-import net.ifeu.edicards.Constants.Constants;
-import net.ifeu.edicards.Excel.LogBookCreator;
-import net.ifeu.edicards.Services.ServiceWorker;
-import net.ifeu.library.Devices.BlueTooth;
-import net.ifeu.library.Devices.Wifi;
-import net.ifeu.library.Devices._3G;
-import net.ifeu.library.LogBook.LogBook;
-import net.ifeu.library.Utils.Inactivate;
-import net.ifeu.library.Utils.MessageBoxType;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-//import com.parse.ParseAnalytics;
+import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Services.ServiceWorker;
+import net.ifeu.library.Devices.BlueTooth;
+import net.ifeu.library.Devices.Wifi;
+import net.ifeu.library.Devices._3G;
+import net.ifeu.library.Utils.Inactivate;
+import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
 public class MainActivity extends Activity {
 
 	private static final String tag = "MainActivity";
-	//private int debug = 0;
-
 	private AppConfig _appConfig;
 	private ServiceWorker _serviceWorker;
-
-	private IntentFilter _intentFilter;
-
 
 	@Override
 	public void onBackPressed() {
@@ -52,11 +42,9 @@ public class MainActivity extends Activity {
 		try {
 			
 			 super.onCreate(savedInstanceState);
-			
-			 Log.i(tag, "Inicialitzem l'objecte appConfig després d'haver carregat la vista");
-	
-			// Inicialitzem l'objecte AppConfig
+
 			 _appConfig = (AppConfig) this.getApplicationContext();
+
 			 this._serviceWorker = new ServiceWorker();
 
 			// Activamos los dipositivos 
@@ -86,24 +74,35 @@ public class MainActivity extends Activity {
 			}
 
 			if (_appConfig.getUser().isEmpty()) {
-				Log.i(tag, "Cridem a l'activitat StartNewUser");
 				StartNewUser();
 			} else {
 				this.setContentView(R.layout.activity_main);
+				this.ShowAppVersion();
 			}
-
-			Log.i(tag, "Fi activitat");
 
 		}
 		catch (Exception ex) {
-			StringWriter errors = new StringWriter();
-        	ex.printStackTrace(new PrintWriter(errors));
-        	Log.e("Error al iniciar la app de edicards", errors.toString());
-
-			_appConfig.getMessageBox().Show("Atención",
-					_appConfig.getStackTrace(ex),
-					this, MessageBoxType.Error);
+			throw new RuntimeException(ex);
 		}
+
+	}
+
+	public void ShowAppVersion() {
+
+		PackageInfo pInfo = null;
+		try {
+			pInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_META_DATA);
+		} catch (PackageManager.NameNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+		int version = pInfo.versionCode;
+		String versionName = pInfo.versionName;
+
+		((TextView) this.findViewById(R.id.lblVersion)).setText("Versión : " + version );
+		((TextView) this.findViewById(R.id.lblRevision)).setText("Revisión : " + versionName);
+		((TextView) this.findViewById(R.id.lblWifi)).setText("Wifi habilitada : " + (_appConfig.getConnectivity().WIFI ? "Si" :"No"));
+		((TextView) this.findViewById(R.id.lblDataMobile)).setText("Datos Móviles habilitados : " + (_appConfig.getConnectivity().DataMobile ? "Si" :"No"));
+		((TextView) this.findViewById(R.id.lblBlueTooth)).setText("Bluetooth habilitado : " + (_appConfig.getConnectivity().Bluetooth ? "Si" :"No"));
 
 	}
 
@@ -114,12 +113,11 @@ public class MainActivity extends Activity {
 			getMenuInflater().inflate(R.menu.activity_main, menu);
 			return true;
 		} catch (Exception ex) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, ex);
-			return true;
+			throw new RuntimeException(ex);
 		}
 	}
 
-	private void ShowAppVersion() throws NameNotFoundException {
+	private void GoToSync() {
 		
 		try {
 			// Mostrem la versió de l'aplicació
@@ -130,7 +128,7 @@ public class MainActivity extends Activity {
 	
 			_appConfig.getWorkingArea().UpgradeDataPost = _appConfig.getMessageBox().ShowWithResult(
 					"Aplicación de gestión comercial edicards",
-					"Aplicación de gestión comercial Edicards " + Constants.NEW_LINE + "Versión: " + String.valueOf(version)
+					"Aplicación de gestión comercial Edicards " + Constants.NEW_LINE + "Versión: " + version
 							+ Constants.NEW_LINE + "Revisión: " + versionName + Constants.NEW_LINE + Constants.NEW_LINE
 							+ "Indique la versión  y la revisión de la aplicación en caso de requerir asistencia técnica"
 							+ Constants.NEW_LINE + Constants.NEW_LINE
@@ -177,15 +175,16 @@ public class MainActivity extends Activity {
 	
 				@Override
 				public void run() {
-					Log.i("MainActivity", "Before upgrade");
 					try {
 						getData();	
 					} catch (Exception e) {
+						throw new RuntimeException(e);
 					}
 	
 					try {
 						sendData();
 					} catch (Exception e) {
+						throw new RuntimeException(e);
 					}
 					
 					that._appConfig.getWorkingArea().Monitor = that._serviceWorker.Monitor();
@@ -194,50 +193,37 @@ public class MainActivity extends Activity {
 	
 					Intent intent = new Intent(MainActivity.this, MainMenu.class);
 	
-					Log.i(tag, "Cridem a MainMenuFragments");
-					startActivity(intent);		
+					startActivity(intent);
 	
 				}
 	
 			}.start();
 		} catch (Exception ex) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, ex);
-
+			throw new RuntimeException(ex);
 		}
 
 	}
 	
-	private void getData() throws Exception {
+	private void getData() {
 		
 		final Context context = _appConfig;
 		
 		try {
-
-			Log.i("MainActivity", "Before getting");
 			this._serviceWorker.RunImport(context, false);
 
 		} catch (Exception e) {
-
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-		}
-
+			throw new RuntimeException(e);		}
 	}
 
-	private void sendData() throws Exception {
-		// Envíamos los datos pendientes
+	private void sendData() {
 
 		final Context context = _appConfig;
 
 		try {
-
-			Log.i("MainActivity", "Before sending");
 			this._serviceWorker.RunExport(context);
-
 		} catch (Exception e) {
-
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
-
 	}
 
 	// Obtenim el resultat de l'activitat StartNewUser
@@ -246,8 +232,6 @@ public class MainActivity extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		
 		try {
-			Log.i(tag, "onActivityResult and resultCode = " + resultCode);
-	
 			super.onActivityResult(requestCode, resultCode, data);
 	
 			if (resultCode == 0) {
@@ -255,16 +239,14 @@ public class MainActivity extends Activity {
 			} else if (resultCode == 1) {
 	
 				if (!(_appConfig.getUser().isEmpty())) {
-					Log.i(tag, "Guardo les dades");
 					setUserData();
-	
 					StartMainMenu();
 				} 
 			} else if (resultCode == 2) {
 				StartMainMenu();
 			}
 		} catch (Exception ex) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, ex);
+			throw new RuntimeException(ex);
 		}
 	}
 
@@ -278,7 +260,6 @@ public class MainActivity extends Activity {
 			SharedPreferences.Editor editor = preferences.edit();
 	
 			editor.putString("User", _appConfig.getUser().User);
-			Log.i(tag, "Escribimos Usuario: " + _appConfig.getUser().User);
 			editor.putString("Password", _appConfig.getUser().Password);
 			editor.putString("SerialInvoiceA", _appConfig.getUser().SerialInvoiceA);
 			editor.putString("SerialInvoiceB", _appConfig.getUser().SerialInvoiceB);
@@ -290,7 +271,7 @@ public class MainActivity extends Activity {
 			editor.commit();
 		
 		} catch (Exception ex) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, ex);
+			throw new RuntimeException(ex);
 
 		}
 	}
@@ -304,7 +285,6 @@ public class MainActivity extends Activity {
 					android.content.Context.MODE_PRIVATE);
 	
 			_appConfig.getUser().User = preferences.getString("User", Constants.EMPTY_STRING);
-			Log.i(tag, "Usuario: " + _appConfig.getUser().User);
 			_appConfig.getUser().Password = preferences.getString("Password", Constants.EMPTY_STRING);
 			_appConfig.getUser().SerialInvoiceA = preferences.getString("SerialInvoiceA", Constants.EMPTY_STRING);
 			_appConfig.getUser().SerialInvoiceB = preferences.getString("SerialInvoiceB", Constants.EMPTY_STRING);
@@ -314,12 +294,11 @@ public class MainActivity extends Activity {
 			_appConfig.getUser().InitSerieB = preferences.getString("SerieB", Constants.EMPTY_STRING);
 		
 		} catch (Exception ex) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, ex);
-
+			throw new RuntimeException(ex);
 		}
 	}
 
-	public void OnAcceptClick(View view) throws NameNotFoundException {
+	public void OnAcceptClick(View view) {
 		String password = ((EditText) findViewById(R.id.txtPassword)).getText().toString();
 		String user = ((EditText) findViewById(R.id.txtUser)).getText().toString();
 
@@ -330,7 +309,7 @@ public class MainActivity extends Activity {
 			_appConfig.getMessageBox().Show("Error de validación de usuario",
 					"La contraseña especificada no es correcta", view.getContext(), MessageBoxType.Error);
 		else {
-			this.ShowAppVersion();
+			this.GoToSync();
 			StartMainMenu();
 		}
 			
@@ -345,5 +324,7 @@ public class MainActivity extends Activity {
 		if (result)
 			System.exit(0);
 	}
+
+
 
 }

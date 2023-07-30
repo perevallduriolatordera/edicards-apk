@@ -41,6 +41,6 @@
     
     <string name="ask_for_error_log">Se ha producido un error inesperado.\nNotifica a informática Feu el error.\nGracias por tu colaboración.</string>
     <string name="email_welcome_note">Hola,\n\nError en la aplicación. Visualice el error en el log.\n\n\n</string>
-    <string name="copyright_info">UCE Handler\nApp Edicards.</string>
+    <string name="copyright_info">\nEdicards.</string>
 
 </resources>

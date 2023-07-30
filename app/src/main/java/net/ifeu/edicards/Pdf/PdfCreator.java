@@ -1,6 +1,22 @@
 package net.ifeu.edicards.Pdf;
 
-import java.io.FileNotFoundException;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Environment;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+
+import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Deposito;
+import net.ifeu.edicards.DataTier.DepositoModalidad;
+import net.ifeu.edicards.DataTier.LineaDeposito;
+import net.ifeu.edicards.DataTier.Totales;
+import net.ifeu.library.Debugger.Debugger;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -12,30 +28,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import net.ifeu.edicards.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
-import net.ifeu.edicards.DataTier.Deposito;
-import net.ifeu.edicards.DataTier.DepositoModalidad;
-import net.ifeu.edicards.DataTier.LineaDeposito;
-import net.ifeu.edicards.DataTier.Totales;
-import net.ifeu.library.Debugger.Debugger;
-import net.ifeu.library.Mail.MailSender;
-
-import android.content.Context;
-import android.content.pm.PackageManager;
-import android.os.Environment;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
 
 public class PdfCreator extends pdfBase{
 
 	Deposito _deposito;
 
-	public PdfCreator(Deposito deposito, Context context, AppConfig app)
-			throws FileNotFoundException, DocumentException {
+	public PdfCreator(Deposito deposito, Context context, AppConfig app) {
 
 		super(context, app);
 		_deposito = deposito;
@@ -50,10 +48,10 @@ public class PdfCreator extends pdfBase{
 				_fontNormal));
 	}
 
-	private void printHeader() throws DocumentException, FileNotFoundException {
+	private void printHeader() throws DocumentException {
 
 		this.addLogo();
-		String text = Constants.EMPTY_STRING;
+		String text;
 		text = "\nGRUP EDICIONES ESTER JAEN SL\n"
 				+ "NIF: B-61806808\n"
 				+ "Ediciones Ester Jaen S.L.  Pol. Ind Pla de la Bruguera\n"
@@ -118,8 +116,7 @@ public class PdfCreator extends pdfBase{
 			try {
 				_deposito.CalculateDeposito();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 
 			this.insertSeparators();
@@ -128,8 +125,7 @@ public class PdfCreator extends pdfBase{
 			try {
 				_deposito.Calculate();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 
 			if ((_deposito.Totales.DescuentoFinanciero != 0 || _deposito.Totales.DescuentoProntoPago != 0)
@@ -208,8 +204,7 @@ public class PdfCreator extends pdfBase{
 									String.valueOf(df.format(_deposito.Totales.TotalBase)),
 									10);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					throw new RuntimeException(e);
 				}
 			}
 
@@ -498,7 +493,7 @@ public class PdfCreator extends pdfBase{
 				try {
 					Debugger.Debug(_context, _app.getUser().User,"Se ha generado el albarán " + _deposito.NumeroAlbaran, _pdfName);
 				} catch (PackageManager.NameNotFoundException e) {
-					e.printStackTrace();
+					throw new RuntimeException(e);
 				}
 			}
 		}

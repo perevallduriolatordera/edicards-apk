@@ -1,3 +1,9 @@
 <resources>
-    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar" />
+    <style name="AppTheme" parent="android:Theme.Holo.Light" />
+
+    <style name="AlertDialogCustom" parent="android:Theme.Holo.Dialog">
+        <item name="android:textColor">#00FF00</item>
+        <item name="android:typeface">monospace</item>
+        <item name="android:textSize">48sp</item>
+    </style>
 </resources>

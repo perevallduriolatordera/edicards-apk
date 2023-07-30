@@ -2,9 +2,11 @@ package net.ifeu.edicards.DataTier;
 
 import java.util.LinkedList;
 
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
-import net.ifeu.library.Utils.MessageBoxType;
+import net.ifeu.edicards.DataTier.Persistance.IPersistable;
+import net.ifeu.edicards.DataTier.Persistance.Persistent;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -58,12 +60,10 @@ public class Cliente extends Persistent implements IPersistable {
 	}
 
 	@Override
-	public void InitializePersistance(AppConfig appConfig, Context context) throws Exception {
-		// TODO Auto-generated method stub
+	public void InitializePersistance(AppConfig appConfig, Context context) {
 		super.InitializePersistance(appConfig, context);
 	}
-	
-	
+
 	@Override
 	public void ReleasePersistance() throws Exception {
 		super.ReleasePersistance();
@@ -74,7 +74,6 @@ public class Cliente extends Persistent implements IPersistable {
 		
 		ContentValues values = new ContentValues();
 		values.put("Activo", this.Activo ? "1" : "2");
-		Log.i("cliente", String.valueOf(this.Activo));
 		values.put("CodigoCliente", this.CodigoCliente);
 		values.put("Nombre", this.Nombre);
 		values.put("NIF", this.NIF);
@@ -105,7 +104,7 @@ public class Cliente extends Persistent implements IPersistable {
 			this.ClienteInfo.save();
 		}
 		catch (Exception e) {
-			throw e;
+			throw new RuntimeException(e);
 		}
 		
 	}
@@ -116,7 +115,6 @@ public class Cliente extends Persistent implements IPersistable {
 		ContentValues values = new ContentValues();
 		
 		values.put("Activo", this.Activo ? "1" : "2");
-		Log.i("cliente", String.valueOf(this.Activo));
 		values.put("CodigoCliente", this.CodigoCliente);
 		values.put("Nombre", this.Nombre);
 		values.put("NIF", this.NIF);
@@ -155,8 +153,8 @@ public class Cliente extends Persistent implements IPersistable {
 	
 	public LinkedList<String> getClientesByFilter(String text,int filter,boolean onlyStartsWith) throws Exception
 	{		
-		LinkedList<String> list = new LinkedList<String>();
-		LinkedList<String> finalList = new LinkedList<String>();
+		LinkedList<String> list = new LinkedList<>();
+		LinkedList<String> finalList = new LinkedList<>();
 		
 		switch (filter)
 		{
@@ -184,8 +182,8 @@ public class Cliente extends Persistent implements IPersistable {
 	
 	public LinkedList<String> getClientesNameByFilter(String text,int filter,boolean onlyStartsWith) throws Exception
 	{		
-		LinkedList<String> list = new LinkedList<String>();
-		LinkedList<String> finalList = new LinkedList<String>();
+		LinkedList<String> list = new LinkedList<>();
+		LinkedList<String> finalList = new LinkedList<>();
 		
 		switch (filter)
 		{
@@ -224,7 +222,7 @@ public class Cliente extends Persistent implements IPersistable {
 		
 		if (cursor != null)
 		{
-			this.Activo = cursor.getString(cursor.getColumnIndex("Activo")).equals("1") ? true : false;
+			this.Activo = cursor.getString(cursor.getColumnIndex("Activo")).equals("1");
 			
 			if (this.Activo) {
 				this.Clave = cursor.getString(cursor.getColumnIndex("Clave"));
@@ -252,29 +250,17 @@ public class Cliente extends Persistent implements IPersistable {
 				
 				// Forma de Pago
 				FormaPago formaPago = new FormaPago();
-				  
-				try {
-					formaPago.InitializePersistance(super.appConfig, super.context);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					super.appConfig.getMessageBox().Show("Error", e.getMessage().toString(), super.appConfig, MessageBoxType.Error);
-				}
+				formaPago.InitializePersistance(super.appConfig, super.context);
+
 				if (formaPago.setFormaPagoById(cursor.getString(cursor.getColumnIndex("IdFormaPago"))))
 					this.formaPago = formaPago;
 				
-				// ClienteInfo
 				ClienteInfo clienteInfo = new ClienteInfo();
-				  
-				try {
-					clienteInfo.InitializePersistance(super.appConfig, super.context);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					super.appConfig.getMessageBox().Show("Error", e.getMessage().toString(), super.appConfig, MessageBoxType.Error);
-				}
+				clienteInfo.InitializePersistance(super.appConfig, super.context);
+
 				if (clienteInfo.setClienteInfoByCliente(this))
 					this.ClienteInfo = clienteInfo;
-			
-			
+
 			    cursor.close();
 			    
 				return true; 
@@ -286,7 +272,7 @@ public class Cliente extends Persistent implements IPersistable {
 			
 		}
 		
-		return false ; //(cursor != null);
+		return false ; 
 	}
 	
 	public boolean setClienteById(String IdCliente) throws Exception
@@ -295,7 +281,7 @@ public class Cliente extends Persistent implements IPersistable {
 		
 		if (cursor != null)
 		{
-			this.Activo = cursor.getString(cursor.getColumnIndex("Activo")).equals("1") ? true : false;
+			this.Activo = cursor.getString(cursor.getColumnIndex("Activo")).equals("1");
 			
 			if (this.Activo) {
 				this.IdCliente = Long.parseLong(IdCliente);
@@ -324,30 +310,18 @@ public class Cliente extends Persistent implements IPersistable {
 				
 				// Forma de Pago
 				FormaPago formaPago = new FormaPago();
-				  
-				try {
-					formaPago.InitializePersistance(super.appConfig, super.context);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					super.appConfig.getMessageBox().Show("Error", e.getMessage().toString(), super.appConfig, MessageBoxType.Error);
-				}
+				formaPago.InitializePersistance(super.appConfig, super.context);
+
 				if (formaPago.setFormaPagoById(cursor.getString(cursor.getColumnIndex("IdFormaPago"))))
 					this.formaPago = formaPago;
 				
 				// ClienteInfo
 				ClienteInfo clienteInfo = new ClienteInfo();
-				  
-				try {
-					clienteInfo.InitializePersistance(super.appConfig, super.context);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					super.appConfig.getMessageBox().Show("Error", e.getMessage().toString(), super.appConfig, MessageBoxType.Error);
-				}
+				clienteInfo.InitializePersistance(super.appConfig, super.context);
+
 				if (clienteInfo.setClienteInfoByCliente(this))
 					this.ClienteInfo = clienteInfo;
-			
-				
-			
+
 			    cursor.close();
 				return true;
 			} else {
@@ -357,26 +331,9 @@ public class Cliente extends Persistent implements IPersistable {
 			
 		}
 		
-		return false ; //(cursor != null);
+		return false ; 
 	}
-	
-	public int removeRepeats(String codigoCliente) throws Exception 
-	{
-		
-		Cursor totalsCursor = super.getDatabaseOperations().executeSentence("select count (*) as Total FROM " + Constants.TABLE_CLIENTES + " WHERE CodigoCliente = '" + codigoCliente + "'");
-		
-		int records = totalsCursor.getInt(totalsCursor.getColumnIndex("Total"));
-		
-		if (records > 1) {
-			@SuppressWarnings("unused")
-			int deleted = super.getDatabaseOperations().deleteRecordsByKeyValueString(Constants.TABLE_CLIENTES, "CodigoCliente", codigoCliente);	
-		}
-		
-		totalsCursor.close();
-		
-		return records;
-	}
-	
+
 	public boolean setClienteByCodigoStatus(String codigoCliente) throws Exception
 	{
 		if (codigoCliente == null)
@@ -386,7 +343,7 @@ public class Cliente extends Persistent implements IPersistable {
 		
 		if (cursor != null)
 		{
-			this.Activo = cursor.getString(cursor.getColumnIndex("Activo")).equals("1") ? true : false;
+			this.Activo = cursor.getString(cursor.getColumnIndex("Activo")).equals("1");
 			this.IdCliente = Long.parseLong(cursor.getString(cursor.getColumnIndex("IdCliente")));
 			this.Clave = cursor.getString(cursor.getColumnIndex("Clave"));
 			this.CodigoCliente = codigoCliente;
@@ -412,25 +369,15 @@ public class Cliente extends Persistent implements IPersistable {
 			
 			// Forma de Pago
 			FormaPago formaPago = new FormaPago();
-			  
-			try {
-				formaPago.InitializePersistance(super.appConfig, super.context);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				super.appConfig.getMessageBox().Show("Error", e.getMessage().toString(), super.appConfig, MessageBoxType.Error);
-			}
+			formaPago.InitializePersistance(super.appConfig, super.context);
+
 			if (formaPago.setFormaPagoById(cursor.getString(cursor.getColumnIndex("IdFormaPago"))))
 				this.formaPago = formaPago;
 			
 			// ClienteInfo
 			ClienteInfo clienteInfo = new ClienteInfo();
-			  
-			try {
-				clienteInfo.InitializePersistance(super.appConfig, super.context);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				super.appConfig.getMessageBox().Show("Error", e.getMessage().toString(), super.appConfig, MessageBoxType.Error);
-			}
+			clienteInfo.InitializePersistance(super.appConfig, super.context);
+
 			if (clienteInfo.setClienteInfoByCliente(this))
 				this.ClienteInfo = clienteInfo;
 		
@@ -451,7 +398,7 @@ public class Cliente extends Persistent implements IPersistable {
 		
 		if (cursor != null)
 		{
-			this.Activo = cursor.getString(cursor.getColumnIndex("Activo")).equals("1") ? true : false;
+			this.Activo = cursor.getString(cursor.getColumnIndex("Activo")).equals("1");
 			
 			if (this.Activo) {
 				
@@ -480,30 +427,18 @@ public class Cliente extends Persistent implements IPersistable {
 				
 				// Forma de Pago
 				FormaPago formaPago = new FormaPago();
-				  
-				try {
-					formaPago.InitializePersistance(super.appConfig, super.context);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					super.appConfig.getMessageBox().Show("Error", e.getMessage().toString(), super.appConfig, MessageBoxType.Error);
-				}
+				formaPago.InitializePersistance(super.appConfig, super.context);
+
 				if (formaPago.setFormaPagoById(cursor.getString(cursor.getColumnIndex("IdFormaPago"))))
 					this.formaPago = formaPago;
 				
 				// ClienteInfo
 				ClienteInfo clienteInfo = new ClienteInfo();
-				  
-				try {
-					clienteInfo.InitializePersistance(super.appConfig, super.context);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					super.appConfig.getMessageBox().Show("Error", e.getMessage().toString(), super.appConfig, MessageBoxType.Error);
-				}
+				clienteInfo.InitializePersistance(super.appConfig, super.context);
+
 				if (clienteInfo.setClienteInfoByCliente(this))
 					this.ClienteInfo = clienteInfo;
-			
-				
-			
+
 			    cursor.close();
 				return true;
 			} else {
@@ -513,15 +448,15 @@ public class Cliente extends Persistent implements IPersistable {
 			
 		}
 		
-		return false ; //(cursor != null);
+		return false ; 
 	}
 	
 	public boolean hasGDPRSigned() throws Exception {
 		
-		boolean result = false;
-		if (this.CodigoCliente == null || this.CodigoCliente == Constants.NEW_CUSTOMER_CODE)
-			result =  true;
-			
+		boolean result;
+		if (this.CodigoCliente == null || this.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE))
+			return true;
+
 		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(Constants.TABLE_GDPR, "CodigoCliente", this.CodigoCliente, true);
 		result = (cursor != null);
 		if (cursor != null) cursor.close();
@@ -530,7 +465,7 @@ public class Cliente extends Persistent implements IPersistable {
 		
 	}
 	
-	public void setGDPRSigned() throws Exception {
+	public void setGDPRSigned() {
 		
 		ContentValues values = new ContentValues();
 		
@@ -541,7 +476,7 @@ public class Cliente extends Persistent implements IPersistable {
 			
 		}
 		catch (Exception e) {
-			throw e;
+			throw new RuntimeException(e);
 		}
 		
 	}

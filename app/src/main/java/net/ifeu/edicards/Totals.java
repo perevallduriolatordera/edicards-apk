@@ -2,6 +2,7 @@ package net.ifeu.edicards;
 
 import java.text.DecimalFormat;
 
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.Totales;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
@@ -37,14 +38,7 @@ public class Totals extends Activity {
         getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
         
     	ButtonColor button = this.addButton(this, Color.WHITE, "Cerrar pantalla", 14, 150, null);
-    	button.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-
-				finish();				
-			}
-		});
+    	button.setOnClickListener(arg0 -> finish());
     	
 		_mainLayout.addView(button);
     	
@@ -69,12 +63,12 @@ public class Totals extends Activity {
 	 	final LinearLayout layout = new LinearLayout(this);
 		//layout.removeAllViews();
 		
-		layout.addView(this.addCounter("Total Base (Sin Dte)", String.valueOf(dec.format(totales.TotalBaseSinDte)) + " €  ", Color.BLUE, false));
-		layout.addView(this.addCounter("Total descuento comercial", String.valueOf(dec.format(totales.TotalDescuentoProntoPago)) + " €  ", Color.BLUE, false));
-		layout.addView(this.addCounter("Total descuento financiero", String.valueOf(dec.format(totales.TotalDescuentoFinanciero)) + " €  ", Color.BLUE, false));
-		layout.addView(this.addCounter("Total IVA", String.valueOf(dec.format(totales.TotalIVA)) + " €  ", Color.BLUE, false));
-		layout.addView(this.addCounter("Total Recargo", String.valueOf(dec.format(totales.TotalRecargo)) + " €  ", Color.BLUE, false));
-		layout.addView(this.addCounter("Total Albarán", String.valueOf(dec.format(totales.Total)) + " €  ", Color.BLUE, false));
+		layout.addView(this.addCounter("Total Base (Sin Dte)", dec.format(totales.TotalBaseSinDte) + " €  ", Color.BLUE, false));
+		layout.addView(this.addCounter("Total descuento comercial", dec.format(totales.TotalDescuentoProntoPago) + " €  ", Color.BLUE, false));
+		layout.addView(this.addCounter("Total descuento financiero", dec.format(totales.TotalDescuentoFinanciero) + " €  ", Color.BLUE, false));
+		layout.addView(this.addCounter("Total IVA", dec.format(totales.TotalIVA) + " €  ", Color.BLUE, false));
+		layout.addView(this.addCounter("Total Recargo", dec.format(totales.TotalRecargo) + " €  ", Color.BLUE, false));
+		layout.addView(this.addCounter("Total Albarán", dec.format(totales.Total) + " €  ", Color.BLUE, false));
     	
     	ButtonColor button = this.addButton(this, Color.WHITE, "Cerrar pantalla", 14, 150, null);
     	button.setOnClickListener(new OnClickListener() {
@@ -96,16 +90,12 @@ public class Totals extends Activity {
     {
     	
     	_appConfig = (AppConfig) this.getApplicationContext();
-    	 
-    	try {
-			_appConfig.getWorkingArea().CurrentDeposito.InitializePersistance(_appConfig, this);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		_appConfig.getWorkingArea().CurrentDeposito.InitializePersistance(_appConfig, this);
+
     	try {
 			_appConfig.getWorkingArea().CurrentDeposito.Calculate();
-		} catch (Exception e) {			 
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
     	
     	DecimalFormat dec = new DecimalFormat("0.00");
@@ -116,11 +106,11 @@ public class Totals extends Activity {
     			
     	    	layout.setOrientation(LinearLayout.HORIZONTAL);
     	    	
-    			layout.addView(this.addCounter("Base (" + String.valueOf(base.IvaPerc) +" %)", String.valueOf(dec.format(base.Base) + " €  "), Color.BLUE, false));
-    			layout.addView(this.addCounter("Descuentos (" + String.valueOf(base.IvaPerc) +" %)", String.valueOf(dec.format(base.Descuento) + " €  "), Color.BLUE, false));
-    			layout.addView(this.addCounter("IVA (" + String.valueOf(base.IvaPerc) +" %)", String.valueOf(dec.format(base.Iva) + " €  "), Color.BLUE, false));
-    			layout.addView(this.addCounter("Recargo (" + String.valueOf(base.IvaPerc) +" %)", String.valueOf(dec.format(base.Recargo) + " €  "), Color.BLUE, false));
-    			layout.addView(this.addCounter("Total (" + String.valueOf(base.IvaPerc) +" %)", String.valueOf(dec.format(base.Total) + " €  "), Color.BLUE, false));
+    			layout.addView(this.addCounter("Base (" + base.IvaPerc +" %)", dec.format(base.Base) + " €  ", Color.BLUE, false));
+    			layout.addView(this.addCounter("Descuentos (" + base.IvaPerc +" %)", dec.format(base.Descuento) + " €  ", Color.BLUE, false));
+    			layout.addView(this.addCounter("IVA (" + base.IvaPerc +" %)", dec.format(base.Iva) + " €  ", Color.BLUE, false));
+    			layout.addView(this.addCounter("Recargo (" + base.IvaPerc +" %)", dec.format(base.Recargo) + " €  ", Color.BLUE, false));
+    			layout.addView(this.addCounter("Total (" + base.IvaPerc +" %)", dec.format(base.Total) + " €  ", Color.BLUE, false));
 
     			_mainLayout.addView(layout);
     	    		 
@@ -181,7 +171,7 @@ public class Totals extends Activity {
 
     
 	
-	public void OnClose(View v) throws Exception {
+	public void OnClose(View v) {
 		finish();
 	}
 

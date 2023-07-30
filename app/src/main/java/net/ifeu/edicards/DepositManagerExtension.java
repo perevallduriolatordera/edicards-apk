@@ -1,37 +1,27 @@
 package net.ifeu.edicards;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.math.BigDecimal;
-import java.net.MalformedURLException;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
-import com.itextpdf.text.DocumentException;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.widget.LinearLayout.LayoutParams;
 import android.text.method.DigitsKeyListener;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.LinearLayout.LayoutParams;
+
+import com.itextpdf.text.DocumentException;
+
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Deposito;
-import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.DataTier.FormaPago;
 import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.Ingresos;
@@ -44,7 +34,16 @@ import net.ifeu.library.Controls.ComboBox;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
 import net.ifeu.library.Devices.BlueTooth;
-import net.ifeu.library.Mail.MailSender;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 public class DepositManagerExtension {
 
@@ -73,18 +72,13 @@ public class DepositManagerExtension {
 	
 			double cantidadPagada = DepositManagerExtension.DataTier.getCantidadPagada(config, context);
 			double ingresos = getIngresos(config, context);
-			boolean result = Constants.MAXIMO_SIN_INGRESAR <= (cantidadPagada - ingresos);
-			
-			String content = "cantidad Pagada: " + String.valueOf(cantidadPagada) + Constants.NEW_LINE;
-			content = content + "cantidadIngresada: " + String.valueOf(ingresos) + Constants.NEW_LINE;
-			content = content + "Resultado: " + String.valueOf(result) + Constants.NEW_LINE + Constants.NEW_LINE;
-			
-			return  result;	
+
+			return Constants.MAXIMO_SIN_INGRESAR <= (cantidadPagada - ingresos);
 		}
 		
 		public static FormaPago getFormaPagoByDescripcion(String descripcion, AppConfig config) throws Exception {
 			
-			HashMap<String, FormaPago> itemsPago = null;
+			HashMap<String, FormaPago> itemsPago;
 	
 			itemsPago = config.getCache().getAllFormasPago();
 			
@@ -142,7 +136,7 @@ public class DepositManagerExtension {
 	static class Format {
 		public static double round(double d, int decimalPlace) {
 			BigDecimal bd = new BigDecimal(Double.toString(d));
-			bd = bd.setScale(decimalPlace, BigDecimal.ROUND_HALF_UP);
+			bd = bd.setScale(decimalPlace, RoundingMode.HALF_UP);
 			return bd.doubleValue();
 		}
 		
@@ -158,7 +152,7 @@ public class DepositManagerExtension {
 	
 		public static double RoundTo2Decimals(double val) {
 			DecimalFormat df2 = new DecimalFormat("0.00");
-			return Double.valueOf(df2.format(val).replace(",", "."));
+			return Double.parseDouble(df2.format(val).replace(",", "."));
 		}
 		
 		
@@ -188,11 +182,9 @@ public class DepositManagerExtension {
 				}
 	
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				config.getErrorTrace().Send(config.getUser().User, e);
+				throw new RuntimeException(e);
 			} finally {
 				printManager.Release();
-				printManager = null;
 			}
 	
 			return isOKBluetooth && isOKPrinter;
@@ -202,7 +194,7 @@ public class DepositManagerExtension {
 	// ********************************** DOCUMENTS ***********************************
 	
 	static class Documents {
-		public static void GeneratePdf(String GUID, Deposito deposito, AppConfig config) throws DocumentException, MalformedURLException, IOException {
+		public static void GeneratePdf(String GUID, Deposito deposito, AppConfig config) throws IOException, DocumentException {
 			// Generamos los archivos pdf
 	
 			PdfCreator pdf = new PdfCreator(deposito, config, config);
@@ -223,7 +215,7 @@ public class DepositManagerExtension {
 				pdf.createAuthorization();
 		}
 
-		public static void sendData(Activity activity, final AppConfig config) throws Exception {
+		public static void sendData(Activity activity, final AppConfig config)  {
 			// Envíamos los datos pendientes
 
 			final ProgressDialog progressDialog;
@@ -239,8 +231,7 @@ public class DepositManagerExtension {
 					try {
 						worker.RunExport(config);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						throw new RuntimeException(e);
 					}new ServiceWorker();
 					progressDialog.dismiss();
 
@@ -275,7 +266,7 @@ public class DepositManagerExtension {
 			fragment.startActivityForResult(intent, 1);
 		}
 	
-		public static void StartCustomerDataDialog(Fragment fragment) throws Exception {
+		public static void StartCustomerDataDialog(Fragment fragment) {
 			Intent intent = new Intent(fragment.getActivity(), CustomerData.class);
 	
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -547,6 +538,17 @@ public class DepositManagerExtension {
 			button.setWidth(width);
 			button.setLayoutParams(params);
 			
+			return button;
+		}
+
+		public static ButtonColor addButton(Context context, int color, String text, int size, int width, LayoutParams params, Drawable drawable) {
+			ButtonColor button = new ButtonColor(context, color, drawable);
+
+			button.setText(text);
+			button.setTextSize(size);
+			button.setWidth(width);
+			button.setLayoutParams(params);
+
 			return button;
 		}
 		

@@ -1,6 +1,5 @@
 package net.ifeu.edicards;
 
-import java.io.FileNotFoundException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -8,7 +7,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import android.app.ActionBar.LayoutParams;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -19,13 +17,14 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.DataTier.DTODeposito;
@@ -45,17 +44,12 @@ import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.LogBook.LogBook;
 import net.ifeu.library.Utils.Inactivate;
-import net.ifeu.library.Utils.MessageBoxType;
+import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
 public class Reports extends Fragment {
 
-	private final int TEXT_SIZE = 16;
 	private final int TEXT_SIZE_BUTTON = 14;
-	private final int BUTTONS_WIDTH = 140;
-
 	AppConfig _appConfig;
-	Date _fecha1;
-	Date _fecha2;
 	private Calendar _calendar1;
 	private Calendar _calendar2;
 
@@ -88,24 +82,18 @@ public class Reports extends Fragment {
 
 		final Reports that = this;
 
-		acceptButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(final View v) {
+		acceptButton.setOnClickListener(v -> {
 
-				try {
+			try {
 
-					if (Inactivate.inactivateIfNecessary()) {
-						that.getActivity().finish();
-						System.exit(0);
-					}
-
-					getHistoricos();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getMessageBox().Show("Atención",
-							_appConfig.getStackTrace(e),
-							getActivity(), MessageBoxType.Error);		
+				if (Inactivate.inactivateIfNecessary()) {
+					that.getActivity().finish();
+					System.exit(0);
 				}
+
+				getHistoricos();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 		});
 
@@ -154,7 +142,7 @@ public class Reports extends Fragment {
 						.get(date);
 				oldList.add(hist);
 			} else {
-				ArrayList<Historico> newList = new ArrayList<Historico>();
+				ArrayList<Historico> newList = new ArrayList<>();
 				newList.add(hist);
 				reporting.Agrupado.put(date, newList);
 			}
@@ -402,6 +390,7 @@ public class Reports extends Fragment {
 		
 		layout.addView(layoutLegends);
 
+		int TEXT_SIZE = 16;
 		for (final Historico hist : list) {
 
 			hist.InitializePersistance(_appConfig, getActivity());
@@ -456,7 +445,7 @@ public class Reports extends Fragment {
 			LabelColor numeroAlbaran = new LabelColor(this.getActivity(),
 					colorText, true);
 
-			String numAlb = Constants.EMPTY_STRING;
+			String numAlb;
 
 			if (hist.NumeroAlbaran == null)
 				numAlb = "Solo depósito";
@@ -488,155 +477,127 @@ public class Reports extends Fragment {
 
 			reImpresion.setLayoutParams(params);
 
-			reImpresion.setOnClickListener(new OnClickListener() {
+			reImpresion.setOnClickListener(arg0 -> {
+				
 
-				@Override
-				public void onClick(View arg0) {
-					// TODO Auto-generated method stub
+				DTODeposito dto = new DTODeposito(_appConfig, getActivity());
+				dto.deserialize(hist.Serializacion);
 
-					DTODeposito dto = new DTODeposito(_appConfig, getActivity());
-					dto.deserialize(hist.Serializacion);
+				try {
+					dto.Calculate();
+				} catch (Exception e1) {
 
-					Log.i("Reports", "Serializacion: " + hist.Serializacion);
+					throw new RuntimeException(e1);
+				}
+				try {
+					dto.CalculateDeposito();
+				} catch (Exception e1) {
+					throw new RuntimeException(e1);
+				}
 
-					try {
-						dto.Calculate();
-					} catch (Exception e1) {
+				_appConfig.getWorkingArea().CurrentDepositoModalidad = hist.ActualizarStock ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
+				boolean printDeposito = true;
 
-						// TODO Auto-generated catch block
-						_appConfig.getMessageBox().Show("Atención",
-								_appConfig.getStackTrace(e1),
-								getActivity(), MessageBoxType.Error);		
+				if (!dto.isDepositoUpdated()) {
+					printDeposito = _appConfig
+							.getMessageBox()
+							.ShowWithResult(
+									"Impresión de documentos",
+									"El depósito no ha sido modificado. Desea imprimirlo de todos modos ?",
+									getActivity(),
+									MessageBoxType.Information);
+				}
+
+				// Comprobamos que el dispositivo esté funcionando
+				// correctamente
+
+				PrintManager printManager = new PrintManager();
+
+				boolean cancelStartPrint;
+				boolean printerStatus = false;
+
+				do {
+
+					for (int i = 1; i < 3; i++) {
+						if (!printerStatus) {
+							try {
+								Thread.sleep(500);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+							printerStatus = printManager.getStatusDTO(
+									getActivity().getApplicationContext(),
+									_appConfig, false);
+						}
 					}
-					try {
-						dto.CalculateDeposito();
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						_appConfig.getMessageBox().Show("Atención",
-								_appConfig.getStackTrace(e1),
-								getActivity(), MessageBoxType.Error);		
-					}
 
-					_appConfig.getWorkingArea().CurrentDepositoModalidad = hist.ActualizarStock ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
-					boolean printDeposito = true;
-
-					if (!dto.isDepositoUpdated()) {
-						printDeposito = _appConfig
+					if (!printerStatus) {
+						cancelStartPrint = _appConfig
 								.getMessageBox()
 								.ShowWithResult(
-										"Impresión de documentos",
-										"El depósito no ha sido modificado. Desea imprimirlo de todos modos ?",
+										"No se pudo iniciar la impresión",
+										"No se pudo iniciar la impresión. Revise el dispositivo. Desea volverlo a intentar?",
 										getActivity(),
 										MessageBoxType.Information);
-					}
 
-					// Comprobamos que el dispositivo esté funcionando
-					// correctamente
+						printManager.Release();
+					} else
+						cancelStartPrint = false;
+				} while (cancelStartPrint);
 
-					PrintManager printManager = new PrintManager();
+				if (!cancelStartPrint && printerStatus) {
+					boolean result = false;
+					boolean cancel = false;
 
-					boolean cancelStartPrint = false;
-					boolean printerStatus = false;
-
-					do {
-
-						for (int i = 1; i < 3; i++) {
-							if (!printerStatus) {
-								try {
-									Thread.sleep(500);
-								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								printerStatus = printManager.getStatusDTO(
-										getActivity().getApplicationContext(),
-										_appConfig, false);
+					if (dto.isDeposito() && printDeposito) {
+						do {
+							try {
+								result = printManager.printDeposito(dto,
+										_appConfig, _appConfig, hist.GUID);
+							} catch (Exception e) {
+								e.printStackTrace();
 							}
-						}
-
-						Log.i("Reports",
-								"Get Status: " + String.valueOf(printerStatus));
-
-						if (!printerStatus) {
-							cancelStartPrint = _appConfig
-									.getMessageBox()
-									.ShowWithResult(
-											"No se pudo iniciar la impresión",
-											"No se pudo iniciar la impresión. Revise el dispositivo. Desea volverlo a intentar?",
-											getActivity(),
-											MessageBoxType.Information);
-
-							printManager.Release();
-						} else
-							cancelStartPrint = false;
-					} while (cancelStartPrint);
-
-					if (!cancelStartPrint && printerStatus) {
-						boolean result = false;
-						boolean cancel = false;
-
-						if (dto.isDeposito() && printDeposito) {
-							do {
-								try {
-									result = printManager.printDeposito(dto,
-											_appConfig, _appConfig, hist.GUID);
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								if (!result)
-									cancel = _appConfig
-											.getMessageBox()
-											.ShowWithResult(
-													"Impresión de depósito",
-													"No se pudo imprimir el depósito. Desea volverlo a intentar?",
-													getActivity(),
-													MessageBoxType.Information);
-							} while (cancel);
-
 							if (!result)
-								return;
-
-						}
-						result = false;
-						cancel = false;
-
-						Log.i("Reports",
-								"Resultat isAlbaran;: "
-										+ String.valueOf(dto.isAlbaran()));
-
-						if (dto.isAlbaran()) {
-							do {
-
-								Log.i("Reports",
-										"Entro a imprimir albarà com a DTO");
-								try {
-
-									result = printManager.printAlbaran(dto,
-											getActivity(), _appConfig,
-											hist.GUID, DepositManagerExtension.DataTier.isTransferPayment(dto.PagoDescripcion));
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-								if (!result)
-									cancel = _appConfig
-											.getMessageBox()
-											.ShowWithResult(
-													"Impresión de albarán",
-													"No se pudo imprimir el albarán. Desea volverlo a intentar?",
-													getActivity(),
-													MessageBoxType.Information);
-							} while (cancel);
-						}
+								cancel = _appConfig
+										.getMessageBox()
+										.ShowWithResult(
+												"Impresión de depósito",
+												"No se pudo imprimir el depósito. Desea volverlo a intentar?",
+												getActivity(),
+												MessageBoxType.Information);
+						} while (cancel);
 
 						if (!result)
 							return;
-						else
-							printManager.Release();
-					}
-				}
 
+					}
+					result = false;
+					cancel = false;
+
+					if (dto.isAlbaran()) {
+						do {
+							try {
+
+								result = printManager.printAlbaran(dto,
+										getActivity(), _appConfig,
+										hist.GUID, DepositManagerExtension.DataTier.isTransferPayment(dto.PagoDescripcion));
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+							if (!result)
+								cancel = _appConfig
+										.getMessageBox()
+										.ShowWithResult(
+												"Impresión de albarán",
+												"No se pudo imprimir el albarán. Desea volverlo a intentar?",
+												getActivity(),
+												MessageBoxType.Information);
+						} while (cancel);
+					}
+
+					if (result)
+						printManager.Release();
+				}
 			});
 
 			layout2.addView(reImpresion);
@@ -650,64 +611,53 @@ public class Reports extends Fragment {
 			
 			final Reports that = this;
 
-			anular.setOnClickListener(new OnClickListener() {
+			anular.setOnClickListener(arg0 -> {
+				try {
 
-				@Override
-				public void onClick(View arg0) {
-					try {
+					boolean drop = _appConfig
+							.getMessageBox()
+							.ShowWithResult(
+									"Anular operación",
+									"Se va a proceder a anular la operación. Desea Continuar?",
+									getActivity(),
+									MessageBoxType.Information);
 
-						boolean drop = _appConfig
-								.getMessageBox()
-								.ShowWithResult(
-										"Anular operación",
-										"Se va a proceder a anular la operación. Desea Continuar?",
-										getActivity(),
-										MessageBoxType.Information);
+					if (drop) {
 
-						if (drop) {
-							Log.i("Reports", "Entro a Click Anular");
-														
-							that.upgradeStock(hist);
-							that.upgradeDeposito(hist);
-							that.sendIncidencia(hist);
+						that.upgradeStock(hist);
+						that.upgradeDeposito(hist);
+						that.sendIncidencia(hist);
 
-							// CREAMOS EL NUEVO ALBARÁN DE ABONO
-							
-							DTODeposito dto = new DTODeposito(_appConfig, getActivity());
-							dto.deserialize(hist.Serializacion);
+						// CREAMOS EL NUEVO ALBARÁN DE ABONO
+						
+						DTODeposito dto = new DTODeposito(_appConfig, getActivity());
+						dto.deserialize(hist.Serializacion);
 
-							Log.i("Reports", "Serializacion: " + hist.Serializacion);
+						try {
+							dto.Calculate();
+						} catch (Exception e1) {
 
-							try {
-								dto.Calculate();
-							} catch (Exception e1) {
-
-								// TODO Auto-generated catch block
-								_appConfig.getMessageBox().Show("Atención",
-										_appConfig.getStackTrace(e1),
-										getActivity(), MessageBoxType.Error);		
-							}
-							try {
-								dto.CalculateDeposito();
-							} catch (Exception e1) {
-								// TODO Auto-generated catch block
-								_appConfig.getMessageBox().Show("Atención",
-										_appConfig.getStackTrace(e1),
-										getActivity(), MessageBoxType.Error);		
-							}
-
-							that.GenerateAlbaran(dto, hist);
-							hist.delete();
-							getHistoricos();
-							
+										_appConfig.getMessageBox().Show("Atención",
+									_appConfig.getStackTrace(e1),
+									getActivity(), MessageBoxType.Error);		
 						}
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						_appConfig.getMessageBox().Show("Atención",
-								_appConfig.getStackTrace(e),
-								getActivity(), MessageBoxType.Error);		
-					}
+						try {
+							dto.CalculateDeposito();
+						} catch (Exception e1) {
+										_appConfig.getMessageBox().Show("Atención",
+									_appConfig.getStackTrace(e1),
+									getActivity(), MessageBoxType.Error);		
+						}
 
+						that.GenerateAlbaran(dto, hist);
+						hist.delete();
+						getHistoricos();
+						
+					}
+				} catch (Exception e) {
+						_appConfig.getMessageBox().Show("Atención",
+							_appConfig.getStackTrace(e),
+							getActivity(), MessageBoxType.Error);		
 				}
 
 			});
@@ -748,7 +698,7 @@ public class Reports extends Fragment {
 
 	}
 	
-	private void upgradeStock(Historico historico) throws Exception {
+	private void upgradeStock(Historico historico) {
 
 		if (!historico.ActualizarStock) return;
 
@@ -845,7 +795,7 @@ public class Reports extends Fragment {
 		}
 	}
 	
-	private void upgradeDeposito(Historico historico) throws Exception {
+	private void upgradeDeposito(Historico historico) {
 		
 		try {
 			Deposito deposito = new Deposito();
@@ -929,8 +879,7 @@ public class Reports extends Fragment {
 		
 	}
 	
-	private void sendData() throws Exception {
-		// Envíamos los datos pendientes
+	private void sendData()  {
 
 		final ProgressDialog progressDialog;
 		progressDialog = ProgressDialog.show(this.getActivity(), "Enviando Datos a Central",
@@ -943,11 +892,11 @@ public class Reports extends Fragment {
 			@Override
 			public void run() {
 				try {
-					Log.i("DepositManager", "Before sending");
 					ServiceWorker worker = new ServiceWorker();
 					worker.RunExport(context);
 
 				} catch (Exception e) {
+					throw new RuntimeException(e);
 				}
 
 				progressDialog.dismiss();
@@ -958,7 +907,7 @@ public class Reports extends Fragment {
 	}
 
 	
-	private void FillFooter() throws Exception {
+	private void FillFooter() {
 
 		_appConfig = (AppConfig) this.getActivity().getApplicationContext();
 
@@ -981,24 +930,17 @@ public class Reports extends Fragment {
 
 		potenciados.setText("Potenciados");
 		potenciados.setTextSize(TEXT_SIZE_BUTTON);
+		int BUTTONS_WIDTH = 140;
 		potenciados.setWidth(BUTTONS_WIDTH);
 
 		potenciados.setLayoutParams(params);
 
-		potenciados.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
-
-				try {
-					StartPotenciadosDialog();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getMessageBox().Show("Atención",
-							_appConfig.getStackTrace(e),
-							getActivity(), MessageBoxType.Error);		
-				}
+		potenciados.setOnClickListener(arg0 -> {
+			
+			try {
+				StartPotenciadosDialog();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 		});
 
@@ -1011,20 +953,13 @@ public class Reports extends Fragment {
 
 		retirados.setLayoutParams(params);
 
-		retirados.setOnClickListener(new OnClickListener() {
+		retirados.setOnClickListener(arg0 -> {
+			
 
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
-
-				try {
-					StartRetiradosDialog();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getMessageBox().Show("Atención",
-							_appConfig.getStackTrace(e),
-							getActivity(), MessageBoxType.Error);		
-				}
+			try {
+				StartRetiradosDialog();
+			} catch (Exception e) {
+throw new RuntimeException(e);		
 			}
 		});
 
@@ -1037,13 +972,9 @@ public class Reports extends Fragment {
 
 		piezas.setLayoutParams(params);
 
-		piezas.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
-				StartPiezasDialog();
-			}
+		piezas.setOnClickListener(arg0 -> {
+			
+			StartPiezasDialog();
 		});
 
 		// Botón Totales
@@ -1055,13 +986,9 @@ public class Reports extends Fragment {
 
 		totales.setLayoutParams(params);
 
-		totales.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
-				StartTotalesDialog();
-			}
+		totales.setOnClickListener(arg0 -> {
+			
+			StartTotalesDialog();
 		});
 
 		
@@ -1079,7 +1006,7 @@ public class Reports extends Fragment {
 
 	}
 
-	private void StartPotenciadosDialog() throws FileNotFoundException {
+	private void StartPotenciadosDialog() {
 
 		_appConfig = (AppConfig) getActivity().getApplicationContext();
 		Intent intent = new Intent(this.getActivity(),
@@ -1088,7 +1015,7 @@ public class Reports extends Fragment {
 		this.startActivityForResult(intent, 1);
 	}
 
-	private void StartRetiradosDialog() throws FileNotFoundException {
+	private void StartRetiradosDialog() {
 
 		_appConfig = (AppConfig) getActivity().getApplicationContext();
 		Intent intent = new Intent(this.getActivity(),
@@ -1111,11 +1038,6 @@ public class Reports extends Fragment {
 		Intent intent = new Intent(this.getActivity(), Reporting_Totales.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		this.startActivityForResult(intent, 1);
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
 	}
 
 	private void getHistoricos() {

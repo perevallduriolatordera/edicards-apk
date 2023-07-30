@@ -11,34 +11,31 @@ public class BMPFile {
 	private final static int BITMAPINFOHEADER_SIZE = 40;
 
 	// --- Bitmap file header
-	private byte bfType[] = { (byte) 'B', (byte) 'M' };
+	final private byte[] bfType = { (byte) 'B', (byte) 'M' };
 	private int bfSize = 0;
-	private int bfReserved1 = 0;
-	private int bfReserved2 = 0;
-	private int bfOffBits = BITMAPFILEHEADER_SIZE + BITMAPINFOHEADER_SIZE + 8;
 
 	// --- Bitmap info header
-	private int biSize = BITMAPINFOHEADER_SIZE;
+	final private int biSize = BITMAPINFOHEADER_SIZE;
 	private int biWidth = 0;
 	private int biHeight = 0;
-	private int biPlanes = 1;
-	private int biBitCount = 1;
-	private int biCompression = 0;
-	private int biSizeImage = 0;
-	private int biXPelsPerMeter = 0x0;
-	private int biYPelsPerMeter = 0x0;
-	private int biClrUsed = 2;
-	private int biClrImportant = 2;
+	final private int biPlanes = 1;
+	final private int biBitCount = 1;
+	final private int biCompression = 0;
+	final private int biSizeImage = 0;
+	final private int biXPelsPerMeter = 0x0;
+	final private int biYPelsPerMeter = 0x0;
+	final private int biClrUsed = 2;
+	final private int biClrImportant = 2;
 
 	// --- Bitmap raw data
-	private byte bitmap[];
+	private byte[] bitmap;
 
 	// ---- Scanlinsize;
 
 	int scanLineSize = 0;
 
 	// -- Color Pallette to be used for pixels.
-	private byte colorPalette[] = { 0, 0, 0, (byte) 255, (byte) 255,
+	final private byte[] colorPalette = { 0, 0, 0, (byte) 255, (byte) 255,
 			(byte) 255, (byte) 255, (byte) 255 };
 
 
@@ -107,8 +104,11 @@ public class BMPFile {
 		try {
 			fos.write(bfType);
 			fos.write(intToDWord(bfSize));
+			int bfReserved1 = 0;
 			fos.write(intToWord(bfReserved1));
+			int bfReserved2 = 0;
 			fos.write(intToWord(bfReserved2));
+			int bfOffBits = BITMAPFILEHEADER_SIZE + BITMAPINFOHEADER_SIZE + 8;
 			fos.write(intToDWord(bfOffBits));
 
 		} catch (Exception wbfh) {
@@ -150,7 +150,7 @@ public class BMPFile {
 				}
 			}
 		} catch (Exception e) {
-			Log.e("BMPFile",e.toString());
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -161,7 +161,7 @@ public class BMPFile {
 	 */
 	private byte[] intToWord(int parValue) {
 
-		byte retValue[] = new byte[2];
+		byte[] retValue = new byte[2];
 		retValue[0] = (byte) (parValue & 0x00FF);
 		retValue[1] = (byte) ((parValue >> 8) & 0x00FF);
 		return (retValue);
@@ -175,7 +175,7 @@ public class BMPFile {
 	 */
 	private byte[] intToDWord(int parValue) {
 
-		byte retValue[] = new byte[4];
+		byte[] retValue = new byte[4];
 		retValue[0] = (byte) (parValue & 0x00FF);
 		retValue[1] = (byte) ((parValue >> 8) & 0x000000FF);
 		retValue[2] = (byte) ((parValue >> 16) & 0x000000FF);

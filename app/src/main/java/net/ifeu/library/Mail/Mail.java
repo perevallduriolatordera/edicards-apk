@@ -20,25 +20,25 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 public class Mail extends javax.mail.Authenticator { 
-  private String _user; 
-  private String _pass; 
+  final private String _user;
+  final private String _pass;
 
-  private String[] _to; 
+  private String[] _to;
   private String _from; 
 
-  private String _port; 
-  private String _sport; 
+  final private String _port;
+  final private String _sport;
 
-  private String _host; 
+  final private String _host;
 
   private String _subject; 
-  private String _body; 
+  final private String _body;
 
-  private boolean _auth; 
+  final private boolean _auth;
 
-  private boolean _debuggable; 
+  final private boolean _debuggable;
 
-  private Multipart _multipart; 
+  final private Multipart _multipart;
 
   public Mail(String host, String port, String sport, 
 		  String user, String pass, String from,
@@ -168,15 +168,6 @@ public class Mail extends javax.mail.Authenticator {
     props.put("mail.smtp.socketFactory.fallback", "false"); 
 
     return props; 
-  } 
-
-  // the getters and setters 
-  public String getBody() { 
-    return _body; 
-  } 
-
-  public void setBody(String _body) { 
-    this._body = _body; 
   }
   public void setTo(String[] toArr) {
       this._to = toArr;
@@ -186,9 +177,4 @@ public class Mail extends javax.mail.Authenticator {
       this._from = string;
   }
 
-  public void setSubject(String string) {
-      this._subject = string;
-  }
-
-  // more of the getters and setters ….. 
 } 

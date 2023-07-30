@@ -2,8 +2,6 @@ package net.ifeu.edicards.Pdf;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,20 +16,17 @@ import com.itextpdf.text.pdf.PdfWriter;
 
 import android.content.Context;
 import android.os.Environment;
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.DTODeposito;
 import net.ifeu.edicards.DataTier.DTOLineaDeposito;
-import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.DataTier.Totales;
 
 public class PdfDTOCreator extends pdfBase {
 
 	DTODeposito _deposito;
 
-	public PdfDTOCreator(DTODeposito deposito, Context context, AppConfig app)
-			throws FileNotFoundException, DocumentException {
-		
+	public PdfDTOCreator(DTODeposito deposito, Context context, AppConfig app) {
 		super(context, app);
 		_deposito = deposito;
 	}	
@@ -44,10 +39,10 @@ public class PdfDTOCreator extends pdfBase {
 				_fontNormal));
 	}
 
-	private void printHeader() throws DocumentException, FileNotFoundException {
+	private void printHeader() throws DocumentException {
 
 		this.addLogo();
-		String text = Constants.EMPTY_STRING;
+		String text;
 
 		text = "\nGRUP EDICIONES ESTER JAEN SL\n"
 				+ "NIF: B-61806808\n"
@@ -102,16 +97,14 @@ public class PdfDTOCreator extends pdfBase {
 		this.insertSeparators();
 	}
 
-	private void printTotals(int tipo) throws DocumentException,
-			MalformedURLException, IOException {
+	private void printTotals(int tipo) throws DocumentException {
 		DecimalFormat df = new DecimalFormat("0.00");
 
 		if (tipo == Constants.TIPO_DOCUMENTO_DEPOSITO) {
 			try {
 				_deposito.CalculateDeposito();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 
 			this.insertSeparators();
@@ -120,8 +113,7 @@ public class PdfDTOCreator extends pdfBase {
 			try {
 				_deposito.Calculate();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 
 			if ((_deposito.Totales.DescuentoFinanciero != 0 || _deposito.Totales.DescuentoProntoPago != 0)
@@ -201,8 +193,7 @@ public class PdfDTOCreator extends pdfBase {
 									String.valueOf(df.format(_deposito.Totales.TotalBase)),
 									10);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					throw new RuntimeException(e);
 				}
 			}
 
@@ -252,7 +243,7 @@ public class PdfDTOCreator extends pdfBase {
 								+ df.format(_deposito.CantidadPagada)
 								+ " Euros EN CONCEPTO DEL PAGO DEL ALBARAN "
 								+ _app.getUser().User + "/"
-								+ String.valueOf(_deposito.NumeroAlbaran)
+								+ _deposito.NumeroAlbaran
 								+ "\n\n";
 
 						_document.add(new Paragraph(pagadoText, _fontNormal));
@@ -264,7 +255,7 @@ public class PdfDTOCreator extends pdfBase {
 									+ " Euros EN CONCEPTO DEL PAGO DEL ALBARAN "
 									+ _app.getUser().User
 									+ "/"
-									+ String.valueOf(_deposito.NumeroAlbaran)
+									+ _deposito.NumeroAlbaran
 									+ "\n";
 
 							_document.add(new Paragraph(pendienteText,

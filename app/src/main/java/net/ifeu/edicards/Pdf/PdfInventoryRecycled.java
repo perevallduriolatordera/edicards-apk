@@ -15,25 +15,22 @@ import com.itextpdf.text.pdf.PdfWriter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Environment;
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Articulo;
 
 public class PdfInventoryRecycled extends pdfBase {
 
-	public PdfInventoryRecycled(Context context, AppConfig app)
-			throws FileNotFoundException, DocumentException {
-
+	public PdfInventoryRecycled(Context context, AppConfig app) {
 		super(context, app);
-		
 	}
 
 	@SuppressLint("SimpleDateFormat")
-	private void printHeader() throws DocumentException, FileNotFoundException {
+	private void printHeader() throws DocumentException {
 
 		this.addLogo();
 
-		String text = Constants.EMPTY_STRING;
+		String text;
 
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("dd/MM/yyyy");
@@ -66,23 +63,12 @@ public class PdfInventoryRecycled extends pdfBase {
 
 	private void printHeaderDetail() {
 
-		//DecimalFormat df = new DecimalFormat("0.00");
-
-		Articulo articulo = new Articulo();
-		LinkedHashMap<String, Articulo> articulos = null;
-	        
-        try {
-        	articulo.InitializePersistance(_app, _context);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			_app.getErrorTrace().Send(_app.getUser().User, e);
-		}
+		LinkedHashMap<String, Articulo> articulos;
 
         try {
-			articulos = articulo.getAllArticulos(1);
+			articulos = _app.getCache().getAllArticulos();
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			_app.getErrorTrace().Send(_app.getUser().User, e1);
+			throw new RuntimeException(e1);
 		}
         
         for (Articulo art : articulos.values())
@@ -99,8 +85,7 @@ public class PdfInventoryRecycled extends pdfBase {
 				_document.add(new Paragraph(lineaText, _fontBold));
 				
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				_app.getErrorTrace().Send(_app.getUser().User, e);
+				throw new RuntimeException(e);
 			}
 		}
 	}

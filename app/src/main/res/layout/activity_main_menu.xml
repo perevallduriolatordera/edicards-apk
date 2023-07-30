@@ -11,15 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="52px"/>
 
-  <!--   <fragment
-        class="net.ifeu.edicards.TestFragment"
-        android:id="@+id/tabs_fragment1"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" /> -->
-    
      <FrameLayout android:id="@+id/fragment_placeholder" android:layout_weight="1"
         android:layout_width="match_parent" android:layout_height="match_parent" /> 
 
-    
-    
 </LinearLayout>

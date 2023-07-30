@@ -11,11 +11,9 @@ public class TextBoxColor extends EditText {
 		this.setTextColor(color);
 		// TODO Auto-generated constructor stub
 		
-		this.setOnFocusChangeListener(new OnFocusChangeListener(){
-		    public void onFocusChange(View v, boolean hasFocus){
-		        if (hasFocus)
-		            ((EditText)v).selectAll();
-		    }
+		this.setOnFocusChangeListener((v, hasFocus) -> {
+			if (hasFocus)
+				((EditText)v).selectAll();
 		});
 	}
 	

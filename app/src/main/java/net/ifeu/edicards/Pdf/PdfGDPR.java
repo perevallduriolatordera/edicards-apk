@@ -10,28 +10,25 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 import android.content.Context;
 import android.os.Environment;
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Cliente;
 
 public class PdfGDPR extends pdfBase {
 
-	private Cliente _cliente;
+	private final Cliente _cliente;
 
-	public PdfGDPR(Cliente cliente, String GUID, Context context, AppConfig app)
-			throws FileNotFoundException, DocumentException {
-
+	public PdfGDPR(Cliente cliente, String GUID, Context context, AppConfig app) {
 		super(context, app);
 		_cliente = cliente;
 		_GUID = GUID;
-
 	}
 
-	private void printHeader() throws DocumentException, FileNotFoundException {
+	private void printHeader() throws DocumentException {
 
 		this.addLogo();
 
-		String text = Constants.EMPTY_STRING;
+		String text;
 
 		text = "CONSENTIMIENTO EXPRESO PARA EL TRATAMIENTO DE DATOS DE CARÁCTER PERSONAL\n\n";
 
@@ -81,7 +78,7 @@ public class PdfGDPR extends pdfBase {
 				+ ".pdf";
 
 		_document.addTitle(_app.getUser().User + "_" + _cliente.CodigoCliente
-				+ "_" + String.valueOf(new Date(0)));
+				+ "_" + new Date(0));
 
 		_writer = PdfWriter.getInstance(_document, new FileOutputStream(
 				_pdfName));

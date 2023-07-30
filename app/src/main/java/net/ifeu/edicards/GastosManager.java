@@ -1,19 +1,6 @@
 package net.ifeu.edicards;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.LinkedHashMap;
-
-import net.ifeu.edicards.Constants.Constants;
-import net.ifeu.edicards.DataTier.Articulo;
-import net.ifeu.edicards.DataTier.Gasto;
-import net.ifeu.edicards.DataTier.GastosInfo;
-import net.ifeu.edicards.Xml.XmlCreator;
-import net.ifeu.library.Controls.LabelColor;
-import net.ifeu.library.Controls.TextBoxColor;
-import net.ifeu.library.Utils.MessageBoxType;
 import android.app.ActionBar.LayoutParams;
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -25,12 +12,25 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+
+import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Articulo;
+import net.ifeu.edicards.DataTier.Gasto;
+import net.ifeu.edicards.DataTier.GastosInfo;
+import net.ifeu.edicards.Xml.XmlCreator;
+import net.ifeu.library.Controls.LabelColor;
+import net.ifeu.library.Controls.TextBoxColor;
+import net.ifeu.library.Utils.MessageBox.MessageBoxType;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.LinkedHashMap;
 
 public class GastosManager extends Fragment {
 
@@ -39,14 +39,10 @@ public class GastosManager extends Fragment {
 		private DatePicker _datePic;
 		private Calendar _calendar;
 		private EditText _editTextComment;
-		
-		private final int TEXT_SIZE = 24;
-		private final int FIELDS_WIDTH = 200;
-		
-		public void onCreate(Bundle savedInstanceState) {
+
+	public void onCreate(Bundle savedInstanceState) {
 			
 	        super.onCreate(savedInstanceState);
-	        Log.i("GastosManager","Create");
 	       _calendar = Calendar.getInstance();
 	       _datePic = new DatePicker(this.getActivity().getApplicationContext());
 	       _editTextComment = new EditText(this.getActivity().getApplicationContext());
@@ -61,8 +57,6 @@ public class GastosManager extends Fragment {
 	    
 	    @Override
 	    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState){
-		
-	    	Log.i("GastosManager","Abans de carregar layout");
 	    	return inflater.inflate(R.layout.activity_gastos_manager, container,false);
 	    }
 	    
@@ -90,26 +84,18 @@ public class GastosManager extends Fragment {
 	        try {
 				_articulos = _appConfig.getCache().getAllGastos();
 			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e1);
+				throw new RuntimeException(e1);
 			}
 	        
 	        
 	        try {
 				addArticles();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+				throw new RuntimeException(e);
 			}
 		
 	    }
-	    
-	    @Override
-		public void onAttach(Activity activity) {
-			super.onAttach(activity);
-		}
-	    
-	    
+
 	    private void addCalendar()
 	    {	
 	    	LinearLayout mainLinearLayout = (LinearLayout) getActivity().findViewById(R.id.calendarMainLinearLayout);
@@ -139,7 +125,7 @@ public class GastosManager extends Fragment {
 	    	
 	    }
 	    
-	    private DatePicker.OnDateChangedListener dateSetListener = new DatePicker.OnDateChangedListener() {
+	    private final DatePicker.OnDateChangedListener dateSetListener = new DatePicker.OnDateChangedListener() {
 
 	    	  @Override
 	    	  public void onDateChanged(DatePicker view, int year, int monthOfYear,
@@ -153,9 +139,7 @@ public class GastosManager extends Fragment {
 			      try {
 						addArticles();
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-					}
+					  throw new RuntimeException(e);					}
 	  		
 	    	  }
 	    	 };
@@ -179,14 +163,15 @@ public class GastosManager extends Fragment {
 	    	
 	    	LabelColor codigoArticulo = new LabelColor(getActivity(),Color.BLACK);
 	    	codigoArticulo.setText(articulo.CodigoArticulo);
-	    	codigoArticulo.setTextSize(TEXT_SIZE-8);
+			int TEXT_SIZE = 24;
+			codigoArticulo.setTextSize(TEXT_SIZE -8);
 	    	codigoArticulo.setWidth(150);
 	    	codigoArticulo.setLayoutParams(params);
 	    	
 	    	LabelColor articuloDescripcion = new LabelColor(getActivity(),Color.BLACK, true);
 	    	articuloDescripcion.setTag(articulo);
 	    	articuloDescripcion.setText(articulo.Descripcion);
-	    	articuloDescripcion.setTextSize(TEXT_SIZE-8);
+	    	articuloDescripcion.setTextSize(TEXT_SIZE -8);
 	    	articuloDescripcion.setWidth(300);
 	    	articuloDescripcion.setPaintFlags(articuloDescripcion.getPaintFlags() | Paint.FAKE_BOLD_TEXT_FLAG);
 	    	articuloDescripcion.setLayoutParams(params);
@@ -216,56 +201,43 @@ public class GastosManager extends Fragment {
 	    	_editTextComment.setText(gastosInfo.Comentario);
 	    	_editTextComment.setTag(gastosInfo);
 	    	
-	    	_editTextComment.setOnFocusChangeListener(new OnFocusChangeListener() {
-	    	
-	    		public void onFocusChange(View view, boolean hasFocus)
-	    		{
-	    			EditText textBox = (EditText) view;
-    				
-    				GastosInfo gastosInfo = (GastosInfo) view.getTag();
-    				gastosInfo.Comentario = textBox.getText().toString();
-    				gastosInfo.Fecha = setWeekStart(_calendar).getTime();
-    				try {
-						gastosInfo.InitializePersistance(_appConfig, getActivity());
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e1);
+	    	_editTextComment.setOnFocusChangeListener((view, hasFocus) -> {
+				EditText textBox = (EditText) view;
+
+				GastosInfo gastosInfo1 = (GastosInfo) view.getTag();
+				gastosInfo1.Comentario = textBox.getText().toString();
+				gastosInfo1.Fecha = setWeekStart(_calendar).getTime();
+				try {
+					gastosInfo1.InitializePersistance(_appConfig, getActivity());
+				} catch (Exception e1) {
+					throw new RuntimeException(e1);				}
+
+				if (gastosInfo1.IsNew)
+					try {
+
+						if (!gastosInfo1.Comentario.equals(Constants.EMPTY_STRING))
+							gastosInfo1.save();
+
+					} catch (Exception e) {
+						throw new RuntimeException(e);
 					}
-    				
-    				if (gastosInfo.IsNew)
-						try {
-							
-							if (!gastosInfo.Comentario.equals(Constants.EMPTY_STRING))
-							{
-								Log.i("GastosManager Save Info",gastosInfo.Comentario);
-								Log.i("GastosManager","Save GastosInfo");
-								gastosInfo.save();
-							}
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-						}
-					else
-						try {
-							
-							if (!gastosInfo.Comentario.equals(Constants.EMPTY_STRING))
-							{
-								Log.i("GastosManager","Update GastosInfo");
-								gastosInfo.update();
-							}
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-						}
-	    		}
-	    	});
+				else
+					try {
+
+						if (!gastosInfo1.Comentario.equals(Constants.EMPTY_STRING))
+							gastosInfo1.update();
+
+					} catch (Exception e) {
+						throw new RuntimeException(e);					}
+			});
 	    	
 	    	TextBoxColor cantidad = new TextBoxColor(getActivity(),Color.argb(255, 100, 100, 50),Gravity.RIGHT);
 	    	//unidadesEntradas.setInputType(InputType.TYPE_CLASS_NUMBER);
 	    	cantidad.setInputType(InputType.TYPE_CLASS_NUMBER);
 	    	cantidad.setHint(String.valueOf(gasto.Cantidad));
 	    	cantidad.setTextSize(TEXT_SIZE);
-	    	cantidad.setWidth(FIELDS_WIDTH);
+			int FIELDS_WIDTH = 200;
+			cantidad.setWidth(FIELDS_WIDTH);
 	    	cantidad.setKeyListener(DigitsKeyListener.getInstance(false,true));
 	    	InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 	    	imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -273,48 +245,41 @@ public class GastosManager extends Fragment {
 	    	cantidad.setLayoutParams(params);
 	    	cantidad.setTag(gasto);
 	    	
-	    	cantidad.setOnFocusChangeListener(new OnFocusChangeListener() {
-	    		public void onFocusChange(View view, boolean hasFocus)
-	    		{
-	    			if (!hasFocus)
-	    			{
-	    				EditText textBox = (EditText) view;
-	    				double cantidad = 0;
-	    				
-	    				if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
-	    					cantidad = Double.parseDouble(((EditText) view).getHint().toString());
-	    				else
-	    					cantidad = Double.parseDouble(((EditText) view).getText().toString());
-	    				
-	    				
-	    				Gasto gasto = (Gasto) view.getTag();
-	    				gasto.Cantidad = cantidad;
-	    				
-	    				if (gasto.IsNew) {
-	    					if (cantidad > 0) {
-		    					gasto.IsNew = false;
-		    					try {
-									gasto.save();
-									
-									XmlCreator creator = new XmlCreator(_appConfig, getActivity());
-									creator.createXmlGastos(_calendar.getTime());;
-									
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-								}
-	    					}
-	    				} else
+	    	cantidad.setOnFocusChangeListener((view, hasFocus) -> {
+				if (!hasFocus)
+				{
+					EditText textBox = (EditText) view;
+					double cantidad1;
+
+					if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+						cantidad1 = Double.parseDouble(((EditText) view).getHint().toString());
+					else
+						cantidad1 = Double.parseDouble(((EditText) view).getText().toString());
+
+
+					Gasto gasto1 = (Gasto) view.getTag();
+					gasto1.Cantidad = cantidad1;
+
+					if (gasto1.IsNew) {
+						if (cantidad1 > 0) {
+							gasto1.IsNew = false;
 							try {
-								gasto.update();
+								gasto1.save();
+
+								XmlCreator creator = new XmlCreator(_appConfig, getActivity());
+								creator.createXmlGastos(_calendar.getTime());
+
 							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-							}
-	    				
-	    			}
-	    		}
-	    	});
+								throw new RuntimeException(e);							}
+						}
+					} else
+						try {
+							gasto1.update();
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
+				}
+			});
 	    	
 	    	layout.addView(codigoArticulo);
 	    	layout.addView(articuloDescripcion);

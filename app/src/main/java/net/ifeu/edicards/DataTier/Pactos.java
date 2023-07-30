@@ -1,11 +1,13 @@
 package net.ifeu.edicards.DataTier;
 
-import net.ifeu.edicards.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
-import net.ifeu.library.Utils.MessageBoxType;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+
+import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Persistance.IPersistable;
+import net.ifeu.edicards.DataTier.Persistance.Persistent;
 
 public class Pactos extends Persistent implements IPersistable {
 
@@ -16,8 +18,8 @@ public class Pactos extends Persistent implements IPersistable {
 	public double Descuento1;
 	public double Descuento2;
 	
-	public void InitializePersistance(AppConfig appConfig, Context context) throws Exception {
-		// TODO Auto-generated method stub
+	public void InitializePersistance(AppConfig appConfig, Context context) {
+		
 		super.InitializePersistance(appConfig, context);
 	}
 	
@@ -40,7 +42,7 @@ public class Pactos extends Persistent implements IPersistable {
 			this.IdPacto = super.getDatabaseOperations().insert(Constants.TABLE_PACTOS, null , values);
 		}
 		catch (Exception e) {
-			throw e;
+			throw new RuntimeException(e);
 		}
 		
 	}
@@ -49,50 +51,8 @@ public class Pactos extends Persistent implements IPersistable {
 	{
 		return super.getDatabaseOperations().getRecordsCount(Constants.TABLE_PACTOS);
 	}
-	
-	public boolean setPactoById(String idPacto) throws Exception
-	{
-		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(Constants.TABLE_TIPOS_IVA, "IdPacto", idPacto, false);
-		
-		if (cursor != null)
-		{
-			this.IdPacto = Long.parseLong(idPacto);
-			this.PVP = Double.parseDouble(cursor.getString(cursor.getColumnIndex("PVP")));
-			this.Descuento1 = Double.parseDouble(cursor.getString(cursor.getColumnIndex("Descuento1")));
-			this.Descuento2 = Double.parseDouble(cursor.getString(cursor.getColumnIndex("Descuento2")));
-			
-			Cliente cliente = new Cliente();
-			
-			try {
-				cliente.InitializePersistance(super.appConfig, super.context);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				super.appConfig.getMessageBox().Show("Error", e.getMessage().toString(), super.appConfig, MessageBoxType.Error);
-			}
-			
-			if (cliente.setClienteById(cursor.getString(cursor.getColumnIndex("IdCliente"))))
-				this.Cliente = cliente;
-			
-			Articulo articulo = new Articulo();
-			
-			try {
-				articulo.InitializePersistance(super.appConfig, super.context);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				super.appConfig.getMessageBox().Show("Error", e.getMessage().toString(), super.appConfig, MessageBoxType.Error);
-			}
-			
-			if (articulo.setArticuloById(cursor.getString(cursor.getColumnIndex("IdArticulo"))))
-				this.Articulo = articulo;
-			
-		    cursor.close();
-			return true;
-		}
-		
-		return false ; //(cursor != null);
-	}
-	
-	public boolean setPactoByClienteArticulo(Cliente cliente, Articulo articulo) throws Exception
+
+	public boolean setPactoByClienteArticulo(Cliente cliente, Articulo articulo)
 	{
 		
 		boolean result = false;
@@ -123,7 +83,7 @@ public class Pactos extends Persistent implements IPersistable {
 		if (cursor != null)
 			cursor.close();
 		
-		return result ; //(cursor != null);
+		return result ; 
 	}
 	
 }

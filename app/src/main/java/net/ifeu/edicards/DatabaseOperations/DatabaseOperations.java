@@ -34,7 +34,7 @@ public class DatabaseOperations {
 		}
 		catch (Exception e)
 		{
-			throw new Exception("Error abriendo objeto de conexión a base de datos. Motivo: " + e.getMessage().toString());
+			throw new Exception("Error abriendo objeto de conexión a base de datos. Motivo: " + e.getMessage());
 		}
 		
 		// Creem l'estructura de base de dades en el cas de que sigui necessari.
@@ -56,7 +56,7 @@ public class DatabaseOperations {
 				}
 				catch (Exception e)
 				{
-					throw new Exception("Error abriendo objeto de conexión a base de datos. Motivo: " + e.getMessage().toString());
+					throw new Exception("Error abriendo objeto de conexión a base de datos. Motivo: " + e.getMessage());
 				}
 			}
 		} else {
@@ -65,30 +65,17 @@ public class DatabaseOperations {
 
 	}
 	
-	public void closeDB() throws Exception 
+	public void closeDB()
 	{
 		try {
 			_databaseConnection.closeDB();
 		}
 		catch (Exception e) {
-			throw e;
+			throw new RuntimeException(e);
 		}
 		
 	}
-	
-	public void beginTransaction() {
-		_databaseConnection.getDatabase().beginTransaction();
-	}
-	
-	public void commit() {
-		_databaseConnection.getDatabase().setTransactionSuccessful();
-	}
-	
-	public void endTransaction() {
-		_databaseConnection.getDatabase().endTransaction();
-	}
-	
-	
+
 	public void createDatabaseStructure() throws Exception
 	{
 		dropTables();
@@ -103,37 +90,14 @@ public class DatabaseOperations {
 		createIndexs();
 		alterStructure();
 	}
-	
-	public void ResetConnection() throws Exception
-	{
-		if (_databaseConnection.getDatabase().isOpen())
-		{
-			_databaseConnection.getDatabase().close();
-			this.openDB(_context);
-		}
-		
-	}
-	
-	public boolean isOpen() throws Exception
+
+	public boolean isOpen()
 	{
 		if (_databaseConnection == null)
 			return false;
 		
 		return _databaseConnection.getDatabase().isOpen();
 	}
-	
-	/*public boolean backupDatabase(File file) {
-	    File from = _context.getDatabasePath(Constants.DATABASE_NAME);
-	    File to = file;
-	    try {
-	        IOUtils.copyFile(from, to);
-	        return true;
-	    } catch (IOException e) {
-	        // TODO Auto-generated catch block
-	       Log.e("backup", "Error backuping up database: " + e.getMessage(), e);
-	    }
-	    return false;
-	}*/
 
 	private static void copyFile(FileInputStream fromFile, FileOutputStream toFile) throws IOException {
 		FileChannel fromChannel = null;
@@ -159,7 +123,7 @@ public class DatabaseOperations {
 		String backupFileName = "/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_DB_BACKUP + "/" +
 				Constants.DATABASE_NAME;
 
-		FileInputStream inputStreamNewDB = null;
+		FileInputStream inputStreamNewDB;
 		try {
 			inputStreamNewDB = new FileInputStream(backupFileName);
 		} catch (FileNotFoundException e1) {
@@ -172,11 +136,9 @@ public class DatabaseOperations {
 			try {
 				copyFile((FileInputStream) inputStreamNewDB, new FileOutputStream(oldDB));
 			} catch (IOException e) {
-				Log.d("Database", "ex for is of restore: " + e);
 				return false;
 			}
 		} else {
-			Log.d("Database", "Restore - file does not exists");
 			return false;
 		}
 
@@ -189,9 +151,8 @@ public class DatabaseOperations {
 	    FileInputStream fis = null;
 		try {
 			fis = new FileInputStream(dbFile);
-		} catch (FileNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
 		}
 
 	    String outFileName = "/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_DB_BACKUP + "/" +                            
@@ -205,8 +166,7 @@ public class DatabaseOperations {
 		try {
 			output = new FileOutputStream(outFileName);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 
 	    // Transfer bytes from the inputfile to the outputfile
@@ -216,7 +176,6 @@ public class DatabaseOperations {
 	        try {
 				output.write(buffer, 0, length);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 	    }
@@ -238,7 +197,7 @@ public class DatabaseOperations {
 			return null;
 	}
 	
-	public boolean existsTable(String tableName) throws Exception
+	public boolean existsTable(String tableName)
 	{
 		Cursor cursor = _databaseConnection.getDatabase().rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"+ tableName +"'", null);
 	    if(cursor!=null) {
@@ -250,89 +209,22 @@ public class DatabaseOperations {
 	    }
 	    return false;
 	}
-	
-	public boolean existsIndex(String indexName) throws Exception
-	{
-		Cursor cursor = _databaseConnection.getDatabase().rawQuery("select DISTINCT tbl_name from sqlite_master where name = '"+ indexName +"' and type='index'", null);
-	    if(cursor!=null) {
-	        if(cursor.getCount()>0) {
-	            cursor.close();
-	            return true;
-	        }
-	         cursor.close();
-	    }
-	    return false;
-	}
-	
+
 	public Cursor executeSentence(String sentence) throws Exception
 	{
-		Cursor cursor = null;
-		
+		Cursor cursor;
 		cursor = _databaseConnection.getDatabase().rawQuery(sentence, null);
-		
-		Log.i("Database", "Execute sentence:" + sentence + Constants.NEW_LINE +
-				"Total: " + cursor.getCount());
-		
+
 		boolean exists = cursor.moveToFirst();
 		
 		if (!exists) cursor.close();
 		
 		return exists ? cursor : null;
-		
-		/*if (cursor.getCount() > 0)
-		{
-			cursor.moveToFirst();
-			return cursor;
-		}
-		else
-			cursor.close();
-			return null;*/
 	}
-	
-	public String getCodeById(String table, String Codigo, String IdField, Long value)
-	{
-		Cursor cursor = null;
-		
-		cursor = _databaseConnection.getDatabase().query(table, new String[] {"*"}, IdField + " = " + value , null, null, null, null);
-		
-		if (cursor.getCount() > 0)
-		{
-			cursor.moveToFirst();
-			
-			String code = cursor.getString(cursor.getColumnIndex(Codigo));
-			
-			cursor.close();
-			return code;
-		}
-		
-		return null;
-		
-	}
-	
-	public Long getIdByCode(String table, String Codigo, String IdField, Long value)
-	{
-		Cursor cursor = null;
-		
-		cursor = _databaseConnection.getDatabase().query(table, new String[] {"*"}, Codigo + " = " + value , null, null, null, null);
-		
-		if (cursor.getCount() > 0)
-		{
-			cursor.moveToFirst();
-			
-			Long code = Long.parseLong(cursor.getString(cursor.getColumnIndex(Codigo)));
-			
-			cursor.close();
-			
-			return code;
-		}
-		
-		return null;
-		
-	}
-	
+
 	public Cursor getFirstRecordFromField(String table, String field, String filterText,boolean isText) throws Exception
 	{
-		Cursor cursor = null;
+		Cursor cursor;
 		
 		if (isText)
 			cursor = _databaseConnection.getDatabase().query(table, new String[] {"*"}, field + " = '" + filterText + "'", null, null, null, null);
@@ -342,18 +234,9 @@ public class DatabaseOperations {
 		boolean exists = cursor.moveToFirst();
 		
 		return exists ? cursor : null;
-		
-		/*if (cursor.getCount() > 0)
-		{
-			cursor.moveToFirst();
-			return cursor;
-		}
-		else
-			return null;*/
-		
 	}
 	
-	public Cursor getRecordsFromField(String table, String field, String filterText, boolean isText, String otherConditions, String orderByField) throws Exception
+	public Cursor getRecordsFromField(String table, String field, String filterText, boolean isText, String otherConditions, String orderByField)
 	{
 		Cursor cursor = null;
 		
@@ -374,8 +257,8 @@ public class DatabaseOperations {
 		
 		return cursor;
 	}
-	
-	public Cursor getRecordsFromFieldNumeric(String table, String field, String filterText, String otherConditions, String orderBy) throws Exception
+
+	public Cursor getRecordsFromFieldNumeric(String table, String field, String filterText, String otherConditions, String orderBy)
 	{
 		Cursor cursor = null;
 		
@@ -391,7 +274,7 @@ public class DatabaseOperations {
 		return cursor;
 	}
 	
-	public LinkedList<String> getStringArrayByField(String table, String fieldShow, String fieldFilter, String text, boolean onlyStartsWith, String otherConditions, String orderBy) throws Exception
+	public LinkedList<String> getStringArrayByField(String table, String fieldShow, String fieldFilter, String text, boolean onlyStartsWith, String otherConditions, String orderBy)
 	{
 		Cursor cursor = null;
 		
@@ -406,7 +289,7 @@ public class DatabaseOperations {
 		else if (!onlyStartsWith && !otherConditions.equals(Constants.EMPTY_STRING))
 			cursor = _databaseConnection.getDatabase().query(table, new String[] {fieldShow, fieldFilter}, fieldFilter + " like '%" + text + "%' " + otherConditions, null, null, null, orderBy);	
 		
-		LinkedList<String> result = new LinkedList<String>();
+		LinkedList<String> result = new LinkedList<>();
 		
 		if (cursor.getCount() > 0)
 		{
@@ -450,8 +333,7 @@ public class DatabaseOperations {
 		}
 		
 		catch (Exception e) {
-			Log.i("DatabaseOperations","Error en insert: " + e.getMessage());
-			throw e;
+			throw new RuntimeException(e);
 		}
 	}
 	
@@ -465,26 +347,11 @@ public class DatabaseOperations {
 		}
 		
 		catch (Exception e) {
-			Log.e("Database",e.getMessage().toString());
-			throw e;
+			throw new RuntimeException(e);
 		}
 	}
-	
-	public void execute(String sentence) throws Exception
-	{
-		if (!_databaseConnection.getDatabase().isOpen())
-			throw new Exception("La base de datos no está abierta.");
-		
-		try {
-			_databaseConnection.getDatabase().execSQL(sentence);
-		}
-		
-		catch (Exception e) {
-			throw e;
-		}
-	}
-	
-	private void createTables() throws Exception
+
+	private void createTables()
 	{
 		try {
 			createClientesTable();
@@ -507,40 +374,40 @@ public class DatabaseOperations {
 			createLogBookTable();
 		}
 		catch (Exception e) {
-			throw e;
+			throw new RuntimeException(e);
 		}
 		
 	}
 	
-	private void createIndexs() throws Exception {
+	private void createIndexs() {
 		try {
 			createIndex(Constants.INDEX_DEPOSITO_CODIGOCLIENTE, Constants.TABLE_DEPOSITOS, 
-					 new ArrayList<String>(Arrays.asList("CodigoCliente")));
+					 new ArrayList<>(Arrays.asList("CodigoCliente")));
 			createIndex(Constants.INDEX_DEPOSITO_NUMDOC, Constants.TABLE_DEPOSITOS, 
-					 new ArrayList<String>(Arrays.asList("NumDoc")));
+					 new ArrayList<>(Arrays.asList("NumDoc")));
 			createIndex(Constants.INDEX_DEPOSITO_IDCLIENTE, Constants.TABLE_DEPOSITOS, 
-					 new ArrayList<String>(Arrays.asList("IdCliente")));
+					 new ArrayList<>(Arrays.asList("IdCliente")));
 			createIndex(Constants.INDEX_DEPOSITO_FECHADEPOSITO, Constants.TABLE_DEPOSITOS, 
-					 new ArrayList<String>(Arrays.asList("FechaDeposito")));
+					 new ArrayList<>(Arrays.asList("FechaDeposito")));
 			createIndex(Constants.INDEX_LINEADEPOSITO_IDDEPOSITO, Constants.TABLE_LINEAS_DEPOSITO, 
-					 new ArrayList<String>(Arrays.asList("IdDeposito")));
+					 new ArrayList<>(Arrays.asList("IdDeposito")));
 			createIndex(Constants.INDEX_LINEADEPOSITO_IDDEPOSITO_IDARTICULO, Constants.TABLE_LINEAS_DEPOSITO, 
-					 new ArrayList<String>(Arrays.asList("IdDeposito","IdArticulo")));
+					 new ArrayList<>(Arrays.asList("IdDeposito","IdArticulo")));
 			createIndex(Constants.INDEX_TARIFA_IDARTICULO_CODIGOTARIFA, Constants.TABLE_TARIFAS, 
-					 new ArrayList<String>(Arrays.asList("IdArticulo","CodigoTarifa")));
+					 new ArrayList<>(Arrays.asList("IdArticulo","CodigoTarifa")));
 			createIndex(Constants.INDEX_PACTOS_IDARTICULO, Constants.TABLE_PACTOS, 
-					 new ArrayList<String>(Arrays.asList("IdArticulo")));
+					 new ArrayList<>(Arrays.asList("IdArticulo")));
 			createIndex(Constants.INDEX_ARTICULOS_ACTIVO_TIPO, Constants.TABLE_ARTICULOS, 
-					 new ArrayList<String>(Arrays.asList("Activo","Tipo")));
+					 new ArrayList<>(Arrays.asList("Activo","Tipo")));
 			createIndex(Constants.INDEX_LOGBOOK_FECHA, Constants.TABLE_LOGBOOK,
-					new ArrayList<String>(Arrays.asList("Fecha")));
+					new ArrayList<>(Arrays.asList("Fecha")));
 		}
 		catch (Exception e) {
-			throw e;
+			throw new RuntimeException(e);
 		}
 	}
 	
-	private void dropTables() throws Exception
+	private void dropTables()
 	{
 		try {
 			dropTable(Constants.TABLE_CLIENTES);
@@ -564,7 +431,7 @@ public class DatabaseOperations {
 			
 		}
 		catch (Exception e) {
-			throw e;
+			throw new RuntimeException(e);
 		}
 		
 	}
@@ -577,7 +444,7 @@ public class DatabaseOperations {
 				_databaseConnection.getDatabase().delete(table, null, null);
 			} 
 			catch (Exception e) {
-				throw new Exception("Error borrando los registros de la tabla " + table + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error borrando los registros de la tabla " + table + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -594,7 +461,7 @@ public class DatabaseOperations {
 				return _databaseConnection.getDatabase().delete(table, key + " = ?", new String[] { value });
 			} 
 			catch (Exception e) {
-				throw new Exception("Error borrando los registros de la tabla " + table + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error borrando los registros de la tabla " + table + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -610,7 +477,7 @@ public class DatabaseOperations {
 				_databaseConnection.getDatabase().execSQL("create index if not exists " + index + " on " + table + "(" + android.text.TextUtils.join(",", fields) + ")");
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando índice " + index + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error creando índice " + index + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -628,7 +495,7 @@ public class DatabaseOperations {
 				_databaseConnection.getDatabase().execSQL("drop table if exists " + table);
 			} 
 			catch (Exception e) {
-				throw new Exception("Error eliminando la tabla " + table + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error eliminando la tabla " + table + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -670,7 +537,7 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_CLIENTES + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error creando la tabla " + Constants.TABLE_CLIENTES + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -712,7 +579,7 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_DEPOSITOS + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error creando la tabla " + Constants.TABLE_DEPOSITOS + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -738,7 +605,7 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_LINEAS_DEPOSITO + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error creando la tabla " + Constants.TABLE_LINEAS_DEPOSITO + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -769,7 +636,7 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_HISTORICOS + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error creando la tabla " + Constants.TABLE_HISTORICOS + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -794,7 +661,7 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_LINEAS_DEPOSITO + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error creando la tabla " + Constants.TABLE_LINEAS_DEPOSITO + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -820,7 +687,7 @@ public class DatabaseOperations {
 				
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_TARIFAS + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error creando la tabla " + Constants.TABLE_TARIFAS + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -844,7 +711,7 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_PACTOS + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error creando la tabla " + Constants.TABLE_PACTOS + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -874,7 +741,7 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_ARTICULOS + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error creando la tabla " + Constants.TABLE_ARTICULOS + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -899,7 +766,7 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_MOVIMIENTOS_ALMACEN + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error creando la tabla " + Constants.TABLE_MOVIMIENTOS_ALMACEN + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -924,7 +791,7 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_TIPOS_IVA + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error creando la tabla " + Constants.TABLE_TIPOS_IVA + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -945,7 +812,7 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_FORMAS_PAGO + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error creando la tabla " + Constants.TABLE_FORMAS_PAGO + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -967,7 +834,7 @@ public class DatabaseOperations {
 				
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_TARIFAS + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error creando la tabla " + Constants.TABLE_TARIFAS + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -988,7 +855,7 @@ public class DatabaseOperations {
 				
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_CONTADORES + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error creando la tabla " + Constants.TABLE_CONTADORES + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -1010,6 +877,7 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 			
 		}
@@ -1030,7 +898,7 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_GASTOS_INFO + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error creando la tabla " + Constants.TABLE_GASTOS_INFO + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -1054,7 +922,7 @@ public class DatabaseOperations {
 				
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_INGRESOS + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error creando la tabla " + Constants.TABLE_INGRESOS + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -1074,7 +942,7 @@ public class DatabaseOperations {
 				
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_GDPR + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error creando la tabla " + Constants.TABLE_GDPR + ". Motivo: " + e.getMessage());
 			}
 			
 		}
@@ -1107,7 +975,7 @@ public class DatabaseOperations {
 						  "UnidadesDefectuosasAbono integer); ");
 			}
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_LOGBOOK + ". Motivo: " + e.getMessage().toString());
+				throw new Exception("Error creando la tabla " + Constants.TABLE_LOGBOOK + ". Motivo: " + e.getMessage());
 			}
 
 		}
@@ -1124,16 +992,19 @@ public class DatabaseOperations {
 				_databaseConnection.getDatabase().execSQL("alter table " + Constants.TABLE_LINEAS_HISTORICO + " ADD COLUMN PVP REAL default null ");
 			} 
 			catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 
 			try {
 				_databaseConnection.getDatabase().execSQL("alter table " + Constants.TABLE_ARTICULOS + " ADD COLUMN StockPropio integer NOT NULL default 1 ");
 			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 
 			try {
 				_databaseConnection.getDatabase().execSQL("alter table " + Constants.TABLE_HISTORICOS + " ADD COLUMN ActualizarStock integer NOT NULL default 1 ");
 			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 			
 		}

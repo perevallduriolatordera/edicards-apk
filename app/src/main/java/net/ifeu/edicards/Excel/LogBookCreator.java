@@ -2,7 +2,7 @@ package net.ifeu.edicards.Excel;
 
 import android.os.Environment;
 
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.library.LogBook.LogBook;
 
@@ -66,8 +66,7 @@ public class LogBookCreator {
 
             this.saveExcelFile(workbook);
         } catch (Exception e) {
-            e.printStackTrace();
-            result = false;
+            throw new RuntimeException(e);
         }
         return  result;
     }
@@ -208,7 +207,7 @@ public class LogBookCreator {
         try (FileOutputStream outputStream = new FileOutputStream(excelFilePath)) {
             workbook.write(outputStream);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            throw new RuntimeException(ex);
         }
     }
 }

@@ -1,47 +1,32 @@
 package net.ifeu.edicards;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.Editable;
 import android.text.InputType;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
-import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
+
+import com.itextpdf.text.DocumentException;
+
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Cliente;
@@ -59,6 +44,7 @@ import net.ifeu.edicards.DataTier.TipoIVA;
 import net.ifeu.edicards.DataTier.TransferMode;
 import net.ifeu.edicards.Pdf.PdfGDPR;
 import net.ifeu.edicards.Printer.PrintManager;
+import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.ComboBox;
@@ -66,10 +52,22 @@ import net.ifeu.library.Controls.IComboBoxChangeEvent;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
 import net.ifeu.library.LogBook.LogBook;
-import net.ifeu.library.Utils.AdvancedMessageBox;
-import net.ifeu.library.Utils.MessageBoxType;
+import net.ifeu.library.Mediator.IMediator;
+import net.ifeu.library.Utils.MessageBox.AdvancedMessageBox;
+import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
-public class DepositManager extends Fragment implements IComboBoxChangeEvent {
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+public class DepositManager extends Fragment implements IComboBoxChangeEvent, IMediator {
 
 	private Deposito _deposito;
 	private Cliente _cliente;
@@ -91,37 +89,20 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 	private LinearLayout _lastSelectedLayout;
 	private AutoCompleteTextView _myAutoComplete;
 	
-	private LinkedList<String> _articles = new LinkedList<String>();
+	private LinkedList<String> _articles = new LinkedList<>();
 	private AdvancedMessageBox _dialogDepositoModalidad;
 
 	private LinearLayout _headerLayout;
 	private LinearLayout _headerAbonoLayout;
 
 	private final int TEXT_SIZE = 14;
-	private final int TEXT_SIZE_LARGE = 16;
 	private final int TEXT_SIZE_BUTTON = 12;
-	private final int BUTTONS_WIDTH = 100;
+	private final int BUTTONS_WIDTH = 150;
 
-	private final int WIDTH_OLDER_VERSION_CODIGO = 50;
-	private final int WIDTH_NEWER_VERSION_CODIGO = 100;
-	private final int WIDTH_OLDER_VERSION_DESCRIPCION = 200;
-	private final int WIDTH_NEWER_VERSION_DESCRIPCION = 100;
-			
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 	}
 
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		
-		try {
-			this.FillWindow();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			_appConfig.getMessageBox().Show("Atención",
-					_appConfig.getStackTrace(e),
-					getActivity(), MessageBoxType.Error);		}
-	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -137,33 +118,26 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 
 		final DepositManager that = this;
 		
-		viewAllButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(final View v) {
-				LinearLayout layout = (LinearLayout) that.getActivity()
-						.findViewById(R.id.mainLinearLayoutDepositManager);
-				
-		    	int count = layout.getChildCount();
-		    	
-		    	for(int i=0; i<count; i++) {
-		    	    View view = layout.getChildAt(i);
-		    	    view.setVisibility(View.VISIBLE);
-		    	}
-		    	
-		    	that._myAutoComplete.setText(Constants.EMPTY_STRING);
+		viewAllButton.setOnClickListener(v -> {
+			LinearLayout layout = (LinearLayout) that.getActivity()
+					.findViewById(R.id.mainLinearLayoutDepositManager);
+
+			int count = layout.getChildCount();
+
+			for(int i=0; i<count; i++) {
+				View view = layout.getChildAt(i);
+				view.setVisibility(View.VISIBLE);
 			}
+
+			that._myAutoComplete.setText(Constants.EMPTY_STRING);
 		});
 		
 	}
 
 	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity); System.gc();
-	}
-	
-	@Override
 	public void onStop() {
 		super.onStop();System.gc();
+		_appConfig.getWorkingArea().CurrentCliente = null;
 	}
 
 	@Override
@@ -204,7 +178,10 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 	public void onResume() {
 		super.onResume();
 
-		if (!_searched) {
+		if (_appConfig == null)
+			_appConfig = (AppConfig) this.getActivity().getApplicationContext();
+
+/*		if (!_searched) {
 
 			_appConfig = (AppConfig) this.getActivity().getApplicationContext();
 
@@ -234,9 +211,29 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 				}
 			}
 		}
-		System.gc();
+		System.gc();*/
 	}
-	
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		_appConfig = (AppConfig) this.getActivity().getApplicationContext();
+
+		/*if (_appConfig.getWorkingArea().CancelSearchDeposit) {
+			resetDeposit(true, false);
+			_appConfig.getWorkingArea().CancelSearchDeposit = false;
+			return;
+		}*/
+
+		//this.showWaiting("Cargando depósito");
+
+		if (_appConfig.getWorkingArea().CurrentCliente == null
+				|| _appConfig.getWorkingArea().CurrentCliente.IdCliente == 0 || _newDeposit) {
+
+			DepositManagerExtension.Dialogs.StartCustomerSearchDialog(this);
+		}
+	}
+
 	public void callback (String id, String text) {
 		
 		try {
@@ -259,9 +256,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 			}
 		}
 		catch (Exception ex) {
-			_appConfig.getMessageBox().Show("Atención",
-					_appConfig.getStackTrace(ex),
-					getActivity(), MessageBoxType.Error);
+			throw new RuntimeException(ex);
 
 		}
 	}
@@ -290,13 +285,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 
 		nuevo.setLayoutParams(params);
 
-		nuevo.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-				resetDeposit(true, true);				
-			}
-		});
+		nuevo.setOnClickListener(arg0 -> resetDeposit(true, true));
 
 		layout.addView(nuevo);
 		footerLinearLayout2.addView(layout);
@@ -304,16 +293,9 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 
 	private void FillFooter() throws Exception {
 
-		_appConfig = (AppConfig) this.getActivity().getApplicationContext();
-
 		final LinearLayout layout = new LinearLayout(_appConfig);
-		layout.removeAllViews();
-		
 		final LinearLayout layout2 = new LinearLayout(_appConfig);
-		layout2.removeAllViews();
-
 		final LinearLayout topLayout = new LinearLayout(_appConfig);
-		topLayout.removeAllViews();
 
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params.setMargins(0, 5, 0, 0);
@@ -350,7 +332,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 		
 		LabelColor labelCopias = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				"Copias", TEXT_SIZE, 150, params);
-		List<String> copias = new ArrayList<String>();
+		List<String> copias = new ArrayList<>();
 		for (int i=1; i < 6; i++) copias.add(String.valueOf(i));
 		
 		_comboCopias = DepositManagerExtension.UI.addCombo(_appConfig, 75, params, copias, "1");
@@ -360,7 +342,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 		LabelColor labelSeries = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				"Series", TEXT_SIZE, 150, params);
 		
-		List<String> series = new ArrayList<String>();
+		List<String> series = new ArrayList<>();
 		series.add(_appConfig.getUser().SerialInvoiceA);
 		series.add(_appConfig.getUser().SerialInvoiceB);
 
@@ -392,40 +374,37 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 		TextBoxColor descuento1 = DepositManagerExtension.UI.addEdit(getActivity(), Color.WHITE, Gravity.LEFT,
 				dec.format(_cliente.DescuentoProntoPago), TEXT_SIZE, 60, params, true);
 		
-		descuento1.setOnFocusChangeListener(new OnFocusChangeListener() {
-			public void onFocusChange(View view, boolean hasFocus) {
-				if (!hasFocus) {
-					_lastTextBox = (TextBoxColor) view;
+		descuento1.setOnFocusChangeListener((view, hasFocus) -> {
+			if (!hasFocus) {
+				_lastTextBox = (TextBoxColor) view;
 
-					EditText textBox = (EditText) view;
-					float descuento1;
+				EditText textBox = (EditText) view;
+				float descuento11;
 
-					if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
-						descuento1 = Float.parseFloat(((EditText) view).getHint().toString());
-					else
-						descuento1 = Float.parseFloat(((EditText) view).getText().toString());
+				if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+					descuento11 = Float.parseFloat(((EditText) view).getHint().toString());
+				else
+					descuento11 = Float.parseFloat(((EditText) view).getText().toString());
 
-					if (descuento1 > 100) {
-						_appConfig.getMessageBox().Show("Error", "El porcentage de descuento comercial es incorrecto",
-								view.getContext(), MessageBoxType.Error);
-					} else {
-
-						_deposito.DescuentoComercial = descuento1;
-					}
-					
-					
+				if (descuento11 > 100) {
+					_appConfig.getMessageBox().Show("Error", "El porcentage de descuento comercial es incorrecto",
+							view.getContext(), MessageBoxType.Error);
 				} else {
-					_lastTextBox = (TextBoxColor) view;
+
+					_deposito.DescuentoComercial = descuento11;
 				}
 
-				try {
-					refreshTotals();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 
+			} else {
+				_lastTextBox = (TextBoxColor) view;
 			}
+
+			try {
+				refreshTotals();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+
 		});
 
 		// descuento 2
@@ -436,54 +415,49 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 		TextBoxColor descuento2 = DepositManagerExtension.UI.addEdit(getActivity(), Color.WHITE, Gravity.LEFT,
 				dec.format(_cliente.DescuentoFinanciero), TEXT_SIZE, 60, params, true);
 	
-		descuento2.setOnFocusChangeListener(new OnFocusChangeListener() {
-			public void onFocusChange(View view, boolean hasFocus) {
-				if (!hasFocus) {
+		descuento2.setOnFocusChangeListener((view, hasFocus) -> {
+			if (!hasFocus) {
 
-					_lastTextBox = (TextBoxColor) view;
+				_lastTextBox = (TextBoxColor) view;
 
-					EditText textBox = (EditText) view;
-					float descuento2;
+				EditText textBox = (EditText) view;
+				float descuento21;
 
-					if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
-						descuento2 = Float.parseFloat(((EditText) view).getHint().toString());
-					else
-						descuento2 = Float.parseFloat(((EditText) view).getText().toString());
+				if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+					descuento21 = Float.parseFloat(((EditText) view).getHint().toString());
+				else
+					descuento21 = Float.parseFloat(((EditText) view).getText().toString());
 
-					if (descuento2 > 100) {
-						_appConfig.getMessageBox().Show("Error", "El porcentage de descuento financiero es incorrecto",
-								view.getContext(), MessageBoxType.Error);
-					} else {
-
-						_deposito.DescuentoFinanciero = descuento2;
-					}
+				if (descuento21 > 100) {
+					_appConfig.getMessageBox().Show("Error", "El porcentage de descuento financiero es incorrecto",
+							view.getContext(), MessageBoxType.Error);
 				} else {
-					_lastTextBox = (TextBoxColor) view;
+
+					_deposito.DescuentoFinanciero = descuento21;
 				}
-				
-				try {
-					refreshTotals();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			} else {
+				_lastTextBox = (TextBoxColor) view;
+			}
+
+			try {
+				refreshTotals();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 		});
 		
-		_checkPagado.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				_deposito.Pagado = isChecked;
+		_checkPagado.setOnCheckedChangeListener((buttonView, isChecked) -> {
+			_deposito.Pagado = isChecked;
 
-				if (isChecked)
-					_textBoxCantidadPagada.setFocusableInTouchMode(true);
-				else
-					_textBoxCantidadPagada.setFocusable(false);
+			if (isChecked)
+				_textBoxCantidadPagada.setFocusableInTouchMode(true);
+			else
+				_textBoxCantidadPagada.setFocusable(false);
 
-			}
 		});
 		
 		if (_deposito.Cliente.formaPago != null && _deposito.Cliente.formaPago.Descripcion != null) {
-			if (_deposito.Cliente.formaPago.Descripcion.toString().trim().equalsIgnoreCase("CONTADO")) {
+			if (_deposito.Cliente.formaPago.Descripcion.trim().equalsIgnoreCase("CONTADO")) {
 				this._checkPagado.setChecked(true);
 				_deposito.Pagado = true;
 			}
@@ -515,14 +489,14 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 		topLinearLayout.setOrientation(LinearLayout.VERTICAL);
 		topLinearLayout.addView(topLayout);
 
-		this.FillFooterButtons(layout, layout2);
-		
+		this.FillHeaderButtons();
+
 		_comboPago.addObserver("PAGADO", this);
 		_comboSerie.addObserver("SERIE", this);
 		
 	}
 
-	private void FillFooterButtons(LinearLayout layout, LinearLayout layoutAux) {
+	private void FillHeaderButtons() {
 
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params.setMargins(10, 0, 10, 0);
@@ -532,190 +506,147 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 
 		// Nuevo Layout
 
-		final LinearLayout layout2 = new LinearLayout(_appConfig);
-		layout2.setOrientation(LinearLayout.HORIZONTAL);
-		layout2.setLayoutParams(params2);
+		final LinearLayout layout = new LinearLayout(_appConfig);
+		layout.setOrientation(LinearLayout.HORIZONTAL);
+		layout.setLayoutParams(params2);
 
 		// Botón Datos
 		
-		ButtonColor datos = DepositManagerExtension.UI.addButton(getActivity(), Color.BLUE, "Datos del cliente", 
-				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params);
+		ButtonColor datos = DepositManagerExtension.UI.addButton(getActivity(), Color.BLUE, "Cliente",
+				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params, getResources().getDrawable(R.drawable.ic_customer_data));
 		
 		final DepositManager that = this;
-		datos.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-
-					if (_textBoxColorRequestFocus != null)
-						_textBoxColorRequestFocus.requestFocus();
-
-					try {
-						DepositManagerExtension.Dialogs.StartCustomerDataDialog((Fragment) that);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-				
-			}
-		});
-		
-		// Botón Totales
-		ButtonColor totales = DepositManagerExtension.UI.addButton(getActivity(), Color.WHITE, "Resumen Totales", 
-				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params);
-
-		totales.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
+		datos.setOnClickListener(arg0 -> {
 
 				if (_textBoxColorRequestFocus != null)
 					_textBoxColorRequestFocus.requestFocus();
 
 				try {
-					if (DepositManagerExtension.DataTier.IsSerieA(that._comboSerie, that._appConfig))
-						_deposito.Serie = _appConfig.getUser().SerialInvoiceA;
-					else
-						_deposito.Serie = _appConfig.getUser().SerialInvoiceB;
-
-					DepositManagerExtension.Dialogs.StartTotalesDialog((Fragment) that);
+					DepositManagerExtension.Dialogs.StartCustomerDataDialog((Fragment) that);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getMessageBox().Show("Atención",
-							_appConfig.getStackTrace(e),
-							getActivity(), MessageBoxType.Error);				}
+						throw new RuntimeException(e);
+				}
+
+
+		});
+		
+		// Botón Totales
+		ButtonColor totales = DepositManagerExtension.UI.addButton(getActivity(), Color.WHITE, "Resumen",
+				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params, getResources().getDrawable(R.drawable.ic_totals));
+
+		totales.setOnClickListener(arg0 -> {
+
+			if (_textBoxColorRequestFocus != null)
+				_textBoxColorRequestFocus.requestFocus();
+
+			try {
+				if (DepositManagerExtension.DataTier.IsSerieA(that._comboSerie, that._appConfig))
+					_deposito.Serie = _appConfig.getUser().SerialInvoiceA;
+				else
+					_deposito.Serie = _appConfig.getUser().SerialInvoiceB;
+
+				DepositManagerExtension.Dialogs.StartTotalesDialog((Fragment) that);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 		});
 
 		// Botón Albarán
 		
 		ButtonColor albaran = DepositManagerExtension.UI.addButton(getActivity(), Color.RED, "Cerrar operación", 
-				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params);
+				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params, getResources().getDrawable(R.drawable.ic_save));
 		
-		albaran.setOnClickListener(new OnClickListener() {
+		albaran.setOnClickListener(arg0 -> {
 
-			@Override
-			public void onClick(View arg0) {
-			
-				try {
-					
-					if (_textBoxColorRequestFocus != null)
-						_textBoxColorRequestFocus.requestFocus();
+			try {
 
-					if (_deposito == null) {
-						_appConfig.getMessageBox().Show("Atención",
-								"No hay ningún depósito cargado",
-								getActivity(), MessageBoxType.Error);
-						
-					    return; 
-					}
-					if (!DepositManagerExtension.DataTier.IsCustomerDataFilled(that._deposito)) {
-						boolean result = _appConfig.getMessageBox().ShowWithResult("Cierre de operación",
-								"El cliente NO está correctamente rellenado. Desea editarlo?", arg0.getContext(),
-								MessageBoxType.Information);
-						if (!result) {
-							return;
-						} else {
-							DepositManagerExtension.Dialogs.StartCustomerDataDialog( (Fragment) that);
-						}
-					}
+				if (_textBoxColorRequestFocus != null)
+					_textBoxColorRequestFocus.requestFocus();
 
-					GenerateAlbaran();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
+				if (_deposito == null) {
 					_appConfig.getMessageBox().Show("Atención",
-							_appConfig.getStackTrace(e),
-							getActivity(), MessageBoxType.Error);				
+							"No hay ningún depósito cargado",
+							getActivity(), MessageBoxType.Error);
+
+					return;
 				}
+				if (!DepositManagerExtension.DataTier.IsCustomerDataFilled(that._deposito)) {
+					boolean result = _appConfig.getMessageBox().ShowWithResult("Cierre de operación",
+							"El cliente NO está correctamente rellenado. Desea editarlo?", arg0.getContext(),
+							MessageBoxType.Information);
+					if (!result) {
+						return;
+					} else {
+						DepositManagerExtension.Dialogs.StartCustomerDataDialog( (Fragment) that);
+					}
+				}
+
+				GenerateAlbaran();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
-			
 		});
 
 		ButtonColor nuevo = DepositManagerExtension.UI.addButton(getActivity(), Color.MAGENTA, "Nuevo depósito", 
-				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params);
+				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params, getResources().getDrawable(R.drawable.ic_new));
 		
-		nuevo.setOnClickListener(new OnClickListener() {
+		nuevo.setOnClickListener(arg0 -> {
 
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
+			try {
+				_appConfig.getWorkingArea().TransferMode = TransferMode.None;
+				resetDeposit(true, true);
 
-				try {
-					_appConfig.getWorkingArea().TransferMode = TransferMode.None;
-					resetDeposit(true, true);
-
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getMessageBox().Show("Atención",
-							_appConfig.getStackTrace(e),
-							getActivity(), MessageBoxType.Error);				}
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 		});
 
 		ButtonColor print = DepositManagerExtension.UI.addButton(getActivity(), Color.CYAN, "Estado impresora", 
 				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params);
 				
-		print.setOnClickListener(new OnClickListener() {
+		print.setOnClickListener(view -> {
 
-			@Override
-			public void onClick(View view) {
-				// TODO Auto-generated method stub
+			try {
 
-				try {
+				if (!DepositManagerExtension.Devices.PrinterStatus(false, that._appConfig, that.getActivity().getApplicationContext() ))
+					_appConfig.getMessageBox().Show("Estado de la impresora",
+							"La impresora no está activada. Revise que esté correctamente encendida y con la batería cargada.",
+							view.getContext(), MessageBoxType.Error);
+				else
+					_appConfig.getMessageBox().Show("Estado de la impresora",
+							"La impresora está activada, preparada para imprimir.", view.getContext(),
+							MessageBoxType.Error);
 
-					if (!DepositManagerExtension.Devices.PrinterStatus(false, that._appConfig, that.getActivity().getApplicationContext() ))
-						_appConfig.getMessageBox().Show("Estado de la impresora",
-								"La impresora no está activada. Revise que esté correctamente encendida y con la batería cargada.",
-								view.getContext(), MessageBoxType.Error);
-					else
-						_appConfig.getMessageBox().Show("Estado de la impresora",
-								"La impresora está activada, preparada para imprimir.", view.getContext(),
-								MessageBoxType.Error);
-
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getMessageBox().Show("Atención",
-							_appConfig.getStackTrace(e),
-							getActivity(), MessageBoxType.Error);				}
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 		});
 
 		print.setVisibility(View.GONE);
 		
-		layout2.addView(datos);
-		layout2.addView(totales);
-		layout2.addView(albaran);
-		layout2.addView(nuevo);
-		layout2.addView(print);
-		layoutAux.addView(layout2);
+		layout.addView(datos);
+		layout.addView(totales);
+		layout.addView(albaran);
+		layout.addView(nuevo);
+		layout.addView(print);
 		
-		LinearLayout footerLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.footerMainLinearLayout);
+		LinearLayout footerLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerButtonsLinearLayout);
 		footerLinearLayout.removeAllViews();
 		footerLinearLayout.setOrientation(LinearLayout.VERTICAL);
+
 		footerLinearLayout.addView(layout);
-		
-		footerLinearLayout.addView(layoutAux);
 
 	}
 
 	private void FillWindow() throws Exception {
 
-		final DepositManager that = this;
+		this.resetLines();
+		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity()
+				.findViewById(R.id.mainLinearLayoutDepositManager);
 
-		ScrollView yourScrollViewName= (ScrollView) this.getActivity().findViewById(R.id.svcScroll);
-		yourScrollViewName.setOnTouchListener(new View.OnTouchListener() {
-			@Override
-			public boolean onTouch(View view, MotionEvent motionEvent) {
-				InputMethodManager imm = (InputMethodManager) that.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-				imm.hideSoftInputFromWindow(that.getActivity().getWindow().getCurrentFocus().getWindowToken(), 0);
-				return false;
-			}
-		});
 
 		this.createHeaderLabels();
-		
+
 		if (DepositManagerExtension.DataTier.RestriccionIngresos(this._appConfig, this.getActivity().getApplicationContext())) {
 
 			_appConfig.getMessageBox().Show("Atención",
@@ -726,20 +657,14 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 			return;
 
 		}
-		
+
 		Cliente cliente = _appConfig.getWorkingArea().CurrentCliente;
+		cliente.InitializePersistance(_appConfig, this.getActivity().getApplicationContext());
+
 		_cliente = _appConfig.getWorkingArea().CurrentCliente;
 
 		TextView label = (TextView) getActivity().findViewById(R.id.lblCliente);
 		label.setText(cliente.Nombre + " - " + cliente.NIF + "     ");
-
-		try {
-			cliente.InitializePersistance(_appConfig, this.getActivity().getApplicationContext());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			_appConfig.getMessageBox().Show("Atención",
-					_appConfig.getStackTrace(e),
-					getActivity(), MessageBoxType.Error);		}
 
 		try {
 
@@ -764,6 +689,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 						_deposito.assingFromCliente(_cliente);
 						_deposito.Lineas.clear();
 						this.addPotentialArticles();
+
 					} else {
 						_appConfig.getMessageBox().Show("Advertencia",
 								"No se puede hacer un traspaso de un cliente nuevo. La operación va a ser cancelada",
@@ -784,6 +710,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 						_deposito.assingFromCliente(_cliente);
 
 						this.addPotentialArticles();
+
 						_appConfig.getMessageBox().Show("Información",
 								"El cliente " + cliente.Nombre
 										+ " no tiene ningún depósito. Se va a proceder a crear uno de nuevo",
@@ -799,55 +726,56 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 					}
 
 				} else if (depositos.size() > 0 && !_cliente.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE)) {
-					// _deposito = depositos.get(0);
-
 					_deposito = new Deposito();
 					_deposito.InitializePersistance(_appConfig, _appConfig);
 					_deposito.setFirstDepositoByCliente(cliente.CodigoCliente);
 					_deposito.assingFromCliente(_cliente);
-
+					this.addPotentialArticles();
 				}
 
 				_appConfig.getWorkingArea().InitialDeposito = _deposito.CloneOnlyLineas();
-
 				_appConfig.getWorkingArea().CurrentDeposito = _deposito;
 				_appConfig.getWorkingArea().CurrentDeposito.DatosFiscalesUpdated = false;
 
 			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				_appConfig.getMessageBox().Show("Atención",
-						_appConfig.getStackTrace(e1),
-						getActivity(), MessageBoxType.Error);
+				throw new RuntimeException(e1);
 			}
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-
-			_appConfig.getMessageBox().Show("Atención",
-					_appConfig.getStackTrace(e),
-					getActivity(), MessageBoxType.Error);		}
+			throw new RuntimeException(e);
+		}
 
 		FillFooter();
-		
-		List<LineaDeposito> tempList = new ArrayList<LineaDeposito>();
+
+		List<LineaDeposito> depositLines = new ArrayList<>();
+		List<LineaDeposito> potentialLines = new ArrayList<>();
 
 		for (LineaDeposito linea : _deposito.Lineas.values()) {
-			tempList.add(linea);
+			if (linea.IsNew)
+				potentialLines.add(linea);
+			else
+				depositLines.add(linea);
 		}
-		
-		Collections.sort(tempList, new LineaDeposito().new ArticuloComparator());
-		for (LineaDeposito linea : tempList) {
+
+		Collections.sort(depositLines, new LineaDeposito().new ArticuloComparator());
+		Collections.sort(potentialLines, new LineaDeposito().new ArticuloComparator());
+
+		for (LineaDeposito linea : depositLines) {
 			try {
-
-				addLine(linea);
+				mainLinearLayout.addView(addLine(linea));
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				_appConfig.getMessageBox().Show("Atención",
-						_appConfig.getStackTrace(e),
-						getActivity(), MessageBoxType.Error);			}
+				throw new RuntimeException(e);
+			}
 		}
 
-		this.addPotentialArticles();
+		for (LineaDeposito linea : potentialLines) {
+			try {
+				mainLinearLayout.addView(addLine(linea));
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
 		this.createAutoComplete();
 
 	}
@@ -861,65 +789,56 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
         
         this._myAutoComplete.setThreshold(1);
         this._myAutoComplete.setCompletionHint("Pulse el artículo que desea visualizar");
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),android.R.layout.simple_dropdown_item_1line, this._articles);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_dropdown_item_1line, this._articles);
                 
         this._myAutoComplete.setAdapter(adapter);
         
-        this._myAutoComplete.setOnItemClickListener(new OnItemClickListener() {
-            public void onItemClick(AdapterView<?> listView, View view,
-                        int position, long id) {
+        this._myAutoComplete.setOnItemClickListener((listView, view, position, id) -> {
 
-            	String selectedArticle =  listView.getItemAtPosition(position).toString().trim().toUpperCase();
-            	
-            	LinearLayout layout = (LinearLayout) that.getActivity()
-        				.findViewById(R.id.mainLinearLayoutDepositManager);
-            	int count = layout.getChildCount();
-            	
-            	boolean isShowed = false;
-            	
-            	for(int i=0; i<count; i++) {
-            	    View v = layout.getChildAt(i);
-            	    
-            	    LabelColor articleLabel = (LabelColor) ((LinearLayout) v).getChildAt(1);
-            	    String currentArticle = articleLabel.getText().toString().trim().toUpperCase();
+			String selectedArticle =  listView.getItemAtPosition(position).toString().trim().toUpperCase();
 
-            	    Log.i("DepositManager", currentArticle);
-            	    if (selectedArticle.equals(currentArticle) && !isShowed) {
-            	    	v.setVisibility(View.VISIBLE);
-            	    	isShowed = true;
-            	    } else {
-            	    	v.setVisibility(View.GONE);
-            	    }
-            	    
-            	}
-            	that._myAutoComplete.setText(Constants.EMPTY_STRING);
-            }
-        });
+			LinearLayout layout = (LinearLayout) that.getActivity()
+					.findViewById(R.id.mainLinearLayoutDepositManager);
+			int count = layout.getChildCount();
+
+			boolean isShowed = false;
+
+			for(int i=0; i<count; i++) {
+				View v = layout.getChildAt(i);
+
+				LabelColor articleLabel = (LabelColor) ((LinearLayout) v).getChildAt(1);
+				String currentArticle = articleLabel.getText().toString().trim().toUpperCase();
+
+				if (selectedArticle.equals(currentArticle) && !isShowed) {
+					v.setVisibility(View.VISIBLE);
+					isShowed = true;
+				} else {
+					v.setVisibility(View.GONE);
+				}
+
+			}
+			that._myAutoComplete.setText(Constants.EMPTY_STRING);
+		});
  
 	}
 	
 	private void addPotentialArticles() throws Exception {
 		// Buscamos los artículos que no están asociados al depósito
-		
+
 		Articulo articulo = new Articulo();
 		articulo.InitializePersistance(_appConfig, _appConfig);
-		
-		LinkedHashMap<String, Articulo> articulos = articulo.getAllArticulos(1);
+
+		LinkedHashMap<String, Articulo> articulos = _appConfig.getCache().getAllArticulos();
+		//LinkedHashMap<String, Articulo> articulos = articulo.getAllArticulos(1);
 
 		for (Articulo articuloInCatalgo : articulos.values())
 			try {
-				
-				if (_deposito.Lineas.containsKey(articuloInCatalgo.CodigoArticulo)) 
-					continue;
-				
-				LineaDeposito linea = new LineaDeposito();
 
-				try {
-					linea.InitializePersistance(_appConfig, this.getActivity().getApplicationContext());
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-				}
+				if (_deposito.Lineas.containsKey(articuloInCatalgo.CodigoArticulo))
+					continue;
+
+				LineaDeposito linea = new LineaDeposito();
+				linea.InitializePersistance(_appConfig, this.getActivity().getApplicationContext());
 
 				linea.Articulo = articuloInCatalgo;
 				linea.Deposito = _deposito;
@@ -937,182 +856,16 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 				linea.IsNew = true;
 
 				_deposito.Lineas.put(String.valueOf(linea.Articulo.CodigoArticulo), linea);
-				addLine(linea);
+				//layouts.add(addLine(linea));
 
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				_appConfig.getMessageBox().Show("Atención",
-						_appConfig.getStackTrace(e),
-						getActivity(), MessageBoxType.Error);			}
-	}
-
-	
-	private String SaveDeposito(Historico historico) throws Exception {
-		try {
-			_deposito.InitializePersistance(_appConfig, this.getActivity().getApplicationContext());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-			return null;
-		}
-
-		_deposito.FechaDeposito = new Date();
-
-		if (_deposito.IdDeposito == null)
-			_deposito.save();
-		else {
-			_deposito.DeleteAllLines();
-			_deposito.update();
-		}
-		// Solo restamos stock, en el caso de que el deposito sea de tipo Furgoneta
-		LogBook logBookTrace = new LogBook();
-		logBookTrace.InitializePersistance(_appConfig,_appConfig);
-
-		for (LineaDeposito linea : _deposito.Lineas.values()) {
-
-			if (!_deposito.isDepositoRetirado()) {
-
-				if (linea.UnidadesRepuestas > 0) {
-					linea.save();
-
-					if (_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Furgoneta) {
-						linea.Articulo.InitializePersistance(_appConfig, _appConfig);
-						linea.Articulo.Activo = true;
-
-						if (linea.IsVentaDirecta) {
-							int stockInicial = linea.Articulo.Stock;
-							linea.Articulo.Stock = stockInicial + linea.UnidadesDevueltas - linea.UnidadesDefectuosas
-									- linea.UnidadesRepuestas
-									- (linea.UnidadesFacturadas - (linea.UnidadesInicialesFijas - linea.UnidadesDevueltas));
-
-							if (stockInicial != linea.Articulo.Stock) {
-								logBookTrace.setData("VENTA DIRECTA CON UNIDADES REPUESTAS", _deposito.Cliente.CodigoCliente,
-										_deposito.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
-										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
-										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
-										linea.UnidadesAbono, linea.UnidadesDefectuosas);
-
-								logBookTrace.save();
-
-							}
-
-							linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesDevueltas
-									- linea.UnidadesDefectuosas - linea.UnidadesRepuestas
-									- (linea.UnidadesFacturadas - linea.UnidadesInicialesFijas + linea.UnidadesDevueltas);
-
-						} else {
-							int stockInicial = linea.Articulo.Stock;
-							linea.Articulo.Stock = stockInicial + linea.UnidadesDevueltas - linea.UnidadesDefectuosas
-									- linea.UnidadesRepuestas;
-
-							if (stockInicial != linea.Articulo.Stock) {
-
-								logBookTrace.setData("VENTA CONVENCIONAL (NO DIRECTA) CON UNIDADES REPUESTAS", _deposito.Cliente.CodigoCliente,
-										_deposito.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
-										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
-										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
-										linea.UnidadesAbono, linea.UnidadesDefectuosas);
-
-								logBookTrace.save();
-							}
-
-							linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesDevueltas
-									- linea.UnidadesDefectuosas - linea.UnidadesRepuestas;
-						}
-
-						linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.UnidadesDefectuosas;
-
-						linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
-								+ linea.UnidadesDefectuosas;
-
-						linea.Articulo.update();
-					}
-				} else {
-
-					if (_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Furgoneta) {
-
-						linea.Articulo.InitializePersistance(_appConfig, _appConfig);
-						linea.Articulo.Activo = true;
-
-						if (linea.IsVentaDirecta) {
-							int stockInicial = linea.Articulo.Stock;
-							linea.Articulo.Stock = stockInicial - linea.UnidadesFacturadas;
-
-							if (stockInicial != linea.Articulo.Stock) {
-
-								logBookTrace.setData("VENTA DIRECTA SIN UNIDADES REPUESTAS", _deposito.Cliente.CodigoCliente,
-										_deposito.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
-										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
-										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
-										linea.UnidadesAbono, linea.UnidadesDefectuosas);
-
-								logBookTrace.save();
-							}
-
-							linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock - linea.UnidadesFacturadas;
-						} else {
-							int stockInicial = linea.Articulo.Stock;
-							linea.Articulo.Stock = stockInicial + linea.UnidadesDevueltas - linea.UnidadesDefectuosas
-									- linea.UnidadesRepuestas;
-
-
-							if (stockInicial != linea.Articulo.Stock) {
-
-								logBookTrace.setData("VENTA CONVENCIONAL (NO DIRECTA) CON UNIDADES REPUESTAS", _deposito.Cliente.CodigoCliente,
-										_deposito.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
-										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
-										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
-										linea.UnidadesAbono, linea.UnidadesDefectuosas);
-
-								logBookTrace.save();
-							}
-
-							linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesDevueltas
-									- linea.UnidadesDefectuosas - linea.UnidadesRepuestas;
-						}
-
-						linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.UnidadesDefectuosas;
-
-						linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
-								+ linea.UnidadesDefectuosas;
-
-						linea.Articulo.update();
-					}
-				}
-
-				if (linea.UnidadesAbono > 0 && _appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Furgoneta) {
-					linea.Articulo.InitializePersistance(_appConfig, _appConfig);
-					linea.Articulo.Activo = true;
-
-					int stockInicial = linea.Articulo.Stock;
-					linea.Articulo.Stock = stockInicial + linea.UnidadesAbono - linea.DefectuosasAbono;
-
-					if (stockInicial != linea.Articulo.Stock) {
-
-						logBookTrace.setData("VENTA ABONO", _deposito.Cliente.CodigoCliente,
-								_deposito.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
-								stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
-								linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
-								linea.UnidadesAbono, linea.UnidadesDefectuosas);
-
-						logBookTrace.save();
-					}
-
-					linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesAbono
-							- linea.DefectuosasAbono;
-
-					linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.DefectuosasAbono;
-
-					linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
-							+ linea.Articulo.MovimientoStockDefectuosas + linea.DefectuosasAbono;
-
-					linea.Articulo.update();
-
-				}
+				throw new RuntimeException(e);
 			}
-		}
+	}
+	
+	private void SaveDeposito() throws Exception {
 
-		// Guardamos el nuevo cliente
+		_deposito.saveChangesToDeposito();
 
 		if (_deposito.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE)) {
 
@@ -1139,11 +892,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 
 		}
 
-		// Generamos el historico
-
-		historico = this.SaveHistorico(historico);
-
-		// Guardamos los xml a enviar
+		this.SaveHistorico();
 
 		XmlCreator creator = new XmlCreator(_appConfig, _appConfig);
 		creator.createXmlArticulos();
@@ -1154,24 +903,11 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 		if (_deposito.isDeposito() || (!_deposito.isDeposito() && _deposito.isDepositoUpdated()))
 			creator.createXmlDeposito(_deposito);
 
-		// Serializamos el objeto deposito a JSON
-		try {
-			
-			return historico.GUID;
-
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			_appConfig.getMessageBox().Show("Atención",
-					_appConfig.getStackTrace(e),
-					getActivity(), MessageBoxType.Error);
-			return null;
-		}
-
 	}
 
 	private void GenerateAlbaran() throws Exception {
 
-		String GUID = null;
+		String GUID = "";
 
 		if (DepositManagerExtension.DataTier.IsSerieA(this._comboSerie, this._appConfig)) {
 			_deposito.Serie = _appConfig.getUser().SerialInvoiceA;
@@ -1242,16 +978,16 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 
 				// Introducimos el motivo de la baja del depósito
 
-				String motivo = Constants.EMPTY_STRING;
+				String motivo;
 				
 				do {
 					motivo = _appConfig.getMessageBox().InputBox("Cierre de operación",
 							"Introduzca el motivo de la baja", getActivity());	
-				} while (motivo.trim().equals(null) || motivo.trim().equals(Constants.EMPTY_STRING));
+				} while (motivo.trim().equals(Constants.EMPTY_STRING));
 				
 				_deposito.MotivoRetirado = motivo;
 
-				Map<String, LineaDeposito> processed = new HashMap<String, LineaDeposito>();
+				Map<String, LineaDeposito> processed =new HashMap<>();
 
 				for (LineaDeposito linea : _deposito.Lineas.values()) {
 					
@@ -1335,8 +1071,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 			Historico historico = new Historico();
 			GUID = historico.GUID;
 			_appConfig.getWorkingArea().CurrentHistorico = historico;
-			
-			// Guardem la nova filiació i enviem incidència si és necessari
 
 			this.CheckIfNewFiliacion(_deposito.Cliente.Filiacion);
 
@@ -1349,17 +1083,17 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 
 				if (!result)
 					return;
-				else
-					GUID = SaveDeposito(_appConfig.getWorkingArea().CurrentHistorico);
+
+				SaveDeposito();
 
 				if (_deposito.isAlbaran() && _deposito.Pagado) {
 					DepositManagerExtension.Dialogs.StartSignatureVendorDialog(this);
 				}
 
 				// Generem el consentiment GDPR si és necessari
-				
+
 				if (!_deposito.Cliente.hasGDPRSigned()) {
-					
+
 					PdfGDPR gdpr = new PdfGDPR(this._deposito.Cliente, GUID, this._appConfig, this._appConfig);
 					if (gdpr.createGDPR())
 						_deposito.Cliente.setGDPRSigned();
@@ -1372,7 +1106,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 				}
 			}
 
-			if (GUID == null) {
+			if (_appConfig.getWorkingArea().CurrentHistorico.GUID == null) {
 				_appConfig.getMessageBox().Show("Cierre de operación",
 						"Se ha producido un error al cerrar la operación. Contacte con el servicio técnico",
 						this.getActivity(), MessageBoxType.Information);
@@ -1382,6 +1116,46 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 			resetDeposit(false, true);
 		}
 
+		this.printDeposito(GUID);
+		closeOperation();
+	}
+
+	private void SaveHistorico() throws Exception {
+
+		_deposito.PagoDescripcion = _comboPago.getText();
+		_deposito.Filiacion = DepositManagerExtension.DataTier.getFiliacionCode(_comboFiliacion.getText());
+		_deposito.Pagado = _checkPagado.isChecked();
+		_deposito.formaPago = DepositManagerExtension.DataTier.getFormaPagoByDescripcion(_comboPago.getText(), this._appConfig);
+
+		if (_deposito.isAlbaran()) {
+			if (DepositManagerExtension.DataTier.IsSerieA(this._comboSerie, this._appConfig))
+				_deposito.Serie = _appConfig.getUser().SerialInvoiceA;
+			else
+				_deposito.Serie = _appConfig.getUser().SerialInvoiceB;
+
+			Contador contador = new Contador();
+			contador.InitializePersistance(_appConfig, getActivity());
+
+			contador.getContadores();
+
+			if (_deposito.Serie == _appConfig.getUser().SerialInvoiceA) {
+				contador.ContadorSerieA = contador.ContadorSerieA + 1;
+				_deposito.NumeroAlbaran = String.valueOf(contador.ContadorSerieA);
+			} else {
+				contador.ContadorSerieB = contador.ContadorSerieB + 1;
+				_deposito.NumeroAlbaran = String.valueOf(contador.ContadorSerieB);
+			}
+
+			contador.update();
+		}
+
+
+		_appConfig.getWorkingArea().CurrentHistorico.InitializePersistance(_appConfig, getActivity());
+		_appConfig.getWorkingArea().CurrentHistorico.saveChangesToHistorico(_deposito);
+
+	}
+
+	private void printDeposito(String GUID) {
 		boolean printDeposito = true;
 
 		if (!_deposito.isDepositoUpdated() || _deposito.isDepositoUpdatedOnlyVentaDirecta()) {
@@ -1392,12 +1166,22 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 
 		if (_deposito.isDeposito() || _deposito.isAlbaran()) {
 
-			DepositManagerExtension.Documents.GeneratePdf(GUID, _deposito, _appConfig);
+			try {
+				DepositManagerExtension.Documents.GeneratePdf(GUID, _deposito, _appConfig);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			} catch (DocumentException e) {
+				throw new RuntimeException(e);
+			}
 
 			boolean resultImp = _appConfig.getMessageBox().ShowWithResult("Impresión de documentos",
 					"Desea iniciar la impresión ?", this.getActivity(), MessageBoxType.Information);
 			if (!resultImp) {
-				closeOperation(GUID);
+				try {
+					closeOperation();
+				} catch (Exception e) {
+					return;
+				}
 				return;
 			}
 
@@ -1405,329 +1189,96 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 
 			PrintManager printManager = new PrintManager();
 
-			try {
+			// Comprobamos que el dispositivo esté funcionando correctamente
+			boolean cancelStartPrint;
+			boolean printerStatus = false;
 
-				// Comprobamos que el dispositivo esté funcionando correctamente
-				boolean cancelStartPrint = false;
-				boolean printerStatus = false;
+			do {
 
-				do {
-
-					for (int i = 1; i < 3; i++) {
-						if (!printerStatus) {
-							try {
-								Thread.sleep(500);
-							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							printerStatus = printManager.getStatus(getActivity().getApplicationContext(), _appConfig,
-									false);
+				for (int i = 1; i < 3; i++) {
+					if (!printerStatus) {
+						try {
+							Thread.sleep(500);
+						} catch (InterruptedException e) {
+							throw new RuntimeException(e);
 						}
+						printerStatus = printManager.getStatus(getActivity().getApplicationContext(), _appConfig,
+								false);
 					}
+				}
 
-					Log.i("DepositManager", "Get Status: " + String.valueOf(printerStatus));
+				if (!printerStatus)
+					cancelStartPrint = _appConfig.getMessageBox().ShowWithResult("No se pudo iniciar la impresión",
+							"No se pudo iniciar la impresión. Revise el dispositivo. Desea volverlo a intentar?",
+							this.getActivity(), MessageBoxType.Information);
+				else
+					cancelStartPrint = false;
+			} while (cancelStartPrint);
 
-					if (!printerStatus)
-						cancelStartPrint = _appConfig.getMessageBox().ShowWithResult("No se pudo iniciar la impresión",
-								"No se pudo iniciar la impresión. Revise el dispositivo. Desea volverlo a intentar?",
-								this.getActivity(), MessageBoxType.Information);
-					else
-						cancelStartPrint = false;
-				} while (cancelStartPrint);
+			if (printerStatus) {
 
-				if (!cancelStartPrint && printerStatus) {
+				for (int i = 1; i <= copias; i++) {
+					boolean result;
+					boolean cancel = false;
 
-					for (int i = 1; i <= copias; i++) {
-						boolean result = false;
-						boolean cancel = false;
-
-						if (_deposito.isDeposito() && printDeposito) {
-							do {
+					if (_deposito.isDeposito() && printDeposito) {
+						do {
+							try {
 								result = printManager.printDeposito(_deposito, _appConfig, _appConfig, GUID);
-								if (!result)
-									cancel = _appConfig.getMessageBox().ShowWithResult("Impresión de depósito",
-											"No se pudo imprimir el depósito. Desea volverlo a intentar?",
-											this.getActivity(), MessageBoxType.Information);
-							} while (cancel);
-
-							if (!result) {
-								closeOperation(GUID);
-								printManager.Release();
-								printManager = null;
-								return;
+							} catch (Exception e) {
+								throw new RuntimeException(e);
 							}
-
-						}
-						result = false;
-						cancel = false;
-						if (_deposito.isAlbaran()) {
-							do {
-								result = printManager.printAlbaran(_deposito, this.getActivity(), _appConfig, GUID, DepositManagerExtension.DataTier.isTransferPayment(_deposito.formaPago));
-								if (!result)
-									cancel = _appConfig.getMessageBox().ShowWithResult("Impresión de depósito",
-											"No se pudo imprimir el albarán. Desea volverlo a intentar?",
-											this.getActivity(), MessageBoxType.Information);
-							} while (cancel);
-						}
+							if (!result)
+								cancel = _appConfig.getMessageBox().ShowWithResult("Impresión de depósito",
+										"No se pudo imprimir el depósito. Desea volverlo a intentar?",
+										this.getActivity(), MessageBoxType.Information);
+						} while (cancel);
 
 						if (!result) {
-							closeOperation(GUID);
+							try {
+								closeOperation();
+							} catch (Exception e) {
+								printManager.Release();
+								return;
+							}
 							printManager.Release();
-							printManager = null;
 							return;
 						}
 
 					}
+					result = false;
+					cancel = false;
+					if (_deposito.isAlbaran()) {
+						do {
+							try {
+								result = printManager.printAlbaran(_deposito, this.getActivity(), _appConfig, GUID, DepositManagerExtension.DataTier.isTransferPayment(_deposito.formaPago));
+							} catch (Exception e) {
+								throw new RuntimeException(e);
+							}
+							if (!result)
+								cancel = _appConfig.getMessageBox().ShowWithResult("Impresión de depósito",
+										"No se pudo imprimir el albarán. Desea volverlo a intentar?",
+										this.getActivity(), MessageBoxType.Information);
+						} while (cancel);
+					}
+
+					if (!result) {
+						try {
+							closeOperation();
+						} catch (Exception e) {
+							printManager.Release();
+							return;
+						}
+						printManager.Release();
+						return;
+					}
+
 				}
 			}
-
-			finally {
-
-			}
-
 		}
-
-		closeOperation(GUID);
 	}
 
-	private Historico SaveHistorico(Historico historico) throws Exception {
-
-		historico.InitializePersistance(_appConfig, getActivity());
-		historico.Cliente = _deposito.Cliente;
-		historico.NombrePresentacion = _deposito.Nombre;
-		historico.PoblacionPresentacion = _deposito.Poblacion;
-		historico.CodigoPostalPresentacion = _deposito.CodigoPostal;
-
-		_deposito.PagoDescripcion = _comboPago.getText();
-		_deposito.Filiacion = DepositManagerExtension.DataTier.getFiliacionCode(_comboFiliacion.getText());
-		_deposito.Pagado = _checkPagado.isChecked();
-		_deposito.formaPago = DepositManagerExtension.DataTier.getFormaPagoByDescripcion(_comboPago.getText(), this._appConfig);
-
-		historico.Serie = Constants.EMPTY_STRING;
-
-		if (_deposito.isAlbaran()) {
-			if (DepositManagerExtension.DataTier.IsSerieA(this._comboSerie, this._appConfig))
-				_deposito.Serie = _appConfig.getUser().SerialInvoiceA;
-			else
-				_deposito.Serie = _appConfig.getUser().SerialInvoiceB;
-
-			historico.Serie = _deposito.Serie;
-
-			Contador contador = new Contador();
-			contador.InitializePersistance(_appConfig, getActivity());
-
-			contador.getContadores();
-
-			if (_deposito.Serie == _appConfig.getUser().SerialInvoiceA) {
-				contador.ContadorSerieA = contador.ContadorSerieA + 1;
-				_deposito.NumeroAlbaran = String.valueOf(contador.ContadorSerieA);
-				historico.NumeroAlbaran = _deposito.NumeroAlbaran;
-			} else {
-				contador.ContadorSerieB = contador.ContadorSerieB + 1;
-				_deposito.NumeroAlbaran = String.valueOf(contador.ContadorSerieB);
-				historico.NumeroAlbaran = _deposito.NumeroAlbaran;
-			}
-
-			contador.update();
-		}
-
-		historico.Fecha = new Date();
-
-		try {
-			_deposito.Calculate();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e1);
-		}
-
-		historico.Total = _deposito.Totales.TotalBase;
-		historico.CantidadPagada = _deposito.CantidadPagada;
-
-		if (!_deposito.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE) && !_deposito.Retirado)
-			historico.Tipo = Constants.TIPO_HISTORICO_CLIENTE_EXISTENTE;
-		else if (_deposito.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE))
-			historico.Tipo = Constants.TIPO_HISTORICO_CLIENTE_NUEVO;
-		else if (_deposito.Retirado)
-			historico.Tipo = Constants.TIPO_HISTORICO_CLIENTE_BAJA;
-
-		historico.ActualizarStock = _appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? false : true;
-		
-		// Serializamos el objeto deposito a JSON
-		try {
-			historico.Serializacion = _deposito.getDTO().serialize();
-			Log.i("DepositManager", "Serializacion: " + historico.Serializacion);
-			Log.i("DepositManager", "Total Lineas DTO: " + _deposito.getDTO().Lineas.size());
-		} catch (Exception e) {
-		}
-
-		try {
-			historico.save();
-		} catch (Exception e) {
-		}
-
-		_appConfig.getWorkingArea().CurrentHistorico = historico;
-
-		for (LineaDeposito linea : _deposito.Lineas.values()) {
-
-			if (linea.UnidadesFacturadas > 0) {
-				LineaHistorico lineaHistorico = new LineaHistorico();
-				try {
-					lineaHistorico.InitializePersistance(_appConfig, getActivity());
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getMessageBox().Show("Atención",
-							_appConfig.getStackTrace(e),
-							getActivity(), MessageBoxType.Error);				}
-				lineaHistorico.Historico = historico;
-				lineaHistorico.Articulo = linea.Articulo;
-				lineaHistorico.Unidades = linea.UnidadesFacturadas;
-				lineaHistorico.MovimientoStock = linea.UnidadesRepuestas;
-				lineaHistorico.MovimientoStockDefectuosas = 0;
-
-				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_FACTURADAS;
-
-				try {
-					lineaHistorico.save();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getMessageBox().Show("Atención",
-							_appConfig.getStackTrace(e),
-							getActivity(), MessageBoxType.Error);				}
-			}
-
-			if (linea.UnidadesInicialesFijas == 0 && linea.UnidadesRepuestas > 0) {
-				LineaHistorico lineaHistorico = new LineaHistorico();
-				lineaHistorico.InitializePersistance(_appConfig, getActivity());
-				lineaHistorico.Historico = historico;
-				lineaHistorico.Articulo = linea.Articulo;
-				lineaHistorico.Unidades = linea.UnidadesRepuestas;
-				lineaHistorico.MovimientoStock = linea.Articulo.MovimientoStock;
-				lineaHistorico.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas;
-
-				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_POTENCIADAS;
-
-				try {
-					lineaHistorico.save();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getMessageBox().Show("Atención",
-							_appConfig.getStackTrace(e),
-							getActivity(), MessageBoxType.Error);				}
-
-			}
-
-			if (!linea.IsNew && linea.UnidadesRepuestas == 0) {
-				LineaHistorico lineaHistorico = new LineaHistorico();
-				lineaHistorico.InitializePersistance(_appConfig, getActivity());
-				lineaHistorico.Historico = historico;
-				lineaHistorico.Articulo = linea.Articulo;
-				lineaHistorico.Unidades = linea.UnidadesInicialesFijas; // 
-				lineaHistorico.MovimientoStock = 0;
-				lineaHistorico.MovimientoStockDefectuosas = 0;
-
-				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_BAJAS;
-
-				try {
-					lineaHistorico.save();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-				}
-
-			}
-
-			if (linea.UnidadesDefectuosas > 0) {
-				LineaHistorico lineaHistorico = new LineaHistorico();
-				lineaHistorico.InitializePersistance(_appConfig, getActivity());
-				lineaHistorico.Historico = historico;
-				lineaHistorico.Articulo = linea.Articulo;
-				lineaHistorico.Unidades = linea.UnidadesDefectuosas; // 
-				lineaHistorico.MovimientoStock = 0;
-				lineaHistorico.MovimientoStockDefectuosas = 0;
-
-				// linea.UnidadesFacturadas;
-
-				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_DEFECTUOSAS;
-
-				try {
-					lineaHistorico.save();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getMessageBox().Show("Atención",
-							_appConfig.getStackTrace(e),
-							getActivity(), MessageBoxType.Error);				}
-			}
-
-			if (linea.Articulo.MovimientoStock != 0 || linea.Articulo.MovimientoStockDefectuosas != 0) {
-				LineaHistorico lineaHistorico = new LineaHistorico();
-				lineaHistorico.InitializePersistance(_appConfig, getActivity());
-				lineaHistorico.Historico = historico;
-				lineaHistorico.Articulo = linea.Articulo;
-				lineaHistorico.Unidades = 0;
-				lineaHistorico.MovimientoStock = linea.Articulo.MovimientoStock;
-				lineaHistorico.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas;
-
-				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_STOCK;
-
-				try {
-					lineaHistorico.save();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getMessageBox().Show("Atención",
-							_appConfig.getStackTrace(e),
-							getActivity(), MessageBoxType.Error);				}
-			}
-
-			if (linea.UnidadesAbono > 0) {
-				LineaHistorico lineaHistorico = new LineaHistorico();
-				lineaHistorico.InitializePersistance(_appConfig, getActivity());
-				lineaHistorico.Historico = historico;
-				lineaHistorico.Articulo = linea.Articulo;
-				lineaHistorico.Unidades = linea.UnidadesAbono * -1;
-				lineaHistorico.MovimientoStock = 0;
-				lineaHistorico.MovimientoStockDefectuosas = 0;
-
-				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_FACTURADAS;
-
-				try {
-					lineaHistorico.save();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getMessageBox().Show("Atención",
-							_appConfig.getStackTrace(e),
-							getActivity(), MessageBoxType.Error);				}
-			}
-			
-			if (linea.UnidadesInicialesFijas > 0) {
-				LineaHistorico lineaHistorico = new LineaHistorico();
-				lineaHistorico.InitializePersistance(_appConfig, getActivity());
-				lineaHistorico.Historico = historico;
-				lineaHistorico.Articulo = linea.Articulo;
-				lineaHistorico.Unidades = linea.UnidadesInicialesFijas;
-				lineaHistorico.PVP = (float) linea.PVP;
-				lineaHistorico.MovimientoStock = 
-				lineaHistorico.MovimientoStockDefectuosas = 0;
-
-				// linea.UnidadesFacturadas;
-
-				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_UNIDADES_INICIALES;
-
-				try {
-					lineaHistorico.save();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getMessageBox().Show("Atención",
-							_appConfig.getStackTrace(e),
-							getActivity(), MessageBoxType.Error);				}
-			}
-
-		}
-
-		return historico;
-	}
-
-	private void closeOperation(String GUID) throws Exception {
+	private void closeOperation() throws Exception {
 
 		try {
 
@@ -1744,9 +1295,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 				_appConfig.getWorkingArea().TransferMode = TransferMode.None;
 
 		} catch (Exception ex) {
-			_appConfig.getMessageBox().Show("Atención",
-					_appConfig.getStackTrace(ex),
-					getActivity(), MessageBoxType.Error);		}
+			throw new RuntimeException(ex);
+		}
 
 	}
 
@@ -1832,14 +1382,10 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 							((LineaDeposito) view.getTag()).UnidadesDevueltas = unidadesDevueltas;
 						} else {
 							((LineaDeposito) view.getTag()).UnidadesDevueltas = unidadesDevueltas;
-							Log.i("Text_Devueltas", String.valueOf(unidadesDevueltas));
 							try {
 								refreshLayout(lineaDeposito, layoutGrid, false);
 							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								_appConfig.getMessageBox().Show("Atención",
-										_appConfig.getStackTrace(e),
-										getActivity(), MessageBoxType.Error);
+								throw new RuntimeException(e);
 							}
 
 						}
@@ -1890,14 +1436,10 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 							textBox.setHint(String.valueOf(unidadesDefectuosas));
 						} else {
 							((LineaDeposito) view.getTag()).UnidadesDefectuosas = unidadesDefectuosas;
-							Log.i("Text_Defectuosas", String.valueOf(unidadesDefectuosas));
 							try {
 								refreshLayout(lineaDeposito, layoutGrid, false);
 							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								_appConfig.getMessageBox().Show("Atención",
-										_appConfig.getStackTrace(e),
-										getActivity(), MessageBoxType.Error);
+								throw new RuntimeException(e);
 							}
 
 						}
@@ -1937,10 +1479,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 						try {
 							refreshLayout(lineaDeposito, layoutGrid, false);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							_appConfig.getMessageBox().Show("Atención",
-									_appConfig.getStackTrace(e),
-									getActivity(), MessageBoxType.Error);
+							throw new RuntimeException(e);
 						}
 					} else {
 						((TextBoxColor) view).setText(Constants.EMPTY_STRING);
@@ -2002,10 +1541,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 							try {
 								refreshLayout(lineaDeposito, layoutGrid, false);
 							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								_appConfig.getMessageBox().Show("Atención",
-										_appConfig.getStackTrace(e),
-										getActivity(), MessageBoxType.Error);
+								throw new RuntimeException(e);
 							}
 						}
 
@@ -2044,10 +1580,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 						try {
 							refreshLayout(lineaDeposito, layoutGrid, false);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							_appConfig.getMessageBox().Show("Atención",
-									_appConfig.getStackTrace(e),
-									getActivity(), MessageBoxType.Error);
+							throw new RuntimeException(e);
 						}
 
 					} else {
@@ -2084,10 +1617,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 						try {
 							refreshLayout(lineaDeposito, layoutGrid, false);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							_appConfig.getMessageBox().Show("Atención",
-									_appConfig.getStackTrace(e),
-									getActivity(), MessageBoxType.Error);
+							throw new RuntimeException(e);
 						}
 					} else {
 						((TextBoxColor) view).setText(Constants.EMPTY_STRING);
@@ -2122,17 +1652,13 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 
 				@Override
 				public void onClick(View arg0) {
-					// TODO Auto-generated method stub
 
 					_abonoMode = true;
 					LineaDeposito lineaDeposito = (LineaDeposito) arg0.getTag();
 					try {
 						refreshLayout(lineaDeposito, layoutGrid, true);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						_appConfig.getMessageBox().Show("Atención",
-								_appConfig.getStackTrace(e),
-								getActivity(), MessageBoxType.Error);
+						throw new RuntimeException(e);
 					}
 				}
 			});
@@ -2155,9 +1681,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 			_textBoxColorRequestFocus = unidadesDefectuosas;
 
 		} catch (Exception e) {
-			_appConfig.getMessageBox().Show("Atención",
-					_appConfig.getStackTrace(e),
-					getActivity(), MessageBoxType.Error);
+			throw new RuntimeException(e);
 		}
 
 	}
@@ -2241,10 +1765,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 					try {
 						refreshLayout(lineaDeposito, layoutGrid,false);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						_appConfig.getMessageBox().Show("Atención",
-								_appConfig.getStackTrace(e),
-								getActivity(), MessageBoxType.Error);					}
+						throw new RuntimeException(e);
+					}
 
 				} else {
 					((TextBoxColor) view).setText(Constants.EMPTY_STRING);
@@ -2302,10 +1824,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 					try {
 						refreshLayout(lineaDeposito, layoutGrid,false);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						_appConfig.getMessageBox().Show("Atención",
-								_appConfig.getStackTrace(e),
-								getActivity(), MessageBoxType.Error);					}
+						throw new RuntimeException(e);
+					}
 
 				} else {
 					((TextBoxColor) view).setText(Constants.EMPTY_STRING);
@@ -2343,10 +1863,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 					try {
 						refreshLayout(lineaDeposito, layoutGrid,false);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						_appConfig.getMessageBox().Show("Atención",
-								_appConfig.getStackTrace(e),
-								getActivity(), MessageBoxType.Error);					}
+						throw new RuntimeException(e);
+					}
 				} else {
 					((TextBoxColor) view).setText(Constants.EMPTY_STRING);
 					_lastTextBox = (TextBoxColor) view;
@@ -2376,17 +1894,14 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 
 			@Override
 			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
 
 				_abonoMode = false;
 				LineaDeposito lineaDeposito = (LineaDeposito) arg0.getTag();
 				try {
 					refreshLayout(lineaDeposito, layoutGrid,true);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getMessageBox().Show("Atención",
-							_appConfig.getStackTrace(e),
-							getActivity(), MessageBoxType.Error);				}
+					throw new RuntimeException(e);
+				}
 			}
 		});
 
@@ -2469,12 +1984,10 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 
 	}
 
-	private void addLine(final LineaDeposito lineaDeposito) throws Exception {
+	private LinearLayout addLine(final LineaDeposito lineaDeposito) throws Exception {
 
 		lineaDeposito.InitializePersistance(_appConfig, getActivity());
-		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity()
-				.findViewById(R.id.mainLinearLayoutDepositManager);
-		
+
 		this._articles.add(lineaDeposito.Articulo.Descripcion);
 
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -2492,9 +2005,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 
 		LabelColor unidadesInicialesFijas = DepositManagerExtension.UI.addLabelByText(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				String.valueOf(lineaDeposito.UnidadesInicialesFijas), TEXT_SIZE, 13, params, true, lineaDeposito);
-
-		LabelColor unidadesIniciales = DepositManagerExtension.UI.addLabelByText(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				String.valueOf(lineaDeposito.UnidadesIniciales), TEXT_SIZE, 13, params, true, lineaDeposito);
 
 		lineaDeposito.UnidadesDevueltas = lineaDeposito.UnidadesInicialesFijas;
 		LabelColor unidadesDevueltas = DepositManagerExtension.UI.addLabelByText(_appConfig, Color.RED, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
@@ -2553,38 +2063,34 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 		layout.addView(imageView);
 
 		layout.setClickable(true);
-		layout.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				
-				if (_lastTextBox != null)
-					_lastTextBox.clearFocus();
-				
-				if (_lastSelectedLayout != null)
-					_lastSelectedLayout.setBackgroundColor(Color.TRANSPARENT);
+		layout.setOnClickListener(v -> {
 
-				v.setBackgroundColor(Color.rgb(240,140,40));
-				_lastSelectedLayout = (LinearLayout) v;
+			if (_lastTextBox != null)
+				_lastTextBox.clearFocus();
 
-				if (_abonoMode)
-					try {
-						addLineHeaderAbono(lineaDeposito, _lastSelectedLayout);
-						refreshTotals();
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				else
-					try {
-						addLineHeader(lineaDeposito, _lastSelectedLayout);
-						
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+			if (_lastSelectedLayout != null)
+				_lastSelectedLayout.setBackgroundColor(Color.TRANSPARENT);
+
+			v.setBackgroundColor(Color.rgb(240,140,40));
+			_lastSelectedLayout = (LinearLayout) v;
+
+			if (_abonoMode)
+				try {
+					addLineHeaderAbono(lineaDeposito, _lastSelectedLayout);
+					refreshTotals();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
 				}
-		});
+			else
+				try {
+					addLineHeader(lineaDeposito, _lastSelectedLayout);
 
-		mainLinearLayout.addView(layout);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			});
+
+		return layout;
 
 	}
 
@@ -2652,7 +2158,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 		}
 	}
 
-	final private void CheckIfNewFiliacion(String filiacion) throws Exception {
+	private void CheckIfNewFiliacion(String filiacion) throws Exception {
 		Cliente cliente = new Cliente();
 		cliente.InitializePersistance(_appConfig, this.getActivity());
 
@@ -2674,7 +2180,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 		}
 	}
 
-	final private void refreshTotals() throws Exception {
+	private void refreshTotals() throws Exception {
 		if (_deposito != null) {
 
 			String filiacion = DepositManagerExtension.DataTier.getFiliacionCode(_comboFiliacion.getText()).trim();
@@ -2686,16 +2192,16 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 
 			if (DepositManagerExtension.DataTier.IsSerieA(this._comboSerie, this._appConfig)) {
 				TextView label = (TextView) getActivity().findViewById(R.id.lblBase);
-				label.setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.TotalBase)) + " €");
+				label.setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.TotalBase) + " €");
 
 				TextView label2 = (TextView) getActivity().findViewById(R.id.lblTotalFactura);
-				label2.setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.Total)) + " €");
+				label2.setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.Total) + " €");
 			} else {
 				TextView label = (TextView) getActivity().findViewById(R.id.lblBase);
-				label.setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.TotalBase)) + " €");
+				label.setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.TotalBase) + " €");
 
 				TextView label2 = (TextView) getActivity().findViewById(R.id.lblTotalFactura);
-				label2.setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.TotalBase)) + " €");
+				label2.setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.TotalBase) + " €");
 			}
 
 			TextView label3 = (TextView) getActivity().findViewById(R.id.lblTipoEntrega);
@@ -2728,7 +2234,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 			}
 			
 		} catch (Exception e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		if (initializeAttributes) {
@@ -2756,4 +2262,52 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent {
 		imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
 	}
 
+	@Override
+	public void notify(String event, Object payload) {
+
+		switch (event) {
+			case "EventCustomerSelected": {
+				try {
+
+					try {
+						this.FillWindow();
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+
+					this._dialogDepositoModalidad = new AdvancedMessageBox();
+					boolean resultDepositoModalidad = _dialogDepositoModalidad.Show("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", DepositManager.this.getContext(), MessageBoxType.Information);
+					this._appConfig.getWorkingArea().CurrentDepositoModalidad = resultDepositoModalidad ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
+					TextView labelTipoEntrega = (TextView) getActivity().findViewById(R.id.lblTipoEntrega);
+					labelTipoEntrega.setText(_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
+
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+
+			break;
+			case "EventCustomerNew": {
+
+				try {
+					_appConfig.getWorkingArea().CurrentCliente = (Cliente) payload;
+					this.FillWindow();
+
+					this._dialogDepositoModalidad = new AdvancedMessageBox();
+					boolean resultDepositoModalidad = _dialogDepositoModalidad.Show("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", DepositManager.this.getContext(), MessageBoxType.Information);
+					this._appConfig.getWorkingArea().CurrentDepositoModalidad = resultDepositoModalidad ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
+					TextView labelTipoEntrega = (TextView) getActivity().findViewById(R.id.lblTipoEntrega);
+					labelTipoEntrega.setText(_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
+
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+				_appConfig.getWorkingArea().CurrentCliente = (Cliente) payload;
+			}
+			case "EventCustomerCancelled": {
+				_appConfig.getWorkingArea().CancelSearchDeposit = true;
+				resetFooter();
+			}
+		}
+	}
 }

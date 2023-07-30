@@ -11,7 +11,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Cliente;
@@ -58,11 +58,8 @@ public class ParserResponse extends ParserBase {
 		
 		if (root.getChildNodes().getLength() == 0)
 			return null;
-		
-		Log.i("ParserResponse root", root.getChildNodes().item(0)
-				.getTextContent());
 
-		Document doc = null;
+		Document doc;
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db;
 
@@ -84,12 +81,9 @@ public class ParserResponse extends ParserBase {
 		return doc;
 	}
 
-	private String getValue(Document document) throws DOMException,
-			IOException, ParserConfigurationException, SAXException {
+	private String getValue(Document document) throws DOMException {
 
 		Element root = document.getDocumentElement();
-		Log.i("ParserResponse root", root.getChildNodes().item(0)
-				.getTextContent());
 
 		if (root.getChildNodes().getLength() == 0)
 			return Constants.EMPTY_STRING;
@@ -98,14 +92,9 @@ public class ParserResponse extends ParserBase {
 
 	}
 
-	public void parseFormasPago(Document document, Context context,
-			AppConfig app, FormaPago formaPago, boolean compress) // throws
-																	// ParserConfigurationException,
-																	// DOMException,
-																	// SAXException,
-																	// IOException
+	public void parseFormasPago(Document document,
+			AppConfig app, FormaPago formaPago, boolean compress)
 	{
-
 		try {
 
 			Document doc = getDocument(document, compress);
@@ -116,7 +105,6 @@ public class ParserResponse extends ParserBase {
 			doc.getDocumentElement().normalize();
 
 			NodeList formasPago = doc.getElementsByTagName("FPago");
-			Log.i("ParserResponse", String.valueOf(formasPago.getLength()));
 			int length = formasPago.getLength();
 			for (int i = 0; i < length; i++) {
 
@@ -142,15 +130,9 @@ public class ParserResponse extends ParserBase {
 					formaPago.update();
 					this.Monitor().FormaPagoUpdateCounter++;
 				}
-
-				Log.i("ParserResponse",
-						getCharacterDataFromElement(codigoValue));
-				Log.i("ParserResponse 2",
-						getCharacterDataFromElement(descripcionValue));
-
 			}
 		} catch (Exception e) {
-			app.getErrorTrace().Send(app.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 	}
@@ -171,7 +153,6 @@ public class ParserResponse extends ParserBase {
 			doc.getDocumentElement().normalize();
 
 			NodeList pactos = doc.getElementsByTagName("Pactes");
-			Log.i("ParserResponse", String.valueOf(pactos.getLength()));
 			int length = pactos.getLength();
 			for (int i = 0; i < length; i++) {
 
@@ -189,22 +170,12 @@ public class ParserResponse extends ParserBase {
 				Element dteValue = (Element) dte.item(0);
 
 				Articulo articulo = new Articulo();
-				try {
-					articulo.InitializePersistance(app, context);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					app.getErrorTrace().Send(app.getUser().User, e);
-				}
+				articulo.InitializePersistance(app, context);
 
 				articulo.setArticuloByCodigo(getCharacterDataFromElement(codigoArticuloValue));
 
 				Cliente cliente = new Cliente();
-				try {
-					cliente.InitializePersistance(app, context);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					app.getErrorTrace().Send(app.getUser().User, e);
-				}
+				cliente.InitializePersistance(app, context);
 
 				cliente.setClienteByCodigo(getCharacterDataFromElement(codigoClienteValue));
 
@@ -228,12 +199,12 @@ public class ParserResponse extends ParserBase {
 
 			}
 		} catch (Exception e) {
-			app.getErrorTrace().Send(app.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 	}
 
-	public void parseTiposIva(Document document, Context context,
+	public void parseTiposIva(Document document,
 			AppConfig app, TipoIVA iva, boolean compress) throws DOMException,
 			IOException, ParserConfigurationException, SAXException // throws
 																	// ParserConfigurationException,
@@ -251,7 +222,6 @@ public class ParserResponse extends ParserBase {
 			doc.getDocumentElement().normalize();
 
 			NodeList tiposIva = doc.getElementsByTagName("Iva");
-			Log.i("ParserResponse", String.valueOf(tiposIva.getLength()));
 			int length = tiposIva.getLength();
 			for (int i = 0; i < length; i++) {
 
@@ -278,11 +248,8 @@ public class ParserResponse extends ParserBase {
 						.parseDouble(getCharacterDataFromElement(recargoValue));
 				iva.Descripcion = getCharacterDataFromElement(descripValue);
 
-				Log.i("ParserResponse", iva.Descripcion);
-
 				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-				Log.i("Fecha",
-						transformWsDate(getCharacterDataFromElement(fechaValue)));
+
 				iva.Fecha = (Date) formatter
 						.parse(transformWsDate(getCharacterDataFromElement(fechaValue)));
 
@@ -290,7 +257,7 @@ public class ParserResponse extends ParserBase {
 				this.Monitor().IvaSaveCounter++;
 			}
 		} catch (Exception e) {
-			app.getErrorTrace().Send(app.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -312,7 +279,6 @@ public class ParserResponse extends ParserBase {
 			doc.getDocumentElement().normalize();
 
 			NodeList tarifas = doc.getElementsByTagName("Tarifes");
-			Log.i("ParserResponse", String.valueOf(tarifas.getLength()));
 			int length = tarifas.getLength();
 			for (int i = 0; i < length; i++) {
 
@@ -341,12 +307,7 @@ public class ParserResponse extends ParserBase {
 						.parse(transformWsDate(getCharacterDataFromElement(fechaFinValue)));
 
 				Articulo articulo = new Articulo();
-				try {
-					articulo.InitializePersistance(app, context);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					app.getErrorTrace().Send(app.getUser().User, e);
-				}
+				articulo.InitializePersistance(app, context);
 
 				articulo.setArticuloByCodigo(getCharacterDataFromElement(codigoArticuloValue));
 				tarifa.Articulo = articulo;
@@ -362,17 +323,14 @@ public class ParserResponse extends ParserBase {
 				articulo.ReleasePersistance();
 			}
 		} catch (Exception e) {
-			app.getErrorTrace().Send(app.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 	}
 
 	public void parseArticulos(Document document, Context context,
 			AppConfig app, Articulo articulo, boolean compress)
-			throws Exception // throws ParserConfigurationException,
-								// DOMException, SAXException, IOException
+			throws Exception
 	{
-
-		// Log.i("ParserResponse",String.valueOf(document.getDocumentElement().getTextContent().length()));
 
 		Articulo nuevo = new Articulo();
 		nuevo.InitializePersistance(app, context);
@@ -418,7 +376,6 @@ public class ParserResponse extends ParserBase {
 			doc.getDocumentElement().normalize();
 
 			NodeList articulos = doc.getElementsByTagName("Articles");
-			Log.i("ParserResponse", String.valueOf(articulos.getLength()));
 			int length = articulos.getLength();
 			for (int i = 0; i < length; i++) {
 
@@ -501,7 +458,7 @@ public class ParserResponse extends ParserBase {
 				}
 			}
 		} catch (Exception e) {
-			app.getErrorTrace().Send(app.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 	}
@@ -521,7 +478,6 @@ public class ParserResponse extends ParserBase {
 			doc.getDocumentElement().normalize();
 			NodeList articulos = doc.getElementsByTagName("TrStock");
 
-			Log.i("ParserResponse", String.valueOf(articulos.getLength()));
 			int length = articulos.getLength();
 			for (int i = 0; i < length; i++) {
 
@@ -560,8 +516,7 @@ public class ParserResponse extends ParserBase {
 
 			return true;
 		} catch (Exception e) {
-			app.getErrorTrace().Send(app.getUser().User, e);
-			return false;
+			throw new RuntimeException(e);
 		}
 
 	}
@@ -605,8 +560,7 @@ public class ParserResponse extends ParserBase {
 
 			return true;
 		} catch (Exception e) {
-			app.getErrorTrace().Send(app.getUser().User, e);
-			return false;
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -661,7 +615,7 @@ public class ParserResponse extends ParserBase {
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			app.getErrorTrace().Send(app.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		Document doc = getDocument(document, compress);
@@ -674,7 +628,6 @@ public class ParserResponse extends ParserBase {
 			doc.getDocumentElement().normalize();
 
 			NodeList clientes = doc.getElementsByTagName("Clients");
-			Log.i("ParserResponse", String.valueOf(clientes.getLength()));
 			int length = clientes.getLength();
 			for (int i = 0; i < length; i++) {
 
@@ -733,15 +686,10 @@ public class ParserResponse extends ParserBase {
 				Element digitoControlValue = (Element) digitoControl.item(0);
 				Element numeroCuentaValue = (Element) numeroCuenta.item(0);
 				Element ibanValue = (Element) iban.item(0);
- 
-				Log.i("ParserResponse Cliente", "Passo per aqui II");
-				
-				//int records = cliente.removeRepeats(getCharacterDataFromElement(codigoValue));
-				
+
 				if (!cliente
 						.setClienteByCodigoStatus(getCharacterDataFromElement(codigoValue))) {
 
-					Log.i("Cliente Save", "Save()");
 					cliente.CodigoCliente = getCharacterDataFromElement(codigoValue);
 					cliente.Nombre = getCharacterDataFromElement(nombreValue);
 					cliente.Razon = getCharacterDataFromElement(razonValue);
@@ -768,12 +716,7 @@ public class ParserResponse extends ParserBase {
 					
 
 					FormaPago pago = new FormaPago();
-					try {
-						pago.InitializePersistance(app, context);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						app.getErrorTrace().Send(app.getUser().User, e);
-					}
+					pago.InitializePersistance(app, context);
 
 					pago.setFormaPagoByCode(getCharacterDataFromElement(formaPagoValue));
 					cliente.formaPago = pago;
@@ -832,12 +775,7 @@ public class ParserResponse extends ParserBase {
 							.parseDouble(getCharacterDataFromElement(dteFinancieroValue));
 
 					FormaPago pago = new FormaPago();
-					try {
-						pago.InitializePersistance(app, context);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						app.getErrorTrace().Send(app.getUser().User, e);
-					}
+					pago.InitializePersistance(app, context);
 
 					pago.setFormaPagoByCode(getCharacterDataFromElement(formaPagoValue));
 					cliente.formaPago = pago;
@@ -863,7 +801,7 @@ public class ParserResponse extends ParserBase {
 			}
 
 		} catch (Exception e) {
-			app.getErrorTrace().Send(app.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 	}
@@ -891,7 +829,6 @@ public class ParserResponse extends ParserBase {
 			doc.getDocumentElement().normalize();
 
 			NodeList depositos = doc.getElementsByTagName("VD");
-			Log.i("ParserResponse", String.valueOf(depositos.getLength()));
 			int length = depositos.getLength();
 
 			for (int i = 0; i < length; i++) {								
@@ -934,10 +871,7 @@ public class ParserResponse extends ParserBase {
 							cliente.InitializePersistance(app, context);
 							
 							cliente.setClienteByCodigo(strCodigoCliente);
-			
-							Log.i("ParserResponse", "Assignem client a nou dipòsit :"
-									+ cliente.CodigoCliente + " , " + cliente.Nombre);
-			
+
 							depo = new Deposito();
 							depo.InitializePersistance(app, context);
 							

@@ -19,13 +19,8 @@ public class CustomExceptionHandler {
 	        final Writer stringWriter = new StringWriter();
 	        final PrintWriter printWriter = new PrintWriter(stringWriter);
 	        e.printStackTrace(printWriter);
-	        String stacktrace = stringWriter.toString();
 	        printWriter.close();
-	 
-	        Log.e("CRASH", stacktrace);
-	        Log.e("CRASH", e.toString());
-	 
-	        // Chain to the normal uncaught exception handler
+
 	        defaultHandler.uncaughtException(t, e);
 	    }
 

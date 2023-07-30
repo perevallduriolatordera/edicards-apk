@@ -1,14 +1,25 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+	android:orientation="vertical"
     android:background="@color/Edicards"> >
-    
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+		android:id="@+id/headerButtonsLinearLayout"
+		android:layout_width="fill_parent"
+		android:layout_height="50px"
+		android:layout_marginTop="5dp"
+		android:background="@color/WhiteSmoke"
+		android:orientation="horizontal" >
+
+	</LinearLayout>
+
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         	  android:id="@+id/headerMainLinearLayout" 
               android:layout_width="fill_parent" 
               android:layout_height="50px" 
               android:layout_marginTop="5dp" 
-              android:background="@color/DarkBlue"
+              android:background="@color/SlateBlue"
               android:orientation="horizontal" >
               
         <TextView
@@ -58,29 +69,14 @@
     		android:textSize="16dp"
     		android:layout_marginTop="10dp"
     		android:layout_marginLeft="10dp"/>
-        
-        
-        <!-- <TextView
-        	android:text="  Meter"
-        	android:layout_width="70px" 
-    		android:layout_height="fill_parent"
-    		android:textSize="16dp"/>
-        
-        <TextView
-        	android:text="  Sacar"
-        	android:layout_width="70px" 
-    		android:layout_height="fill_parent"
-    		android:textSize="16dp"/>
-         -->
-        
+
 </LinearLayout>
  
 <LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical"
                android:layout_width="fill_parent" 
                android:layout_height="fill_parent"
-               android:layout_marginTop="70dp" >
-    
-    
+               android:layout_marginTop="20dp" >
+
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/svcScroll" 
     android:clickable="true" 
@@ -92,7 +88,7 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         	  android:id="@+id/mainLinearLayout" 
               android:layout_width="fill_parent" 
-              android:layout_height="300px" 
+              android:layout_height="300px"
               android:orientation="vertical" >
     </LinearLayout>
 </ScrollView>
@@ -100,4 +96,4 @@
 </LinearLayout>
 
  
-</RelativeLayout>
+</LinearLayout>

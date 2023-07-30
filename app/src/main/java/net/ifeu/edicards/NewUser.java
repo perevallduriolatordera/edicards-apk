@@ -1,8 +1,9 @@
 package net.ifeu.edicards;
 
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Support.ValidationResult;
-import net.ifeu.library.Utils.MessageBoxType;
+import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 import android.app.Activity;
 import android.app.ActionBar.LayoutParams;
 import android.content.Intent;

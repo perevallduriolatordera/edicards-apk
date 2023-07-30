@@ -1,5 +1,6 @@
 package net.ifeu.edicards;
 
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.library.Signature.SignatureView;
 import android.app.Activity;
 import android.app.ActionBar.LayoutParams;
@@ -12,7 +13,7 @@ public class SignatureCustomer extends Activity {
 	private Bundle _bundle;
 	private SignatureView _signature;
 	AppConfig _app;
-	Boolean _isSaved = false;;
+	Boolean _isSaved = false;
 
 	@SuppressWarnings("deprecation")
 	@Override
@@ -43,7 +44,7 @@ public class SignatureCustomer extends Activity {
 
 	}
 	
-	private void StartDepositView() throws Exception {
+	private void StartDepositView()  {
 		Intent intent = new Intent(this, DepositView.class);
 
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -52,7 +53,7 @@ public class SignatureCustomer extends Activity {
 
 	}
 	
-	private void StartAlbaranView() throws Exception {
+	private void StartAlbaranView()  {
 		Intent intent = new Intent(this, AlbaranView.class);
 
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -62,11 +63,11 @@ public class SignatureCustomer extends Activity {
 	}
 
 
-	public void OnDepositView(View v) throws Exception {
+	public void OnDepositView(View v)  {
 		this.StartDepositView();
 	}
 	
-	public void OnAlbaranView(View v) throws Exception {
+	public void OnAlbaranView(View v) {
 		this.StartAlbaranView();
 	}
 	

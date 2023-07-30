@@ -1,13 +1,15 @@
 package net.ifeu.edicards.DataTier;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import net.ifeu.edicards.Constants.Constants;
-import net.ifeu.library.Utils.MessageBoxType;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Log;
+
+import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Persistance.IPersistable;
+import net.ifeu.edicards.DataTier.Persistance.Persistent;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Tarifa extends Persistent implements IPersistable {
 
@@ -44,7 +46,8 @@ public class Tarifa extends Persistent implements IPersistable {
 			this.IdTarifa = super.getDatabaseOperations().insert(Constants.TABLE_TARIFAS, null , values);
 		}
 		catch (Exception e) {
-			throw e;
+			throw new RuntimeException(e);
+
 		}
 		
 	}
@@ -53,44 +56,7 @@ public class Tarifa extends Persistent implements IPersistable {
 	{
 		return super.getDatabaseOperations().getRecordsCount(Constants.TABLE_TARIFAS);
 	}
-	
-	public boolean setTarifaById(String idTarifa) throws Exception
-	{
-		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(Constants.TABLE_TARIFAS, "IdTarifa", idTarifa, false);
-		
-		if (cursor != null)
-		{
-			this.IdTarifa = Long.parseLong(idTarifa);
-			this.CodigoTarifa = cursor.getString(cursor.getColumnIndex("CodigoTarifa"));
-			
-			SimpleDateFormat formatter;
-			formatter = new SimpleDateFormat("dd/MM/yyyy");
-			
-			this.FechaIni = (Date) formatter.parse(cursor.getString(cursor.getColumnIndex("FechaIni")));
-			this.FechaFin = (Date) formatter.parse(cursor.getString(cursor.getColumnIndex("FechaFin")));
-			this.PVP = Double.parseDouble(cursor.getString(cursor.getColumnIndex("PVP")));
-			this.Descuento1 = Double.parseDouble(cursor.getString(cursor.getColumnIndex("Descuento1")));
-			this.Descuento2 = Double.parseDouble(cursor.getString(cursor.getColumnIndex("Descuento2")));
-			
-			Articulo articulo = new Articulo();
-			
-			try {
-				articulo.InitializePersistance(super.appConfig, super.context);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				super.appConfig.getMessageBox().Show("Error", e.getMessage().toString(), super.appConfig, MessageBoxType.Error);
-			}
-			
-			if (articulo.setArticuloById(cursor.getString(cursor.getColumnIndex("IdArticulo"))))
-				this.Articulo = articulo;
-			
-		    cursor.close();
-			return true;
-		}
-		
-		return false ; //(cursor != null);
-	}
-	
+
 	public boolean setTarifaByClienteArticulo(Cliente cliente, Articulo articulo) throws Exception
 	{
 		
@@ -123,7 +89,6 @@ public class Tarifa extends Persistent implements IPersistable {
 		
 		if (founded)
 		{
-			Log.i("Tarifa","assign");
 			this.IdTarifa = Long.parseLong(cursor.getString(cursor.getColumnIndex("IdTarifa")));
 			this.CodigoTarifa = cursor.getString(cursor.getColumnIndex("CodigoTarifa"));
 			
@@ -143,6 +108,6 @@ public class Tarifa extends Persistent implements IPersistable {
 		if (cursor != null)
 			cursor.close();
 		
-		return false ; //(cursor != null);
+		return false ; 
 	}
 }

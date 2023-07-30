@@ -12,12 +12,9 @@ public class Incidencia {
 	public Date Fecha;
 	public IncidenciaType Tipo;
 	public String Descripcion;
-	
-	private String _fileName = Constants.EMPTY_STRING;
-	
+
 	public Incidencia( String usuario, Date fecha, IncidenciaType tipo, String descripcion)
 	{
-	
 		this.Usuario = usuario;
 		this.Fecha = fecha;
 		this.Tipo = tipo;
@@ -26,7 +23,7 @@ public class Incidencia {
 	
 	public void create() throws Exception
 	{	
-		String text = Constants.EMPTY_STRING;
+		String text;
 		String tipoInc = Constants.EMPTY_STRING;
 		String prefix = Constants.EMPTY_STRING;
 		
@@ -51,11 +48,11 @@ public class Incidencia {
 				"DESCRIPCIÓN: " + Constants.NEW_LINE + Constants.NEW_LINE + this.Descripcion + Constants.NEW_LINE +
 				Constants.NEW_LINE + Constants.NEW_LINE + 
 				"Este mensaje se ha generado automáticamente desde el dispositivo móvil.";
-	
-		_fileName = Environment.getExternalStorageDirectory().getPath()+ "/"
+
+		String fileName = Environment.getExternalStorageDirectory().getPath() + "/"
 				+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_INCIDENCIAS + "/" + prefix + "_" + this.getDateTimeFormat() + ".txt";
 		
-		net.ifeu.library.IO.IOUtils.writeAllText(text, _fileName);
+		net.ifeu.library.IO.IOUtils.writeAllText(text, fileName);
 		
 	}
 	

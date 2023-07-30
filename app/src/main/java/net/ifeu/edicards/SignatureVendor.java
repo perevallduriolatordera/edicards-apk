@@ -1,5 +1,6 @@
 package net.ifeu.edicards;
 
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.library.Signature.SignatureView;
 import android.app.Activity;
 import android.os.Bundle;
@@ -10,7 +11,7 @@ public class SignatureVendor extends Activity {
 	private Bundle _bundle;
 	private SignatureView _signature;
 	AppConfig _app;
-	Boolean _isSaved = false;;
+	Boolean _isSaved = false;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

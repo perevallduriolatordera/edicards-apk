@@ -1,5 +1,16 @@
 package net.ifeu.edicards.DataTier;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.util.Log;
+
+import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Persistance.IPersistable;
+import net.ifeu.edicards.DataTier.Totales.Base;
+import net.ifeu.library.LogBook.LogBook;
+
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -8,22 +19,13 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
-import net.ifeu.edicards.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
-import net.ifeu.edicards.DataTier.Totales.Base;
-import net.ifeu.library.Utils.MessageBoxType;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.util.Log;
-
 public class Deposito extends Cliente implements IPersistable {
 
 	public Long IdDeposito;
 	public Date FechaDeposito;
 	public String Ejercicio;
 	public Cliente Cliente = new Cliente();
-	public LinkedHashMap<String, LineaDeposito> Lineas = new LinkedHashMap<String, LineaDeposito>();
+	public LinkedHashMap<String, LineaDeposito> Lineas = new LinkedHashMap<>();
 	public Totales Totales = new Totales();
 	public Totales TotalesDeposito = new Totales();
 	public String Serie;
@@ -46,9 +48,7 @@ public class Deposito extends Cliente implements IPersistable {
 	}
 	
 	@Override
-	public void InitializePersistance(AppConfig appConfig, Context context)
-			throws Exception {
-		// TODO Auto-generated method stub
+	public void InitializePersistance(AppConfig appConfig, Context context) {
 		super.InitializePersistance(appConfig, context);
 	}
 	
@@ -100,7 +100,7 @@ public class Deposito extends Cliente implements IPersistable {
 			this.IdDeposito = super.getDatabaseOperations().insert(
 					Constants.TABLE_DEPOSITOS, null, values);
 		} catch (Exception e) {
-			throw e;
+			throw new RuntimeException(e);
 		}
 
 	}
@@ -207,10 +207,7 @@ public class Deposito extends Cliente implements IPersistable {
 			try {
 				cliente.InitializePersistance(super.appConfig, super.context);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				super.appConfig.getMessageBox().Show("Error",
-						e.getMessage().toString(), super.appConfig,
-						MessageBoxType.Error);
+				throw new RuntimeException(e);
 			}
 
 			if (cliente.setClienteById(cursor.getString(cursor
@@ -222,10 +219,7 @@ public class Deposito extends Cliente implements IPersistable {
 			try {
 				clienteInfo.InitializePersistance(super.appConfig, super.context);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				super.appConfig.getMessageBox().Show("Error",
-						e.getMessage().toString(), super.appConfig,
-						MessageBoxType.Error);
+				throw new RuntimeException(e);
 			}
 
 			if (clienteInfo.setClienteInfoByCliente(cliente))
@@ -237,10 +231,7 @@ public class Deposito extends Cliente implements IPersistable {
 				linea.InitializePersistance(super.appConfig,
 						super.context);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				super.appConfig.getMessageBox().Show("Error",
-						e.getMessage().toString(), super.appConfig,
-						MessageBoxType.Error);
+				throw new RuntimeException(e);
 			}
 
 			this.Lineas = linea
@@ -254,132 +245,6 @@ public class Deposito extends Cliente implements IPersistable {
 
 	}
 
-	public boolean setDepositoByNumDoc(String numDoc) throws Exception {
-
-		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(
-				Constants.TABLE_DEPOSITOS, "NumDoc", numDoc, false);
-
-		if (cursor != null) {
-
-			cursor.moveToFirst();
-
-			if (cursor.getCount() > 0) {
-
-				Log.i("Deposito", "Deposito encontrado: " + numDoc);
-
-				this.IdDeposito = Long.parseLong(cursor.getString(cursor
-						.getColumnIndex("IdDeposito")));
-				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-				this.FechaDeposito = formatter.parse(cursor.getString(cursor
-						.getColumnIndex("FechaDeposito")));
-				this.Ejercicio = (cursor.getString(cursor
-						.getColumnIndex("Ejercicio")));
-				this.Clave = cursor.getString(cursor.getColumnIndex("Clave"));
-				this.CodigoCliente = cursor.getString(cursor
-						.getColumnIndex("CodigoCliente"));
-				this.CodigoPostal = cursor.getString(cursor
-						.getColumnIndex("CodigoPostal"));
-				this.Descuento1 = Double.parseDouble(cursor.getString(cursor
-						.getColumnIndex("Descuento1")));
-				this.Descuento2 = Double.parseDouble(cursor.getString(cursor
-						.getColumnIndex("Descuento2")));
-				this.Direccion1 = cursor.getString(cursor
-						.getColumnIndex("Direccion1"));
-				this.Direccion2 = cursor.getString(cursor
-						.getColumnIndex("Direccion2"));
-				this.Fax = cursor.getString(cursor.getColumnIndex("Fax"));
-				this.IdCliente = Long.parseLong(cursor.getString(cursor
-						.getColumnIndex("IdCliente")));
-				this.Mail = cursor.getString(cursor.getColumnIndex("Mail"));
-				this.NIF = cursor.getString(cursor.getColumnIndex("NIF"));
-				this.Nombre = cursor.getString(cursor.getColumnIndex("Nombre"));
-				this.Poblacion = cursor.getString(cursor
-						.getColumnIndex("Poblacion"));
-				this.Provincia = cursor.getString(cursor
-						.getColumnIndex("Provincia"));
-				this.Razon = cursor.getString(cursor.getColumnIndex("Razon"));
-				this.Telefono1 = cursor.getString(cursor
-						.getColumnIndex("Telefono1"));
-				this.Telefono2 = cursor.getString(cursor
-						.getColumnIndex("Telefono2"));
-				this.Web = cursor.getString(cursor.getColumnIndex("Web"));
-				this.NumDoc = cursor.getString(cursor.getColumnIndex("NumDoc"));
-				this.TipoDeposito = cursor.getString(cursor
-						.getColumnIndex("TipoDeposito"));
-
-				Cliente cliente = new Cliente();
-
-				try {
-					cliente.InitializePersistance(super.appConfig,
-							super.context);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					super.appConfig.getMessageBox().Show("Error",
-							e.getMessage().toString(), super.appConfig,
-							MessageBoxType.Error);
-				}
-
-				if (cliente.setClienteById(cursor.getString(cursor
-						.getColumnIndex("IdCliente"))))
-					this.Cliente = cliente;
-				
-				ClienteInfo clienteInfo = new ClienteInfo();
-
-				try {
-					clienteInfo.InitializePersistance(super.appConfig, super.context);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					super.appConfig.getMessageBox().Show("Error",
-							e.getMessage().toString(), super.appConfig,
-							MessageBoxType.Error);
-				}
-
-				if (clienteInfo.setClienteInfoByCliente(cliente))
-					this.Cliente.ClienteInfo = clienteInfo;
-				
-				LineaDeposito linea = new LineaDeposito();
-
-				try {
-					linea.InitializePersistance(super.appConfig,
-							super.context);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					super.appConfig.getMessageBox().Show("Error",
-							e.getMessage().toString(), super.appConfig,
-							MessageBoxType.Error);
-				}
-
-				this.Lineas = linea
-						.getLineasDepositosByDeposito(this);
-
-				cursor.close();
-
-				return true;
-			}
-		}
-
-		return false;
-
-	}
-
-	public boolean hasClienteDeposito(String codigoCliente) throws Exception {
-		
-		boolean result = false;
-		
-		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(
-				Constants.TABLE_DEPOSITOS, "CodigoCliente", codigoCliente, true);
-
-		if (cursor != null) {
-
-			cursor.moveToFirst();
-			result = cursor.getCount() > 0;
-			cursor.close();
-		}
-		
-		return result;
-		
-	}
-	
 	public boolean setFirstDepositoByCliente(String codigoCliente) throws Exception {
 
 		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(
@@ -391,8 +256,6 @@ public class Deposito extends Cliente implements IPersistable {
 
 			if (cursor.getCount() > 0) {
 
-				Log.i("Deposito", "Deposito encontrado: " + codigoCliente);
-
 				this.IdDeposito = Long.parseLong(cursor.getString(cursor
 						.getColumnIndex("IdDeposito")));
 				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
@@ -439,10 +302,7 @@ public class Deposito extends Cliente implements IPersistable {
 					cliente.InitializePersistance(super.appConfig,
 							super.context);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					super.appConfig.getMessageBox().Show("Error",
-							e.getMessage().toString(), super.appConfig,
-							MessageBoxType.Error);
+					throw new RuntimeException(e);
 				}
 
 				if (cliente.setClienteById(cursor.getString(cursor
@@ -454,10 +314,7 @@ public class Deposito extends Cliente implements IPersistable {
 				try {
 					clienteInfo.InitializePersistance(super.appConfig, super.context);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					super.appConfig.getMessageBox().Show("Error",
-							e.getMessage().toString(), super.appConfig,
-							MessageBoxType.Error);
+					throw new RuntimeException(e);
 				}
 
 				if (clienteInfo.setClienteInfoByCliente(cliente))
@@ -469,10 +326,7 @@ public class Deposito extends Cliente implements IPersistable {
 					linea.InitializePersistance(super.appConfig,
 							super.context);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					super.appConfig.getMessageBox().Show("Error",
-							e.getMessage().toString(), super.appConfig,
-							MessageBoxType.Error);
+					throw new RuntimeException(e);
 				}
 
 				this.Lineas = linea
@@ -490,7 +344,7 @@ public class Deposito extends Cliente implements IPersistable {
 	
 	public ArrayList<Deposito> getDepositosByCliente(String idCliente)
 			throws Exception {
-		ArrayList<Deposito> list = new ArrayList<Deposito>();
+		ArrayList<Deposito> list = new ArrayList<>();
 
 		Cursor cursor = super.getDatabaseOperations()
 				.getRecordsFromFieldNumeric(Constants.TABLE_DEPOSITOS,
@@ -559,10 +413,7 @@ public class Deposito extends Cliente implements IPersistable {
 						cliente.InitializePersistance(super.appConfig,
 								super.context);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						super.appConfig.getMessageBox().Show("Error",
-								e.getMessage().toString(), super.appConfig,
-								MessageBoxType.Error);
+						throw new RuntimeException(e);
 					}
 
 					if (cliente.setClienteById(cursor.getString(cursor
@@ -574,10 +425,7 @@ public class Deposito extends Cliente implements IPersistable {
 					try {
 						clienteInfo.InitializePersistance(super.appConfig, super.context);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						super.appConfig.getMessageBox().Show("Error",
-								e.getMessage().toString(), super.appConfig,
-								MessageBoxType.Error);
+						throw new RuntimeException(e);
 					}
 
 					if (clienteInfo.setClienteInfoByCliente(cliente))
@@ -589,10 +437,7 @@ public class Deposito extends Cliente implements IPersistable {
 						linea.InitializePersistance(super.appConfig,
 								super.context);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						super.appConfig.getMessageBox().Show("Error",
-								e.getMessage().toString(), super.appConfig,
-								MessageBoxType.Error);
+						throw new RuntimeException(e);
 					}
 
 					deposito.Lineas = linea
@@ -612,7 +457,7 @@ public class Deposito extends Cliente implements IPersistable {
 	
 	public ArrayList<Deposito> getDepositosByCodigoCliente(String codigoCliente)
 			throws Exception {
-		ArrayList<Deposito> list = new ArrayList<Deposito>();
+		ArrayList<Deposito> list = new ArrayList<>();
 
 		Cursor cursor = super.getDatabaseOperations()
 				.getRecordsFromField(Constants.TABLE_DEPOSITOS,
@@ -682,10 +527,7 @@ public class Deposito extends Cliente implements IPersistable {
 						cliente.InitializePersistance(super.appConfig,
 								super.context);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						super.appConfig.getMessageBox().Show("Error",
-								e.getMessage().toString(), super.appConfig,
-								MessageBoxType.Error);
+						throw new RuntimeException(e);
 					}
 
 					if (cliente.setClienteById(cursor.getString(cursor
@@ -697,10 +539,7 @@ public class Deposito extends Cliente implements IPersistable {
 					try {
 						clienteInfo.InitializePersistance(super.appConfig, super.context);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						super.appConfig.getMessageBox().Show("Error",
-								e.getMessage().toString(), super.appConfig,
-								MessageBoxType.Error);
+						throw new RuntimeException(e);
 					}
 
 					if (clienteInfo.setClienteInfoByCliente(cliente))
@@ -712,10 +551,7 @@ public class Deposito extends Cliente implements IPersistable {
 						linea.InitializePersistance(super.appConfig,
 								super.context);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						super.appConfig.getMessageBox().Show("Error",
-								e.getMessage().toString(), super.appConfig,
-								MessageBoxType.Error);
+						throw new RuntimeException(e);
 					}
 
 					deposito.Lineas = linea
@@ -735,7 +571,7 @@ public class Deposito extends Cliente implements IPersistable {
 	
 	public ArrayList<Deposito> getDepositosToday()
 			throws Exception {
-		ArrayList<Deposito> list = new ArrayList<Deposito>();
+		ArrayList<Deposito> list = new ArrayList<>();
 
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("dd/MM/yyyy");
@@ -807,10 +643,7 @@ public class Deposito extends Cliente implements IPersistable {
 						cliente.InitializePersistance(super.appConfig,
 								super.context);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						super.appConfig.getMessageBox().Show("Error",
-								e.getMessage().toString(), super.appConfig,
-								MessageBoxType.Error);
+						throw new RuntimeException(e);
 					}
 
 					if (cliente.setClienteById(cursor.getString(cursor
@@ -822,10 +655,7 @@ public class Deposito extends Cliente implements IPersistable {
 					try {
 						clienteInfo.InitializePersistance(super.appConfig, super.context);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						super.appConfig.getMessageBox().Show("Error",
-								e.getMessage().toString(), super.appConfig,
-								MessageBoxType.Error);
+						throw new RuntimeException(e);
 					}
 
 					if (clienteInfo.setClienteInfoByCliente(cliente))
@@ -837,10 +667,7 @@ public class Deposito extends Cliente implements IPersistable {
 						linea.InitializePersistance(super.appConfig,
 								super.context);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						super.appConfig.getMessageBox().Show("Error",
-								e.getMessage().toString(), super.appConfig,
-								MessageBoxType.Error);
+						throw new RuntimeException(e);
 					}
 
 					deposito.Lineas = linea
@@ -879,12 +706,7 @@ public class Deposito extends Cliente implements IPersistable {
 				double dte = round(bruto - neto,3);
 
 				TipoIVA iva = new TipoIVA();
-				try {
-					iva.InitializePersistance(super.appConfig, super.context);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				iva.InitializePersistance(super.appConfig, super.context);
 
 				if (iva.setTipoIVAByClienteArticulo(this.Cliente,
 						linea.Articulo)
@@ -920,7 +742,7 @@ public class Deposito extends Cliente implements IPersistable {
 
 
 				} else {
-					double base = bruto; //round(neto - descuento1 - descuento2,3);
+					double base = bruto;
 					double baseSinDte = neto;
 				
 					Base bases;
@@ -972,19 +794,14 @@ public class Deposito extends Cliente implements IPersistable {
 				double dte = round(bruto - neto,3);
 
 				TipoIVA iva = new TipoIVA();
-				try {
-					iva.InitializePersistance(super.appConfig, super.context);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				iva.InitializePersistance(super.appConfig, super.context);
 
 				if (iva.setTipoIVAByClienteArticulo(this.Cliente,
 						linea.Articulo)
 						&& !super.appConfig.getUser().SerialInvoiceB
 								.equals(this.Serie)) {
 
-					double base = bruto; //round(neto - descuento1 - descuento2,3);
+					double base = bruto;
 
 					Base bases;
 
@@ -1007,7 +824,7 @@ public class Deposito extends Cliente implements IPersistable {
 					}
 
 				} else {
-					double base = bruto; //round(neto - descuento1 - descuento2,3);
+					double base = bruto;
 
 					Base bases;
 
@@ -1052,9 +869,7 @@ public class Deposito extends Cliente implements IPersistable {
 			
 			base.Descuento = round(descuento1 + descuento2 , 5);
 			base.Iva = round(totalIVA,5);
-			base.IvaPerc = base.IvaPerc;
 			base.Recargo = round(totalRecargo,5);
-			base.RecargoPerc = base.RecargoPerc;
 			base.Total = round(total,2);
 			
 			totales.TotalBaseSinDte = round(totales.TotalBaseSinDte + base.BaseSinDte,5);
@@ -1150,31 +965,6 @@ public class Deposito extends Cliente implements IPersistable {
 		this.Lineas = deposito.Lineas;
 	}
 
-	public void resetDeposito() {
-		this.Activo = true;
-		this.IdCliente = -1;
-		this.CodigoCliente = Constants.NEW_CUSTOMER_CODE;
-		this.FechaDeposito = new Date();
-		this.NIF = Constants.EMPTY_STRING;
-		this.Razon = Constants.EMPTY_STRING;
-		this.Direccion1 = Constants.EMPTY_STRING;
-		this.Poblacion = Constants.EMPTY_STRING;
-		this.Provincia = Constants.EMPTY_STRING;
-		this.CodigoPostal = Constants.EMPTY_STRING;
-		this.Nombre = Constants.EMPTY_STRING;
-		this.Direccion2 = Constants.EMPTY_STRING;
-		this.Web = Constants.EMPTY_STRING;
-		this.Mail = Constants.EMPTY_STRING;
-		this.Telefono1 = Constants.EMPTY_STRING;
-		this.Telefono2 = Constants.EMPTY_STRING;
-		this.Clave = Constants.EMPTY_STRING;
-		this.CodigoTarifa = Constants.EMPTY_STRING;
-		this.Fax = Constants.EMPTY_STRING;
-		this.NumDoc = Constants.EMPTY_STRING;
-		this.Filiacion = Constants.EMPTY_STRING;
-		this.formaPago = null;
-	}
-
 	public boolean isAlbaran() {
 
 		for (LineaDeposito linea : Lineas.values()) {
@@ -1234,17 +1024,8 @@ public class Deposito extends Cliente implements IPersistable {
 		boolean isOnlyVentaDirecta = false;
 
 		for (LineaDeposito linea : Lineas.values()) {
-			if (linea.UnidadesInicialesFijas != linea.UnidadesRepuestas) {
-
-				Log.i("DepositoManager", "isDepositoUpdatedOnlyVentaDirecta: true");
-				Log.i("DepositoManager", "Art: " + linea.Articulo.Descripcion);
-				Log.i("DepositoManager", "Unidades Fijas: " + linea.UnidadesInicialesFijas);
-				Log.i("DepositoManager", "Unidades Repuestas: " + linea.UnidadesRepuestas);
-				Log.i("DepositoManager", "PVP Anterior: " + linea.PVPAnterior);
-				Log.i("DepositoManager", "PVP Inicial: " + linea.PVPInicial);
-
+			if (linea.UnidadesInicialesFijas != linea.UnidadesRepuestas)
 				return false;
-			}
 
 			if (linea.PVPAnterior != linea.PVPInicial && linea.UnidadesFacturadas > 0) {
 				isOnlyVentaDirecta = true;
@@ -1257,22 +1038,11 @@ public class Deposito extends Cliente implements IPersistable {
 	public boolean isDepositoUpdated() {
 		for (LineaDeposito linea : Lineas.values()) {
 			if ((linea.UnidadesInicialesFijas != linea.UnidadesRepuestas)
-					|| (linea.PVPAnterior != linea.PVPInicial)) {
-				
-				Log.i("DepositoManager", "isDepositoUpdated: true");
-				Log.i("DepositoManager", "Art: " + linea.Articulo.Descripcion);
-				Log.i("DepositoManager", "Unidades Fijas: " + linea.UnidadesInicialesFijas);
-				Log.i("DepositoManager", "Unidades Repuestas: " + linea.UnidadesRepuestas);
-				Log.i("DepositoManager", "PVP Anterior: " + linea.PVPAnterior);
-				Log.i("DepositoManager", "PVP Inicial: " + linea.PVPInicial);
-				
+					|| (linea.PVPAnterior != linea.PVPInicial))
 				return true;
-			}
 		}
 
-		Log.i("DepositoManager", "isDepositoUpdated: false");
-
-		return false || this.DatosFiscalesUpdated;
+		return this.DatosFiscalesUpdated;
 
 	}
 
@@ -1355,6 +1125,210 @@ public class Deposito extends Cliente implements IPersistable {
 
 		return dto;
 
+	}
+
+	public void saveChangesToDeposito() {
+		this.InitializePersistance(appConfig, context);
+		this.FechaDeposito = new Date();
+
+		if (this.IdDeposito == null) {
+			try {
+				this.save();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+		else {
+			try {
+				this.DeleteAllLines();
+				this.update();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+		// Solo restamos stock, en el caso de que el deposito sea de tipo Furgoneta
+		LogBook logBookTrace = new LogBook();
+		logBookTrace.InitializePersistance(appConfig,context);
+
+		for (LineaDeposito linea : this.Lineas.values()) {
+
+			if (!this.isDepositoRetirado()) {
+
+				if (linea.UnidadesRepuestas > 0) {
+					try {
+						linea.save();
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+
+					if (appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Furgoneta) {
+						linea.Articulo.InitializePersistance(appConfig, context);
+						linea.Articulo.Activo = true;
+
+						if (linea.IsVentaDirecta) {
+							int stockInicial = linea.Articulo.Stock;
+							linea.Articulo.Stock = stockInicial + linea.UnidadesDevueltas - linea.UnidadesDefectuosas
+									- linea.UnidadesRepuestas
+									- (linea.UnidadesFacturadas - (linea.UnidadesInicialesFijas - linea.UnidadesDevueltas));
+
+							if (stockInicial != linea.Articulo.Stock) {
+								logBookTrace.setData("VENTA DIRECTA CON UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
+										this.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
+										linea.UnidadesAbono, linea.UnidadesDefectuosas);
+
+								try {
+									logBookTrace.save();
+								} catch (Exception e) {
+									throw new RuntimeException(e);
+								}
+
+							}
+
+							linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesDevueltas
+									- linea.UnidadesDefectuosas - linea.UnidadesRepuestas
+									- (linea.UnidadesFacturadas - linea.UnidadesInicialesFijas + linea.UnidadesDevueltas);
+
+						} else {
+							int stockInicial = linea.Articulo.Stock;
+							linea.Articulo.Stock = stockInicial + linea.UnidadesDevueltas - linea.UnidadesDefectuosas
+									- linea.UnidadesRepuestas;
+
+							if (stockInicial != linea.Articulo.Stock) {
+
+								logBookTrace.setData("VENTA CONVENCIONAL (NO DIRECTA) CON UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
+										this.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
+										linea.UnidadesAbono, linea.UnidadesDefectuosas);
+
+								try {
+									logBookTrace.save();
+								} catch (Exception e) {
+									throw new RuntimeException(e);
+								}
+							}
+
+							linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesDevueltas
+									- linea.UnidadesDefectuosas - linea.UnidadesRepuestas;
+						}
+
+						linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.UnidadesDefectuosas;
+
+						linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
+								+ linea.UnidadesDefectuosas;
+
+						try {
+							linea.Articulo.update();
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
+					}
+				} else {
+
+					if (appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Furgoneta) {
+
+						linea.Articulo.InitializePersistance(appConfig, context);
+						linea.Articulo.Activo = true;
+
+						if (linea.IsVentaDirecta) {
+							int stockInicial = linea.Articulo.Stock;
+							linea.Articulo.Stock = stockInicial - linea.UnidadesFacturadas;
+
+							if (stockInicial != linea.Articulo.Stock) {
+
+								logBookTrace.setData("VENTA DIRECTA SIN UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
+										this.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
+										linea.UnidadesAbono, linea.UnidadesDefectuosas);
+
+								try {
+									logBookTrace.save();
+								} catch (Exception e) {
+									throw new RuntimeException(e);
+								}
+							}
+
+							linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock - linea.UnidadesFacturadas;
+						} else {
+							int stockInicial = linea.Articulo.Stock;
+							linea.Articulo.Stock = stockInicial + linea.UnidadesDevueltas - linea.UnidadesDefectuosas
+									- linea.UnidadesRepuestas;
+
+
+							if (stockInicial != linea.Articulo.Stock) {
+
+								logBookTrace.setData("VENTA CONVENCIONAL (NO DIRECTA) CON UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
+										this.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
+										linea.UnidadesAbono, linea.UnidadesDefectuosas);
+
+								try {
+									logBookTrace.save();
+								} catch (Exception e) {
+									throw new RuntimeException(e);
+								}
+							}
+
+							linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesDevueltas
+									- linea.UnidadesDefectuosas - linea.UnidadesRepuestas;
+						}
+
+						linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.UnidadesDefectuosas;
+
+						linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
+								+ linea.UnidadesDefectuosas;
+
+						try {
+							linea.Articulo.update();
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
+					}
+				}
+
+				if (linea.UnidadesAbono > 0 && appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Furgoneta) {
+					linea.Articulo.InitializePersistance(appConfig, context);
+					linea.Articulo.Activo = true;
+
+					int stockInicial = linea.Articulo.Stock;
+					linea.Articulo.Stock = stockInicial + linea.UnidadesAbono - linea.DefectuosasAbono;
+
+					if (stockInicial != linea.Articulo.Stock) {
+
+						logBookTrace.setData("VENTA ABONO", this.Cliente.CodigoCliente,
+								this.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+								stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+								linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
+								linea.UnidadesAbono, linea.UnidadesDefectuosas);
+
+						try {
+							logBookTrace.save();
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
+					}
+
+					linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesAbono
+							- linea.DefectuosasAbono;
+
+					linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.DefectuosasAbono;
+
+					linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
+							+ linea.Articulo.MovimientoStockDefectuosas + linea.DefectuosasAbono;
+
+					try {
+						linea.Articulo.update();
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+
+				}
+			}
+		}
 	}
 
 	private double round(double d, int decimalPlace) {

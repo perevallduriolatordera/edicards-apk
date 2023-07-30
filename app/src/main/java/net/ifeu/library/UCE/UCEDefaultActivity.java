@@ -39,62 +39,26 @@ public final class UCEDefaultActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_error);
-        findViewById(R.id.button_close_app).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                UCEHandler.closeApplication(UCEDefaultActivity.this);
-            }
-        });
-        findViewById(R.id.button_copy_error_log).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                copyErrorToClipboard();
-            }
-        });
-        findViewById(R.id.button_share_error_log).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                shareErrorLog();
-            }
-        });
-        findViewById(R.id.button_save_error_log).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                saveErrorLogToFile(true);
-            }
-        });
-        findViewById(R.id.button_email_error_log).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                emailErrorLog();
-            }
-        });
-        findViewById(R.id.button_view_error_log).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog dialog = new AlertDialog.Builder(UCEDefaultActivity.this)
-                        .setTitle("Error Log")
-                        .setMessage(getAllErrorDetailsFromIntent(UCEDefaultActivity.this, getIntent()))
-                        .setPositiveButton("Copiar error y cerrar",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        copyErrorToClipboard();
-                                        dialog.dismiss();
-                                    }
-                                })
-                        .setNeutralButton("Cerrar",
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-                                })
-                        .show();
-                TextView textView = (TextView) dialog.findViewById(android.R.id.message);
-                if (textView != null) {
-                    textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-                }
+        findViewById(R.id.button_close_app).setOnClickListener(v -> UCEHandler.closeApplication(UCEDefaultActivity.this));
+        findViewById(R.id.button_copy_error_log).setOnClickListener(v -> copyErrorToClipboard());
+        findViewById(R.id.button_share_error_log).setOnClickListener(v -> shareErrorLog());
+        findViewById(R.id.button_save_error_log).setOnClickListener(v -> saveErrorLogToFile(true));
+        findViewById(R.id.button_email_error_log).setOnClickListener(v -> emailErrorLog());
+        findViewById(R.id.button_view_error_log).setOnClickListener(v -> {
+            AlertDialog dialog = new AlertDialog.Builder(UCEDefaultActivity.this)
+                    .setTitle("Error Log")
+                    .setMessage(getAllErrorDetailsFromIntent(UCEDefaultActivity.this, getIntent()))
+                    .setPositiveButton("Copiar error y cerrar",
+                            (dialog1, which) -> {
+                                copyErrorToClipboard();
+                                dialog1.dismiss();
+                            })
+                    .setNeutralButton("Cerrar",
+                            (dialog12, which) -> dialog12.dismiss())
+                    .show();
+            TextView textView = (TextView) dialog.findViewById(android.R.id.message);
+            if (textView != null) {
+                textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
             }
         });
     }
@@ -161,7 +125,6 @@ public final class UCEDefaultActivity extends Activity {
                     Toast.makeText(this, "File Saved Successfully", Toast.LENGTH_SHORT).show();
                 }
             } catch (IOException e) {
-                Log.e("REQUIRED", "This app does not have write storage permission to save log file.");
                 if (isShowToast) {
                     Toast.makeText(this, "Storage Permission Not Found", Toast.LENGTH_SHORT).show();
                 }
@@ -169,8 +132,6 @@ public final class UCEDefaultActivity extends Activity {
             }
         }
     }
-
-    @SuppressWarnings("deprecation")
 	private void shareErrorLog() {
         String errorLog = getAllErrorDetailsFromIntent(UCEDefaultActivity.this, getIntent());
         Intent share = new Intent(Intent.ACTION_SEND);

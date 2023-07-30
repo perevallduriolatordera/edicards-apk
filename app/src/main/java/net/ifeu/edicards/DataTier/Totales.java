@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 public class Totales
 {
-	public HashMap<String,Base> Bases = new HashMap<String, Base>();
+	public HashMap<String,Base> Bases = new HashMap<>();
 	public double TotalBase;
 	public double TotalBaseSinDte;
 	public double DescuentoProntoPago;

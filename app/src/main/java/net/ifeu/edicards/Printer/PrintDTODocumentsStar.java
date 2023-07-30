@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.R;
 import net.ifeu.edicards.Constants.Constants;
@@ -24,9 +24,9 @@ import com.starmicronics.stario.StarIOPortException;
 
 public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintDTO {
 	
-	private void printHeaderData(StarIOPort port, Context context, DTODeposito deposito, AppConfig app, int Tipo) throws StarIOPortException
+	private void printHeaderData(StarIOPort port, DTODeposito deposito, AppConfig app, int Tipo) throws StarIOPortException
 	{
-		byte[] outputByteBuffer = null;
+		byte[] outputByteBuffer;
 
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("dd/MM/yyyy");
@@ -45,9 +45,9 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
         
 	}
 	
-	private void printHeaderFields(StarIOPort port, Context context, int tipo,AppConfig app) throws StarIOPortException
+	private void printHeaderFields(StarIOPort port, int tipo) throws StarIOPortException
 	{
-		  byte[] outputByteBuffer = null;
+		  byte[] outputByteBuffer;
 		
 		  outputByteBuffer = ("--------------------------------------------------------------------- \n").getBytes();
 		  port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
@@ -70,15 +70,14 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 	{
 		
 		DecimalFormat df = new DecimalFormat("0.00");
-		byte[] outputByteBuffer = null;
+		byte[] outputByteBuffer;
 		
 		if (tipo == Constants.TIPO_DOCUMENTO_DEPOSITO)
 		{
 			try {
 				deposito.CalculateDeposito();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 			
 			outputByteBuffer = ("--------------------------------------------------------------------- \n").getBytes();
@@ -90,8 +89,7 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 			try {
 				deposito.Calculate();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 			
 			if ((deposito.Totales.DescuentoFinanciero != 0 || deposito.Totales.DescuentoProntoPago != 0)) {
@@ -214,12 +212,12 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 					outputByteBuffer = ("\n").getBytes();
 					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
 					
-					outputByteBuffer = ("HE RECIBIDO DE " + deposito.Nombre + " LA CANTIDAD DE " + df.format(deposito.CantidadPagada) + " Euros EN CONCEPTO DEL PAGO DEL ALBARAN " + app.getUser().User + "/" + String.valueOf(deposito.NumeroAlbaran) +"\n\n").getBytes();
+					outputByteBuffer = ("HE RECIBIDO DE " + deposito.Nombre + " LA CANTIDAD DE " + df.format(deposito.CantidadPagada) + " Euros EN CONCEPTO DEL PAGO DEL ALBARAN " + app.getUser().User + "/" + deposito.NumeroAlbaran +"\n\n").getBytes();
 					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
 					
 					if (deposito.CantidadPagada < deposito.Totales.Total)
 					{
-						outputByteBuffer = ("QUEDA PENDIENTE DE PAGO LA CANTIDAD DE " + df.format(deposito.Totales.Total - deposito.CantidadPagada) + " Euros EN CONCEPTO DEL PAGO DEL ALBARAN " + app.getUser().User + "/" + String.valueOf(deposito.NumeroAlbaran) +"\n").getBytes();
+						outputByteBuffer = ("QUEDA PENDIENTE DE PAGO LA CANTIDAD DE " + df.format(deposito.Totales.Total - deposito.CantidadPagada) + " Euros EN CONCEPTO DEL PAGO DEL ALBARAN " + app.getUser().User + "/" + deposito.NumeroAlbaran +"\n").getBytes();
 						port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
 					}
 					
@@ -235,10 +233,7 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
 					
 					outputByteBuffer = ("FIRMA CLIENTE\n").getBytes();
-					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
-					
-					this.PrintBitmapSignature(context, PORT, SETTINGS, 150);
-					
+
 				}
 				else
 				{
@@ -250,10 +245,10 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 					
 					port.writePort(new byte[]{0x1b, 0x45, 0x01}, 0, 3);                 //Set Emphasized Printing ON
 					outputByteBuffer = ("Conforme - Firma Cliente:\n").getBytes();
-					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
-					
-					this.PrintBitmapSignature(context, PORT, SETTINGS, 150);
+
 				}
+				port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
+				this.PrintBitmapSignature(context, PORT, SETTINGS, 150);
 
 			}
 
@@ -305,14 +300,11 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 		}
 	}
 	
-	private void printHeaderDetail(StarIOPort port, Context context, AppConfig app, int tipo, DTODeposito deposito) throws StarIOPortException
+	private void printHeaderDetail(StarIOPort port, int tipo, DTODeposito deposito) throws StarIOPortException
 	{
 		DecimalFormat df = new DecimalFormat("0.00");
 		byte[] outputByteBuffer = null;
-		List<DTOLineaDeposito> tempList = new ArrayList<DTOLineaDeposito>();
-		for (DTOLineaDeposito linea : deposito.Lineas.values()) {
-			tempList.add(linea);
-		}
+		List<DTOLineaDeposito> tempList = new ArrayList<>(deposito.Lineas.values());
 
 		Collections
 				.sort(tempList, new DTOLineaDeposito().new ArticuloComparator());
@@ -396,19 +388,19 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 			port.writePort(new byte[]{0x1b, 0x45, 0x01}, 0, 3);                 //Set Emphasized Printing ON
 			
 			if (deposito.Serie.equals(app.getUser().SerialInvoiceB))
-				outputByteBuffer = ("PRESUPUESTO: NUM " + app.getUser().User + "/" + String.valueOf(deposito.NumeroAlbaran) + "\n").getBytes();
+				outputByteBuffer = ("PRESUPUESTO: NUM " + app.getUser().User + "/" + deposito.NumeroAlbaran + "\n").getBytes();
 			else if(!deposito.Pagado)
-				outputByteBuffer = ("ALBARAN: NUM " + app.getUser().User + "/" + String.valueOf(deposito.NumeroAlbaran) + "\n").getBytes();
+				outputByteBuffer = ("ALBARAN: NUM " + app.getUser().User + "/" + deposito.NumeroAlbaran + "\n").getBytes();
 			else
-				outputByteBuffer = ("ALBARAN ENTREGA: NUM " + app.getUser().User + "/" + String.valueOf(deposito.NumeroAlbaran) + "\n").getBytes();
+				outputByteBuffer = ("ALBARAN ENTREGA: NUM " + app.getUser().User + "/" + deposito.NumeroAlbaran + "\n").getBytes();
 			
 			port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
             port.writePort(new byte[]{0x1b, 0x45, 0x00}, 0, 3);                 //Set Emphasized Printing OFF (same command as on)
-        	this.printHeaderData(port, context, deposito, app, Constants.TIPO_DOCUMENTO_ALBARAN);
+        	this.printHeaderData(port, deposito, app, Constants.TIPO_DOCUMENTO_ALBARAN);
 	        port.writePort(new byte[]{0x1b, 0x45, 0x01}, 0, 3);                 //Set Emphasized Printing ON
 	        
-	        printHeaderFields(port,context,Constants.TIPO_DOCUMENTO_ALBARAN, app);
-	        printHeaderDetail(port,context, app, Constants.TIPO_DOCUMENTO_ALBARAN, deposito);
+	        printHeaderFields(port,Constants.TIPO_DOCUMENTO_ALBARAN);
+	        printHeaderDetail(port, Constants.TIPO_DOCUMENTO_ALBARAN, deposito);
 	        printTotals(port,context,app,Constants.TIPO_DOCUMENTO_ALBARAN, deposito, isTransferPayment);
 			
 			port.writePort(new byte[]{0x1b, 0x45, 0x00}, 0, 3);                 //Set Emphasized Printing OFF (same command as on)
@@ -454,13 +446,13 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 
 			printHeader(port,context);
 			port.writePort(new byte[]{0x1b, 0x45, 0x01}, 0, 3);                 //Set Emphasized Printing ON
-			outputByteBuffer = ("DEPOSITO: NUM " + app.getUser().User + "/" + String.valueOf(deposito.IdDeposito) + "\n").getBytes();
+			outputByteBuffer = ("DEPOSITO: NUM " + app.getUser().User + "/" + deposito.IdDeposito + "\n").getBytes();
 			port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
             port.writePort(new byte[]{0x1b, 0x45, 0x00}, 0, 3);                 //Set Emphasized Printing OFF (same command as on)
-        	this.printHeaderData(port, context, deposito, app, Constants.TIPO_DOCUMENTO_DEPOSITO);
+        	this.printHeaderData(port, deposito, app, Constants.TIPO_DOCUMENTO_DEPOSITO);
 	        port.writePort(new byte[]{0x1b, 0x45, 0x01}, 0, 3);                 //Set Emphasized Printing ON
-	        printHeaderFields(port,context,Constants.TIPO_DOCUMENTO_DEPOSITO, app);
-	        printHeaderDetail(port,context, app, Constants.TIPO_DOCUMENTO_DEPOSITO, deposito);
+	        printHeaderFields(port,Constants.TIPO_DOCUMENTO_DEPOSITO);
+	        printHeaderDetail(port, Constants.TIPO_DOCUMENTO_DEPOSITO, deposito);
 	        printTotals(port,context,app,Constants.TIPO_DOCUMENTO_DEPOSITO, deposito, false);
 			
 			outputByteBuffer = ("\nOPERACION ASEGURADA EN CREDITO Y CAUCION\n\n").getBytes();

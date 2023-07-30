@@ -9,10 +9,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.Excel.LogBookCreator;
 import net.ifeu.edicards.Services.ParserMonitor;
@@ -20,7 +20,7 @@ import net.ifeu.edicards.Services.ServiceMonitor;
 import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
-import net.ifeu.library.Utils.MessageBoxType;
+import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -31,10 +31,8 @@ public class MonitorView extends Fragment {
 
 	AppConfig _appConfig;
 	public boolean SyncResult;
-	private final int TEXT_SIZE_BUTTON = 18;
-	private final int BUTTONS_WIDTH = 100;
-	
-    @Override
+
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
@@ -92,17 +90,14 @@ public class MonitorView extends Fragment {
     	ButtonColor sync = new ButtonColor(getActivity(), Color.RED);
 
     	sync.setText("Sincronización");
-    	sync.setTextSize(TEXT_SIZE_BUTTON);
-    	sync.setWidth(BUTTONS_WIDTH);
+		int TEXT_SIZE_BUTTON = 18;
+		sync.setTextSize(TEXT_SIZE_BUTTON);
+		int BUTTONS_WIDTH = 100;
+		sync.setWidth(BUTTONS_WIDTH);
 
     	final MonitorView that = this;
-    	sync.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
-				that.executeSync("Se está ejecutando la sincronización");
-			}
+    	sync.setOnClickListener(arg0 -> {
+			that.executeSync("Se está ejecutando la sincronización");
 		});
     	
     	mainLinearLayout.addView(sync);
@@ -113,19 +108,16 @@ public class MonitorView extends Fragment {
 		logBookReport.setTextSize(TEXT_SIZE_BUTTON);
 		logBookReport.setWidth(BUTTONS_WIDTH);
 
-		logBookReport.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View view) {
+		logBookReport.setOnClickListener(view -> {
 
-				that.showWaiting("Generando reporte de trazabilidad de stock");
-				LogBookCreator logBookCreator = new LogBookCreator(_appConfig);
-				try {
-					logBookCreator.createExcel30Days();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				that.executeSync("Enviar trazabilidad de stock");
+			that.showWaiting("Generando reporte de trazabilidad de stock");
+			LogBookCreator logBookCreator = new LogBookCreator(_appConfig);
+			try {
+				logBookCreator.createExcel30Days();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
+			that.executeSync("Enviar trazabilidad de stock");
 		});
 
 		mainLinearLayout.addView(logBookReport);
@@ -248,11 +240,7 @@ public class MonitorView extends Fragment {
 		// contadores de facturas
 
 		Contador contador = new Contador();
-		try {
-			contador.InitializePersistance(_appConfig, _appConfig);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		contador.InitializePersistance(_appConfig, _appConfig);
 
 		layout2.addView(this.createLabel("contador tipo A" , String.valueOf(contador.ContadorSerieA), false));
 		layout2.addView(this.createLabel("contador tipo B" , String.valueOf(contador.ContadorSerieB), false));
@@ -262,7 +250,7 @@ public class MonitorView extends Fragment {
 		try {
 			lastModified = this._appConfig.getDatabaseOperations().getLastbackupDatabase();
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		if (lastModified != null) {
 			DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
@@ -422,6 +410,7 @@ public class MonitorView extends Fragment {
 						_appConfig.getWorkingArea().Monitor = worker.Monitor();
 
 					} catch (Exception e) {
+						throw new RuntimeException(e);
 					}
 				}
 
@@ -436,6 +425,7 @@ public class MonitorView extends Fragment {
 				that.fillDataMonitor(_appConfig.getWorkingArea().Monitor);
 
 				if (that.SyncResult) {
+					_appConfig.getCache().invalidate();
 					_appConfig.getMessageBox().Show("Sincronización",
 							"El proceso de sincronizacón ha finalizado CORRECTAMENTE. Revise los indicadores para comprobar si se ha realizado correctamente",
 							getActivity(), MessageBoxType.Information);
@@ -448,14 +438,11 @@ public class MonitorView extends Fragment {
 
 			}
 			catch (InterruptedException e) {
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 
 		} catch (Exception ex) {
-			_appConfig.getMessageBox().Show("Error de Sincronización",
-					ex.getMessage(),
-					getActivity(), MessageBoxType.Information);
-
+			throw new RuntimeException(ex);
 		}
 	}
 }

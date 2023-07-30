@@ -1,6 +1,6 @@
 package net.ifeu.edicards.Printer;
 
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.DTODeposito;
 import net.ifeu.edicards.DataTier.Deposito;
 import android.content.Context;

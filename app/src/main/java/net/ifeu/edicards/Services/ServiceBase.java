@@ -2,7 +2,7 @@ package net.ifeu.edicards.Services;
 
 public class ServiceBase {
 
-	private ServiceMonitor _monitor;
+	private final ServiceMonitor _monitor;
 	
 	public ServiceBase() {
 		this._monitor = new ServiceMonitor();

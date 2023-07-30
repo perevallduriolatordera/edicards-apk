@@ -195,7 +195,7 @@
             android:layout_weight=".50"
             android:background="#FFF"
             android:onClick="OnCancelClick"
-            android:src="@drawable/ic_cancel"
+            android:src="@drawable/ic_close"
             android:text="Salit"
             android:textColor="#FFF" />
     </LinearLayout>

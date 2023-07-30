@@ -1,11 +1,12 @@
 package net.ifeu.edicards;
 
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.ClienteInfo;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.Incidencia;
 import net.ifeu.edicards.DataTier.IncidenciaType;
-import net.ifeu.library.Utils.MessageBoxType;
+import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
 import java.util.Date;
 
@@ -29,9 +30,8 @@ public class CustomerData extends Activity {
 		try {
 			_appConfig.getWorkingArea().CurrentDeposito.InitializePersistance(
 					_appConfig, this);
-		} catch (Exception e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 
 		android.view.WindowManager.LayoutParams params = getWindow()
@@ -44,8 +44,7 @@ public class CustomerData extends Activity {
 		try {
 			this.fillFields();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -62,8 +61,6 @@ public class CustomerData extends Activity {
 	}
 
 	private void fillFields() throws Exception {
-		
-		Log.i("CustomerData", "FillFields");
 
 		Deposito deposito = _appConfig.getWorkingArea().CurrentDeposito;
 
@@ -90,8 +87,6 @@ public class CustomerData extends Activity {
 		deposito.ClienteInfo.InitializePersistance(_appConfig, this.getApplicationContext());
 		
 		deposito.ClienteInfo.setClienteInfoByCliente(deposito.Cliente);
-		Log.i("CustomerData" , deposito.Cliente.Nombre);
-		Log.i("CustomerData", deposito.Cliente.ClienteInfo.CCC);
 
 	    ((EditText) findViewById(R.id.lblCCCCliente)).setText(deposito.ClienteInfo.CCC);
 	    ((EditText) findViewById(R.id.lblRepresentanteCliente)).setText(deposito.ClienteInfo.Representante);
@@ -99,7 +94,7 @@ public class CustomerData extends Activity {
 	    
 	}
 	
-	public void OnClose(View v) throws Exception {
+	public void OnClose(View v) {
 		finish();
 	}
 	
@@ -123,9 +118,7 @@ public class CustomerData extends Activity {
 				!_appConfig.getWorkingArea().CurrentDeposito.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE);
 		
 		_appConfig.getWorkingArea().CurrentDeposito.CCCUpdated = this.isUpdatedCCC();
-		
-		Log.i("CustomerData","Updated CCC:" + String.valueOf(_appConfig.getWorkingArea().CurrentDeposito.CCCUpdated));
-		
+
 		_appConfig.getWorkingArea().CurrentDeposito.NIF = ((EditText) findViewById(R.id.lblNIFCliente))
 				.getText().toString();
 		_appConfig.getWorkingArea().CurrentDeposito.Nombre = ((EditText) findViewById(R.id.lblNombreCliente))
@@ -258,13 +251,9 @@ public class CustomerData extends Activity {
 	
 	private boolean isUpdatedCCC()
 	{
-		
 		if (_appConfig.getWorkingArea().CurrentDeposito.ClienteInfo == null)
-		{
-			Log.i("CustomerData", "ClienteInfo es null");
 			_appConfig.getWorkingArea().CurrentDeposito.ClienteInfo = new ClienteInfo();
-		}
-			
+
 		if (!_appConfig.getWorkingArea().CurrentDeposito.ClienteInfo.CCC.trim().equals(((EditText) findViewById(R.id.lblCCCCliente))
 				.getText().toString().trim()))
 				return true;

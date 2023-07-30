@@ -7,11 +7,11 @@ import net.ifeu.edicards.Constants.Constants;
 
 public class Reporting {
 	
-	public LinkedHashMap<String,ArrayList<Historico>> Agrupado = new LinkedHashMap<String,ArrayList<Historico>>();
-	public LinkedHashMap<String,Potenciado> Potenciados = new LinkedHashMap<String,Potenciado>();
-	public LinkedHashMap<String,Vendido> Vendidos = new LinkedHashMap<String,Vendido>();
-	public LinkedHashMap<String,Retirado> Retirados = new LinkedHashMap<String,Retirado>();
-	public LinkedHashMap<String,Defectuoso> Defectuosos = new LinkedHashMap<String,Defectuoso>();
+	public LinkedHashMap<String,ArrayList<Historico>> Agrupado = new LinkedHashMap<>();
+	public LinkedHashMap<String,Potenciado> Potenciados = new LinkedHashMap<>();
+	public LinkedHashMap<String,Vendido> Vendidos = new LinkedHashMap<>();
+	public LinkedHashMap<String,Retirado> Retirados = new LinkedHashMap<>();
+	public LinkedHashMap<String,Defectuoso> Defectuosos = new LinkedHashMap<>();
 	public Totales totales = new Totales();
 	
 	public class Potenciado
@@ -44,9 +44,9 @@ public class Reporting {
 		public int Retirados;
 		public int Visitas;
 		public String InicialSerieA = Constants.EMPTY_STRING;
-		public String FinalSeriaA = Constants.EMPTY_STRING;;
-		public String InicialSerieB = Constants.EMPTY_STRING;;
-		public String FinalSerieB = Constants.EMPTY_STRING;;
+		public String FinalSeriaA = Constants.EMPTY_STRING;
+		public String InicialSerieB = Constants.EMPTY_STRING;
+		public String FinalSerieB = Constants.EMPTY_STRING;
 		public double TotalSerieA;
 		public double TotalSerieB;
 		public double CantidadPagadaSerieA;

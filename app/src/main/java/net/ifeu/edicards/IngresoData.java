@@ -1,24 +1,24 @@
 package net.ifeu.edicards;
 
-import java.util.Calendar;
-import java.util.Date;
-
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Incidencia;
 import net.ifeu.edicards.DataTier.IncidenciaType;
 import net.ifeu.edicards.DataTier.Ingresos;
-import net.ifeu.library.Utils.MessageBoxType;
+import net.ifeu.library.Utils.MessageBox.MessageBoxType;
+
+import java.util.Calendar;
+import java.util.Date;
 
 public class IngresoData extends Fragment {
 
@@ -33,9 +33,6 @@ public class IngresoData extends Fragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-	   Log.i("IngresoData", "Abans de carregar layout");
-		   
 	   return inflater.inflate(R.layout.activity_ingreso_data, container, false);
 	}
 
@@ -46,28 +43,19 @@ public class IngresoData extends Fragment {
 	}
 
 	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-	}
-
-	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		
 	   Button button = (Button) getActivity().findViewById(R.id.btnSaveIngreso);
 		   
 	   final IngresoData that = this;
 	   
-	   button.setOnClickListener(new OnClickListener() {
-             public void onClick(View v)
-             {
-                try {
-					that.OnSaveIngreso();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-				}
-             } 
-		}); 
+	   button.setOnClickListener(v -> {
+		  try {
+			  that.OnSaveIngreso();
+		  } catch (Exception e) {
+			  throw new RuntimeException(e);
+		  }
+	   });
 		   
 		super.onActivityCreated(savedInstanceState);
 	}

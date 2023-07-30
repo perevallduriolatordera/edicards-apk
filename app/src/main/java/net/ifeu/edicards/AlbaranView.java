@@ -1,10 +1,5 @@
 package net.ifeu.edicards;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.graphics.Color;
@@ -12,19 +7,20 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
+
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class AlbaranView extends Activity {
 
-	private final int TEXT_SIZE = 14;
-	private final int BUTTONS_WIDTH = 130;
-	private final int TEXT_SIZE_BUTTON = 14;
-	
 	AppConfig _appConfig;
 	
     @SuppressWarnings("deprecation")
@@ -41,9 +37,7 @@ public class AlbaranView extends Activity {
         try {
 			fillAlbaran();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-		}
+			throw new RuntimeException(e);		}
     }
     
     private void fillAlbaran() throws Exception
@@ -63,17 +57,14 @@ public class AlbaranView extends Activity {
     	android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
     	
     	_appConfig.getWorkingArea().CurrentDeposito.Calculate();
-    	
-    	List<LineaDeposito> tempList = new ArrayList<LineaDeposito>();
 
-		for (LineaDeposito linea : _appConfig.getWorkingArea().CurrentDeposito.Lineas.values()) {
-			tempList.add(linea);
-		}
+		List<LineaDeposito> tempList = new ArrayList<>(_appConfig.getWorkingArea().CurrentDeposito.Lineas.values());
 
 		Collections
 				.sort(tempList, new LineaDeposito().new ArticuloComparator());
 
-    	for (LineaDeposito linea : tempList)
+		int TEXT_SIZE = 14;
+		for (LineaDeposito linea : tempList)
     	{
     		final LinearLayout layout2 = new LinearLayout(this);
     		layout2.removeAllViews();
@@ -103,7 +94,7 @@ public class AlbaranView extends Activity {
         		
         		LabelColor unidadesLabel = new LabelColor(this,Color.WHITE, Gravity.RIGHT);
         		unidadesLabel.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-        		unidadesLabel.setText(String.valueOf(linea.UnidadesFacturadas) + " unidades");
+        		unidadesLabel.setText(linea.UnidadesFacturadas + " unidades");
         		unidadesLabel.setTextSize(TEXT_SIZE);
         		unidadesLabel.setWidth(150);
         		unidadesLabel.setLayoutParams(params);
@@ -112,7 +103,7 @@ public class AlbaranView extends Activity {
             	
             	LabelColor pvpLabel = new LabelColor(this,Color.WHITE, Gravity.RIGHT);
             	pvpLabel.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-            	pvpLabel.setText(String.valueOf(linea.PVP) + " €");
+            	pvpLabel.setText(linea.PVP + " €");
             	pvpLabel.setTextSize(TEXT_SIZE);
             	pvpLabel.setWidth(150);
             	pvpLabel.setLayoutParams(params);
@@ -123,7 +114,7 @@ public class AlbaranView extends Activity {
             	
             	LabelColor pvpTotalLinea = new LabelColor(this,Color.WHITE, Gravity.RIGHT);
             	pvpTotalLinea.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-            	pvpTotalLinea.setText(String.valueOf(totalLinea) + " €");
+            	pvpTotalLinea.setText(totalLinea + " €");
             	pvpTotalLinea.setTextSize(TEXT_SIZE);
             	pvpTotalLinea.setWidth(150);
             	pvpTotalLinea.setLayoutParams(params);
@@ -162,7 +153,7 @@ public class AlbaranView extends Activity {
         		
         		LabelColor unidadesLabelAbono = new LabelColor(this,Color.WHITE, Gravity.RIGHT);
         		unidadesLabelAbono.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-        		unidadesLabelAbono.setText(String.valueOf(linea.UnidadesAbono) + " unidades");
+        		unidadesLabelAbono.setText(linea.UnidadesAbono + " unidades");
         		unidadesLabelAbono.setTextSize(TEXT_SIZE);
         		unidadesLabelAbono.setWidth(150);
         		unidadesLabelAbono.setLayoutParams(params);
@@ -171,7 +162,7 @@ public class AlbaranView extends Activity {
             	
             	LabelColor pvpLabelAbono = new LabelColor(this,Color.WHITE, Gravity.RIGHT);
             	pvpLabelAbono.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-            	pvpLabelAbono.setText(String.valueOf(linea.PVPAbono * -1) + " €");
+            	pvpLabelAbono.setText(linea.PVPAbono * -1 + " €");
             	pvpLabelAbono.setTextSize(TEXT_SIZE);
             	pvpLabelAbono.setWidth(150);
             	pvpLabelAbono.setLayoutParams(params);
@@ -182,7 +173,7 @@ public class AlbaranView extends Activity {
             	
             	LabelColor pvpTotalLinea = new LabelColor(this,Color.WHITE, Gravity.RIGHT);
             	pvpTotalLinea.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-            	pvpTotalLinea.setText(String.valueOf(totalLinea) + " €");
+            	pvpTotalLinea.setText(totalLinea + " €");
             	pvpTotalLinea.setTextSize(TEXT_SIZE);
             	pvpTotalLinea.setWidth(150);
             	pvpTotalLinea.setLayoutParams(params);
@@ -207,24 +198,23 @@ public class AlbaranView extends Activity {
     	
     	LabelColor TotalBase = new LabelColor(this,Color.YELLOW, Gravity.LEFT);
 		TotalBase.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-		TotalBase.setText("Base: " + String.valueOf(_appConfig.getWorkingArea().CurrentDeposito.Totales.TotalBase) + " €");
+		TotalBase.setText("Base: " + _appConfig.getWorkingArea().CurrentDeposito.Totales.TotalBase + " €");
 		TotalBase.setTextSize(TEXT_SIZE);
 		TotalBase.setWidth(150);
 		TotalBase.setLayoutParams(params2);
     	
 		layoutTotales.addView(TotalBase);
 		
-		double total = 0;
+		double total;
 		
 		if (_appConfig.getWorkingArea().CurrentDeposito.Serie.equals(_appConfig.getUser().SerialInvoiceA))
 			total = _appConfig.getWorkingArea().CurrentDeposito.Totales.Total;
 		else
 			total = _appConfig.getWorkingArea().CurrentDeposito.Totales.TotalBase;
-		Log.i("AlbaranViewe", "Serie: " + _appConfig.getWorkingArea().CurrentDeposito.Serie);
-    	
+
     	LabelColor TotalAlbaran = new LabelColor(this,Color.YELLOW, Gravity.LEFT);
     	TotalAlbaran.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-    	TotalAlbaran.setText("Total: " + String.valueOf(total) + " €");
+    	TotalAlbaran.setText("Total: " + total + " €");
     	TotalAlbaran.setTextSize(TEXT_SIZE);
     	TotalAlbaran.setWidth(150);
     	TotalAlbaran.setLayoutParams(params2);
@@ -243,27 +233,23 @@ public class AlbaranView extends Activity {
 		ButtonColor closeButton = new ButtonColor(this, Color.WHITE);
 
 		closeButton.setText("Cerrar");
+		int TEXT_SIZE_BUTTON = 14;
 		closeButton.setTextSize(TEXT_SIZE_BUTTON);
+		int BUTTONS_WIDTH = 130;
 		closeButton.setWidth(BUTTONS_WIDTH);
 
 		
 		closeButton.setLayoutParams(params2);
 
-		closeButton.setOnClickListener(new OnClickListener() {
+		closeButton.setOnClickListener(arg0 -> {
+			
 
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
+			try {
 
-				try {
+				finish();
 
-					finish();
-
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getErrorTrace().Send(_appConfig.getUser().User,
-							e);
-				}
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 		});
 		
@@ -276,7 +262,7 @@ public class AlbaranView extends Activity {
     
     double RoundTo2Decimals(double val) {
 		DecimalFormat df2 = new DecimalFormat("0.00");
-		return Double.valueOf(df2.format(val).replace(",", "."));
+		return Double.parseDouble(df2.format(val).replace(",", "."));
 	}
 
     @Override

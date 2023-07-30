@@ -56,10 +56,8 @@ import java.util.Locale;
 	            if (context != null) {
 	                final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
 	                if (oldHandler != null && oldHandler.getClass().getName().startsWith(UCE_HANDLER_PACKAGE_NAME)) {
-	                    Log.e(TAG, "UCEHandler was already installed, doing nothing!");
 	                } else {
 	                    if (oldHandler != null && !oldHandler.getClass().getName().startsWith(DEFAULT_HANDLER_PACKAGE_NAME)) {
-	                        Log.e(TAG, "You already have an UncaughtExceptionHandler. If you use a custom UncaughtExceptionHandler, it should be initialized after UCEHandler! Installing anyway, but your original handler will not be called.");
 	                    }
 	                    application = (Application) context.getApplicationContext();
 	                    //Setup UCE Handler.
@@ -69,9 +67,7 @@ import java.util.Locale;
 	                            if (isUCEHEnabled) {
 	                            	if (throwable.toString().contains("@Custom"))
 	                            		return;
-	                                Log.e(TAG, "App crashed, executing UCEHandler's UncaughtExceptionHandler", throwable);
 	                                if (hasCrashedInTheLastSeconds(application)) {
-	                                    Log.e(TAG, "App already crashed recently, not starting custom error activity because we could enter a restart loop. Are you sure that your app does not crash directly on init?", throwable);
 	                                    if (oldHandler != null) {
 	                                        oldHandler.uncaughtException(thread, throwable);
 	                                        return;
@@ -173,12 +169,8 @@ import java.util.Locale;
 	                        }
 	                    });
 	                }
-	                Log.i(TAG, "UCEHandler has been installed.");
-	            } else {
-	                Log.e(TAG, "Context can not be null");
 	            }
 	        } catch (Throwable throwable) {
-	            Log.e(TAG, "UCEHandler can not be initialized. Help making it better by reporting this as a bug.", throwable);
 	        }
 	    }
 
@@ -214,7 +206,7 @@ import java.util.Locale;
 	    }
 
 	    public static class Builder {
-	        private Context context;
+	        final private Context context;
 	        private boolean isUCEHEnabled = true;
 	        private String commaSeparatedEmailAddresses;
 	        private boolean isTrackActivitiesEnabled = false;

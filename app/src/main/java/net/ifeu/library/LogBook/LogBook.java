@@ -3,24 +3,18 @@ package net.ifeu.library.LogBook;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.os.Environment;
 
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Articulo;
-import net.ifeu.edicards.DataTier.IPersistable;
-import net.ifeu.edicards.DataTier.Persistent;
+import net.ifeu.edicards.DataTier.Persistance.IPersistable;
+import net.ifeu.edicards.DataTier.Persistance.Persistent;
+import net.ifeu.library.Utils.DateTime.DateTimeUtils;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 public class LogBook extends Persistent implements IPersistable {
 
@@ -66,8 +60,8 @@ public class LogBook extends Persistent implements IPersistable {
     }
 
     @Override
-    public void InitializePersistance(AppConfig appConfig, Context context) throws Exception {
-        // TODO Auto-generated method stub
+    public void InitializePersistance(AppConfig appConfig, Context context) {
+        
         super.InitializePersistance(appConfig, context);
     }
 
@@ -83,7 +77,7 @@ public class LogBook extends Persistent implements IPersistable {
         articuloHomonimo.InitializePersistance(appConfig, context);
 
         boolean isCH = false;
-        boolean isFound = false;
+        boolean isFound;
         if (this.CodigoArticulo.startsWith("CH")) {
             isFound = articuloHomonimo.setArticuloByCodigo(this.CodigoArticulo.substring(2));
             isCH = true;
@@ -124,34 +118,9 @@ public class LogBook extends Persistent implements IPersistable {
             super.getDatabaseOperations().insert(Constants.TABLE_LOGBOOK, null , values);
         }
         catch (Exception e) {
-            throw e;
+            throw new RuntimeException(e);
         }
 
-    }
-
-    public static String getTodayFileFormat() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-        return sdf.format(new Date());
-    }
-
-    private static String getTodayFilename() {
-
-        String formattedDate = getTodayFileFormat();
-        String filename = Constants.FILE_LOGBOOLK.replace("{0}", formattedDate);
-
-        return Environment.getExternalStorageDirectory()
-                .toString()
-                + "/"
-                + Constants.FOLDER_ROOT
-                + "/"
-                + Constants.FOLDER_LOGBOOK
-                + "/"
-                + filename;
-    }
-
-    private static String getTimestamp() {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        return sdf.format(new Date());
     }
 
     public boolean hasLogBookCurrentWeek() throws Exception
@@ -160,43 +129,10 @@ public class LogBook extends Persistent implements IPersistable {
         formatter = new SimpleDateFormat("yyyyMMdd");
         Date today = new Date();
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(today);
-
-        int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-        int daysToSubstract = 0;
-
-        switch (dayOfWeek) {
-            case Calendar.SUNDAY:
-                daysToSubstract = -6;
-                break;
-            case Calendar.MONDAY:
-                daysToSubstract = 0;
-                break;
-            case Calendar.TUESDAY:
-                daysToSubstract = -1;
-                break;
-            case Calendar.WEDNESDAY:
-                daysToSubstract = -2;
-                break;
-            case Calendar.THURSDAY:
-                daysToSubstract = -3;
-                break;
-            case Calendar.FRIDAY:
-                daysToSubstract = -4;
-                break;
-            case Calendar.SATURDAY:
-                daysToSubstract = -5;
-                break;
-        }
-
-        calendar.add( Calendar.DAY_OF_YEAR, daysToSubstract);
-        Date firstDate = calendar.getTime();
+        Date firstDate = DateTimeUtils.getFirstDayOfCurrentWeek(today);
 
         Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_LOGBOOK + " WHERE substr(Fecha,1,4)||substr(Fecha,6,2)||substr(Fecha,9,2) " +
                 "BETWEEN '" + formatter.format(firstDate) + "' AND '" + formatter.format(today) + "'");
-
-        ArrayList<LogBook> list = new ArrayList<LogBook>();
 
         boolean result = false;
 
@@ -224,7 +160,7 @@ public class LogBook extends Persistent implements IPersistable {
         Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_LOGBOOK + " WHERE substr(Fecha,1,4)||substr(Fecha,6,2)||substr(Fecha,9,2) " +
                 "BETWEEN '" + formatter.format(firstDate) + "' AND '" + formatter.format(today) + "'");
 
-        ArrayList<LogBook> list = new ArrayList<LogBook>();
+        ArrayList<LogBook> list = new ArrayList<>();
 
         if (cursor != null)
         {

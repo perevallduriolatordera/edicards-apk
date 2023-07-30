@@ -1,18 +1,17 @@
 package net.ifeu.library.Imaging;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.util.Log;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 public class BitmapConvertor{
 
 	private int mDataWidth;
-	private byte mRawBitmapData[];
+	private byte[] mRawBitmapData;
 	private byte[] mDataArray;
 	private static final String TAG = "BitmapConvertor";
 	private int mWidth, mHeight;
@@ -20,7 +19,7 @@ public class BitmapConvertor{
 	private String mFileName;
 
 
-	public BitmapConvertor(Context context) {
+	public BitmapConvertor() {
 	}
 
 /**
@@ -62,7 +61,7 @@ public class BitmapConvertor{
 	private void convertArgbToGrayscale(Bitmap bmpOriginal, int width, int height){
     	int pixel;
     	int k = 0;
-    	int B=0,G=0,R=0;
+    	int B, G, R;
     	try{
     	for(int x = 0; x < height; x++) {
             for(int y = 0; y < width; y++, k++) {
@@ -89,8 +88,7 @@ public class BitmapConvertor{
 			}
         }
     	}catch (Exception e) {
-			// TODO: handle exception
-    		Log.e(TAG, e.toString());
+			throw new RuntimeException(e);
 		}
     }
     
@@ -115,7 +113,6 @@ public class BitmapConvertor{
 			file.createNewFile();
 			fileOutputStream = new FileOutputStream(file);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			return "Memory Access Denied";
 		}
 		bmpFile.saveBitmap(fileOutputStream, mRawBitmapData, width, height);
@@ -123,7 +120,7 @@ public class BitmapConvertor{
     }
     
     private void Convert(Bitmap bitmap) {
-		// TODO Auto-generated method stub
+		
 		convertArgbToGrayscale(bitmap, mWidth, mHeight);
     	createRawMonochromeData();
     	mStatus = saveImage(mFileName, mWidth, mHeight);

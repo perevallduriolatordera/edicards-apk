@@ -1,30 +1,24 @@
 package net.ifeu.library.Controls;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Color;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.AttributeSet;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-public class ComboBox extends LinearLayout {
-	
-	private final int TEXT_SIZE = 16;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-   private AutoCompleteTextView _text;
+public class ComboBox extends LinearLayout {
+
+    private AutoCompleteTextView _text;
    private ImageButton _button;
    private LabelColor _label;
-   private Map<String, IComboBoxChangeEvent> _observers = new HashMap<String, IComboBoxChangeEvent>();
+   final private Map<String, IComboBoxChangeEvent> _observers = new HashMap<>();
    
    public ComboBox(Context context, int width) {
        super(context);
@@ -59,23 +53,21 @@ public class ComboBox extends LinearLayout {
                        | InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE
                        | InputType.TYPE_TEXT_FLAG_AUTO_CORRECT);
        _text.setRawInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);*/
+       int TEXT_SIZE = 16;
        _text.setTextSize(TEXT_SIZE);
-       _text.setOnItemClickListener(new OnItemClickListener() {
-           public void onItemClick(AdapterView<?> listView, View view,
-                       int position, long id) {
-               // 
-        	   
-           	_label.setText(listView.getItemAtPosition(position).toString());
-           	 _text.setText("");
+       _text.setOnItemClickListener((listView, view, position, id) -> {
+           //
 
-           	for (Map.Entry<String, IComboBoxChangeEvent> item : that._observers.entrySet()) {
-            	 item.getValue().callback(item.getKey(), _label.getText().toString());
-            }
-           	 //for (IComboBoxChangeEvent observer : that._observers) {
-           	//	 observer.callback(_label.getText().toString());
-           	// }
-           	
-           }
+           _label.setText(listView.getItemAtPosition(position).toString());
+            _text.setText("");
+
+           for (Map.Entry<String, IComboBoxChangeEvent> item : that._observers.entrySet()) {
+             item.getValue().callback(item.getKey(), _label.getText().toString());
+        }
+            //for (IComboBoxChangeEvent observer : that._observers) {
+           //	 observer.callback(_label.getText().toString());
+           // }
+
        });
        
        relativeLayout.addView(_text);
@@ -98,12 +90,7 @@ public class ComboBox extends LinearLayout {
 
        _button = new ImageButton(context);
        _button.setImageResource(android.R.drawable.arrow_down_float);
-       _button.setOnClickListener(new OnClickListener() {
-               @Override
-               public void onClick(View v) {
-                   _text.showDropDown();
-               }
-       });
+       _button.setOnClickListener(v -> _text.showDropDown());
        this.addView(_button, new LayoutParams(LayoutParams.WRAP_CONTENT,
                        LayoutParams.WRAP_CONTENT));
    }
@@ -114,23 +101,11 @@ public class ComboBox extends LinearLayout {
     * @param source Source of suggestions.
     * @param column Which column from source to show.
     */
-   public void setSuggestionSource(Cursor source, String column) {
-       String[] from = new String[] { column };
-       int[] to = new int[] { android.R.id.text1 };
-       @SuppressWarnings("deprecation")
-	SimpleCursorAdapter cursorAdapter = new SimpleCursorAdapter(this.getContext(),
-                       android.R.layout.simple_dropdown_item_1line, source, from, to);
-       // this is to ensure that when suggestion is selected
-       // it provides the value to the textbox
-       cursorAdapter.setStringConversionColumn(source.getColumnIndex(column));
-       _text.setAdapter(cursorAdapter);
-       
-   }
-   
+
    public void setSuggestionArray(List<String> list)
    {
 	 
-       ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getContext(),android.R.layout.simple_dropdown_item_1line, list);
+       ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getContext(),android.R.layout.simple_dropdown_item_1line, list);
       // ComboAdapter adapter = new ComboAdapter(this.getContext(),android.R.layout.simple_dropdown_item_1line, (ArrayList<String>) list);
        _text.setAdapter(adapter);
    }

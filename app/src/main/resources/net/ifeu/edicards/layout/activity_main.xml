@@ -37,7 +37,43 @@
         android:layout_marginRight="50px"
         android:inputType="textPassword" />
 
-    <LinearLayout 
+
+        <TextView android:id="@+id/lblVersion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50px"
+            android:layout_marginRight="50px"
+            android:text="Versión 3" />
+
+        <TextView android:id="@+id/lblRevision"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50px"
+            android:layout_marginRight="50px"
+            android:text="Revision 32,4" />
+
+        <TextView android:id="@+id/lblWifi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50px"
+            android:layout_marginRight="50px"
+            android:text="Wifi: SI" />
+
+        <TextView android:id="@+id/lblDataMobile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50px"
+            android:layout_marginRight="50px"
+            android:text="Datos mobiles SI" />
+
+        <TextView android:id="@+id/lblBuletooth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50px"
+            android:layout_marginRight="50px"
+            android:text="sdfgsdfgdsfg" />
+
+    <!--<LinearLayout
               android:layout_width="fill_parent" 
               android:layout_height="fill_parent"
               android:layout_gravity="right" 
@@ -54,13 +90,13 @@
         android:text="Salit" android:layout_weight=".50" android:src="@drawable/ic_cancel" 
         android:layout_width="0dip" android:onClick="OnCancelClick" />
         
-	 </LinearLayout>
+	 </LinearLayout>-->
 	 
-     <TextView android:id="@+id/lblSpaces"
+     <!--<TextView android:id="@+id/lblSpaces"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:layout_marginLeft="50px"
         	  android:layout_marginRight="50px"
-              android:text="      " />
+              android:text="      " />-->
    
 </LinearLayout>

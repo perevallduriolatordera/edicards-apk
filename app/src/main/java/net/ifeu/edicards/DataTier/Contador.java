@@ -1,7 +1,10 @@
 package net.ifeu.edicards.DataTier;
 
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Persistance.IPersistable;
+import net.ifeu.edicards.DataTier.Persistance.Persistent;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -13,8 +16,7 @@ public class Contador extends Persistent implements IPersistable {
 	public int ContadorSerieB;
 
 	@Override
-	public void InitializePersistance(AppConfig appConfig, Context context) throws Exception {
-		// TODO Auto-generated method stub
+	public void InitializePersistance(AppConfig appConfig, Context context) {
 		super.InitializePersistance(appConfig, context);
 	}
 	
@@ -34,7 +36,7 @@ public class Contador extends Persistent implements IPersistable {
 			this.IdContador = super.getDatabaseOperations().insert(
 					Constants.TABLE_CONTADORES, null, values);
 		} catch (Exception e) {
-			throw e;
+			throw new RuntimeException(e);
 		}
 
 	}

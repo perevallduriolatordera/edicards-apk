@@ -3,7 +3,6 @@ package net.ifeu.edicards;
 import java.util.HashMap;
 
 import android.app.ActionBar.LayoutParams;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -15,13 +14,13 @@ import android.text.InputType;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Deposito;
@@ -33,31 +32,21 @@ import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
 import net.ifeu.library.LogBook.LogBook;
-import net.ifeu.library.Utils.MessageBoxType;
+import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
 public class StockManager extends Fragment {
 
 	private AppConfig _appConfig;
 	private HashMap<String, Articulo> _articulos;
-
-	private final int TEXT_SIZE = 16;
 	private final int TEXT_SIZE_BUTTON = 12;
-	private final int FIELDS_WIDTH = 70;
 	private final int BUTTONS_WIDTH = 150;
-	private final int CODE_WIDTH = 75;
-	private final int DESCRIPTION_WIDTH = 225;
-	
+
 	private TextBoxColor _lastTextBox;
 	
 	private boolean _isManagerPasswordMode;
 
 	public void onCreate(Bundle savedInstanceState) {
-
 		super.onCreate(savedInstanceState);
-		
-	//	Deposito d = null;
-	//	Log.i("TEST", d.NumDoc);
-		
 	}
 
 	@Override
@@ -73,14 +62,9 @@ public class StockManager extends Fragment {
 		super.onActivityCreated(savedInstanceState);
 		
 		this._isManagerPasswordMode = false;
-		
+		_appConfig = (AppConfig) getActivity().getApplicationContext();
 		this.FillForm(true);
 
-	}
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
 	}
 
 	@Override
@@ -95,17 +79,10 @@ public class StockManager extends Fragment {
 		
 		mainLinearLayout.removeAllViews();
 
-		// Inicialitzem l'objecte AppConfig
-
-		_appConfig = (AppConfig) getActivity().getApplicationContext();
-
-		Articulo articulos = new Articulo();
 		try {
-			articulos.InitializePersistance(_appConfig, _appConfig);
-			_articulos = articulos.getAllArticulos(1);
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e1);
+			_articulos = _appConfig.getCache().getAllArticulos();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
 
 		if (addHeader)
@@ -122,8 +99,7 @@ public class StockManager extends Fragment {
 				try {
 					addLine(articulo);
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+						throw new RuntimeException(e);
 				}
 
 			if (_articulos.size() == 0)
@@ -157,8 +133,7 @@ public class StockManager extends Fragment {
 				articulo.update();
 				
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+				throw new RuntimeException(e);
 			}
 		}
 	
@@ -187,8 +162,7 @@ public class StockManager extends Fragment {
 				articulo.update();
 				
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+				throw new RuntimeException(e);
 			}
 		}
 	}
@@ -201,13 +175,12 @@ public class StockManager extends Fragment {
 			xml.createXmlRecuento();	
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 		
 	}
 	
-	private void sendData() throws Exception {
-		// Envíamos los datos pendientes
+	private void sendData()  {
 
 		final ProgressDialog progressDialog;
 		progressDialog = ProgressDialog.show(this.getActivity(),
@@ -239,13 +212,14 @@ public class StockManager extends Fragment {
 	
 	private void addHeader() {
 		
-		LinearLayout mainHeaderLinearLayout = (LinearLayout) getActivity()
-				.findViewById(R.id.headerMainLinearLayout);
+		LinearLayout mainHeaderButtonsLinearLayout = (LinearLayout) getActivity()
+				.findViewById(R.id.headerButtonsLinearLayout);
 		
 		android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		
-		ButtonColor recuento = new ButtonColor(getActivity(), Color.BLUE);
+		ButtonColor recuento = new ButtonColor(getActivity(), Color.BLUE,
+				getResources().getDrawable(R.drawable.ic_send));
 
 		recuento.setText("Enviar recuento");
 		recuento.setTextSize(TEXT_SIZE_BUTTON);
@@ -255,24 +229,50 @@ public class StockManager extends Fragment {
 
 		final StockManager that = this;
 		
-		recuento.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
+		recuento.setOnClickListener(arg0 -> {
+
+			try {
 
 				try {
-					
-					try {
-						
-						if (that._isManagerPasswordMode)
-						{
-							
+
+					if (that._isManagerPasswordMode)
+					{
+
+						Deposito deposito = new Deposito();
+
+						deposito.InitializePersistance(_appConfig,
+								that.getActivity());
+
+						if (deposito.getDepositosToday().size() > 0) {
+							_appConfig.getMessageBox().Show(
+									"Atención",
+									"No se puede enviar el recuento de almacén, ya que ya se han producido operaciones durante el día de hoy! "
+											, getActivity(),
+									MessageBoxType.Error);
+						} else {
+							that.SendRecuento();
+
+							_appConfig
+							.getMessageBox()
+							.Show("Control de almacén",
+									"El recuento de almacén se ha enviado correctamente",
+									getActivity(), MessageBoxType.Error);
+
+							that.FillForm(false);
+						}
+
+					} else {
+						String password = _appConfig.getMessageBox().InputBox("Recuento de artículo", "introduzca la contraseña", getActivity());
+
+						if (password.equals(Constants.MANAGER_PASSWORD)) {
+
+							that._isManagerPasswordMode = true;
+
 							Deposito deposito = new Deposito();
-							
-							deposito.InitializePersistance(_appConfig, 
+
+							deposito.InitializePersistance(_appConfig,
 									that.getActivity());
-							
+
 							if (deposito.getDepositosToday().size() > 0) {
 								_appConfig.getMessageBox().Show(
 										"Atención",
@@ -281,71 +281,38 @@ public class StockManager extends Fragment {
 										MessageBoxType.Error);
 							} else {
 								that.SendRecuento();
-								
+
 								_appConfig
 								.getMessageBox()
 								.Show("Control de almacén",
 										"El recuento de almacén se ha enviado correctamente",
 										getActivity(), MessageBoxType.Error);
-								
+
 								that.FillForm(false);
+
 							}
-	
 						} else {
-							String password = _appConfig.getMessageBox().InputBox("Recuento de artículo", "introduzca la contraseña", getActivity());
-							
-							if (password.equals(Constants.MANAGER_PASSWORD)) {
-								
-								that._isManagerPasswordMode = true;
-							
-								Deposito deposito = new Deposito();
-								
-								deposito.InitializePersistance(_appConfig, 
-										that.getActivity());
-								
-								if (deposito.getDepositosToday().size() > 0) {
-									_appConfig.getMessageBox().Show(
-											"Atención",
-											"No se puede enviar el recuento de almacén, ya que ya se han producido operaciones durante el día de hoy! "
-													, getActivity(),
-											MessageBoxType.Error);
-								} else {
-									that.SendRecuento();
-									
-									_appConfig
-									.getMessageBox()
-									.Show("Control de almacén",
-											"El recuento de almacén se ha enviado correctamente",
-											getActivity(), MessageBoxType.Error);
-									
-									that.FillForm(false);
-									
-								}
-							} else {
-								_appConfig
-								.getMessageBox()
-								.Show("Control de almacén",
-										"La clave indicada no es correcta",
-										getActivity(), MessageBoxType.Error);
-							}
-							
+							_appConfig
+							.getMessageBox()
+							.Show("Control de almacén",
+									"La clave indicada no es correcta",
+									getActivity(), MessageBoxType.Error);
 						}
-												
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+
 					}
 
-					
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getErrorTrace().Send(_appConfig.getUser().User,
-							e);
+							throw new RuntimeException(e);
 				}
+
+
+			} catch (Exception e) {
+					throw new RuntimeException(e);
 			}
 		});
 		
-		ButtonColor inicializar = new ButtonColor(getActivity(), Color.RED);
+		ButtonColor inicializar = new ButtonColor(getActivity(), Color.RED,
+				getResources().getDrawable(R.drawable.ic_restart));
 
 		inicializar.setText("Inicializar Stock");
 		inicializar.setTextSize(TEXT_SIZE_BUTTON);
@@ -353,42 +320,36 @@ public class StockManager extends Fragment {
 		
 		inicializar.setLayoutParams(params);
 		
-		inicializar.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
+		inicializar.setOnClickListener(arg0 -> {
 
-				try {
-					
-					String password = _appConfig.getMessageBox().InputBox("Recuento de artículo", "introduzca la contraseña", getActivity());
-					
-					if (password.equals(Constants.MANAGER_PASSWORD)) {
-						that.initializeStock(false); 
-						_appConfig
-						.getMessageBox()
-						.Show("Control de almacén",
-								"La inicialización de stock se ha realizado correctamente",
-								getActivity(), MessageBoxType.Information);
-						
-						that.FillForm(false);
-					} else {
-						_appConfig
-						.getMessageBox()
-						.Show("Control de almacén",
-								"La clave introducida no es correcta",
-								getActivity(), MessageBoxType.Information);
-					}
-				
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getErrorTrace().Send(_appConfig.getUser().User,
-							e);
+			try {
+
+				String password = _appConfig.getMessageBox().InputBox("Recuento de artículo", "introduzca la contraseña", getActivity());
+
+				if (password.equals(Constants.MANAGER_PASSWORD)) {
+					that.initializeStock(false);
+					_appConfig
+					.getMessageBox()
+					.Show("Control de almacén",
+							"La inicialización de stock se ha realizado correctamente",
+							getActivity(), MessageBoxType.Information);
+
+					that.FillForm(false);
+				} else {
+					_appConfig
+					.getMessageBox()
+					.Show("Control de almacén",
+							"La clave introducida no es correcta",
+							getActivity(), MessageBoxType.Information);
 				}
+
+			} catch (Exception e) {
+					throw new RuntimeException(e);
 			}
 		});
 		
-		ButtonColor reciclado = new ButtonColor(getActivity(), Color.MAGENTA);
+		ButtonColor reciclado = new ButtonColor(getActivity(), Color.MAGENTA,
+				getResources().getDrawable(R.drawable.ic_recycled));
 
 		reciclado.setText("Reciclado");
 		reciclado.setTextSize(TEXT_SIZE_BUTTON);
@@ -396,46 +357,40 @@ public class StockManager extends Fragment {
 		
 		reciclado.setLayoutParams(params);
 		
-		reciclado.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
+		reciclado.setOnClickListener(arg0 -> {
 
-				try {
-					
-					boolean result = _appConfig.getMessageBox().ShowWithResult("Recuento de reciclado", "Está seguro que quiere reinicializar el stock", getActivity(), MessageBoxType.Information);
-					
-					if (result) {
-						
-						PdfInventoryRecycled pdf = new PdfInventoryRecycled(_appConfig, _appConfig);
-						if (pdf.createInventory()) {
-							
-							that.initializeStock(true); 
-							that.sendData();
-							
-							that.FillForm(false);
-							_appConfig
-							.getMessageBox()
-							.Show("Recuento de reciclado",
-									"La inicialización de stock reciclado se ha realizado correctamente",
-									getActivity(), MessageBoxType.Information);
-						} else {
-							that.initializeStock(true); 
-							_appConfig
-							.getMessageBox()
-							.Show("Recuento de reciclado",
-									"Se ha producido un error al generar La inicialización de stock reciclado",
-									getActivity(), MessageBoxType.Information);
-						}
-						
+			try {
+
+				boolean result = _appConfig.getMessageBox().ShowWithResult("Recuento de reciclado", "Está seguro que quiere reinicializar el stock", getActivity(), MessageBoxType.Information);
+
+				if (result) {
+
+					PdfInventoryRecycled pdf = new PdfInventoryRecycled(_appConfig, _appConfig);
+					if (pdf.createInventory()) {
+
+						that.initializeStock(true);
+						that.sendData();
+
+						that.FillForm(false);
+						_appConfig
+						.getMessageBox()
+						.Show("Recuento de reciclado",
+								"La inicialización de stock reciclado se ha realizado correctamente",
+								getActivity(), MessageBoxType.Information);
+					} else {
+						that.initializeStock(true);
+						_appConfig
+						.getMessageBox()
+						.Show("Recuento de reciclado",
+								"Se ha producido un error al generar La inicialización de stock reciclado",
+								getActivity(), MessageBoxType.Information);
 					}
-				
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getErrorTrace().Send(_appConfig.getUser().User,
-							e);
+
 				}
+
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+
 			}
 		});
 
@@ -443,13 +398,13 @@ public class StockManager extends Fragment {
 		space.setWidth(30);
 		space.setLayoutParams(params);
 		
-		mainHeaderLinearLayout.addView(space);
-		mainHeaderLinearLayout.addView(recuento);
-		mainHeaderLinearLayout.addView(inicializar);
-		mainHeaderLinearLayout.addView(reciclado);
+		mainHeaderButtonsLinearLayout.addView(space);
+		mainHeaderButtonsLinearLayout.addView(recuento);
+		mainHeaderButtonsLinearLayout.addView(inicializar);
+		mainHeaderButtonsLinearLayout.addView(reciclado);
 
 	}
-	private void addLine(Articulo articulo) throws Exception {
+	private void addLine(Articulo articulo) {
 
 		final StockManager that = this;
 		
@@ -470,7 +425,9 @@ public class StockManager extends Fragment {
 
 		LabelColor codigoArticulo = new LabelColor(getActivity(), Color.BLACK);
 		codigoArticulo.setText(articulo.CodigoArticulo);
+		int TEXT_SIZE = 16;
 		codigoArticulo.setTextSize(TEXT_SIZE);
+		int CODE_WIDTH = 75;
 		codigoArticulo.setWidth(CODE_WIDTH);
 		codigoArticulo.setLayoutParams(params);
 
@@ -479,22 +436,20 @@ public class StockManager extends Fragment {
 		articuloDescripcion.setTag(articulo);
 		articuloDescripcion.setText(articulo.Descripcion);
 		articuloDescripcion.setTextSize(TEXT_SIZE);
+		int DESCRIPTION_WIDTH = 225;
 		articuloDescripcion.setWidth(DESCRIPTION_WIDTH);
 		articuloDescripcion.setPaintFlags(articuloDescripcion.getPaintFlags()
 				| Paint.FAKE_BOLD_TEXT_FLAG);
 		articuloDescripcion.setLayoutParams(params);
 
-		articuloDescripcion.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				StartArticuloDialog((Articulo) ((LabelColor) v).getTag());
-			}
-		});
+		articuloDescripcion.setOnClickListener(v -> StartArticuloDialog((Articulo) ((LabelColor) v).getTag()));
 
 		LabelColor unidadesIniciales = new LabelColor(getActivity(),
 				Color.argb(255, 100, 100, 50), true, Gravity.RIGHT);
 		unidadesIniciales.setText(String.valueOf(articulo.Stock));
 		unidadesIniciales.setTag(articulo);
 		unidadesIniciales.setTextSize(TEXT_SIZE);
+		int FIELDS_WIDTH = 70;
 		unidadesIniciales.setWidth(FIELDS_WIDTH);
 		unidadesIniciales.setLayoutParams(params);
 		layout.setTag(unidadesIniciales);
@@ -569,19 +524,13 @@ public class StockManager extends Fragment {
 				unidadesSalidasDefectuoso, unidadesInicialesDefectuoso));
 		regularizacion.setLayoutParams(params);
 
-		regularizacion.setOnClickListener(new OnClickListener() {
+		regularizacion.setOnClickListener(arg0 -> {
 
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
+			try {
+				saveStock(arg0, 1);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 
-				try {
-					saveStock(arg0, 1);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getErrorTrace().Send(_appConfig.getUser().User,
-							e);
-				}
 			}
 		});
 
@@ -595,19 +544,13 @@ public class StockManager extends Fragment {
 				unidadesSalidasDefectuoso, unidadesInicialesDefectuoso));
 		intercambio.setLayoutParams(params);
 
-		intercambio.setOnClickListener(new OnClickListener() {
+		intercambio.setOnClickListener(arg0 -> {
 
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
+			try {
+				saveStock(arg0, 2);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 
-				try {
-					saveStock(arg0, 2);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getErrorTrace().Send(_appConfig.getUser().User,
-							e);
-				}
 			}
 		});
 
@@ -621,42 +564,60 @@ public class StockManager extends Fragment {
 		unidadesRecuento.setTextColor(Color.BLACK);
 		unidadesRecuento.setLayoutParams(params);
 		
-		unidadesRecuento.setOnFocusChangeListener(new OnFocusChangeListener() {
-			public void onFocusChange(View view, boolean hasFocus) {
+		unidadesRecuento.setOnFocusChangeListener((view, hasFocus) -> {
 
-				if (!hasFocus) {
-					Deposito deposito = new Deposito();
-					
-					try {
-						deposito.InitializePersistance(_appConfig, 
-								that.getActivity());
+			if (!hasFocus) {
+				Deposito deposito = new Deposito();
 
-						LogBook logBookWriter = new LogBook();
-						logBookWriter.InitializePersistance(_appConfig, _appConfig);
-						
-						if (deposito.getDepositosToday().size() > 0) {
-							_appConfig.getMessageBox().Show(
-									"Atención",
-									"No se puede hacer recuento de almacén, ya que ya se han producido operaciones durante el día de hoy! "
-											, getActivity(),
-									MessageBoxType.Error);
-							
+				try {
+					deposito.InitializePersistance(_appConfig,
+							that.getActivity());
+
+					LogBook logBookWriter = new LogBook();
+					logBookWriter.InitializePersistance(_appConfig, _appConfig);
+
+					if (deposito.getDepositosToday().size() > 0) {
+						_appConfig.getMessageBox().Show(
+								"Atención",
+								"No se puede hacer recuento de almacén, ya que ya se han producido operaciones durante el día de hoy! "
+										, getActivity(),
+								MessageBoxType.Error);
+
+						EditText textBox = (EditText) view;
+
+						int unidades = ((Articulo) unidadesRecuento.getTag()).Stock;
+
+						textBox.setText(Constants.EMPTY_STRING);
+						textBox.setHint(unidades);
+
+					} else {
+
+						if (that._isManagerPasswordMode) {
+
+							_lastTextBox = (TextBoxColor) view;
 							EditText textBox = (EditText) view;
-							
-							int unidades = ((Articulo) unidadesRecuento.getTag()).Stock;
-							
-							textBox.setText(Constants.EMPTY_STRING);
-							textBox.setHint(unidades);
-							
+							int unidades = Integer.parseInt(textBox.getText().toString());
+
+							((Articulo) unidadesRecuento.getTag()).Stock = unidades;
+							logBookWriter.setData("ASIGNACION DE ALMACÉN", Constants.EMPTY_STRING,
+									Constants.EMPTY_STRING, ((Articulo) unidadesRecuento.getTag()).CodigoArticulo, ((Articulo) unidadesRecuento.getTag()).Descripcion,
+									articulo.Stock, unidades, 0, 0, 0, 0, 0, 0,0);
+
+							logBookWriter.save();
+
 						} else {
-							
-							if (that._isManagerPasswordMode) {
-								
+
+							String password = _appConfig.getMessageBox().InputBox("Recuento de artículo", "introduzca la contraseña", getActivity());
+
+							if (password.equals(Constants.MANAGER_PASSWORD)) {
+
+								that._isManagerPasswordMode = true;
 								_lastTextBox = (TextBoxColor) view;
 								EditText textBox = (EditText) view;
-								int unidades = Integer.parseInt(textBox.getText().toString());
 
+								int unidades = Integer.parseInt(textBox.getText().toString());
 								((Articulo) unidadesRecuento.getTag()).Stock = unidades;
+
 								logBookWriter.setData("ASIGNACION DE ALMACÉN", Constants.EMPTY_STRING,
 										Constants.EMPTY_STRING, ((Articulo) unidadesRecuento.getTag()).CodigoArticulo, ((Articulo) unidadesRecuento.getTag()).Descripcion,
 										articulo.Stock, unidades, 0, 0, 0, 0, 0, 0,0);
@@ -664,45 +625,24 @@ public class StockManager extends Fragment {
 								logBookWriter.save();
 
 							} else {
-								
-								String password = _appConfig.getMessageBox().InputBox("Recuento de artículo", "introduzca la contraseña", getActivity());
-	
-								if (password.equals(Constants.MANAGER_PASSWORD)) {
-									
-									that._isManagerPasswordMode = true;
-									_lastTextBox = (TextBoxColor) view;
-									EditText textBox = (EditText) view;
-									
-									int unidades = Integer.parseInt(textBox.getText().toString());
-									((Articulo) unidadesRecuento.getTag()).Stock = unidades;
+								_appConfig.getMessageBox().Show(
+										"Error",
+										"La clave introducida no es correcta",
+										_appConfig,
+										MessageBoxType.Error);
 
-									logBookWriter.setData("ASIGNACION DE ALMACÉN", Constants.EMPTY_STRING,
-											Constants.EMPTY_STRING, ((Articulo) unidadesRecuento.getTag()).CodigoArticulo, ((Articulo) unidadesRecuento.getTag()).Descripcion,
-											articulo.Stock, unidades, 0, 0, 0, 0, 0, 0,0);
+								_lastTextBox.setText("0");
 
-									logBookWriter.save();
-
-								} else {
-									_appConfig.getMessageBox().Show(
-											"Error",
-											"La clave introducida no es correcta",
-											_appConfig,
-											MessageBoxType.Error);
-									
-									_lastTextBox.setText("0");
-	
-								}
 							}
 						}
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						_appConfig.getErrorTrace().Send(_appConfig.getUser().User,
-								e);
 					}
+				} catch (Exception e) {
+					throw new RuntimeException(e);
 
-				} else {
-					_lastTextBox = (TextBoxColor) view;
 				}
+
+			} else {
+				_lastTextBox = (TextBoxColor) view;
 			}
 		});
 
@@ -742,7 +682,7 @@ public class StockManager extends Fragment {
 
 	private void StartArticuloDialog(Articulo articulo) {
 
-		_appConfig = (AppConfig) getActivity().getApplicationContext();
+		//_appConfig = (AppConfig) getActivity().getApplicationContext();
 
 		_appConfig.getWorkingArea().CurrentArticulo = articulo;
 
@@ -806,13 +746,13 @@ public class StockManager extends Fragment {
 					.getApplicationContext());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		try {
 			swap.Articulo.update();
 		} catch (Exception e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		// Damos de alta el movimiento de almacén
@@ -824,7 +764,7 @@ public class StockManager extends Fragment {
 					.getApplicationContext());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		try {
@@ -837,7 +777,7 @@ public class StockManager extends Fragment {
 			movimiento.save();
 
 		} catch (Exception e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		// Movimientos Stock Defectuoso
@@ -885,13 +825,13 @@ public class StockManager extends Fragment {
 					.getApplicationContext());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		try {
 			swap.Articulo.update();
 		} catch (Exception e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		// Damos de alta el movimiento de almacén
@@ -903,7 +843,7 @@ public class StockManager extends Fragment {
 					getActivity().getApplicationContext());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 		try {
@@ -916,12 +856,12 @@ public class StockManager extends Fragment {
 			movimientoDefectuoso.save();
 
 		} catch (Exception e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 	}
 
-	private class SwapStorage {
+	private static class SwapStorage {
 		public Articulo Articulo;
 		public EditText Entradas;
 		public EditText Salidas;

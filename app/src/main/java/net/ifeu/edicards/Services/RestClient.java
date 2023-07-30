@@ -57,7 +57,7 @@ public class RestClient
 	                for (NameValuePair h : headers)
 	                    request.addHeader(h.getName(), h.getValue());
 	            }
-	            return executeRequest(request, url);
+	            return executeRequest(request);
 	        }
 	        case POST:
 	        {
@@ -71,7 +71,7 @@ public class RestClient
 	            }
 	            if (params!=null)
 	                request.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
-	            return executeRequest(request, url);
+	            return executeRequest(request);
 	        }
 	        default:
 	        	return false;
@@ -82,7 +82,7 @@ public class RestClient
 	    _header.add(new BasicNameValuePair("Content-Type","application/x-www-form-urlencoded"));
 	    return _header;
 	}
-	private boolean executeRequest(HttpUriRequest request, String url)
+	private boolean executeRequest(HttpUriRequest request)
 	{
 	    HttpClient client = new DefaultHttpClient();
 	    HttpResponse httpResponse;
@@ -97,8 +97,7 @@ public class RestClient
 	        {
 	            InputStream instream = entity.getContent();
 	            response = convertStreamToString(instream);
-	    		System.out.println(response.toString());
-	
+
 	            instream.close();
 	        }
 	        
@@ -114,7 +113,7 @@ public class RestClient
 	{
 	    BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 	    StringBuilder sb = new StringBuilder();
-	    String line = null;
+	    String line;
 	    try
 	    {
 	        while ((line = reader.readLine()) != null)

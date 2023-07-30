@@ -1,5 +1,6 @@
 package net.ifeu.edicards;
 
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.Reporting;
 import net.ifeu.edicards.DataTier.Reporting.Potenciado;
 import net.ifeu.library.Controls.LabelColor;
@@ -14,7 +15,6 @@ import android.widget.LinearLayout;
 
 public class Reporting_Potenciados extends Activity {
 
-	private final int TEXT_SIZE = 20;
 	AppConfig _appConfig;
 	
     @Override
@@ -59,7 +59,8 @@ public class Reporting_Potenciados extends Activity {
     		LabelColor label = new LabelColor(this,Color.BLACK, Gravity.LEFT);
     		label.setRawInputType(InputType.TYPE_CLASS_NUMBER);
     		label.setText(potenciado.articulo.Descripcion);
-    		label.setTextSize(TEXT_SIZE);
+			int TEXT_SIZE = 20;
+			label.setTextSize(TEXT_SIZE);
     		label.setWidth(300);
     		label.setLayoutParams(params);
         	
@@ -67,7 +68,7 @@ public class Reporting_Potenciados extends Activity {
         	
         	LabelColor unidades = new LabelColor(this,Color.BLUE, true, Gravity.CENTER);
         	unidades.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-        	unidades.setText(String.valueOf(potenciado.unidades) + " unidades");
+        	unidades.setText(potenciado.unidades + " unidades");
         	unidades.setTextSize(TEXT_SIZE);
         	unidades.setWidth(150);
         	unidades.setLayoutParams(params);

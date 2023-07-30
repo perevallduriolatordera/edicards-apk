@@ -4,8 +4,6 @@ import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.common.ANRequest;
 import com.androidnetworking.common.ANResponse;
 import com.androidnetworking.common.Priority;
-import com.androidnetworking.error.ANError;
-import com.androidnetworking.interfaces.JSONArrayRequestListener;
 
 import net.ifeu.edicards.Constants.Constants;
 
@@ -13,9 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class FireStoreCaller {
@@ -32,7 +28,7 @@ public class FireStoreCaller {
         ANResponse<JSONObject> response = request.executeForJSONObject();
 
         if (response.isSuccess()) {
-            return response.getResult().getString("idToken").toString();
+            return response.getResult().getString("idToken");
         }
 
         return "";
@@ -42,7 +38,7 @@ public class FireStoreCaller {
 
         ArticuloStockResponse articuloStockResponse = new ArticuloStockResponse();
 
-        Map<String, ArticuloStock> list = new HashMap<String, ArticuloStock>();
+        Map<String, ArticuloStock> list = new HashMap<>();
         ANRequest request = AndroidNetworking.get(Constants.FIRECLOUD_URL_DATABASE)
                 .addHeaders("Authorization", "Bearer " + idToken)
                 .setPriority(Priority.MEDIUM)
@@ -50,7 +46,6 @@ public class FireStoreCaller {
 
         ANResponse<JSONObject> response = request.executeForJSONObject();
 
-        String name="";
         if (response.isSuccess()) {
             JSONArray result = response.getResult().getJSONArray("documents");
             JSONObject obj = (JSONObject) result.get(0);
@@ -71,9 +66,9 @@ public class FireStoreCaller {
                 String value = values.getString(j).substring(values.getString(j).indexOf(":")+1).replace("\\","").replace("\\/","").replace("{","").replace("}","");
                 value = value.substring(1, value.length()-1);
 
-                art.idArticulo = value.split(":")[0].toString();
-                art.descripcion = value.split(":")[1].toString();
-                art.stock = Boolean.valueOf(value.split(":")[2]);
+                art.idArticulo = value.split(":")[0];
+                art.descripcion = value.split(":")[1];
+                art.stock = Boolean.parseBoolean(value.split(":")[2]);
                 list.put(art.idArticulo, art);
             }
 
@@ -85,11 +80,11 @@ public class FireStoreCaller {
         return null;
     }
 
-    public boolean createStock(String idToken, String name, Map<String, ArticuloStock> articulos) throws JSONException {
+    public boolean createStock(String idToken, String name, Map<String, ArticuloStock> articulos) {
 
         String content = "";
         for (ArticuloStock stock : articulos.values()) {
-            content = content + "{" + "'stringValue': '" + stock.idArticulo + ":" + stock.descripcion + ":" + String.valueOf(stock.stock) + "'},";
+            content = content + "{" + "'stringValue': '" + stock.idArticulo + ":" + stock.descripcion + ":" + stock.stock + "'},";
         }
 
         String body = "{" +
@@ -104,7 +99,6 @@ public class FireStoreCaller {
                 "}" +
                 "}";
 
-        Map<String, ArticuloStock> list = new HashMap<String, ArticuloStock>();
         ANRequest request = AndroidNetworking.patch(Constants.FIRECLOUD_URL_BASE + name)
                 .addHeaders("Authorization", "Bearer " + idToken)
                 .addStringBody(body)

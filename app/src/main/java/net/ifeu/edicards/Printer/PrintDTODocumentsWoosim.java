@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.R;
 import net.ifeu.edicards.Constants.Constants;
@@ -18,13 +18,12 @@ import net.ifeu.edicards.DataTier.Totales;
 import android.content.Context;
 import android.util.Log;
 
-import com.starmicronics.stario.StarIOPortException;
 
 public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 		IPrintDTO {
 
-	private void printHeaderData(Context context, DTODeposito deposito,
-			AppConfig app, int Tipo) throws StarIOPortException {
+	private void printHeaderData(DTODeposito deposito,
+			AppConfig app, int Tipo) {
 
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("dd/MM/yyyy");
@@ -48,9 +47,8 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 
 	}
 
-	private void printHeaderFields(Context context, int tipo, AppConfig app)
-			throws StarIOPortException {
-
+	private void printHeaderFields(int tipo)
+	{
 		_woosim.saveSpool(
 				LANGUAGE,
 				"--------------------------------------------------------------------- \n",
@@ -77,16 +75,13 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 	private void printTotals(Context context, AppConfig app, int tipo,
 			DTODeposito deposito, boolean isTransferPayment) throws IOException {
 
-		Log.i("PrintDTODocumento", "Entro a printTotals");
-
 		DecimalFormat df = new DecimalFormat("0.00");
 
 		if (tipo == Constants.TIPO_DOCUMENTO_DEPOSITO) {
 			try {
 				deposito.CalculateDeposito();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 
 			_woosim.saveSpool(
@@ -100,8 +95,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 			try {
 				deposito.Calculate();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 
 			if ((deposito.Totales.DescuentoFinanciero != 0 || deposito.Totales.DescuentoProntoPago != 0)) {
@@ -200,7 +194,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 				this.Print();
 
 				if (isMadeInSpain(deposito.CodigoPostal))
-					this.PrintBitmapImage(context, context.getResources(),
+					this.PrintBitmapImage(context.getResources(),
 							R.drawable.madeinspain, 1, false);
 
 			} else {
@@ -236,7 +230,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 				if (deposito.Pagado) {
 
 					if (isMadeInSpain(deposito.CodigoPostal))
-						this.PrintBitmapImage(context,
+						this.PrintBitmapImage(
 								context.getResources(),
 								R.drawable.madeinspain, 1 , false);
 
@@ -249,7 +243,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 							+ df.format(deposito.CantidadPagada)
 							+ " Euros EN CONCEPTO DEL PAGO DEL ALBARAN "
 							+ app.getUser().User + "/"
-							+ String.valueOf(deposito.NumeroAlbaran) + "\n\n");
+							+ deposito.NumeroAlbaran + "\n\n");
 
 					_woosim.saveSpool(LANGUAGE, recibido, 0, true);
 					this.Print();
@@ -261,7 +255,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 								+ " Euros EN CONCEPTO DEL PAGO DEL ALBARAN "
 								+ app.getUser().User
 								+ "/"
-								+ String.valueOf(deposito.NumeroAlbaran) + "\n");
+								+ deposito.NumeroAlbaran + "\n");
 
 						_woosim.saveSpool(LANGUAGE, pendiente, 0, false);
 						this.Print();
@@ -281,9 +275,6 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 					this.Print();
 
 					_woosim.saveSpool(LANGUAGE, "FIRMA CLIENTE\n", 0, false);
-					this.Print();
-
-					this.PrintBitmapSignature();
 
 				} else {
 
@@ -294,15 +285,15 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 					this.Print();
 
 					if (isMadeInSpain(deposito.CodigoPostal))
-						this.PrintBitmapImage(context,
+						this.PrintBitmapImage(
 								context.getResources(),
 								R.drawable.madeinspain, 1, false);
 
 					_woosim.saveSpool(LANGUAGE,
 							"Conforme - Firma Cliente:\n", 0, false);
-					this.Print();
-					this.PrintBitmapSignature();
 				}
+				this.Print();
+				this.PrintBitmapSignature();
 
 			}
 
@@ -334,14 +325,11 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 		this.Print();
 	}
 
-	private void printHeaderDetail(Context context, AppConfig app, int tipo,
-			DTODeposito deposito) throws StarIOPortException {
+	private void printHeaderDetail(int tipo,
+			DTODeposito deposito) {
 
 		DecimalFormat df = new DecimalFormat("0.00");
-		List<DTOLineaDeposito> tempList = new ArrayList<DTOLineaDeposito>();
-		for (DTOLineaDeposito linea : deposito.Lineas.values()) {
-			tempList.add(linea);
-		}
+		List<DTOLineaDeposito> tempList = new ArrayList<>(deposito.Lineas.values());
 
 		Collections.sort(tempList,
 				new DTOLineaDeposito().new ArticuloComparator());
@@ -439,7 +427,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 				_woosim.saveSpool(
 						LANGUAGE,
 						"PRESUPUESTO: NUM " + app.getUser().User + "/"
-								+ String.valueOf(deposito.NumeroAlbaran) + "\n",
+								+ deposito.NumeroAlbaran + "\n",
 						0, true);
 
 				this.Print();
@@ -449,7 +437,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 				_woosim.saveSpool(
 						LANGUAGE,
 						"ALBARAN: NUM " + app.getUser().User + "/"
-								+ String.valueOf(deposito.NumeroAlbaran) + "\n",
+								+ deposito.NumeroAlbaran + "\n",
 						0, true);
 
 				this.Print();
@@ -457,24 +445,20 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 				_woosim.saveSpool(
 						LANGUAGE,
 						"ALBARAN ENTREGA: NUM " + app.getUser().User + "/"
-								+ String.valueOf(deposito.NumeroAlbaran) + "\n",
+								+ deposito.NumeroAlbaran + "\n",
 						0, true);
 				this.Print();
 			}
-			this.printHeaderData(context, deposito, app, Constants.TIPO_DOCUMENTO_ALBARAN);
-			printHeaderFields(context, Constants.TIPO_DOCUMENTO_ALBARAN, app);
-			printHeaderDetail(context, app, Constants.TIPO_DOCUMENTO_ALBARAN, deposito);
+			this.printHeaderData(deposito, app, Constants.TIPO_DOCUMENTO_ALBARAN);
+			printHeaderFields(Constants.TIPO_DOCUMENTO_ALBARAN);
+			printHeaderDetail(Constants.TIPO_DOCUMENTO_ALBARAN, deposito);
 			printTotals(context, app, Constants.TIPO_DOCUMENTO_ALBARAN, deposito, isTransferPayment);
 			closePage();
 
 		} catch (Exception e) {
 			StringWriter errors = new StringWriter();
 			e.printStackTrace(new PrintWriter(errors));
-			Log.e("PRINT DTO", "Exception: " + errors.toString());
 			return false;
-		}
-
-		finally {
 		}
 
 		return true;
@@ -492,13 +476,12 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 			printHeader(context);
 
 			String depositoText = ("DEPOSITO: NUM " + app.getUser().User + "/"
-					+ String.valueOf(deposito.IdDeposito) + "\n");
+					+ deposito.IdDeposito + "\n");
 
 			_woosim.saveSpool(LANGUAGE, depositoText, 0, true);
-			this.printHeaderData(context, deposito, app, Constants.TIPO_DOCUMENTO_DEPOSITO);
-			printHeaderFields(context, Constants.TIPO_DOCUMENTO_DEPOSITO, app);
-			printHeaderDetail(context, app, Constants.TIPO_DOCUMENTO_DEPOSITO, deposito);
-			Log.i("PrintDTODocumento", "Abans d'iniciar printTotals");
+			this.printHeaderData(deposito, app, Constants.TIPO_DOCUMENTO_DEPOSITO);
+			printHeaderFields(Constants.TIPO_DOCUMENTO_DEPOSITO);
+			printHeaderDetail(Constants.TIPO_DOCUMENTO_DEPOSITO, deposito);
 			printTotals(context, app, Constants.TIPO_DOCUMENTO_DEPOSITO, deposito, false);
 
 			_woosim.saveSpool(LANGUAGE,
@@ -507,10 +490,10 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 			this.Print();
 
 			if (isMadeInSpain(deposito.CodigoPostal))
-				this.PrintBitmapImage(context, context.getResources(),
+				this.PrintBitmapImage(context.getResources(),
 						R.drawable.madeinspain, 1, false);
 
-			this.PrintBitmapImage(context, context.getResources(),
+			this.PrintBitmapImage(context.getResources(),
 					R.drawable.contract, 1 , false);
 			
 			_woosim.saveSpool(LANGUAGE, "Conforme - Firma Cliente:\n", 0, false);
@@ -521,11 +504,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 		} catch (Exception e) {
 			StringWriter errors = new StringWriter();
 			e.printStackTrace(new PrintWriter(errors));
-			Log.e("PRINT DTO", "Exception: " + errors.toString());
 			return false;
-		}
-
-		finally {
 		}
 
 		return true;

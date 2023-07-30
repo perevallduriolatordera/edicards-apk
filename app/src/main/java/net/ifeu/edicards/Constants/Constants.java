@@ -62,25 +62,16 @@ public final class Constants {
 	public static final String FOLDER_GDPR = "GDPR";
 	public static final String FOLDER_SERVICES = "Servicios";
 	public static final String FOLDER_LOGBOOK = "LogBook";
-	
-	public static final String FILE_FIRMAS = "Firma.jpg";
-	public static final String FILE_FIRMA_COMERCIAL = "FirmaComercial.jpg";
 	public static final String FILE_STOCK = "Stock.xml";
-	public static final String FILE_RECUENTO = "Recuento.xml";
 	public static final String FILE_DAILY_STOCK =  "StockDiario.xml";
-	public static final String FILE_LOGBOOLK = "LogBook_{0}.txt";
 	
 	public static String DATABASE_NAME = "Edicards.db";
 	public  static int DATABASE_VERSION = 2;
 	
 	public static final String EMPTY_STRING = "";
-	
-	public static final int REQUEST_SEARCH_CUSTOMER = 1;
-	
-	//public static final String NEW_LINE = System.getProperty("line.separator");
-	public static final String NEW_LINE = String.format("\n");
-	//public static final String NEW_LINE_MAIL =  "</BR>";
-	
+
+	public static final String NEW_LINE = "\n";
+
 	public static final String NEW_CUSTOMER_CODE = "99";
 	
 	public static final String WS_FPAGO = "http://edicards.ddns.net:81/Dades.asmx/BuscarFPago";
@@ -89,20 +80,16 @@ public final class Constants {
 	public static final String WS_TIPO_IVA_ZIP = "http://edicards.ddns.net:81/Dades.asmx/BuscarIvaZip";
 	public static final String WS_ARTICULO = "http://edicards.ddns.net:81/Dades.asmx/BuscarArticles";
 	public static final String WS_ARTICULO_ZIP = "http://edicards.ddns.net:81/Dades.asmx/BuscarArticlesZip";
-	public static final String WS_ARTICULO_STOCK = "http://edicards.ddns.net:81/Dades.asmx/BuscarArticlesStock";
-	public static final String WS_ARTICULO_STOCK_ZIP = "http://edicards.ddns.net:81/Dades.asmx/BuscarArticlesStockZip";
 	public static final String WS_CLIENTES = "http://edicards.ddns.net:81/Dades.asmx/BuscarClients";
 	public static final String WS_CLIENTES_ZIP = "http://edicards.ddns.net:81/Dades.asmx/BuscarClientsZip";
 	public static final String WS_TARIFAS = "http://edicards.ddns.net:81/Dades.asmx/BuscarTarifes";
 	public static final String WS_TARIFAS_ZIP = "http://edicards.ddns.net:81/Dades.asmx/BuscarTarifesZip";
 	public static final String WS_PACTOS = "http://edicards.ddns.net:81/Dades.asmx/BuscarPactes";
 	public static final String WS_PACTOS_ZIP ="http://edicards.ddns.net:81/Dades.asmx/BuscarPactesZip";
-	public static final String WS_DEPOSITOS = "http://edicards.ddns.net:81/Dades.asmx/BuscarDiposits";
 	public static final String WS_DEPOSITOS_ZIP = "http://edicards.ddns.net:81/Dades.asmx/BuscarDipositsZip";
 	public static final String WS_TOTAL_DEPOSITOS = "http://edicards.ddns.net:81/Dades.asmx/DipositsPendents";
 	public static final String WS_DEPOSITOS_PAGINACION = "http://edicards.ddns.net:81/Dades.asmx/DipositsBuscar";
 	public static final String WS_TRASPASO_STOCK = "http://edicards.ddns.net:81/Dades.asmx/BuscarTraspasStock";
-	public static final String WS_TRASPASO_STOCK_ZIP = "http://edicards.ddns.net:81/Dades.asmx/BuscarTraspasStockZip";
 	public static final String WS_VALIDAR_TRASPASO = "http://edicards.ddns.net:81/Dades.asmx/ValidarTraspasStock";
 	
 	public static final String WS_ENVIAR_ARTICULOS = "http://edicards.ddns.net:8808/ServeiDimoni.asmx/EnviamentArticles";
@@ -129,22 +116,14 @@ public final class Constants {
 	public static final String MAIL_HOST = "smtp.gmail.com";
 	public static final String MAIL_PORT = "465";
 	public static final String MAIL_SPORT = "465";
-	//public static final String MAIL_USER = "testtabletedi@gmail.com";
-	//public static final String MAIL_PASSWORD = "tablet2013";
-	
-	//public static final String MAIL_USER = "edicardssender@gmail.com";
-	//public static final String MAIL_PASSWORD = "ger0svk0";
 
 	public static final String MAIL_USER = "tablet@grupediciones.com";
 	public static final String MAIL_PASSWORD = "Table23@Edi";
-	
-	public static final String MAIL_SUBJECT = "Envio desde dispositivo movil";
+
 	public static final String MAIL_TO = "testtabletedi@gmail.com";
 	public static final String MAIL_TO_GDPR = "gdprtabletedi@gmail.com";
-	public static final String MAIL_TO_INCIDENCIAS = "incidenciastabletedi@gmail.com";
+
 	public static final String MAIL_TO_LOGBOOK = "trazabilidadtabletedi@gmail.com";
-	//public static final String MAIL_TO = "valldu@hotmail.com";
-	//public static final String MAIL_FROM = "testtabletedi@gmail.com";
 	public static final String MAIL_FROM = "tablet@grupediciones.com";
 	public static final String MAIL_BODY = "Enviado desde dispositivo movil";
 	
@@ -166,18 +145,10 @@ public final class Constants {
 	public static final String MAIL_FACTURACION = "facturacion@edicards.com";
 	public static final String MAIL_ENVIOS_EDICARDS = "almacenedicards@gmail.com";
 	public static final String MAIL_MANTENIMIENTO = "valldu@hotmail.com";
-	public static final String MAIL_SEGUIMIENTO = "fernandoedicards@gmail.com";
 
 	public static final String MANAGER_PASSWORD = "manager";
 	
 	public static final int MAXIMO_SIN_INGRESAR = 1200;
-	
-	public static final String PARSE_APP_ID = "jb1BQzgUAgGGnoHJ0b22RcGWZgLTRV6OLJgkav2M";
-	public static final String PARSE_DEVELOPER_ID = "jHbKPdgOJz9tujwh2nztJgffn96QcgBIWrdWCmJY";
-	public static final String PARSE_VERSION_CHANNEL = "Versiones";
-	public static final String PARSE_VERSION_TEXT = "Hay disponible una nueva versión del aplicativo de Gestión " + 
-			"Comercial Edicards. Descárgala cuando te sea posible.";
-		
 
 	public static final String FIRECLOUD_URL_TOKEN = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyB2-3jRoQOt3cCEOmFKEs2BVJAYkDCHrvI";
 	public static final String FIRECLOUD_EMAIL = "edicardssender@gmail.com";

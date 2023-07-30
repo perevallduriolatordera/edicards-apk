@@ -3,7 +3,7 @@ package net.ifeu.edicards.Pdf;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Date;
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Deposito;
 import android.content.Context;
@@ -18,8 +18,7 @@ public class PdfAuthorization extends pdfBase{
 
 	Deposito _deposito;
 	
-	public PdfAuthorization(Deposito deposito, String GUID, Context context, AppConfig app)
-			throws FileNotFoundException, DocumentException {
+	public PdfAuthorization(Deposito deposito, String GUID, Context context, AppConfig app) {
 
 		super (context, app);
 		_deposito = deposito;
@@ -31,7 +30,7 @@ public class PdfAuthorization extends pdfBase{
 
 		this.addLogo();
 
-		String text = Constants.EMPTY_STRING;
+		String text;
 
 		text = "\nApreciados señores, \n\n"
 				+
@@ -96,7 +95,7 @@ public class PdfAuthorization extends pdfBase{
 				+ this.getDateTimeFormatLong() + ".pdf";
 
 		_document.addTitle(_app.getUser().User + "_" + _deposito.ClienteInfo.CCC
-				+ "_" + String.valueOf(new Date(0)));
+				+ "_" + new Date(0));
 
 		_writer = PdfWriter.getInstance(_document, new FileOutputStream(
 				_pdfName));

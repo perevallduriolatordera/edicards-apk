@@ -5,8 +5,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Persistance.IPersistable;
+import net.ifeu.edicards.DataTier.Persistance.Persistent;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -22,8 +25,8 @@ public class MovimientosAlmacen extends Persistent implements IPersistable {
 	public int TipoStock; // 1-Stock, 2-Stock Defectuoso
 	
 	@Override
-	public void InitializePersistance(AppConfig appConfig, Context context) throws Exception {
-		// TODO Auto-generated method stub
+	public void InitializePersistance(AppConfig appConfig, Context context) {
+		
 		super.InitializePersistance(appConfig, context);
 	}
 	
@@ -48,34 +51,27 @@ public class MovimientosAlmacen extends Persistent implements IPersistable {
 	
 	public LinkedHashMap<String,ArrayList<MovimientosAlmacen>> getMovimientosByMonth(int year, int month) throws Exception
 	{
-		LinkedHashMap<String,ArrayList<MovimientosAlmacen>> list = new LinkedHashMap<String,ArrayList<MovimientosAlmacen>>();
+		LinkedHashMap<String,ArrayList<MovimientosAlmacen>> list = new LinkedHashMap<>();
 		
-		Log.i("Movimientos Almacen","Abans d'obtenir moviments");
-		Cursor cursor = super.getDatabaseOperations().getRecordsFromField(Constants.TABLE_MOVIMIENTOS_ALMACEN, 
+		Cursor cursor = super.getDatabaseOperations().getRecordsFromField(Constants.TABLE_MOVIMIENTOS_ALMACEN,
 				Constants.EMPTY_STRING, Constants.EMPTY_STRING, true, 
 				" AND  CAST(strftime('%m', Fecha) AS INTEGER) = " + month + " AND CAST(strftime('%Y', Fecha) AS INTEGER)  = " + year,"IdArticulo"); 
-		
-		/*Cursor cursor = super.getDatabaseOperations().getRecordsFromField(Constants.TABLE_MOVIMIENTOS_ALMACEN, 
-				Constants.EMPTY_STRING, Constants.EMPTY_STRING, true, 
-				"","IdArticulo");*/
-		
+
 		if (cursor != null)
 		{
 			cursor.moveToFirst();
 			
 			if (cursor.getCount() > 0)
 			{
-				Log.i("MovimientosAlmacen","Despres de llegir primer");
-				
 				do {
 					MovimientosAlmacen movimiento = new MovimientosAlmacen();
 					
-					Long id = cursor.getLong(cursor.getColumnIndex("IdArticulo"));
+					long id = cursor.getLong(cursor.getColumnIndex("IdArticulo"));
 					
 					Articulo articulo = new Articulo();
 					articulo.InitializePersistance(super.appConfig, super.appConfig);
 					
-					articulo.setArticuloById(id.toString());
+					articulo.setArticuloById(String.valueOf(id));
 					
 					movimiento.Articulo = articulo;
 					movimiento.Entradas = cursor.getInt(cursor.getColumnIndex("Entradas"));
@@ -98,7 +94,7 @@ public class MovimientosAlmacen extends Persistent implements IPersistable {
 					}
 					else
 					{
-						ArrayList<MovimientosAlmacen>array = new ArrayList<MovimientosAlmacen>();
+						ArrayList<MovimientosAlmacen>array = new ArrayList<>();
 						array.add(movimiento);
 						list.put(articulo.CodigoArticulo, array);
 					}
@@ -110,12 +106,10 @@ public class MovimientosAlmacen extends Persistent implements IPersistable {
 				}
 			else
 				cursor.close();
-				return list;
 		}
-		else
-			return list;
+		return list;
 
-		
+
 	}
 	
 	

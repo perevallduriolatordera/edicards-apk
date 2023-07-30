@@ -1,15 +1,16 @@
 package net.ifeu.edicards.DataTier;
 
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-
-import net.ifeu.edicards.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
-import net.ifeu.library.Utils.MessageBoxType;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
+
+import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Persistance.IPersistable;
+import net.ifeu.edicards.DataTier.Persistance.Persistent;
+
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 
 public class LineaDeposito extends Persistent implements IPersistable {
 
@@ -39,8 +40,8 @@ public class LineaDeposito extends Persistent implements IPersistable {
 	public double TotalAbono;
 	
 	@Override
-	public void InitializePersistance(AppConfig appConfig, Context context) throws Exception {
-		// TODO Auto-generated method stub
+	public void InitializePersistance(AppConfig appConfig, Context context) {
+		
 		super.InitializePersistance(appConfig, context);
 	}
 	
@@ -65,7 +66,7 @@ public class LineaDeposito extends Persistent implements IPersistable {
 			this.IdLineaDeposito = super.getDatabaseOperations().insert(Constants.TABLE_LINEAS_DEPOSITO, null , values);
 		}
 		catch (Exception e) {
-			throw e;
+			throw new RuntimeException(e);
 		}
 		
 	}
@@ -95,7 +96,7 @@ public class LineaDeposito extends Persistent implements IPersistable {
 	
 	public LinkedHashMap<String, LineaDeposito> getLineasDepositosByDeposito(Deposito deposito) throws Exception
 	{
-			LinkedHashMap<String,LineaDeposito> list = new LinkedHashMap<String,LineaDeposito>();
+			LinkedHashMap<String,LineaDeposito> list = new LinkedHashMap<>();
 			
 			Cursor cursor = super.getDatabaseOperations().getRecordsFromFieldNumeric(Constants.TABLE_LINEAS_DEPOSITO, "IdDeposito", String.valueOf(deposito.IdDeposito), Constants.EMPTY_STRING, null);
 			
@@ -107,14 +108,12 @@ public class LineaDeposito extends Persistent implements IPersistable {
 				{
 					
 					do {
-						Log.i("getLineasDepositoByDeposito","Entro");
 						Articulo articulo = new Articulo();
 						
 						try {
 							articulo.InitializePersistance(super.appConfig, super.context);
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							super.appConfig.getMessageBox().Show("Error", e.getMessage().toString(), super.appConfig, MessageBoxType.Error);
+							throw new RuntimeException(e);
 						}
 						
 						LineaDeposito linea = new LineaDeposito();
@@ -151,131 +150,88 @@ public class LineaDeposito extends Persistent implements IPersistable {
 						list.put(linea.Articulo.CodigoArticulo, linea);
 						
 					} while (cursor.moveToNext());
-					
-					cursor.close();
-					return list;
-					}
-				else
-				{
-					cursor.close();
-					return list;
+
 				}
+				cursor.close();
+				return list;
 			}
 			else
 				return list;
 
 	}
 	
-	public double getPVP(Cliente cliente, Articulo articulo) throws Exception
-    {
-    	double pvp = articulo.PVP;
-    	
-    	Tarifa tarifa = new Tarifa();
-    	
-    	try {
+	public double getPVP(Cliente cliente, Articulo articulo) throws Exception {
+		double pvp = articulo.PVP;
+
+		Tarifa tarifa = new Tarifa();
+
+		try {
 			tarifa.InitializePersistance(super.appConfig, super.context);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			super.appConfig.getMessageBox()
-					.Show("Error", e.getMessage().toString(),
-							super.context,
-							MessageBoxType.Error);
+			throw new RuntimeException(e);
 		}
-    	
-    	
-    	if (tarifa.setTarifaByClienteArticulo(cliente, articulo));
-    		if (tarifa.PVP != 0)
-    		{
-    			Log.i("LineaDeposito", "Assigno pvp de tarifa. PVP = " + String.valueOf(tarifa.PVP));
-    			pvp = tarifa.PVP;
-    		}
-    	
+
+
+		if (tarifa.setTarifaByClienteArticulo(cliente, articulo)) {
+			if (tarifa.PVP != 0) {
+				pvp = tarifa.PVP;
+			}
+		}
     	Pactos pactos = new Pactos();
     	
     	try {
     		pactos.InitializePersistance(super.appConfig, super.context.getApplicationContext());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			super.appConfig.getMessageBox()
-					.Show("Error", e.getMessage().toString(),
-							super.context,
-							MessageBoxType.Error);
+			throw new RuntimeException(e);
 		}
     	
-    	if (pactos.setPactoByClienteArticulo(cliente, articulo));
-    		if (pactos.PVP != 0)
-    			pvp = pactos.PVP;
-    	
+    	if (pactos.setPactoByClienteArticulo(cliente, articulo)) {
+			if (pactos.PVP != 0)
+				pvp = pactos.PVP;
+		}
     	return pvp;
     	
     }
     
-    public double getDte(Cliente cliente, Articulo articulo) throws Exception
-    {
-    	double dte = articulo.Descuento1;
-    	
-    	Tarifa tarifa = new Tarifa();
-    	
-    	try {
+    public double getDte(Cliente cliente, Articulo articulo) throws Exception {
+		double dte = articulo.Descuento1;
+
+		Tarifa tarifa = new Tarifa();
+
+		try {
 			tarifa.InitializePersistance(super.appConfig, super.context);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			super.appConfig.getMessageBox()
-					.Show("Error", e.getMessage().toString(),
-							super.context,
-							MessageBoxType.Error);
+			throw new RuntimeException(e);
 		}
-    	
-    	
-    	if (tarifa.setTarifaByClienteArticulo(cliente, articulo));
-    		if (tarifa.Descuento1 != 0)
-    		{
-    			Log.i("LineaDeposito", "Assigno dte de tarifa. DTE = " + String.valueOf(tarifa.Descuento1));
-    			dte = tarifa.Descuento1;
-    		}
-    	
+
+
+		if (tarifa.setTarifaByClienteArticulo(cliente, articulo)) {
+			if (tarifa.Descuento1 != 0)
+				dte = tarifa.Descuento1;
+		}
+
     	Pactos pactos = new Pactos();
     	
     	try {
     		pactos.InitializePersistance(appConfig, super.context);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			super.appConfig.getMessageBox()
-			.Show("Error", e.getMessage().toString(),
-					super.context,
-					MessageBoxType.Error);
+			throw new RuntimeException(e);
 		}
     	
-    	if (pactos.setPactoByClienteArticulo(cliente, articulo));
+    	if (pactos.setPactoByClienteArticulo(cliente, articulo)) {
 			if (pactos.Descuento1 != 0)
 				dte = pactos.Descuento1;
-	
+		}
     	return dte;
     	
     }
-    
-    public Boolean existArticuloInDeposito(String IdDeposito, String IdArticulo) throws Exception
-	{
-		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_LINEAS_DEPOSITO + " WHERE IdDeposito = " +
-				IdDeposito + " AND IdArticulo = " + IdArticulo);
-				
-		if (cursor != null)
-		{
-			cursor.moveToFirst();
-			int count = cursor.getCount();
-			cursor.close();
-			return (count  > 0);
-		}
-		else
-			return false;
-	}
-    
+
 	public LineaMovimientos getMovimientos() {
 		
-		int total = 0;
-		int totalAlmacen = 0;
+		int total;
+		int totalAlmacen;
 		int totalDefectuoso = 0;
-		int totalDeposito = 0;
+		int totalDeposito;
 		LineaDeposito linea = this;
 		
 		if (linea.UnidadesRepuestas > 0) {

@@ -4,6 +4,9 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/edicards-apk.iml" filepath="$PROJECT_DIR$/.idea/modules/edicards-apk.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/edicards-apk.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/edicards-apk.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/edicards-apk.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/edicards-apk.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/edicards-apk.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/edicards-apk.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/edicards-apk.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/edicards-apk.app.unitTest.iml" />
     </modules>
   </component>
 </project>

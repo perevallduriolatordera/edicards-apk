@@ -1,27 +1,23 @@
 package net.ifeu.edicards;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.Gravity;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
+
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
 
-public class DepositView extends Activity {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-	private final int TEXT_SIZE = 14;
-	private final int BUTTONS_WIDTH = 130;
-	private final int TEXT_SIZE_BUTTON = 14;
+public class DepositView extends Activity {
 
 	AppConfig _appConfig;
 
@@ -40,12 +36,11 @@ public class DepositView extends Activity {
 		try {
 			fillDeposito();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 	}
 
-	private void fillDeposito() throws Exception {
+	private void fillDeposito()  {
 		_appConfig = (AppConfig) this.getApplicationContext();
 
 		LinearLayout mainLinearLayout = (LinearLayout) this.findViewById(R.id.mainLinearLayout);
@@ -61,11 +56,7 @@ public class DepositView extends Activity {
 		android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
 				LayoutParams.WRAP_CONTENT);
 
-		List<LineaDeposito> tempList = new ArrayList<LineaDeposito>();
-
-		for (LineaDeposito linea : _appConfig.getWorkingArea().CurrentDeposito.Lineas.values()) {
-			tempList.add(linea);
-		}
+		List<LineaDeposito> tempList = new ArrayList<>(_appConfig.getWorkingArea().CurrentDeposito.Lineas.values());
 
 		Collections.sort(tempList, new LineaDeposito().new ArticuloComparator());
 
@@ -80,6 +71,7 @@ public class DepositView extends Activity {
 				LabelColor codigoArticuloLabel = new LabelColor(this, Color.WHITE, Gravity.LEFT);
 				codigoArticuloLabel.setRawInputType(InputType.TYPE_CLASS_NUMBER);
 				codigoArticuloLabel.setText(linea.Articulo.CodigoArticulo);
+				int TEXT_SIZE = 14;
 				codigoArticuloLabel.setTextSize(TEXT_SIZE);
 				codigoArticuloLabel.setWidth(150);
 				codigoArticuloLabel.setLayoutParams(params);
@@ -97,7 +89,7 @@ public class DepositView extends Activity {
 
 				LabelColor unidadesLabel = new LabelColor(this, Color.WHITE, Gravity.RIGHT);
 				unidadesLabel.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-				unidadesLabel.setText(String.valueOf(linea.UnidadesRepuestas) + " unidades");
+				unidadesLabel.setText(linea.UnidadesRepuestas + " unidades");
 				unidadesLabel.setTextSize(TEXT_SIZE);
 				unidadesLabel.setWidth(150);
 				unidadesLabel.setLayoutParams(params);
@@ -106,7 +98,7 @@ public class DepositView extends Activity {
 
 				LabelColor pvpLabel = new LabelColor(this, Color.WHITE, Gravity.RIGHT);
 				pvpLabel.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-				pvpLabel.setText(String.valueOf(linea.PVPAnterior) + " €");
+				pvpLabel.setText(linea.PVPAnterior + " €");
 				pvpLabel.setTextSize(TEXT_SIZE);
 				pvpLabel.setWidth(150);
 				pvpLabel.setLayoutParams(params);
@@ -130,7 +122,9 @@ public class DepositView extends Activity {
 		ButtonColor closeButton = new ButtonColor(this, Color.WHITE);
 
 		closeButton.setText("Cerrar");
+		int TEXT_SIZE_BUTTON = 14;
 		closeButton.setTextSize(TEXT_SIZE_BUTTON);
+		int BUTTONS_WIDTH = 130;
 		closeButton.setWidth(BUTTONS_WIDTH);
 
 		android.widget.LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
@@ -138,20 +132,11 @@ public class DepositView extends Activity {
 		params2.setMargins(0, 30, 0, 0);
 		closeButton.setLayoutParams(params2);
 
-		closeButton.setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
-
-				try {
-
-					finish();
-
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-				}
+		closeButton.setOnClickListener(arg0 -> {
+			try {
+				finish();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 		});
 

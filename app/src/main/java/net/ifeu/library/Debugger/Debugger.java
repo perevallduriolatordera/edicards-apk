@@ -20,22 +20,18 @@ public class Debugger {
 
         if (!versionName.toUpperCase().contains("DEBUG")) return;
 
-        Thread thread = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                try  {
-                    MailSender mailEnviosMantenimiento = new MailSender(Constants.MAIL_MANTENIMIENTO, "DEBUG edicards " + user, message.toString(), file);
-                    try {
-                        mailEnviosMantenimiento.send();
-                    } catch (MessagingException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                } catch (Exception e) {
+        Thread thread = new Thread(() -> {
+            try  {
+                MailSender mailEnviosMantenimiento = new MailSender(Constants.MAIL_MANTENIMIENTO, "DEBUG edicards " + user, message, file);
+                try {
+                    mailEnviosMantenimiento.send();
+                } catch (MessagingException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
 

@@ -1,13 +1,15 @@
 package net.ifeu.edicards.DataTier;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-
-import net.ifeu.edicards.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+
+import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Persistance.IPersistable;
+import net.ifeu.edicards.DataTier.Persistance.Persistent;
+
+import java.util.HashMap;
 
 public class FormaPago extends Persistent implements IPersistable {
 
@@ -16,8 +18,7 @@ public class FormaPago extends Persistent implements IPersistable {
 	public String Descripcion;
 
 	public void InitializePersistance(AppConfig appConfig, Context context)
-			throws Exception {
-		// TODO Auto-generated method stub
+	{
 		super.InitializePersistance(appConfig, context);
 	}
 	
@@ -37,7 +38,7 @@ public class FormaPago extends Persistent implements IPersistable {
 			this.IdFormaPago = super.getDatabaseOperations().insert(
 					Constants.TABLE_FORMAS_PAGO, null, values);
 		} catch (Exception e) {
-			throw e;
+			throw new RuntimeException(e);
 		}
 
 	}
@@ -107,57 +108,8 @@ public class FormaPago extends Persistent implements IPersistable {
 		return false; // (cursor != null);
 	}
 
-	public String[] getAllFormasPagoDescripcion() throws Exception {
-		Cursor cursor = super.getDatabaseOperations().getRecordsFromField(
-				Constants.TABLE_FORMAS_PAGO, Constants.EMPTY_STRING,
-				Constants.EMPTY_STRING, true, Constants.EMPTY_STRING,
-				"Descripcion");
-
-		if (cursor != null) {
-			cursor.moveToFirst();
-
-			if (cursor.getCount() > 0) {
-
-				int index = 0;
-				String[] list = new String[cursor.getCount()];
-				;
-				do {
-					FormaPago formaPago = new FormaPago();
-
-					String descripcion = formaPago.Descripcion = cursor
-							.getString(cursor.getColumnIndex("Descripcion"));
-					list[index++] = descripcion;
-
-				} while (cursor.moveToNext());
-
-				cursor.close();
-				return list;
-			} else {
-				cursor.close();
-				return new String[] {};
-			}
-		} else
-			return new String[] {};
-	}
-
-	public Cursor getAllFormasPagoCursor() throws Exception {
-		Cursor cursor = super.getDatabaseOperations().executeSentence(
-				"SELECT p.*,p.rowid as _id FROM " + Constants.TABLE_FORMAS_PAGO
-						+ " p Order by p.Descripcion");
-
-		if (cursor != null) {
-			cursor.moveToFirst();
-
-			if (cursor.getCount() > 0)
-				return cursor;
-			else
-				return null;
-		} else
-			return cursor;
-	}
-
-	public HashMap<String, FormaPago> getAllFormasPago() throws Exception {
-		HashMap<String, FormaPago> list = new HashMap<String, FormaPago>();
+	public HashMap<String, FormaPago> getAllFormasPago() {
+		HashMap<String, FormaPago> list = new HashMap<>();
 
 		Cursor cursor = super.getDatabaseOperations().getRecordsFromField(
 				Constants.TABLE_FORMAS_PAGO, Constants.EMPTY_STRING,
@@ -192,32 +144,5 @@ public class FormaPago extends Persistent implements IPersistable {
 		} else
 			return list;
 
-	}
-
-	public LinkedList<String> getAllFormasPagoList() throws Exception {
-		LinkedList<String> newList = new LinkedList<String>();
-
-		Cursor cursor = super.getDatabaseOperations().getRecordsFromField(
-				Constants.TABLE_FORMAS_PAGO, Constants.EMPTY_STRING,
-				Constants.EMPTY_STRING, true, Constants.EMPTY_STRING,
-				"Descripcion");
-
-		if (cursor != null) {
-			cursor.moveToFirst();
-
-			if (cursor.getCount() > 0) {
-				do {
-
-					String item = cursor.getString(cursor
-							.getColumnIndex("Descripcion"));
-					newList.add(item);
-				} while (cursor.moveToNext());
-			}
-		}
-
-		if (cursor != null)
-			cursor.close();
-
-		return newList;
 	}
 }

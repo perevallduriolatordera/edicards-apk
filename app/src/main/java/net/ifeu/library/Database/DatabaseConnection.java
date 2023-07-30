@@ -46,7 +46,6 @@ public class DatabaseConnection {
         this._context = ctx;
         _dbHelper = new DatabaseHelper(_context);
        
-        Log.i("Database",String.valueOf(_databaseVersion));
     }
 
     private class DatabaseHelper extends SQLiteOpenHelper
@@ -66,7 +65,7 @@ public class DatabaseConnection {
 
 		@Override
 		public void onCreate(SQLiteDatabase arg0) {
-			// TODO Auto-generated method stub
+			
 			
 		}
     }
@@ -79,8 +78,7 @@ public class DatabaseConnection {
         return this;
     }
 
-    //---closes the database---
-    public void closeDB() 
+    public void closeDB()
     {
     	_database.close();
         _dbHelper.close();

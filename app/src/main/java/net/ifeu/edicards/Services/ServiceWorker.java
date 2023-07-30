@@ -1,44 +1,23 @@
-package net.ifeu.edicards.Services;                                                                                                  
-                                                                                                                                     
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;                                                                                         
-import java.net.URLEncoder;                                                                                                          
-import java.text.NumberFormat;                                                                                                       
-import java.text.ParsePosition;                                                                                                      
-import java.text.SimpleDateFormat;                                                                                                   
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
+package net.ifeu.edicards.Services;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.os.Environment;
+import android.util.Log;
 
-import net.ifeu.edicards.AppConfig;                                                                                                  
-import net.ifeu.edicards.Constants.Constants;                                                                                        
-import net.ifeu.edicards.DataTier.Articulo;                                                                                          
-import net.ifeu.edicards.DataTier.Cliente;                                                                                           
-import net.ifeu.edicards.DataTier.Contador;                                                                                          
-import net.ifeu.edicards.DataTier.Deposito;                                                                                          
-import net.ifeu.edicards.DataTier.FormaPago;                                                                                         
-import net.ifeu.edicards.DataTier.Pactos;                                                                                            
-import net.ifeu.edicards.DataTier.Tarifa;                                                                                            
+import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Articulo;
+import net.ifeu.edicards.DataTier.Cliente;
+import net.ifeu.edicards.DataTier.Contador;
+import net.ifeu.edicards.DataTier.Deposito;
+import net.ifeu.edicards.DataTier.FormaPago;
+import net.ifeu.edicards.DataTier.Pactos;
+import net.ifeu.edicards.DataTier.Tarifa;
 import net.ifeu.edicards.DataTier.TipoIVA;
 import net.ifeu.edicards.Excel.LogBookCreator;
 import net.ifeu.edicards.Pdf.PdfInventory;
-import net.ifeu.edicards.Services.RestClient.RequestMethod;                                                                          
+import net.ifeu.edicards.Services.RestClient.RequestMethod;
 import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Debugger.Debugger;
 import net.ifeu.library.Firebase.ArticuloStock;
@@ -47,17 +26,33 @@ import net.ifeu.library.Firebase.FireStoreCaller;
 import net.ifeu.library.IO.IOUtils;
 import net.ifeu.library.LogBook.LogBook;
 import net.ifeu.library.Mail.Mail;
-import net.ifeu.library.Mail.MailSender;                                                                                             
-import org.apache.http.NameValuePair;                                                                                                
-import org.apache.http.message.BasicNameValuePair;                                                                                   
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+import net.ifeu.library.Mail.MailSender;
 
-import android.annotation.SuppressLint;                                                                                              
-import android.content.Context;                                                                                                      
-import android.os.Environment;                                                                                                       
-import android.util.Log;                                                                                                                                                                                                                
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.w3c.dom.Document;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
                                                                                                                                      
 public class ServiceWorker extends ServiceBase {
 
@@ -68,9 +63,6 @@ public class ServiceWorker extends ServiceBase {
 	@SuppressLint("SimpleDateFormat")
 	public void RunExport(Context context) throws Exception {
 
-		//String debug = "DEBUG";
-		//if (debug == "DEBUG") return;
-
 		AppConfig app;
 		app = (AppConfig) context;
 
@@ -80,7 +72,7 @@ public class ServiceWorker extends ServiceBase {
 		credentials.User = "Tablet";
 		credentials.Password = "tab2012let";
 
-		String directory = Constants.EMPTY_STRING;
+		String directory;
 		List<String> files;
 
 		// * * * * * * * * * ENVIAMOS PDF * * * * * * * * * * * *
@@ -88,19 +80,15 @@ public class ServiceWorker extends ServiceBase {
 		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
 				+ Constants.FOLDER_PDF;
 
-		Log.i("ServiceWorker", "PDF FOLDER: " + directory);
 		files = IOUtils.getFilesFromDirectory(directory);
 
 		for (String file : files) {
 
 			try {
-
 				boolean isRectificativo = false;
-				Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de pdf");
-
 				File fileInfo = new File(file);
 				String title = fileInfo.getName().subSequence(0, 1).equals("A") ? "Albaran " : "Deposito ";
-				String albaran = "";
+				String albaran;
 
 				if (fileInfo.getName().subSequence(0, 1).equals("R")) {
 					title = "Albarán rectificativo ";
@@ -109,12 +97,11 @@ public class ServiceWorker extends ServiceBase {
 
 				if (!isRectificativo) {
 					albaran = (fileInfo.getName().substring(2).replace(".pdf", Constants.EMPTY_STRING));
-					title = title + albaran;
 
 				} else {
 					albaran = (fileInfo.getName().substring(4).replace(".pdf", Constants.EMPTY_STRING));
-					title = title + albaran;
 				}
+				title = title + albaran;
 
 				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 				title = title + " generado a fecha " + sdf.format(fileInfo.lastModified());
@@ -157,7 +144,7 @@ public class ServiceWorker extends ServiceBase {
 				this.Monitor().PdfSend++;
 
 			} catch (Exception e) {
-				continue;
+
 			}
 		}
 
@@ -166,13 +153,10 @@ public class ServiceWorker extends ServiceBase {
 		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
 				+ Constants.FOLDER_AUTORIZACIONES;
 
-		Log.i("ServiceWorker", "AUTORIZACIONES FOLDER: " + directory);
 		List<String> filesAuth = IOUtils.getFilesFromDirectory(directory);
 		for (String file : filesAuth) {
 
 			try {
-
-				Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de pdf");
 				File fileInfo = new File(file);
 
 				String title = "Autorización ";
@@ -201,14 +185,11 @@ public class ServiceWorker extends ServiceBase {
 		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
 				+ Constants.FOLDER_GDPR;
 
-		Log.i("ServiceWorker", "GDPR FOLDER: " + directory);
 		List<String> filesGDPR = IOUtils.getFilesFromDirectory(directory);
 
 		for (String file : filesGDPR) {
 
 			try {
-
-				Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de pdf");
 
 				File fileInfo = new File(file);
 
@@ -226,7 +207,6 @@ public class ServiceWorker extends ServiceBase {
 				IOUtils.deleteFile(file);
 				this.Monitor().GDPRSend++;
 			} catch (Exception e) {
-				continue;
 			}
 		}
 
@@ -235,15 +215,11 @@ public class ServiceWorker extends ServiceBase {
 		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
 				+ Constants.FOLDER_LOGBOOK;
 
-		Log.i("ServiceWorker", "LogBook FOLDER: " + directory);
 		List<String> filesLogBook = IOUtils.getFilesFromDirectory(directory);
 
 		for (String file : filesLogBook) {
 
 			try {
-
-				Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de trazabilidad a logBook");
-				File fileInfo = new File(file);
 
 				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 				String title = "Documento Trazabilidad del comercial " + app.getUser().User + " " + "con fecha " + formatter.format(new Date());
@@ -253,11 +229,9 @@ public class ServiceWorker extends ServiceBase {
 					mail.send();
 					IOUtils.deleteFile(file);
 				} catch (Exception e) {
-					continue;
 				}
 
 			} catch (Exception e) {
-				continue;
 			}
 		}
 
@@ -271,7 +245,6 @@ public class ServiceWorker extends ServiceBase {
 		for (String file : incidencias) {
 
 			try {
-				Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de incidencias");
 				File fileInfo = new File(file);
 				String title = Constants.EMPTY_STRING;
 
@@ -293,7 +266,7 @@ public class ServiceWorker extends ServiceBase {
 					title = "Ingreso realizado por enviado por " + app.getUser().User;
 
 				String content = "Este mensaje se ha generado automáticamente desde el dispositivo móvil.";
-				MailSender mail = null;
+				MailSender mail;
 
 				if (fileInfo.getName().subSequence(0, 1).toString().equals("I"))
 					mail = new MailSender(Constants.MAIL_ADMINISTRACION_2, title, content, file);
@@ -302,8 +275,6 @@ public class ServiceWorker extends ServiceBase {
 
 				if (fileInfo.getName().subSequence(0, 1).toString().equals("E"))
 					mail = new MailSender(Constants.MAIL_FACTURACION, title,  content, file);
-
-				title = title + (fileInfo.getName().replace(".pdf", Constants.EMPTY_STRING));
 
 				try {
 					mail.send();
@@ -314,7 +285,6 @@ public class ServiceWorker extends ServiceBase {
 
 				this.Monitor().IncidenciasSend++;
 			} catch (Exception e) {
-				continue;
 			}
 		}
 
@@ -330,9 +300,9 @@ public class ServiceWorker extends ServiceBase {
 			String content = IOUtils.getFileContent(file);                                                                           
                                                                                                                                      
 			RestClient client = new RestClient();                                                                                    
-			ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
+			ArrayList<NameValuePair> headers = new ArrayList<>();
 			headers.add(new BasicNameValuePair("Authorization",Constants.AUTHORIZATION_HEADER_SERVICES));
-			ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
+			ArrayList<NameValuePair> params = new ArrayList<>();
 			params.add(new BasicNameValuePair("contingut", content));                                                                
 	                                                                                                                                 
 			boolean result;                                                                                                          
@@ -350,14 +320,12 @@ public class ServiceWorker extends ServiceBase {
 			} catch (Exception e) {
 				continue;                                                              
 			}                                                                                                                        
-                                                                                                                                     
-			Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de artículos");                                                  
-                                                                                                                                     
+
 		}                                                                                                                            
                                                                                                                                      
 		// * * * * * * * * * ENVIAMOS GASTOS * * * * * * * * * * * *                                                                 
 		                                                                                                                             
-		boolean anyGastos = false;
+		boolean anyGastos;
 		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"                         
 				+ Constants.FOLDER_GASTOS;                                                                                           
 
@@ -367,8 +335,6 @@ public class ServiceWorker extends ServiceBase {
 		for (String file : files) {                                                                                                  
 			String content = encodeURIComponent(IOUtils.getFileContent(file));
 			HttpService http = new HttpService();
-			Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de gastos");
-			http = new HttpService();
 			url = Constants.WS_ENVIAR_GASTOS;
 			                                                                                                                         
 			try {                                                                                                                    
@@ -376,8 +342,7 @@ public class ServiceWorker extends ServiceBase {
 				IOUtils.deleteFile(file);
 				this.Monitor().GastosSend++;
 			} catch (Exception e) {                                                                                                  
-				continue;			
-			}                                                                                                                        
+			}
 		}                                                                                                                            
 
 		// * * * * * * * * * GENERAMOS Y ENVIAMOS INVENTARIO * * * * * * * * * *
@@ -396,7 +361,6 @@ public class ServiceWorker extends ServiceBase {
 				try {
 
 					if (!file.contains("Reciclado_")) {
-						Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de inventario");
 						File fileInfo = new File(file);
 						String title = "Inventario ";
 						title = title + (fileInfo.getName().replace(".pdf", Constants.EMPTY_STRING));
@@ -416,7 +380,6 @@ public class ServiceWorker extends ServiceBase {
 					}
 				}
 				catch (Exception e) {
-					continue;
 				}
 
 			}
@@ -426,11 +389,10 @@ public class ServiceWorker extends ServiceBase {
 
 			try {
 				if (file.contains("Reciclado_")) {
-					Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de reciclado");
 					File fileInfo = new File(file);
 					String title = "Inventario de reciclado ";
 					title = title + (fileInfo.getName().replace(".pdf", Constants.EMPTY_STRING).replace("Reciclado_", Constants.EMPTY_STRING));
-					MailSender mail = null;
+					MailSender mail;
 					mail = new MailSender(Constants.MAIL_FACTURACION, title, Constants.EMPTY_STRING, file);
 
 					try {
@@ -445,7 +407,6 @@ public class ServiceWorker extends ServiceBase {
 				}
 			}
 			catch (Exception e) {
-				continue;
 			}
 		}
 
@@ -459,28 +420,21 @@ public class ServiceWorker extends ServiceBase {
 		for (String file : recuento) {
 
 			try {
-
-				Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de recuento");
 				String content = IOUtils.getFileContent(file);
 				url = Constants.WS_ENVIAR_STOCKS;
 				RestClient client = new RestClient();
-				ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
+				ArrayList<NameValuePair> headers = new ArrayList<>();
 				headers.add(new BasicNameValuePair("Authorization",Constants.AUTHORIZATION_HEADER_SERVICES));
-				ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
+				ArrayList<NameValuePair> params = new ArrayList<>();
 				params.add(new BasicNameValuePair("contingut", content));
 				boolean result = client.Execute(RequestMethod.POST, url, headers, params);
-				Log.i("RunExport.Recuento", content);
 
 				if (result) {
 					IOUtils.deleteFile(file);
 					this.Monitor().RecuentoSend++;
 				}
-				else {
-					continue;
-				}
 
 			} catch (Exception e) {
-				continue;
 			}
 
 		}
@@ -497,15 +451,13 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 		for (String file : stockDiario) {   
                                                                                                                                      
-			Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de stock diario");
 			String content = IOUtils.getFileContent(file);
 			url = Constants.WS_ENVIAR_STOCKS;
-			Log.i("RunExport.DailyStock", content);                                                                                                                                       
-			                                                                                                                         
+
 			RestClient client = new RestClient();                                                                                    
-			ArrayList<NameValuePair> headers = new ArrayList<NameValuePair>();
+			ArrayList<NameValuePair> headers = new ArrayList<>();
 			headers.add(new BasicNameValuePair("Authorization",Constants.AUTHORIZATION_HEADER_SERVICES));
-			ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
+			ArrayList<NameValuePair> params = new ArrayList<>();
 			params.add(new BasicNameValuePair("contingut", content));                                                                
 			                                                                                                                         
 			boolean result;                                                                                                          
@@ -516,12 +468,8 @@ public class ServiceWorker extends ServiceBase {
 					IOUtils.deleteFile(file);                                                                                                                             
 					this.Monitor().StockDiarioSend++;
 				}                                                                                                                    
-				else {
-					continue;                     
-				}                                                                                                                    
 			} catch (Exception e) {
-				continue;                                                                   
-			}                                                                                                                        
+			}
 			                                                                                                                                                                                                                                                                                                                                                                                        
 		}                                                                                                                            
 
@@ -534,20 +482,17 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 		for (String file : files) {                                                                                                  
 			String content = encodeURIComponent(IOUtils.getFileContent(file));
+
 			HttpService http = new HttpService();
-			Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de albaranes");
-			http = new HttpService();
 			url = Constants.WS_ENVIAR_ALBARANES;
-			Log.i("RunExport.Albaranes", content);                                                                                   
-			                                                                                                                         
+
 			try {                                                                                                                    
 				http.CallWithoutResult(url + "?contingut=" + content, credentials);                                                  
 				IOUtils.deleteFile(file);
 				this.Monitor().AlbaranesSend++;
 				
 			} catch (Exception e) {                                                                                                  
-				continue;                                                                   
-			}                                                                                                                        
+			}
                                                                                                                                      
 		}                                                                                                                            
 
@@ -561,34 +506,29 @@ public class ServiceWorker extends ServiceBase {
 		for (String file : files) {                                                                                                  
 			String content = encodeURIComponent(IOUtils.getFileContent(file));
 			HttpService http = new HttpService();
-			Log.i("ServiceWorker", "Iniciamos proceso llamada Envío de depósitos");
-			http = new HttpService();
 			url = Constants.WS_ENVIAR_DEPOSITOS;
-			Log.i("RunExport.Depositos", content);                                                                                   
-			                                                                                                                         
+
 			try {                                                                                                                    
 				http.CallWithoutResult(url + "?contingut=" + content, credentials);                                                  
 				IOUtils.deleteFile(file);
 				this.Monitor().DepositosSend++;
 			} catch (Exception e) {                                                                                                  
-				continue;
 			}
 		}
 	}                                                                                                                                
                                                                                                                                      
-	public boolean RunImport(Context context, boolean compress) throws Exception {                                                   
+	public boolean RunImport(Context context, boolean compress) {
 
 		AppConfig app;                                                                                                               
 		app = (AppConfig) context;                                                                                                   
-		Boolean result = true;       
+		boolean result = true;
 		ParserResponse parser = new ParserResponse();              
                                                                                                                                      
 		// Habilitamos la conexión Wifi y 3G                                                                                         
                                                                                                                                                                                                                                                              
 		this.createFolders();
 		try {                                                                                                                        
-			int debug = 0;                                                                                                           
-			// Asignamos las credenciales                                                                                            
+			// Asignamos las credenciales
                                                                                                                                      
 			WindowsCredentials credentials = new WindowsCredentials();                                                               
 			credentials.User = "Tablet";                                                                                             
@@ -606,12 +546,8 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 			// Comprobamos la existencia de la tabla Contadores                                                                      
                                                                                                                                      
-			Contador contador = new Contador();                                                                                      
-			try {                                                                                                                    
-				contador.InitializePersistance(app, context);                                                                        
-			} catch (Exception e) {                                                                                                  
-				result = false;                                                                                                                                                                         
-			}                                                                                                                        
+			Contador contador = new Contador();
+			contador.InitializePersistance(app, context);
                                                                                                                                      
 			if (contador.getRecordsCount() == 0) {
 				if (isNumeric(app.getUser().InitSerieA))                                                                             
@@ -633,104 +569,78 @@ public class ServiceWorker extends ServiceBase {
 			contador.ReleasePersistance();                                                                                           
                                                                                                                                      
 			// * * * * * * * * * * LLAMADA A FORMAS DE PAGO * * * * * * * * * *                                                      
-                                                                                                                                     
-			Log.i("ServiceWorker", "Iniciamos proceso llamada Formas de Pago");                                                      
-                                                                                                                                     
-			FormaPago formaPago = new FormaPago();                                                                                   
-			try {                                                                                                                    
-				formaPago.InitializePersistance(app, context);                                                                       
-                                                                                                                                     
-			} catch (Exception e) {                                                                                                  
-				result = false;
-			}                                                                                                                        
+
+			FormaPago formaPago = new FormaPago();
+			formaPago.InitializePersistance(app, context);
 			                                                                                                                         
-			Log.i("RunImport", "Formas Pago Total: " + String.valueOf(formaPago.getRecordsCount()));
-			http = new HttpService();                                                                                                
+			http = new HttpService();
                                                                                                                                      
 			try {                                                                                                                    
 				all = true;
 				String url = compress ? Constants.WS_FPAGO_ZIP : Constants.WS_FPAGO;                                                 
                                                                                                                                      
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
-						+ "&Tots=" + String.valueOf(all), credentials);                                                              
+						+ "&Tots=" + all, credentials);
 
-				parser.parseFormasPago(document, context, app, formaPago, compress);                                                 
+				parser.parseFormasPago(document, app, formaPago, compress);
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                     				
 			}                                                                                                                        
                                                                                                                                              
 			formaPago.ReleasePersistance();
-			Log.i("ServiceWorker", "Finalizamos proceso llamada Formas de Pago");                                                    
-                                                                                                                                     
+
 			// * * * * * * * * * * LLAMADA A TIPOS DE IVA * * * * * * * * * *                                                        
-                                                                                                                                     
-			Log.i("ServiceWorker", "Iniciamos proceso llamada Tipos de IVA");
-			TipoIVA iva = new TipoIVA();                                                                                             
-			try {                                                                                                                    
-				iva.InitializePersistance(app, context);                                                                             
-			} catch (Exception e) {                                                                                                  
-				result = false;                                                                                                      				
-			}                                                                                                                        
-                                                                                                                                     
+
+			TipoIVA iva = new TipoIVA();
+			iva.InitializePersistance(app, context);
+
 			http = new HttpService();                                                                                                
                                                                                                                                      
 			try {                                                                                                                    
                                                                                                                                      
-				document = null;                                                                                                     
-				all = (iva.getRecordsCount() == 0);                                                                                  
+				all = (iva.getRecordsCount() == 0);
                                                                                                                                      
 				String url = compress ? Constants.WS_TIPO_IVA_ZIP : Constants.WS_TIPO_IVA;                                           
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
-						+ "&Tots=" + String.valueOf(all), credentials);                                                              
+						+ "&Tots=" + all, credentials);
                                                                                                                                      
-				parser.parseTiposIva(document, context, app, iva, compress);                                                         
+				parser.parseTiposIva(document, app, iva, compress);
                                                                                                                                      
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                                                                                         
 			}                                                                                                                        
 			                                                                                                                         
 			iva.ReleasePersistance();
-			Log.i("ServiceWorker", "Finalizamos proceso llamada Tipos de IVA");                                                      
-                                                                                                                                     
+
 			// * * * * * * * * * * LLAMADA A ARTICULOS * * * * * * * * * *                                                           
-                                                                                                                                     
-			Log.i("ServiceWorker", "Iniciamos proceso llamada Articulos");                                                           
-                                                                                                                                     
-			Articulo articulo = new Articulo();                                                                                      
-			try {                                                                                                                    
-				articulo.InitializePersistance(app, context);                                                                        
-			} catch (Exception e) {                                                                                                  
-				result = false;                                                                                                      
-			}                                                                                                                        
-                                                                                                                                     
+
+			Articulo articulo = new Articulo();
+			articulo.InitializePersistance(app, context);
+
 			http = new HttpService();                                                                                                
                                                                                                                                      
 			try {                                                                                                                    
-				document = null;                                                                                                     
-				all = (articulo.getRecordsCount() == 0);                                                                             
+				all = (articulo.getRecordsCount() == 0);
                                                                                                                                      
 				String url = compress ? Constants.WS_ARTICULO_ZIP : Constants.WS_ARTICULO;                                           
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
-						+ "&Tots=" + String.valueOf(all), credentials);                                                              
+						+ "&Tots=" + all, credentials);
                                                                                                                                      
 				parser.parseArticulos(document, context, app, articulo, compress);                                                   
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                                                                                         
 			}                                                                                                                        
-                                                                                                                                     
-			Log.i("ServiceWorker", "Finalizamos proceso llamada Articulos");
 
 			// * * * * * * * * * * LLAMADA A ARTICULOS-STOCK DE FIRECLOUD * * * * * * * * * *
 
 			try {
-				Log.i("ServiceWorker", "Invocamos la obtención del token de firestore");
 				FireStoreCaller fireStoreServices = new FireStoreCaller();
 				String idToken = fireStoreServices.getToken();
 
 				ArticuloStockResponse stock = fireStoreServices.getStock(idToken);
-				Log.i("ServiceWorker", "Finalizamos la obtención del token de firestore");
 
-				LinkedHashMap<String, Articulo> articulos = articulo.getAllArticulos(1);
+				LinkedHashMap<String, Articulo> articulos = app.getCache().getAllArticulos()
+						;
 				boolean hasNew = false;
 				for (Articulo art : articulos.values()) {
 					if (stock.articulos.containsKey(art.CodigoArticulo)) {
@@ -759,24 +669,17 @@ public class ServiceWorker extends ServiceBase {
 			}
 			// * * * * * * * * * * LLAMADA A TRASPASO ALMACEN * * * * * * * * *                                                                                                                                                                        
 
-			try {
-				articulo.InitializePersistance(app, context);
-			} catch (Exception e) {
-				result = false;
-			}
-                                                                                                                                     
+			articulo.InitializePersistance(app, context);
+
 			http = new HttpService();
-			Log.i("ServiceWorker", "Iniciamos proceso llamada Traspaso Almacen");                                                    
-                                                                                                                                     
-			boolean resultTraspaso = false;                                                                                          
+			boolean resultTraspaso;
 			                                                                                                                         
 			try {                                                                                                                    
-				document = null;                                                                                                     
-				all = true;                                                                                                          
+				all = true;
                                                                                                                                      
-				String url = compress ? Constants.WS_TRASPASO_STOCK : Constants.WS_TRASPASO_STOCK;                                   
+				String url = Constants.WS_TRASPASO_STOCK;
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
-						+ "&Tots=" + String.valueOf(all), credentials);        
+						+ "&Tots=" + all, credentials);
 				
 				this.saveDocumentToFile(this.DocumentToString(document), "TraspasoStock.xml");
 				resultTraspaso = parser.ParserTraspasoAlmacen(document, context, app, articulo, compress);                           
@@ -786,17 +689,15 @@ public class ServiceWorker extends ServiceBase {
 			}                                                                                                                        
                                                                                                                                      
 			articulo.ReleasePersistance();
-			Log.i("ServiceWorker", "Finalizamos proceso llamada Traspaso Almacen");                                                  
-                                                                                                                    
+
 			// * * * * * * * * * * LLAMADA A VALIDACIÓN TRASPASO * * * * * * * *                                                     
                                                                                                                                      
 			if (resultTraspaso) {                                                                                                    
 				http = new HttpService();                                                                                            
                                                                                                                                      
 				try {                                                                                                                
-					document = null;
-					String url = compress ? Constants.WS_VALIDAR_TRASPASO : Constants.WS_VALIDAR_TRASPASO;
-					document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User,             
+					String url = Constants.WS_VALIDAR_TRASPASO;
+					http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User,
 							credentials);                                                                                            
 
 				} catch (Exception e) {                                                                                              
@@ -811,109 +712,79 @@ public class ServiceWorker extends ServiceBase {
 			app.getTraspasoAlmacen().clear();
                                                                                                                                      
 			// * * * * * * * * * * LLAMADA A CLIENTES * * * * * * * * * *                                                            
-                                                                                                                                     
-			Log.i("ServiceWorker", "Iniciamos proceso llamada Clientes");                                                            
-                                                                                                                                     
-			Cliente cliente = new Cliente();                                                                                         
-			try {                                                                                                                    
-				cliente.InitializePersistance(app, context);                                                                         
-			} catch (Exception e) {                                                                                                  
-				result = false;                                                                                                                                                                   
-			}                                                                                                                        
-                                                                                                                                     
+
+			Cliente cliente = new Cliente();
+			cliente.InitializePersistance(app, context);
+
 			http = new HttpService();                                                                                                
                                                                                                                                      
 			try {                                                                                                                    
-				document = null;                                                                                                     
-				all = (cliente.getRecordsCount() == 0 || app.getWorkingArea().UpgradeDataPost);                                      
+				all = (cliente.getRecordsCount() == 0 || app.getWorkingArea().UpgradeDataPost);
                                                                                                                                      
 				String url = compress ? Constants.WS_CLIENTES_ZIP : Constants.WS_CLIENTES;                                           
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
-						+ "&Tots=" + String.valueOf(all), credentials);                                                              
+						+ "&Tots=" + all, credentials);
                                                                                                                                      
 				parser.parseClientes(document, context, app, cliente, compress);                                                     
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                      
 			}                                                                                                                        
-                                                                                                                                     
-			Log.i("ServiceWorker", "Finalizamos proceso llamada Clientes");                                                          
-			                                                                                                                         
+
 			cliente.ReleasePersistance();                                                                                            
                                                                                                                                      
 			// * * * * * * * * * * LLAMADA A TARIFAS * * * * * * * * * *                                                             
-                                                                                                                                     
-			Log.i("ServiceWorker", "Iniciamos proceso llamada Tarifas");                                                             
-                                                                                                                                     
-			Tarifa tarifa = new Tarifa();                                                                                            
-			try {                                                                                                                    
-				tarifa.InitializePersistance(app, context);                                                                          
-			} catch (Exception e) {                                                                                                  
-				result = false;                                                                                                      
-			}                                                                                                                        
-                                                                                                                                     
+
+			Tarifa tarifa = new Tarifa();
+			tarifa.InitializePersistance(app, context);
+
 			http = new HttpService();                                                                                                
                                                                                                                                      
 			try {                                                                                                                    
-				document = null;                                                                                                     
-				all = (tarifa.getRecordsCount() == 0);                                                                               
+				all = (tarifa.getRecordsCount() == 0);
                                                                                                                                      
 				String url = compress ? Constants.WS_TARIFAS_ZIP : Constants.WS_TARIFAS;                                             
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
-						+ "&Tots=" + String.valueOf(all), credentials);                                                              
+						+ "&Tots=" + all, credentials);
                                                                                                                                      
 				parser.parseTarifas(document, context, app, tarifa, compress);                                                       
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                      
 			}                                                                                                                        
-                                                                                                                                     
-			Log.i("ServiceWorker", "Finalizamos proceso llamada Tarifas");                                                           
-			                 
+
 			tarifa.ReleasePersistance();                                                                                             
                                                                                                                                      
 			// * * * * * * * * * * LLAMADA A PACTOS * * * * * * * * * *                                                              
-                                                                                                                                     
-			Log.i("ServiceWorker", "Iniciamos proceso llamada Pactos");                                                              
-                                                                                                                                     
-			http = new HttpService();                                                                                                
-                                                                                                                                     
-			Pactos pacto = new Pactos();                                                                                             
+
+			http = new HttpService();
+
+			Pactos pacto = new Pactos();
+			pacto.InitializePersistance(app, context);
+
 			try {                                                                                                                    
-				pacto.InitializePersistance(app, context);                                                                           
-			} catch (Exception e) {                                                                                                  
-				result = false;                                                                                                      
-			}                                                                                                                        
-                                                                                                                                     
-			try {                                                                                                                    
-				document = null;                                                                                                     
-				all = (pacto.getRecordsCount() == 0);                                                                                
+				all = (pacto.getRecordsCount() == 0);
                                                                                                                                      
 				String url = compress ? Constants.WS_PACTOS_ZIP : Constants.WS_PACTOS;                                               
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
-						+ "&Tots=" + String.valueOf(all), credentials);                                                              
+						+ "&Tots=" + all, credentials);
                                                                                                                                      
 				parser.parsePactos(document, context, app, pacto, compress);                                                         
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                      
 			}                                                                                                                        
-                                                                                                                                     
-			Log.i("ServiceWorker", "Finalizamos proceso llamada Pactos");                                                            
-			                                                                                                                         
+
 			pacto.ReleasePersistance();                                                                                              
                                                                                                                                                                                                                                                                           
 			// * * * * * * * * * * LLAMADA A DEPOSITOS * * * * * * * * * *                                                           
-                                                                                                                                     
-			Log.i("ServiceWorker", "Iniciamos proceso llamada Depositos");      
-			                                                                                                                                     
+
 			// Obtenemos el total de registros                                                                                       
                                                                                                                                      
 			Long totalLineasDeposito = (long) 0;
 			http = new HttpService();
 			try {                                                                                                                    
-				document = null;                                                                                                     
-                                                                                                                                     
+
 				String url = compress ? Constants.WS_DEPOSITOS_ZIP : Constants.WS_TOTAL_DEPOSITOS;                                   
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
-						+ "&Tots=" + String.valueOf(true), credentials);                                                             
+						+ "&Tots=" + true, credentials);
                                                                                                                                      
 				totalLineasDeposito = parser.parseTotalDepositos(document, context, app);                                            
                                                                                                                                      
@@ -923,37 +794,28 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 			// Obtenemos los depósitos                                                                                               
 			System.gc();                                                                                                             
-			Deposito deposito = new Deposito();                                                                                      
-			                                                                                                                         
-			try {                                                                                                                    
-				deposito.InitializePersistance(app, context);                                                                        
-			} catch (Exception e) {                                                                                                  
-				result = false;                                                                                                      
-			}                                                                                                                        
-                                                                                                                                     
+			Deposito deposito = new Deposito();
+			deposito.InitializePersistance(app, context);
+
 			all = (deposito.getRecordsCount() == 0 || app.getWorkingArea().UpgradeDataPost);                                         
 			if (all) {                                                                                                               
                                                                                                                                      
 				try {
 					deposito.clean();
-					for (Long i = (long) 1; i < totalLineasDeposito; i = i + Constants.WS_PAGINACION) {                              
+					for (long i = 1; i < totalLineasDeposito; i = i + Constants.WS_PAGINACION) {
 
 						boolean successful = false;                                                                                  
                                                                                                                                      
 						int maxAttempts = 0;                                                                                         
 						while (!successful && maxAttempts < Constants.WS_MAX_INTENTOS) {
 							try {
-								Log.i("Depositos Indice Inicial", String.valueOf(i));
-								Log.i("Depositos Indice Final", String.valueOf(i + Constants.WS_PAGINACION));
-                                                                                                                                     
-								document = null;                                                                                     
-                                                                                                                                     
+
 								String url = compress ? Constants.WS_DEPOSITOS_ZIP : Constants.WS_DEPOSITOS_PAGINACION;
 								http = new HttpService();
 								document = http.Call(                                                                                
 										url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User               
-												+ "&Tots=" + String.valueOf(all) + "&desde=" + String.valueOf(i)                     
-												+ "&finsA=" + String.valueOf(i + Constants.WS_PAGINACION - 1),                       
+												+ "&Tots=" + all + "&desde=" + i
+												+ "&finsA=" + (i + Constants.WS_PAGINACION - 1),
 										credentials);                                                                                
                                                                                                                                      
 								parser.parseDepositos(document, context, app, deposito, compress);                                   
@@ -970,8 +832,7 @@ public class ServiceWorker extends ServiceBase {
 				}                                                                                                                    
                                                                                                                                               
 				deposito.ReleasePersistance();
-				Log.i("ServiceWorker", "Finalizamos proceso llamada Depositos");                                                     
-			}                                                                                                                        
+			}
                                                                                                                                      
 			// * * * * * * * * * * HACEMOS BACKUP A BASE DE DATOS * * * * * * *                                                      
 
@@ -1063,7 +924,7 @@ public class ServiceWorker extends ServiceBase {
 	}                                                                                                                                
                                                                                                                                      
 	private String encodeURIComponent(String s) {                                                                                    
-		String result = null;                                                                                                        
+		String result;
                                                                                                                                      
 		try {                                                                                                                        
 			result = URLEncoder.encode(s, "UTF-8").replaceAll("\\+", "%20").replaceAll("\\%21", "!")                                 
@@ -1097,21 +958,10 @@ public class ServiceWorker extends ServiceBase {
 		trans.transform(new DOMSource(doc), new StreamResult(sw));
 		return sw.toString();
 	}
-	
-	private Document StringToDocument(String str) throws ParserConfigurationException, SAXException, IOException {
-		DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		InputSource is = new InputSource();
-		is.setCharacterStream(new StringReader(str));
 
-		Document doc = db.parse(is);
-		
-		return doc;
-	}
-	
-	private void saveDocumentToFile(String str, String file) throws IOException {
+	private void saveDocumentToFile(String str, String file)  {
 		
 		try {
-			File root = Environment.getExternalStorageDirectory();
 			File outDir = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_SERVICES + "/");
 	    
 			File outputFile = new File(outDir, file);
@@ -1120,7 +970,7 @@ public class ServiceWorker extends ServiceBase {
 			writer.close();
 			
 	    } catch (IOException e) {
-	      throw e;
+	      throw new RuntimeException(e);
 	    }
 	}
 
@@ -1132,7 +982,7 @@ public class ServiceWorker extends ServiceBase {
 			e.printStackTrace(pw);
 
 			String title = "Error enviando pdf del albarán " + albaran + " del comercial " + user + ":";
-			Debugger.Debug(context, user, title + "\n\n" + sw.toString(), null);
+			Debugger.Debug(context, user, title + "\n\n" + sw, null);
 
 		} catch (Exception exc) {
 			return false;

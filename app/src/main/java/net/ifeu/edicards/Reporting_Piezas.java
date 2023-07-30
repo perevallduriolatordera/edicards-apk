@@ -2,6 +2,7 @@ package net.ifeu.edicards;
 
 import java.util.LinkedHashMap;
 
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Reporting;
 import net.ifeu.library.Controls.LabelColor;
@@ -15,7 +16,6 @@ import android.widget.LinearLayout;
 
 public class Reporting_Piezas extends Activity {
 
-	private final int TEXT_SIZE = 14;
 	AppConfig _appConfig;
 	
     @SuppressWarnings("deprecation")
@@ -32,8 +32,7 @@ public class Reporting_Piezas extends Activity {
         try {
 			fillPiezas();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
     }
     
@@ -68,8 +67,9 @@ public class Reporting_Piezas extends Activity {
     			Reporting.Defectuoso defectuoso = _appConfig.getWorkingArea().CurrentReporting.Defectuosos.get(art.Descripcion);
     			unidades = defectuoso.unidades;
     		}
-    		
-    		if (!_appConfig.getWorkingArea().CurrentReporting.Vendidos.containsKey(art.Descripcion))
+
+			int TEXT_SIZE = 14;
+			if (!_appConfig.getWorkingArea().CurrentReporting.Vendidos.containsKey(art.Descripcion))
     		{
     			LabelColor label = new LabelColor(this,Color.BLACK, Gravity.LEFT);
         		label.setRawInputType(InputType.TYPE_CLASS_NUMBER);
@@ -93,7 +93,7 @@ public class Reporting_Piezas extends Activity {
         		
         		LabelColor retirado = new LabelColor(this,color, true, Gravity.RIGHT);
         		retirado.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-        		retirado.setText(String.valueOf(unidades) + " un. retiradas");
+        		retirado.setText(unidades + " un. retiradas");
         		retirado.setTextSize(TEXT_SIZE);
         		retirado.setWidth(150);
         		retirado.setLayoutParams(params);
@@ -102,7 +102,7 @@ public class Reporting_Piezas extends Activity {
             	
             	LabelColor stock = new LabelColor(this,Color.BLACK, true, Gravity.RIGHT);
             	stock.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-            	stock.setText(String.valueOf(art.Stock) + " un. almacén");
+            	stock.setText(art.Stock + " un. almacén");
             	stock.setTextSize(TEXT_SIZE);
             	stock.setWidth(150);
             	stock.setLayoutParams(params);
@@ -125,7 +125,7 @@ public class Reporting_Piezas extends Activity {
         		
         		LabelColor vendido = new LabelColor(this,Color.MAGENTA, true,  Gravity.RIGHT);
         		vendido.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-        		vendido.setText(String.valueOf(venta.unidades) + " un. vendidas");
+        		vendido.setText(venta.unidades + " un. vendidas");
         		vendido.setTextSize(TEXT_SIZE);
         		vendido.setWidth(150);
         		vendido.setLayoutParams(params);
@@ -136,7 +136,7 @@ public class Reporting_Piezas extends Activity {
         		
         		LabelColor retirado = new LabelColor(this,color, true, Gravity.RIGHT);
         		retirado.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-        		retirado.setText(String.valueOf(unidades) + " un. retiradas");
+        		retirado.setText(unidades + " un. retiradas");
         		retirado.setTextSize(TEXT_SIZE);
         		retirado.setWidth(150);
         		retirado.setLayoutParams(params);
@@ -145,7 +145,7 @@ public class Reporting_Piezas extends Activity {
             	
             	LabelColor stock = new LabelColor(this,Color.BLACK, true,  Gravity.RIGHT);
             	stock.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-            	stock.setText(String.valueOf(art.Stock) + " un. almacén");
+            	stock.setText(art.Stock + " un. almacén");
             	stock.setTextSize(TEXT_SIZE);
             	stock.setWidth(150);
             	stock.setLayoutParams(params);

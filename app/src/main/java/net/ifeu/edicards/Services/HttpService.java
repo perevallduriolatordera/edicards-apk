@@ -21,7 +21,7 @@ public class HttpService {
 
 	private InputStream OpenHttpConnection(String urlString,
 			WindowsCredentials credentials) throws IOException {
-		InputStream in = null;
+		InputStream in;
 		int response = -1;
 
 		URL url = new URL(urlString);
@@ -51,7 +51,6 @@ public class HttpService {
 						String.valueOf(HttpURLConnection.HTTP_BAD_REQUEST));
 
 		} catch (Exception ex) {
-			Log.e("httpService", ex.getLocalizedMessage());
 			throw new IOException("Error connecting");
 		}
 
@@ -59,7 +58,7 @@ public class HttpService {
 	}
 
 	private InputStream OpenHttpConnection(String urlString) throws IOException {
-		InputStream in = null;
+		InputStream in;
 		int response = -1;
 
 		URL url = new URL(urlString);
@@ -73,9 +72,6 @@ public class HttpService {
 			httpConn.setInstanceFollowRedirects(true);
 			httpConn.setRequestMethod("GET");
 
-			// httpConn.setRequestProperty("Authorization", "Basic " +
-			// Base64.encodeToString((credentials.User + ":" +
-			// credentials.Password).getBytes(), Base64.DEFAULT));
 			httpConn.connect();
 			response = httpConn.getResponseCode();
 
@@ -86,7 +82,6 @@ public class HttpService {
 						String.valueOf(HttpURLConnection.HTTP_BAD_REQUEST));
 
 		} catch (Exception ex) {
-			Log.e("httpService", ex.getLocalizedMessage());
 			throw new IOException("Error connecting");
 		}
 		return in;
@@ -98,7 +93,7 @@ public class HttpService {
 		byte[] postData = body.getBytes( StandardCharsets.UTF_8 );
 		int postDataLength = postData.length;
 		
-		InputStream in = null;
+		InputStream in;
 		int response = -1;
 		
 		URL url = new URL(urlString);
@@ -139,7 +134,6 @@ public class HttpService {
 				String.valueOf(HttpURLConnection.HTTP_BAD_REQUEST));
 				
 			} catch (Exception ex) {
-				Log.e("httpService", ex.getLocalizedMessage());
 				throw new IOException("Error connecting");
 			}
 		
@@ -147,12 +141,12 @@ public class HttpService {
 	}
 	public Document Call(String url, WindowsCredentials credentials)
 			throws IOException, ParserConfigurationException, SAXException {
-		InputStream in = null;
+		InputStream in;
 		// Sample:
 		// "http://80.38.149.109:81/Dades.asmx/BuscarArticles?empresa=E_ESTERJ&comercial=V09&Tots=true"
 
 		in = OpenHttpConnection(url, credentials);
-		Document doc = null;
+		Document doc;
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db;
 
@@ -166,30 +160,6 @@ public class HttpService {
 		
 		doc.getDocumentElement().normalize();
 
-		Log.i("CALL 1", doc.getDocumentElement().getTextContent());
-
-		return doc;
-
-	}
-
-	public Document Call(String url) throws IOException,
-			ParserConfigurationException, SAXException {
-		InputStream in = null;
-		// Sample:
-		// "http://80.38.149.109:81/Dades.asmx/BuscarArticles?empresa=E_ESTERJ&comercial=V09&Tots=true"
-
-		in = OpenHttpConnection(url);
-		Document doc = null;
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db;
-
-		db = dbf.newDocumentBuilder();
-		doc = db.parse(in);
-
-		doc.getDocumentElement().normalize();
-
-		Log.i("CALL 1", doc.getDocumentElement().getTextContent());
-
 		return doc;
 
 	}
@@ -197,46 +167,13 @@ public class HttpService {
 	public void CallWithoutResult(String url, WindowsCredentials credentials)
 			throws IOException, ParserConfigurationException, SAXException {
 		
-		InputStream in = null;
 		// Sample:
 		// "http://80.38.149.109:81/Dades.asmx/BuscarArticles?empresa=E_ESTERJ&comercial=V09&Tots=true"
 
-		in = OpenHttpConnection(url, credentials);
-		Document doc = null;
+		InputStream in = OpenHttpConnection(url, credentials);
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db;
 
 		db = dbf.newDocumentBuilder();
 	}
-	
-	public void CallWithoutResult(String url,String body, WindowsCredentials credentials)
-			throws IOException, ParserConfigurationException, SAXException {
-		
-		InputStream in = null;
-		// Sample:
-		// "http://80.38.149.109:81/Dades.asmx/BuscarArticles?empresa=E_ESTERJ&comercial=V09&Tots=true"
-
-		in = OpenHttpConnection(url, body, credentials);
-		Document doc = null;
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db;
-
-		db = dbf.newDocumentBuilder();
-	}
-
-
-	public void CallWithoutResult(String url) throws IOException,
-			ParserConfigurationException, SAXException {
-		InputStream in = null;
-		// Sample:
-		// "http://80.38.149.109:81/Dades.asmx/BuscarArticles?empresa=E_ESTERJ&comercial=V09&Tots=true"
-
-		in = OpenHttpConnection(url);
-		Document doc = null;
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		DocumentBuilder db;
-
-		db = dbf.newDocumentBuilder();
-	}
-
 }

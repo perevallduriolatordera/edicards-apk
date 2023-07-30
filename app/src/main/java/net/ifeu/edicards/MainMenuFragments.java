@@ -1,8 +1,6 @@
 package net.ifeu.edicards;
 
-import net.ifeu.edicards.Constants.Constants;
-import net.ifeu.library.Utils.MessageBoxType;
-import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -16,12 +14,16 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 
+import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.library.Mediator.IMediator;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 
 	private static final String TAG = "FragmentTabs";
-	public static final String TAB_ALBARANES = "albaranes";
 	public static final String TAB_DIETAS = "dietas";
-	public static final String TAB_ALBARANES_CAPTION = "Gestión de albaranes";
 	public static final String TAB_DIETAS_CAPTION = "Gestión de dietas";
 	public static final String TAB_INFORMES = "informes";
 	public static final String TAB_INFORMES_CAPTION = "Informes";
@@ -35,8 +37,6 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 	public static final String TAB_DEPOSITOS_CAPTION = "Depósito";
 	public static final String TAB_CLOSE = "cerrar";
 	public static final String TAB_CLOSE_CAPTION = "Cerrar";
-	public static final String TAB_NOTIFICACIONES = "notificaciones";
-	public static final String TAB_NOTIFICACIONES_CAPTION = "Notificaciones";
 	public static final String TAB_INGRESOS = "ingresos";
 	public static final String TAB_INGRESOS_CAPTION = "Ingresos";
 	public static final String TAB_SINCRO = "sincro";
@@ -49,19 +49,11 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 
 	private Fragment _currentFragment;
 
-	/*private CustomerSearch _customerSearch = new CustomerSearch();
-	private ArticleSearch _articleSearch = new ArticleSearch();
-	private StockManager _stockManager = new StockManager();*/
-
-	@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-	}
+	final private Map<String, Fragment> _fragments = new HashMap<>();
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		Log.i("MainMenuFragments", "Creem el menú principal");
+							 Bundle savedInstanceState) {
 		_root = inflater.inflate(R.layout.activity_main_menu_fragments, null);
 		_tabHost = (TabHost) _root.findViewById(android.R.id.tabhost);
 		setupTabs();
@@ -72,13 +64,17 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setRetainInstance(true);
-		
+
 		this._appConfig = (AppConfig) this.getActivity().getApplicationContext();
 
 		_tabHost.setOnTabChangedListener(this);
 		_tabHost.setCurrentTab(_currentTab);
 		// manually start loading stuff in the first tab
-		updateTab(TAB_STOCK, R.id.tab_6);
+		updateTab(TAB_STOCK, StockManager.class);
+	}
+
+	@Override 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	private void setupTabs() {
@@ -97,12 +93,11 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 	}
 
 	private TabSpec newTab(String tag, String labelId, int tabContentId) {
-		Log.d(TAG, "buildTab(): tag=" + tag);
 
 		View indicator = LayoutInflater.from(getActivity()).inflate(
 				R.layout.tab,
 				(ViewGroup) _root.findViewById(android.R.id.tabs), false);
-		((TextView) indicator.findViewById(R.id.text)).setText(labelId);
+		((TextView) indicator.findViewById(R.id.text)).setText(" " + labelId + " ");
 
 		TabSpec tabSpec = _tabHost.newTabSpec(tag);
 		tabSpec.setIndicator(indicator);
@@ -111,233 +106,103 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 	}
 
 	public void onTabChanged(String tabId) {
-		Log.d(TAG, "onTabChanged(): tabId=" + tabId);
 
 		if (TAB_INFORMES.equals(tabId)) {
-			updateTab(tabId, R.id.tab_3);
+			updateTab(tabId, Reports.class);
 			_currentTab = 2;
 			return;
 		}
 
 		if (TAB_DIETAS.equals(tabId)) {
-			updateTab(tabId, R.id.tab_2);
+			updateTab(tabId, GastosManager.class);
 			_currentTab = 1;
 			return;
 		}
 		if (TAB_CLIENTES.equals(tabId)) {
-			updateTab(tabId, R.id.tab_4);
+			updateTab(tabId, CustomerSearch.class);
 			_currentTab = 3;
 			return;
 		}
 		if (TAB_ARTICULOS.equals(tabId)) {
-			updateTab(tabId, R.id.tab_5);
+			updateTab(tabId, ArticleSearch.class);
 			_currentTab = 4;
 			return;
 		}
 		if (TAB_STOCK.equals(tabId)) {
-			updateTab(tabId, R.id.tab_6);
+			updateTab(tabId, StockManager.class);
 			_currentTab = 5;
 			return;
 		}
 		if (TAB_DEPOSITOS.equals(tabId)) {
-			
+
 			try {
-				if (this.RestriccionIngresos()) {
-					_appConfig.getMessageBox()
-					.Show("Atención",
-							"Ha superado los " + Constants.MAXIMO_SIN_INGRESAR + " € pendientes de ingresar. Realice un ingreso para poder seguir trabajando",
-							getActivity(), MessageBoxType.Error);
-					
-					updateTab(TAB_INGRESOS, R.id.tab_10);
-					_currentTab = 10;
-					return;
-				} else {
-					updateTab(tabId, R.id.tab_7);
-					_currentTab = 6;
-					return;		
-				}
+				updateTab(tabId, DepositManager.class);
+				_currentTab = 6;
+				if (_fragments.containsKey(TAB_DEPOSITOS))
+					assignToMediator((IMediator) _fragments.get(TAB_DEPOSITOS));
+				return;
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+				throw new RuntimeException(e);
 			}
 		}
 		if (TAB_CLOSE.equals(tabId)) {
-			updateTab(tabId, R.id.tab_8);
+			updateTab(tabId, null);
 			_currentTab = 8;
 			return;
 		}
 		if (TAB_INGRESOS.equals(tabId)) {
-			updateTab(tabId, R.id.tab_10);
+			updateTab(tabId, IngresoData.class);
 			_currentTab = 10;
 			return;
 		}
 
-		if (TAB_NOTIFICACIONES.equals(tabId)) {
-			updateTab(tabId, R.id.tab_9);
-			_currentTab = 7;
-			return;
-		}
-		
 		if (TAB_SINCRO.equals(tabId)) {
-			updateTab(tabId, R.id.tab_11);
+			updateTab(tabId, MonitorView.class);
 			_currentTab = 11;
-			return;
 		}
 
 	}
 
-	private void updateTab(String tabId, int placeholder) {
+	private void updateTab(String tabId, Class fragmentType) {
 
+		if (fragmentType == null) {
+			getActivity().finish();
+			System.exit(0);
+		}
+
+		boolean isCached = _fragments.containsKey(tabId);
+
+		if (isCached)
+			_currentFragment = _fragments.get(tabId);
 		try {
-			Log.d(TAG, "updateTab(): tabId=" + tabId);
-	
-			FragmentManager fragmentManager = getFragmentManager();
+			_currentFragment = (Fragment) fragmentType.newInstance();
+			_fragments.put(tabId, _currentFragment);
+
+		} catch (java.lang.InstantiationException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+
+		FragmentManager fragmentManager = getFragmentManager();
+
+		if (fragmentManager.findFragmentByTag(tabId) == null) {
 
 			if (_currentFragment != null)
 				fragmentManager.beginTransaction().remove(_currentFragment).commit();
 
-			if (tabId.equals("clientes")) {
-	
-				if (fragmentManager.findFragmentByTag(tabId) == null) {
+			fragmentManager
+					.beginTransaction()
+					.replace(R.id.fragment_placeholder, _currentFragment)
+					.setTransition(
+							FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
 
-					CustomerSearch customerSearch = new CustomerSearch();
-					Log.d(TAG, "BeginTransaction clientes: tabId=" + tabId);
-					fragmentManager
-							.beginTransaction()
-							.replace(R.id.fragment_placeholder, customerSearch)
-							.setTransition(
-									FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
-					_currentFragment = customerSearch;
-				}
-			} else if (tabId.equals("articulos")) {
-	
-				if (fragmentManager.findFragmentByTag(tabId) == null) {
-					Log.d(TAG, "BeginTransaction articulos: tabId=" + tabId);
-					ArticleSearch articleSearch = new ArticleSearch();
-					fragmentManager
-							.beginTransaction()
-							.replace(R.id.fragment_placeholder, articleSearch)
-							.setTransition(
-									FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
-
-					_currentFragment = articleSearch;
-				}
-			} else if (tabId.equals("dietas")) {
-				GastosManager gastos = new GastosManager();
-				if (fragmentManager.findFragmentByTag(tabId) == null) {
-					Log.d(TAG, "BeginTransaction dietas: tabId=" + tabId);
-					fragmentManager
-							.beginTransaction()
-							.replace(R.id.fragment_placeholder, gastos)
-							.setTransition(
-									FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
-
-					_currentFragment = gastos;
-				}
-			} else if (tabId.equals("informes")) {
-				Reports reports = new Reports();
-				if (fragmentManager.findFragmentByTag(tabId) == null) {
-					Log.d(TAG, "BeginTransaction dietas: tabId=" + tabId);
-					fragmentManager
-							.beginTransaction()
-							.replace(R.id.fragment_placeholder, reports)
-							.setTransition(
-									FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
-
-					_currentFragment = reports;
-				}
-			} else if (tabId.equals("stock")) {
-				if (fragmentManager.findFragmentByTag(tabId) == null) {
-					Log.d(TAG, "BeginTransaction stock: tabId=" + tabId);
-
-					StockManager stockManager = new StockManager();
-					fragmentManager
-							.beginTransaction()
-							.replace(R.id.fragment_placeholder, stockManager)
-							.setTransition(
-									FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
-
-					_currentFragment = stockManager;
-				}
-			} else if (tabId.equals("deposito")) {
-				DepositManager deposito = new DepositManager();
-				if (fragmentManager.findFragmentByTag(tabId) == null) {
-					Log.d(TAG, "BeginTransaction deposito: tabId=" + tabId);
-					fragmentManager
-							.beginTransaction()
-							.replace(R.id.fragment_placeholder, deposito)
-							.setTransition(
-									FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
-
-					_currentFragment = deposito;
-				} 
-			} else if (tabId.equals("ingresos")) {
-					
-					IngresoData ingresos = new IngresoData();
-					
-					if (fragmentManager.findFragmentByTag(tabId) == null) {
-						Log.d(TAG, "BeginTransaction ingresos: tabId=" + tabId);
-						fragmentManager
-								.beginTransaction()
-								.replace(R.id.fragment_placeholder, ingresos)
-								.setTransition(
-										FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
-
-						_currentFragment = ingresos;
-				}
-			}
-	
-			else if (tabId.equals("cerrar")) {
-	
-				this.getActivity().moveTaskToBack(true);
-				System.exit(0);
-			} 
-			
-			else if (tabId.equals("sincro")) {
-				
-				MonitorView monitor = new MonitorView();
-				if (fragmentManager.findFragmentByTag(tabId) == null) {
-					Log.d(TAG, "BeginTransaction monitor: tabId=" + tabId);
-					fragmentManager
-							.beginTransaction()
-							.replace(R.id.fragment_placeholder, monitor)
-							.setTransition(
-									FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
-
-					_currentFragment = monitor;
-			}
-	
-			else if (tabId.equals("notificaciones")) {
-	
-				SenderMessages sender = new SenderMessages();
-				if (fragmentManager.findFragmentByTag(tabId) == null) {
-					Log.d(TAG, "BeginTransaction sender: tabId=" + tabId);
-					fragmentManager
-							.beginTransaction()
-							.replace(R.id.fragment_placeholder, sender)
-							.setTransition(
-									FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
-
-					_currentFragment = sender;
-					}
-				}
-			}
-
-			System.gc();
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e1);
 		}
-	}
-	
-	private boolean RestriccionIngresos() throws Exception {
 
-		//double cantidadPagada = this.getCantidadPagada();
-		//double ingresos = this.getIngresos();
-
-		// return Constants.MAXIMO_SIN_INGRESAR <= (cantidadPagada - ingresos);
-		return false;
 	}
 
+	private void assignToMediator(IMediator mediator) {
+		_appConfig.getMediator().addReceiver(mediator);
+	}
 
 }

@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.Ingresos;
 import net.ifeu.edicards.DataTier.Reporting;
 import net.ifeu.library.Controls.LabelColor;
@@ -124,7 +125,7 @@ public class Reporting_Totales extends Activity {
 		
 		// Total Facturación
 		
-		layout2.addView(this.addCounter("Total facturado", String.valueOf(reporting.totales.Facturado) + " €", Color.BLACK, true));
+		layout2.addView(this.addCounter("Total facturado", reporting.totales.Facturado + " €", Color.BLACK, true));
 				
 		layout.addView(layout2);
 		
@@ -137,11 +138,11 @@ public class Reporting_Totales extends Activity {
 		
 		// Albaranes Edi
 		
-		layout2.addView(this.addCounter("Albaranes EDI (" + String.valueOf(reporting.totales.InicialSerieA) + " - " + String.valueOf(reporting.totales.FinalSeriaA) + ")", String.valueOf(reporting.totales.NumeroSerieA) + " / " + String.valueOf(df.format(reporting.totales.TotalSerieA))  + " €", Color.BLACK, true));
+		layout2.addView(this.addCounter("Albaranes EDI (" + reporting.totales.InicialSerieA + " - " + reporting.totales.FinalSeriaA + ")", reporting.totales.NumeroSerieA + " / " + df.format(reporting.totales.TotalSerieA) + " €", Color.BLACK, true));
 		
 		//Cantidad Pagada Serie A
 		
-		layout2.addView(this.addCounter("COBROS EDI Total", String.valueOf(reporting.totales.CantidadPagadaSerieA) + " €", Color.BLACK, false));
+		layout2.addView(this.addCounter("COBROS EDI Total", reporting.totales.CantidadPagadaSerieA + " €", Color.BLACK, false));
 						
 		layout.addView(layout2);
 		
@@ -153,11 +154,11 @@ public class Reporting_Totales extends Activity {
 
 		// Albaranes B
 		
-		layout2.addView(this.addCounter("Albaranes (" + String.valueOf(reporting.totales.InicialSerieB) + " - " + String.valueOf(reporting.totales.FinalSerieB) + ")", String.valueOf(reporting.totales.NumeroSerieB) + " / " + String.valueOf(df.format(reporting.totales.TotalSerieB))  + " €", Color.BLACK, true));    	
+		layout2.addView(this.addCounter("Albaranes (" + reporting.totales.InicialSerieB + " - " + reporting.totales.FinalSerieB + ")", reporting.totales.NumeroSerieB + " / " + df.format(reporting.totales.TotalSerieB) + " €", Color.BLACK, true));
 		
     	//Cantidad Pagada Serie B
 		
-		layout2.addView(this.addCounter("COBROS", String.valueOf(reporting.totales.CantidadPagadaSerieB) + " €", Color.BLACK, false));
+		layout2.addView(this.addCounter("COBROS", reporting.totales.CantidadPagadaSerieB + " €", Color.BLACK, false));
 
 		layout.addView(layout2);
 		
@@ -170,18 +171,18 @@ public class Reporting_Totales extends Activity {
     	// Cantidad Pagada Serie A + B
 		
     	double cantidad = reporting.totales.CantidadPagadaSerieA + reporting.totales.CantidadPagadaSerieB;
-		layout2.addView(this.addCounter("Total COBROS", String.valueOf(df.format(cantidad)) + " €", Color.BLACK, false));		
+		layout2.addView(this.addCounter("Total COBROS", df.format(cantidad) + " €", Color.BLACK, false));
 
 		
     	// Cantidad Ingresos
     	
     	double ingresos = this.getIngresos();
-    	layout2.addView(this.addCounter("Total INGRESADO", String.valueOf(df.format(ingresos)) + " €", Color.BLACK, false));		
+    	layout2.addView(this.addCounter("Total INGRESADO", df.format(ingresos) + " €", Color.BLACK, false));
 		
     	// 	Cantidad Pendiente a ingresar
     	
     	double pendiente = cantidad - ingresos;
-    	layout2.addView(this.addCounter("Total PENDIENTE INGRESAR", String.valueOf(df.format(pendiente)) + " €", Color.BLACK, true));
+    	layout2.addView(this.addCounter("Total PENDIENTE INGRESAR", df.format(pendiente) + " €", Color.BLACK, true));
     	
     	layout.addView(layout2);
     	
@@ -206,8 +207,7 @@ public class Reporting_Totales extends Activity {
     		}
 
     	} catch (Exception e) {
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-
+			throw new RuntimeException(e);
     	}
     	
     	return IngresosTotales;

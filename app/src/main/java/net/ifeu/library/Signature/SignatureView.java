@@ -59,8 +59,6 @@ public class SignatureView extends View {
 	public void onDraw(Canvas canvas) {
 
 		if (mBitmap == null) {
-			Log.d("SignatureView", "Height: " + getMeasuredHeight() + "Width: "
-					+ getMeasuredWidth());
 			mBitmap = Bitmap.createBitmap(getMeasuredWidth(),
 					getMeasuredHeight(), Bitmap.Config.ARGB_8888);
 			mBitmap.eraseColor(Color.WHITE);
@@ -124,14 +122,14 @@ public class SignatureView extends View {
 
 	public void save(int tipo, String name) {
 
-		String path = Constants.EMPTY_STRING;
+		String path;
 
 		try {
 			path = Environment.getExternalStorageDirectory().toString() + "/"
 					+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_FIRMAS
 					+ "/"; // this is the sd card
 
-			OutputStream fOut = null;
+			OutputStream fOut;
 
 			File file;
 
@@ -158,14 +156,14 @@ public class SignatureView extends View {
 
 	public void saveBitmap1Color(int tipo, String name) {
 
-		String path = Constants.EMPTY_STRING;
+		String path;
 
 		try {
 			path = Environment.getExternalStorageDirectory().toString() + "/"
 					+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_FIRMAS
 					+ "/"; // this is the sd card
 
-			String file = Constants.EMPTY_STRING;
+			String file;
 
 			if (tipo == 1) {
 				file = path + "C1_" + name + ".bmp";
@@ -173,14 +171,11 @@ public class SignatureView extends View {
 				file = path + "V1_" + name + ".bmp";
 			}
 
-			BitmapConvertor converter = new BitmapConvertor(super.getContext());
+			BitmapConvertor converter = new BitmapConvertor();
 			String result = converter.convertBitmap(mBitmap, file, mBitmap.getWidth() / 4, mBitmap.getHeight() / 4);
-			
-			Log.i("SignatureView",result);
-			
+
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 
 	}

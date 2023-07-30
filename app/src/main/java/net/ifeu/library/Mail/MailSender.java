@@ -19,14 +19,11 @@ import net.ifeu.edicards.Constants.Constants;
 //Class is extending AsyncTask because this class is going to perform a networking operation
 public class MailSender  {
 
-  //Declaring Variables
-  private Session session;
-
-  //Information to send email
-  private String email;
-  private String subject;
-  private String message;
-  private String attachment;
+    //Information to send email
+  final private String email;
+  final private String subject;
+  final private String message;
+  final private String attachment;
 
   //Class Constructor
   public MailSender(String email, String subject, String message, String attachment){
@@ -51,7 +48,9 @@ public class MailSender  {
       props.put("mail.smtp.port", "587");
 
       //Creating a new session
-      session = Session.getDefaultInstance(props,
+      //Authenticating the password
+      //Declaring Variables
+      Session session = Session.getDefaultInstance(props,
               new javax.mail.Authenticator() {
                   //Authenticating the password
                   protected PasswordAuthentication getPasswordAuthentication() {
@@ -88,7 +87,7 @@ public class MailSender  {
               try {
                   attachPart.attachFile(attachment);
               } catch (IOException ex) {
-                  throw ex;
+                  throw new RuntimeException(ex);
               }
 
               multipart.addBodyPart(attachPart);
@@ -100,7 +99,7 @@ public class MailSender  {
           Transport.send(mm);
 
       } catch (MessagingException e) {
-          throw e;
+          throw new RuntimeException(e);
       }
   }
 }

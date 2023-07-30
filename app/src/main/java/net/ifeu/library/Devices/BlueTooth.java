@@ -45,7 +45,7 @@ public class BlueTooth {
 		BluetoothAdapter mBtAdapter;
 		mBtAdapter = BluetoothAdapter.getDefaultAdapter();
 		Set<BluetoothDevice> pairedDevices = mBtAdapter.getBondedDevices();
-		ArrayList<String> macAddress = new ArrayList<String>();
+		ArrayList<String> macAddress = new ArrayList<>();
 
 		if (pairedDevices.size() > 0) {
 			for (BluetoothDevice device : pairedDevices) {

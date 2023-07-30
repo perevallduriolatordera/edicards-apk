@@ -55,7 +55,6 @@ public class Trace {
 	            newxmlfile.createNewFile();
 	        }catch(IOException e)
 	        {
-	            Log.e("Trace::Save", "Exception in create new File(");
 	        }
 	        
 	        FileOutputStream fileos = null;
@@ -64,7 +63,6 @@ public class Trace {
 
 	        }catch(FileNotFoundException e)
 	        {
-	            Log.e("Trace::Save",e.toString());
 	        }
 	        
 		 

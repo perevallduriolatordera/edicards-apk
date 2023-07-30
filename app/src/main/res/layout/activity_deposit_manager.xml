@@ -1,7 +1,16 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#FFF" >
+    android:background="#FFF"
+    android:orientation="vertical">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/headerButtonsLinearLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="50px"
+        android:layout_marginTop="5dp"
+        android:background="@color/WhiteSmoke"
+        android:orientation="horizontal" />
 
     <LinearLayout
         android:id="@+id/headerMainLinearLayout"
@@ -136,69 +145,6 @@
             android:background="@color/DarkBlue"
             android:orientation="horizontal" >
 
-            <!--   <TextView
-                  android:layout_width="50dp"
-                  android:id="@+id/headerLabelCodigo"
-                  android:layout_height="25dp"
-                  android:text="Código"
-                  android:textSize="12dp" />
-
-              <TextView
-                  android:id="@+id/headerLabelArticulo"
-                  android:layout_width="100dp"
-                  android:layout_height="25dp"
-                  android:text="Artículo"
-                  android:textSize="12dp" />
-
-              <TextView
-                  android:id="@+id/headerLabelDepInicial"
-                  android:layout_width="100dp"
-                  android:layout_height="25dp"
-                  android:text="Dep.Inicial"
-                  android:textSize="12dp" />
-
-              <TextView
-                  android:layout_width="100dp"
-                  android:layout_height="25dp"
-                  android:text="Contadas"
-                  android:textSize="12dp" />
-
-              <TextView
-                  android:layout_width="100dp"
-                  android:layout_height="25dp"
-                  android:text="Reciclado"
-                  android:textSize="12dp" />
-
-              <TextView
-                  android:layout_width="100dp"
-                  android:layout_height="25dp"
-                  android:text="PVP Fact"
-                  android:textSize="12dp" />
-
-              <TextView
-                  android:layout_width="100dp"
-                  android:layout_height="25dp"
-                  android:text=" Facturadas"
-                  android:textSize="12dp" />
-
-              <TextView
-                  android:id="@+id/headerLabelRepuestas"
-                  android:layout_width="100dp"
-                  android:layout_height="25dp"
-                  android:text="Repuestas"
-                  android:textSize="12dp" />
-
-              <TextView
-                  android:layout_width="100dp"
-                  android:layout_height="25dp"
-                  android:text="PVP Post"
-                  android:textSize="12dp" />
-
-              <TextView
-                  android:layout_width="100dp"
-                  android:layout_height="25dp"
-                  android:text="Total"
-                  android:textSize="12dp" /> -->
         </LinearLayout>
 
         <LinearLayout
@@ -213,11 +159,9 @@
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="350dp"
-        android:layout_marginBottom="130dp"
+        android:layout_height="200dp"
         android:layout_marginLeft="0dp"
         android:layout_marginRight="0dp"
-        android:layout_marginTop="250dp"
         android:orientation="vertical" >
 
         <ScrollView
@@ -231,6 +175,7 @@
                 android:id="@+id/mainLinearLayoutDepositManager"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
+                android:animateLayoutChanges="false"
                 android:layout_marginTop="0dp"
                 android:layout_marginBottom="0dp"
                 android:orientation="vertical" >
@@ -253,10 +198,9 @@
         android:id="@+id/footerMainLinearLayout"
         android:layout_width="fill_parent"
         android:layout_height="150dp"
-        android:layout_marginTop="550dp"
         android:background="@color/DarkBlue"
         android:orientation="horizontal" >
     </LinearLayout>
 
 
-</RelativeLayout>
+</LinearLayout>

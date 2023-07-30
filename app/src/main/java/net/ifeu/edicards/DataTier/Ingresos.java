@@ -6,6 +6,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Persistance.IPersistable;
+import net.ifeu.edicards.DataTier.Persistance.Persistent;
+import net.ifeu.library.Utils.DateTime.DateTimeUtils;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Log;
@@ -36,14 +40,12 @@ public class Ingresos extends Persistent implements IPersistable {
 		values.put("Cantidad", this.Cantidad);
 		values.put("Referencia", this.Referencia);
 		values.put("Descripcion", this.Descripcion);
-		
-		Log.i("Ingreso save",formatter.format(this.Fecha));
-		
+
 		try {
 			this.IdIngreso = super.getDatabaseOperations().insert(Constants.TABLE_INGRESOS, null , values);
 		}
 		catch (Exception e) {
-			throw e;
+			throw new RuntimeException(e);
 		}
 		
 	}
@@ -61,9 +63,7 @@ public class Ingresos extends Persistent implements IPersistable {
 		values.put("Cantidad", this.Cantidad);
 		values.put("Referencia", this.Referencia);
 		values.put("Descripcion", this.Descripcion);
-		
-		Log.i("Ingreso update",formatter.format(this.Fecha));
-		
+
 		String[] whereArgs = { String.valueOf(this.IdIngreso) }; 
 		
 	    super.getDatabaseOperations().update(Constants.TABLE_INGRESOS, values, "IdGasto = ?", whereArgs);
@@ -95,58 +95,21 @@ public class Ingresos extends Persistent implements IPersistable {
 			return true;
 		}
 		
-		return false ; //(cursor != null);
+		return false ; 
 	}
 	
 	
 	public ArrayList<Ingresos> getIngresosOfThisWeek(Date today) throws Exception
 	{
-		
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("yyyyMMdd");
-		
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(today);
-		
-		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-		int daysToSubstract = 0;
-		
-		switch (dayOfWeek) {
-		    case Calendar.SUNDAY:
-		    	daysToSubstract = -6;
-		    	break;
-		    case Calendar.MONDAY:
-		    	daysToSubstract = 0;
-		    	break;
-		    case Calendar.TUESDAY:
-		    	daysToSubstract = -1;
-		    	break;
-		    case Calendar.WEDNESDAY:
-		        daysToSubstract = -2;
-		        break;
-		    case Calendar.THURSDAY:
-		    	daysToSubstract = -3;
-		    	break;
-		    case Calendar.FRIDAY:
-		    	daysToSubstract = -4;
-		    	break;
-		    case Calendar.SATURDAY:
-		    	daysToSubstract = -5;
-		    	break;
-		}
-		
-		calendar.add( Calendar.DAY_OF_YEAR, daysToSubstract);
-		Date firstDate = calendar.getTime();
-		
-	//	Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_INGRESOS + " WHERE Fecha BETWEEN '" + 
-	//			formatter.format(firstDate) + "' AND '" + formatter.format(today) + "'");
-		
+
+		Date firstDate = DateTimeUtils.getFirstDayOfCurrentWeek(today);
+
 		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_INGRESOS + " WHERE substr(Fecha,7)||substr(Fecha,1,2)||substr(Fecha,4,2) " +
 				"BETWEEN '" + formatter.format(firstDate) + "' AND '" + formatter.format(today) + "'");
-		
-		//Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_INGRESOS); 
-		
-		ArrayList<Ingresos> list = new ArrayList<Ingresos>();
+
+		ArrayList<Ingresos> list = new ArrayList<>();
 		
 		if (cursor != null)
 		{
@@ -159,7 +122,7 @@ public class Ingresos extends Persistent implements IPersistable {
 					Ingresos ingreso = new Ingresos();
 					ingreso.InitializePersistance(super.appConfig, super.context);
 					
-					if (ingreso.setIngresoById(String.valueOf(idIngreso)));
+					if (ingreso.setIngresoById(String.valueOf(idIngreso)))
 						list.add(ingreso);
 									
 				} while (cursor.moveToNext());
@@ -177,46 +140,12 @@ public class Ingresos extends Persistent implements IPersistable {
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("yyyyMMdd");
 		
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(today);
-		
-		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-		int daysToSubstract = 0;
-		
-		switch (dayOfWeek) {
-		    case Calendar.SUNDAY:
-		    	daysToSubstract = -6;
-		    	break;
-		    case Calendar.MONDAY:
-		    	daysToSubstract = 0;
-		    	break;
-		    case Calendar.TUESDAY:
-		    	daysToSubstract = -1;
-		    	break;
-		    case Calendar.WEDNESDAY:
-		        daysToSubstract = -2;
-		        break;
-		    case Calendar.THURSDAY:
-		    	daysToSubstract = -3;
-		    	break;
-		    case Calendar.FRIDAY:
-		    	daysToSubstract = -4;
-		    	break;
-		    case Calendar.SATURDAY:
-		    	daysToSubstract = -5;
-		    	break;
-		}
-		
-		calendar.add( Calendar.DAY_OF_YEAR, daysToSubstract);
-		Date firstDate = calendar.getTime();
-		
-	//	Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_INGRESOS + " WHERE Fecha BETWEEN '" + 
-	//			formatter.format(firstDate) + "' AND '" + formatter.format(today) + "'");
-		
+
+		Date firstDate = DateTimeUtils.getFirstDayOfCurrentWeek(today);
+
 		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT ifnull(sum(Cantidad),0) as cantidadIngresada FROM " + Constants.TABLE_INGRESOS + " WHERE substr(Fecha,7)||substr(Fecha,1,2)||substr(Fecha,4,2) " +
 				"BETWEEN '" + formatter.format(firstDate) + "' AND '" + formatter.format(today) + "'");
-		
-		//Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_INGRESOS); 
+
 				
 		double cantidad = 0;
 		if (cursor != null)
@@ -224,11 +153,8 @@ public class Ingresos extends Persistent implements IPersistable {
 			cursor.moveToFirst();
 			
 			if (cursor.getCount() > 0)
-			{
 				cantidad = Double.parseDouble(cursor.getString(cursor.getColumnIndex("cantidadIngresada")));
-				
-			}
-			
+
 			cursor.close();
 		}
 		

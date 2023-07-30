@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.widget.TextView;
+
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.Articulo;
 
 
@@ -21,11 +23,11 @@ public class ArticleDialog extends Activity {
         
         ((TextView) this.findViewById(R.id.lblIdArticulo)).setText(articulo.CodigoArticulo);
         ((TextView) this.findViewById(R.id.lblDescripcionArticulo)).setText(articulo.Descripcion);
-        ((TextView) this.findViewById(R.id.lblPrecioArticulo)).setText(String.valueOf(articulo.PVP) + " €");
+        ((TextView) this.findViewById(R.id.lblPrecioArticulo)).setText(articulo.PVP + " €");
         ((TextView) this.findViewById(R.id.lblFamiliaArticulo)).setText(articulo.Familia);
         ((TextView) this.findViewById(R.id.lblTipoIVAArticulo)).setText(articulo.TipoIVA);
-        ((TextView) this.findViewById(R.id.lblDescuento1Articulo)).setText(String.valueOf(articulo.Descuento1) + " %");
-        ((TextView) this.findViewById(R.id.lblStock)).setText(String.valueOf(articulo.Stock)+ " unidades");
+        ((TextView) this.findViewById(R.id.lblDescuento1Articulo)).setText(articulo.Descuento1 + " %");
+        ((TextView) this.findViewById(R.id.lblStock)).setText(articulo.Stock + " unidades");
     }
 
     @Override

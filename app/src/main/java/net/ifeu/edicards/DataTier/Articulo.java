@@ -7,8 +7,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Persistance.IPersistable;
+import net.ifeu.edicards.DataTier.Persistance.Persistent;
 
 public class Articulo extends Persistent implements IPersistable {
 
@@ -32,8 +34,7 @@ public class Articulo extends Persistent implements IPersistable {
 	public boolean StockPropio;
 
 	@Override
-	public void InitializePersistance(AppConfig appConfig, Context context) throws Exception {
-		// TODO Auto-generated method stub
+	public void InitializePersistance(AppConfig appConfig, Context context)  {
 		super.InitializePersistance(appConfig, context);
 	}
 	
@@ -82,10 +83,7 @@ public class Articulo extends Persistent implements IPersistable {
 		values.put("StockDefectuoso", this.StockDefectuoso);
 		values.put("Tipo", this.Tipo);
 		values.put("StockPropio", this.StockPropio ? 1 : 0);
-		
-		Log.i("Articulo_Update",String.valueOf(this.Tipo));
-		Log.i("Articulo_Update",String.valueOf(this.Activo));
-		
+
 		String[] whereArgs = { String.valueOf(this.IdArticulo) }; 
 		
 	    super.getDatabaseOperations().update(Constants.TABLE_ARTICULOS, values, "IdArticulo = ?", whereArgs);
@@ -96,17 +94,16 @@ public class Articulo extends Persistent implements IPersistable {
 		return super.getDatabaseOperations().getRecordsCount(Constants.TABLE_ARTICULOS);
 	}
 	
-	public LinkedList<String> getArticulosByFilter(String text,int filter,boolean onlyStartsWith) throws Exception
+	public LinkedList<String> getArticulosByFilter(String text,boolean onlyStartsWith)
 	{		
 			 return super.getDatabaseOperations().getStringArrayByField(Constants.TABLE_ARTICULOS, "Descripcion","Descripcion",text,onlyStartsWith, "AND Activo = 1 AND Tipo = '1'","Familia");
 	}
 	
 	public LinkedHashMap<String,Articulo> getAllArticulos(int tipo) throws Exception
 	{
-			LinkedHashMap<String,Articulo> list = new LinkedHashMap<String,Articulo>();
+			LinkedHashMap<String,Articulo> list = new LinkedHashMap<>();
 			
-			Log.i("Articulo","Abans d'obtenir articles");
-			Cursor cursor = super.getDatabaseOperations().getRecordsFromField(Constants.TABLE_ARTICULOS, Constants.EMPTY_STRING, Constants.EMPTY_STRING, true, "AND Activo = 1 AND Tipo = '" + String.valueOf(tipo) + "'","Familia");
+			Cursor cursor = super.getDatabaseOperations().getRecordsFromField(Constants.TABLE_ARTICULOS, Constants.EMPTY_STRING, Constants.EMPTY_STRING, true, "AND Activo = 1 AND Tipo = '" + tipo + "'","Familia");
 			
 			if (cursor != null)
 			{
@@ -114,12 +111,10 @@ public class Articulo extends Persistent implements IPersistable {
 				
 				if (cursor.getCount() > 0)
 				{
-					Log.i("Articulo","Despres de llegir primer");
-					
 					do {
 						Articulo articulo = new Articulo();
 						
-						this.Activo = cursor.getString(cursor.getColumnIndex("Activo")).equals("1") ? true : false;
+						this.Activo = cursor.getString(cursor.getColumnIndex("Activo")).equals("1");
 
 						if (this.Activo) {
 							articulo.CodigoArticulo = cursor.getString(cursor.getColumnIndex("CodigoArticulo"));
@@ -134,7 +129,7 @@ public class Articulo extends Persistent implements IPersistable {
 							articulo.StockDefectuoso=cursor.getInt(cursor.getColumnIndex("StockDefectuoso")); 
 							articulo.Tipo=cursor.getInt(cursor.getColumnIndex("Tipo"));
 							articulo.TipoIVA = cursor.getString(cursor.getColumnIndex("TipoIVA"));
-							articulo.StockPropio = cursor.getInt(cursor.getColumnIndex("StockPropio")) == 1 ? true : false;
+							articulo.StockPropio = cursor.getInt(cursor.getColumnIndex("StockPropio")) == 1;
 
 							list.put(articulo.CodigoArticulo.trim(),articulo);
 						}
@@ -146,10 +141,8 @@ public class Articulo extends Persistent implements IPersistable {
 					}
 				else
 					cursor.close();
-					return list;
 			}
-			else
-				return list;
+		return list;
 
 	}
 	
@@ -161,11 +154,11 @@ public class Articulo extends Persistent implements IPersistable {
 		
 		if (cursor != null)
 		{
-			this.Activo = cursor.getString(cursor.getColumnIndex("Activo")).equals("1") ? true : false;
+			this.Activo = cursor.getString(cursor.getColumnIndex("Activo")).equals("1");
 			
 			if (this.Activo) {
 				this.IdArticulo = Long.parseLong(cursor.getString(cursor.getColumnIndex("IdArticulo")));
-				this.Activo = cursor.getString(cursor.getColumnIndex("Activo")).equals("1") ? true : false;
+				this.Activo = cursor.getString(cursor.getColumnIndex("Activo")).equals("1");
 				this.CodigoArticulo = cursor.getString(cursor.getColumnIndex("CodigoArticulo"));
 				this.Descripcion= cursor.getString(cursor.getColumnIndex("Descripcion"));
 				this.PVP = Double.parseDouble(cursor.getString(cursor.getColumnIndex("PVP")));
@@ -177,7 +170,7 @@ public class Articulo extends Persistent implements IPersistable {
 				this.StockDefectuoso= Integer.parseInt(cursor.getString(cursor.getColumnIndex("StockDefectuoso")));
 				this.Tipo = Integer.parseInt(cursor.getString(cursor.getColumnIndex("Tipo")));
 				this.TipoIVA = cursor.getString(cursor.getColumnIndex("TipoIVA"));
-				this.StockPropio = cursor.getInt(cursor.getColumnIndex("StockPropio")) == 1 ? true : false;
+				this.StockPropio = cursor.getInt(cursor.getColumnIndex("StockPropio")) == 1;
 			
 			    cursor.close();
 			    
@@ -190,7 +183,7 @@ public class Articulo extends Persistent implements IPersistable {
 			
 		}
 		
-		return false ; //(cursor != null);
+		return false ; 
 	}
 	
 	public boolean setArticuloById(String IdArticulo) throws Exception
@@ -201,7 +194,7 @@ public class Articulo extends Persistent implements IPersistable {
 		{
 			
 			this.IdArticulo = Long.parseLong(IdArticulo);
-			this.Activo = cursor.getString(cursor.getColumnIndex("Activo")).equals("1") ? true : false;
+			this.Activo = cursor.getString(cursor.getColumnIndex("Activo")).equals("1");
 			this.CodigoArticulo = cursor.getString(cursor.getColumnIndex("CodigoArticulo"));
 			this.Descripcion= cursor.getString(cursor.getColumnIndex("Descripcion"));
 			this.PVP = Double.parseDouble(cursor.getString(cursor.getColumnIndex("PVP")));
@@ -213,13 +206,13 @@ public class Articulo extends Persistent implements IPersistable {
 			this.StockDefectuoso= Integer.parseInt(cursor.getString(cursor.getColumnIndex("StockDefectuoso")));
 			this.Tipo = Integer.parseInt(cursor.getString(cursor.getColumnIndex("Tipo")));
 			this.TipoIVA = cursor.getString(cursor.getColumnIndex("TipoIVA"));
-			this.StockPropio = cursor.getInt(cursor.getColumnIndex("StockPropio")) == 1 ? true : false;
+			this.StockPropio = cursor.getInt(cursor.getColumnIndex("StockPropio")) == 1;
 			
 		    cursor.close();
 			return true;
 		}
 		
-		return false ; //(cursor != null);
+		return false ;
 	}
 	
 	public boolean setArticuloByCodigo(String codigoArticulo) throws Exception
@@ -233,7 +226,7 @@ public class Articulo extends Persistent implements IPersistable {
 		{
 			
 			this.IdArticulo = Long.parseLong(cursor.getString(cursor.getColumnIndex("IdArticulo")));
-			this.Activo = cursor.getString(cursor.getColumnIndex("Activo")).equals("1") ? true : false;
+			this.Activo = cursor.getString(cursor.getColumnIndex("Activo")).equals("1");
 			this.CodigoArticulo = codigoArticulo;
 			this.Descripcion= cursor.getString(cursor.getColumnIndex("Descripcion"));
 			this.PVP = Double.parseDouble(cursor.getString(cursor.getColumnIndex("PVP")));
@@ -245,23 +238,13 @@ public class Articulo extends Persistent implements IPersistable {
 			this.StockDefectuoso= Integer.parseInt(cursor.getString(cursor.getColumnIndex("StockDefectuoso")));
 			this.Tipo = Integer.parseInt(cursor.getString(cursor.getColumnIndex("Tipo")));
 			this.TipoIVA = cursor.getString(cursor.getColumnIndex("TipoIVA"));
-			this.StockPropio = cursor.getInt(cursor.getColumnIndex("StockPropio")) == 1 ? true : false;
+			this.StockPropio = cursor.getInt(cursor.getColumnIndex("StockPropio")) == 1;
 			
 		    cursor.close();
 			return true;
 		}
 		
-		return false ; //(cursor != null);
+		return false ;
 	}
-	
-	public void InicializarStockDefectuoso() throws Exception {
-		Cursor cursor = super.getDatabaseOperations().executeSentence(
-				"UPDATE Articulos SET StockDefectuoso = 0");
-		
-		if (cursor != null)
-			cursor.close();
 
-	}
-	
-	
 }

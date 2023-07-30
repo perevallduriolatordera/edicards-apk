@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id=":app:unitTest" external.linked.project.path="$MODULE_DIR$/../../../app" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.type="sourceSet" type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="android" name="Android">
+      <configuration>
+        <option name="SELECTED_BUILD_VARIANT" value="debug" />
+        <option name="ALLOW_USER_CONFIGURATION" value="false" />
+        <option name="MANIFEST_FILE_RELATIVE_PATH" value="/src/main/AndroidManifest.xml" />
+        <option name="RES_FOLDER_RELATIVE_PATH" value="/src/main/res" />
+        <option name="RES_FOLDERS_RELATIVE_PATH" value="" />
+        <option name="TEST_RES_FOLDERS_RELATIVE_PATH" value="" />
+        <option name="ASSETS_FOLDER_RELATIVE_PATH" value="/src/main/assets" />
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+    <output url="file://$MODULE_DIR$/../../../app/build/intermediates/javac/debug/classes" />
+    <output-test url="file://$MODULE_DIR$/../../../app/build/intermediates/javac/debugUnitTest/classes" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../app/build/generated/ap_generated_sources/debugUnitTest/out" />
+    <content url="file://$MODULE_DIR$/../../../app/src/test" />
+    <content url="file://$MODULE_DIR$/../../../app/src/testDebug" />
+    <orderEntry type="jdk" jdkName="Android API 19 Platform" jdkType="Android SDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="edicards-apk.app.main" scope="TEST" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/activation.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/additionnal.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/commons-logging-1.2.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/fluent-hc-4.5.6.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/httpclient-4.5.6.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/httpclient-cache-4.5.6.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/httpclient-win-4.5.6.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/httpcore-4.4.10.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/httpmime-4.5.6.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/itextpdf-5.4.0.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/ksoap2-android-assembly-2.3-jar-with-dependencies.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/mail.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/Parse-1.2.3.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/StarIOPort3.1.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/woosimprinter_bt.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-annotations:24.2.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.google.code.gson:gson:2.8.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.okhttp3:okhttp:3.6.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.okio:okio:1.11.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.poi:poi-ooxml:3.10-FINAL" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.poi:poi-scratchpad:3.10-FINAL" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.poi:poi:3.10-FINAL" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: commons-codec:commons-codec:1.5" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.poi:poi-ooxml-schemas:3.10-FINAL" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: org.apache.xmlbeans:xmlbeans:2.3.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: stax:stax-api:1.0.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: dom4j:dom4j:1.6.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: xml-apis:xml-apis:1.0.b2" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-v4:24.2.1@aar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-fragment:24.2.1@aar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-media-compat:24.2.1@aar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-core-utils:24.2.1@aar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-core-ui:24.2.1@aar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-compat:24.2.1@aar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.amitshekhar.android:android-networking:1.0.0@aar" level="project" />
+  </component>
+  <component name="TestModuleProperties" production-module="edicards-apk.app.main" />
+</module>

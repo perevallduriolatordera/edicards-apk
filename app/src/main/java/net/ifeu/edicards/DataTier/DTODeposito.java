@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.Totales.Base;
 import android.content.Context;
 import android.util.Log;
@@ -85,7 +85,7 @@ public class DTODeposito {
 	@Expose
 	public String TipoDeposito;
 	@Expose
-	public LinkedHashMap<String, DTOLineaDeposito> Lineas = new LinkedHashMap<String, DTOLineaDeposito>();
+	public LinkedHashMap<String, DTOLineaDeposito> Lineas = new LinkedHashMap<>();
 
 	public Totales Totales = new Totales();
 	public Totales TotalesDeposito = new Totales();
@@ -106,9 +106,7 @@ public class DTODeposito {
 		Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation()
 				.create();
 
-		String jsonContent = gson.toJson(this);
-
-		return jsonContent;
+		return gson.toJson(this);
 
 	}
 
@@ -121,18 +119,14 @@ public class DTODeposito {
 	
 	public void cancel() {
 		
-		LinkedHashMap<String, DTOLineaDeposito> newLineas = new LinkedHashMap<String, DTOLineaDeposito>();
+		LinkedHashMap<String, DTOLineaDeposito> newLineas = new LinkedHashMap<>();
 		
 		for (DTOLineaDeposito linea : this.Lineas.values()) {
 			
 			if (linea.UnidadesFacturadas != 0 || linea.UnidadesAbono != 0) {
 				DTOLineaDeposito dtoLinea = new DTOLineaDeposito();
-				
-				//int facturadas = -linea.UnidadesFacturadas;
-				//int abono = -linea.UnidadesAbono;
-	
+
 				dtoLinea.CodigoArticulo = linea.CodigoArticulo;
-				dtoLinea.DefectuosasAbono = linea.DefectuosasAbono;
 				dtoLinea.Descripcion = linea.Descripcion;
 				dtoLinea.Familia = linea.Familia;
 				dtoLinea.Descuento1 = linea.Descuento1;
@@ -208,7 +202,6 @@ public class DTODeposito {
 			DTOLineaDeposito dtoLinea = new DTOLineaDeposito();
 
 			dtoLinea.CodigoArticulo = linea.CodigoArticulo;
-			dtoLinea.DefectuosasAbono = linea.DefectuosasAbono;
 			dtoLinea.Descripcion = linea.Descripcion;
 			dtoLinea.Familia = linea.Familia;
 			dtoLinea.Descuento1 = linea.Descuento1;
@@ -284,7 +277,6 @@ public class DTODeposito {
 			LineaDeposito lineaDeposito = new LineaDeposito();
 
 			lineaDeposito.Articulo.CodigoArticulo = linea.CodigoArticulo;
-			lineaDeposito.DefectuosasAbono = linea.DefectuosasAbono;
 			lineaDeposito.Articulo.Descripcion = linea.Descripcion;
 			lineaDeposito.Articulo.Familia = linea.Familia;
 			lineaDeposito.Descuento1 = linea.Descuento1;
@@ -338,13 +330,8 @@ public class DTODeposito {
 				double dte = round(bruto - neto,3);
 
 				TipoIVA iva = new TipoIVA();
-				try {
-					iva.InitializePersistance(_appConfig, _context);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
+				iva.InitializePersistance(_appConfig, _context);
+
 				Cliente cliente = new Cliente();
 				cliente.InitializePersistance(_appConfig, _context);
 				cliente.setClienteByCodigo(this.CodigoCliente);
@@ -388,7 +375,7 @@ public class DTODeposito {
 
 
 				} else {
-					double base = bruto; //round(neto - descuento1 - descuento2,3);
+					double base = bruto;
 					double baseSinDte = neto;
 				
 					Base bases;
@@ -440,12 +427,7 @@ public class DTODeposito {
 				double dte = round(bruto - neto,3);
 
 				TipoIVA iva = new TipoIVA();
-				try {
-					iva.InitializePersistance(_appConfig, _context);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				iva.InitializePersistance(_appConfig, _context);
 
 				Cliente cliente = new Cliente();
 				cliente.InitializePersistance(_appConfig, _context);
@@ -460,7 +442,7 @@ public class DTODeposito {
 						&& _appConfig.getUser().SerialInvoiceB
 								.equals(this.Serie)) {
 
-					double base = bruto; //round(neto - descuento1 - descuento2,3);
+					double base = bruto;
 
 					Base bases;
 
@@ -483,7 +465,7 @@ public class DTODeposito {
 					}
 
 				} else {
-					double base = bruto; //round(neto - descuento1 - descuento2,3);
+					double base = bruto;
 
 					Base bases;
 
@@ -528,9 +510,7 @@ public class DTODeposito {
 			
 			base.Descuento = round(descuento1 + descuento2 , 5);
 			base.Iva = round(totalIVA,5);
-			base.IvaPerc = base.IvaPerc;
 			base.Recargo = round(totalRecargo,5);
-			base.RecargoPerc = base.RecargoPerc;
 			base.Total = round(total,2);
 			
 			totales.TotalBaseSinDte = round(totales.TotalBaseSinDte + base.BaseSinDte,5);
@@ -572,12 +552,9 @@ public class DTODeposito {
 		for (DTOLineaDeposito linea : Lineas.values()) {
 			if ((linea.UnidadesInicialesFijas != linea.UnidadesRepuestas)
 					|| (linea.PVPAnterior != linea.PVPInicial)) {
-				Log.i("DepositoManager", "isDepositoUpdated: true");
 				return true;
 			}
 		}
-
-		Log.i("DepositoManager", "isDepositoUpdated: false");
 
 		return false;
 

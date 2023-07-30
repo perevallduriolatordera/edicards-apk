@@ -5,138 +5,109 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsEvents;
 import net.ifeu.edicards.DataTier.Cliente;
+import net.ifeu.library.Controls.ButtonColor;
+import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
 public class AlbaranCustomerSearch extends Activity {
 
-	int _request_code = 1;
 	AppConfig _appConfig;
-	Cliente _cliente;
 
 	public void onCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_albaran_customer_search);
-		
-		 //android.view.WindowManager.LayoutParams params = getWindow().getAttributes();
-         //params.height = 800;
-         //params.width  = 950;
-         //getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
-	        
-		
+		_appConfig = (AppConfig) this.getApplicationContext();
+
 		final RadioGroup radioGroup = (RadioGroup) findViewById(
 				R.id.grpFilterField);
 		radioGroup.check(R.id.optNombre);
-		
 
-		final Button acceptButton = (Button) findViewById(
+		final ButtonColor acceptButton = (ButtonColor) findViewById(
 				R.id.btnAccept);
 
-		acceptButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(final View v) {
+		acceptButton.changeAspect(this, R.color.Black, getResources().getDrawable(R.drawable.ic_search));
 
-				RadioGroup radioGroup = (RadioGroup) 
-						findViewById(R.id.grpFilterField);
-				int radioButtonID = radioGroup.getCheckedRadioButtonId();
-				View radioButton = radioGroup.findViewById(radioButtonID);
-				final int indexFilter = radioGroup.indexOfChild(radioButton);
+		acceptButton.setOnClickListener(v -> {
 
-				final EditText editText = (EditText) findViewById(
-						R.id.txtTextSearch);
-				final CheckBox checkBox = (CheckBox) findViewById(
-						R.id.chkOnlyStartsWith);
-				
-				final ProgressDialog progressDialog;
-		    	progressDialog = ProgressDialog.show(v.getContext(), "Búsqueda de cliente", "Cargando clientes...Espere unos instantes",true);
+			int radioButtonID = radioGroup.getCheckedRadioButtonId();
+			View radioButton = radioGroup.findViewById(radioButtonID);
+			final int indexFilter = radioGroup.indexOfChild(radioButton);
 
-		    	
-		    	new Thread() {
-		    		
-		    		@Override
-		    		public void run() {
-		    			try{
-		    				StartCustomerSearchDialog(editText.getText().toString(),
-		    						indexFilter, checkBox.isChecked());
-		    			
-		    			} catch (Exception e) {
+			final EditText editText = (EditText) findViewById(
+					R.id.txtTextSearch);
+			final CheckBox checkBox = (CheckBox) findViewById(
+					R.id.chkOnlyStartsWith);
 
-		    				_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-		    			}
+			final ProgressDialog progressDialog;
+			progressDialog = ProgressDialog.show(v.getContext(), "Búsqueda de cliente", "Cargando clientes...Espere unos instantes",true);
 
-		    			progressDialog.dismiss();
-	
-		    	}
 
-		    	}.start();
-		    			
+			new Thread() {
+
+				@Override
+				public void run() {
+					try{
+						StartCustomerSearchDialog(editText.getText().toString(),
+								indexFilter, checkBox.isChecked());
+
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+
+					progressDialog.dismiss();
+
 			}
-			
+
+			}.start();
+
 		});
 		
-		final Button newCustomerButton = (Button) findViewById(
+		final ButtonColor newCustomerButton = (ButtonColor) findViewById(
 				R.id.btnNewCustomer);
 
-		newCustomerButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(final View v) {
+		newCustomerButton.changeAspect(this, R.color.Black, getResources().getDrawable(R.drawable.ic_new_customer));
 
-				Cliente cliente = new Cliente();
+		newCustomerButton.setOnClickListener(v -> {
 
-				try {
-					cliente.InitializePersistance(_appConfig, v.getContext()
-							.getApplicationContext());
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-				}
+			Cliente cliente = new Cliente();
+			cliente.InitializePersistance(_appConfig, v.getContext()
+					.getApplicationContext());
 
-				
-				try {
-					if (cliente.setClienteByCodigo(Constants.NEW_CUSTOMER_CODE)) 
-						_appConfig.getWorkingArea().CurrentCliente = cliente;
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
-				}
-				
-				setResult(0);
+
+
+			try {
 				finish();
-			}
+				if (cliente.setClienteByCodigo(Constants.NEW_CUSTOMER_CODE))
+					_appConfig.getMediator().notify(ConstantsEvents.EVENT_CUSTOMER_NEW, cliente);
+			} catch (Exception e) {
+				throw new RuntimeException(e);			}
 		});
 				
 
-		final Button closeButton = (Button) findViewById(
+		final ButtonColor closeButton = (ButtonColor) findViewById(
 				R.id.btnClose);
+		closeButton.changeAspect(this, R.color.Black, getResources().getDrawable(R.drawable.ic_close));
 
-		closeButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(final View v) {
-
-				_appConfig.getWorkingArea().CancelSearchDeposit = true;
-				
-				setResult(0);
-				finish();
-			}
+		closeButton.setOnClickListener(v -> {
+			_appConfig.getMediator().notify(ConstantsEvents.EVENT_CUSTOMER_CANCELLED, null);
+			finish();
 		});
 
 	}
-
 	
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
-		_appConfig = (AppConfig) this.getApplicationContext();
-		
-		if (_appConfig.getWorkingArea().CurrentCliente != null)
-			finish();
 	}
 	
 	private void StartCustomerSearchDialog(String text, int filter,
@@ -155,9 +126,14 @@ public class AlbaranCustomerSearch extends Activity {
 	
 	@Override
 	 protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		   //
-		setResult(0);
-		finish();
-	 }
 
+		if (_appConfig.getWorkingArea().CurrentCliente != null) {
+			finish();
+			_appConfig.getMediator().notify(ConstantsEvents.EVENT_CUSTOMER_SELECTED, null);
+		} else {
+			_appConfig.getMessageBox().Show("Atención",
+					"No se han encontrado resultados",
+					this, MessageBoxType.Information);
+		}
+	 }
 }

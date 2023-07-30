@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
 import android.content.Context;
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.FormaPago;
 
@@ -31,12 +31,7 @@ public class CacheData {
 			
 			Articulo articulo = new Articulo();
 
-			try {
-				articulo.InitializePersistance(_appConfig, this._context);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				throw e;
-			}
+			articulo.InitializePersistance(_appConfig, this._context);
 
 			this._articulos = articulo.getAllArticulos(1); 
 			return this._articulos;
@@ -56,9 +51,7 @@ public class CacheData {
 			try {
 				articulo.InitializePersistance(_appConfig, this._context);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				throw e;
-			}
+				throw new RuntimeException(e);			}
 
 			this._gastos = articulo.getAllArticulos(2);
 			return this._gastos;
@@ -69,7 +62,7 @@ public class CacheData {
 		
 	}
 	
-	public HashMap<String, FormaPago> getAllFormasPago() throws Exception {
+	public HashMap<String, FormaPago> getAllFormasPago() {
 
 		if (_formasPago == null) {
 			
@@ -78,8 +71,7 @@ public class CacheData {
 			try {
 				formaPago.InitializePersistance(_appConfig, this._context);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				throw e;
+				throw new RuntimeException(e);
 			}
 
 			this._formasPago = formaPago.getAllFormasPago();
@@ -94,9 +86,8 @@ public class CacheData {
 	public LinkedList<String> getAllFormasPagoList() throws Exception {
 		
 		LinkedList<String> newList = new LinkedList<String>();
-		
 		HashMap<String, FormaPago> formasPago = this.getAllFormasPago();
-		
+
 		for (FormaPago fp : formasPago.values()) {
 			String item = fp.Descripcion;
 			newList.add(item);
@@ -108,8 +99,14 @@ public class CacheData {
 		         return Collator.getInstance().compare(o1, o2);
 		     }
 		 });
-		
+
 		return newList;
+	}
+
+	public void invalidate() {
+		_articulos = null;
+		_gastos = null;
+		_formasPago = null;
 	}
 	
 }

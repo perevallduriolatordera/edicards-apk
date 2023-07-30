@@ -2,6 +2,7 @@ package net.ifeu.edicards;
 
 import java.util.ArrayList;
 
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Deposito;
@@ -10,14 +11,10 @@ import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 public class SelectDeposit extends Activity {
-
-	private final int TEXT_SIZE_BUTTON = 16;
 
 	AppConfig _appConfig;
 
@@ -25,8 +22,6 @@ public class SelectDeposit extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_select_deposit);
-		
-		setCanceledOnTouchOutside(false);
 
 		android.view.WindowManager.LayoutParams params = getWindow()
 				.getAttributes();
@@ -42,14 +37,8 @@ public class SelectDeposit extends Activity {
 		try {
 			fillDepositos();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e);
+			throw new RuntimeException(e);
 		}
-	}
-
-	private void setCanceledOnTouchOutside(boolean b) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	private void fillDepositos() throws Exception {
@@ -76,8 +65,7 @@ public class SelectDeposit extends Activity {
 		try {
 			deposito.InitializePersistance(_appConfig, this);
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			_appConfig.getErrorTrace().Send(_appConfig.getUser().User, e1);
+			throw new RuntimeException(e1);
 		}
 
 		ArrayList<Deposito> depositosList = (ArrayList<Deposito>) deposito
@@ -86,7 +74,8 @@ public class SelectDeposit extends Activity {
 		final LinearLayout layout2 = new LinearLayout(this);
 		layout2.removeAllViews();
 		layout2.setOrientation(LinearLayout.VERTICAL);
-		
+
+		int TEXT_SIZE_BUTTON = 16;
 		for (final Deposito dep : depositosList) {
 
 			ButtonColor depositoButton = new ButtonColor(this, Color.RED);
@@ -101,24 +90,15 @@ public class SelectDeposit extends Activity {
 			depositoButton.setText(buttonText);
 			depositoButton.setTextSize(TEXT_SIZE_BUTTON);
 
-			//depositoButton.setLayoutParams(params);
+			depositoButton.setOnClickListener(arg0 -> {
 
-			depositoButton.setOnClickListener(new OnClickListener() {
+				try {
+					_appConfig.getWorkingArea().CurrentDeposito = dep;
+					setResult(0);
+					finish();
 
-				@Override
-				public void onClick(View arg0) {
-					// TODO Auto-generated method stub
-
-					try {
-						_appConfig.getWorkingArea().CurrentDeposito = dep;
-						setResult(0);
-						finish();
-
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						_appConfig.getErrorTrace().Send(
-								_appConfig.getUser().User, e);
-					}
+				} catch (Exception e) {
+					throw new RuntimeException(e);
 				}
 			});
 
@@ -135,43 +115,32 @@ public class SelectDeposit extends Activity {
 			depositoConvencionalButton.setLayoutParams(params);
 			depositoConvencionalButton.setTextSize(TEXT_SIZE_BUTTON);
 			depositoConvencionalButton
-					.setOnClickListener(new OnClickListener() {
+					.setOnClickListener(arg0 -> {
 
-						@Override
-						public void onClick(View arg0) {
-							// TODO Auto-generated method stub
+						Deposito dep = new Deposito();
+						try {
+							dep.setClienteById(String
+									.valueOf(cliente.IdCliente));
+						} catch (Exception e2) {
+							throw new RuntimeException(e2);
+						}
 
-							Deposito dep = new Deposito();
-							try {
-								dep.setClienteById(String
-										.valueOf(cliente.IdCliente));
-							} catch (Exception e2) {
-								// TODO Auto-generated catch block
-								_appConfig.getErrorTrace().Send(
-										_appConfig.getUser().User, e2);
-							}
+						dep.TipoDeposito = Constants.TIPO_DEPOSITO_CONVENCIONAL;
 
-							dep.TipoDeposito = Constants.TIPO_DEPOSITO_CONVENCIONAL;
+						try {
+							dep.InitializePersistance(_appConfig,
+									arg0.getContext());
+						} catch (Exception e1) {
+							throw new RuntimeException(e1);
+						}
 
-							try {
-								dep.InitializePersistance(_appConfig,
-										arg0.getContext());
-							} catch (Exception e1) {
-								// TODO Auto-generated catch block
-								_appConfig.getErrorTrace().Send(
-										_appConfig.getUser().User, e1);
-							}
+						try {
+							_appConfig.getWorkingArea().CurrentDeposito = dep;
+							setResult(0);
+							finish();
 
-							try {
-								_appConfig.getWorkingArea().CurrentDeposito = dep;
-								setResult(0);
-								finish();
-
-							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								_appConfig.getErrorTrace().Send(
-										_appConfig.getUser().User, e);
-							}
+						} catch (Exception e) {
+							throw new RuntimeException(e);
 						}
 					});
 
@@ -183,41 +152,30 @@ public class SelectDeposit extends Activity {
 			depositoCampanaButton.setTextColor(Color.WHITE);
 			depositoCampanaButton.setLayoutParams(params);
 			depositoCampanaButton.setTextSize(TEXT_SIZE_BUTTON);
-			depositoCampanaButton.setOnClickListener(new OnClickListener() {
+			depositoCampanaButton.setOnClickListener(arg0 -> {
 
-				@Override
-				public void onClick(View arg0) {
-					// TODO Auto-generated method stub
+				Deposito dep = new Deposito();
+				try {
+					dep.assingFromCliente(cliente);
+				} catch (Exception e2) {
+					throw new RuntimeException(e2);
+				}
 
-					Deposito dep = new Deposito();
-					try {
-						dep.assingFromCliente(cliente);
-					} catch (Exception e2) {
-						// TODO Auto-generated catch block
-						_appConfig.getErrorTrace().Send(
-								_appConfig.getUser().User, e2);
-					}
+				dep.TipoDeposito = Constants.TIPO_DEPOSITO_CAMPANA;
 
-					dep.TipoDeposito = Constants.TIPO_DEPOSITO_CAMPANA;
+				try {
+					dep.InitializePersistance(_appConfig, arg0.getContext());
+				} catch (Exception e1) {
+					throw new RuntimeException(e1);
+				}
 
-					try {
-						dep.InitializePersistance(_appConfig, arg0.getContext());
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						_appConfig.getErrorTrace().Send(
-								_appConfig.getUser().User, e1);
-					}
+				try {
+					_appConfig.getWorkingArea().CurrentDeposito = dep;
+					setResult(0);
+					finish();
 
-					try {
-						_appConfig.getWorkingArea().CurrentDeposito = dep;
-						setResult(0);
-						finish();
-
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						_appConfig.getErrorTrace().Send(
-								_appConfig.getUser().User, e);
-					}
+				} catch (Exception e) {
+					throw new RuntimeException(e);
 				}
 			});
 
@@ -236,42 +194,31 @@ public class SelectDeposit extends Activity {
 				depositoConvencionalButton.setTextColor(Color.WHITE);
 				depositoConvencionalButton.setTextSize(TEXT_SIZE_BUTTON);
 				depositoConvencionalButton
-						.setOnClickListener(new OnClickListener() {
+						.setOnClickListener(arg0 -> {
 
-							@Override
-							public void onClick(View arg0) {
-								// TODO Auto-generated method stub
+							Deposito dep = new Deposito();
+							try {
+								dep.assingFromCliente(cliente);
+							} catch (Exception e2) {
+								throw new RuntimeException(e2);
+							}
 
-								Deposito dep = new Deposito();
-								try {
-									dep.assingFromCliente(cliente);
-								} catch (Exception e2) {
-									// TODO Auto-generated catch block
-									_appConfig.getErrorTrace().Send(
-											_appConfig.getUser().User, e2);
-								}
+							dep.TipoDeposito = Constants.TIPO_DEPOSITO_CONVENCIONAL;
 
-								dep.TipoDeposito = Constants.TIPO_DEPOSITO_CONVENCIONAL;
+							try {
+								dep.InitializePersistance(_appConfig,
+										arg0.getContext());
+							} catch (Exception e1) {
+								throw new RuntimeException(e1);
+							}
 
-								try {
-									dep.InitializePersistance(_appConfig,
-											arg0.getContext());
-								} catch (Exception e1) {
-									// TODO Auto-generated catch block
-									_appConfig.getErrorTrace().Send(
-											_appConfig.getUser().User, e1);
-								}
+							try {
+								_appConfig.getWorkingArea().CurrentDeposito = dep;
+								setResult(0);
+								finish();
 
-								try {
-									_appConfig.getWorkingArea().CurrentDeposito = dep;
-									setResult(0);
-									finish();
-
-								} catch (Exception e) {
-									// TODO Auto-generated catch block
-									_appConfig.getErrorTrace().Send(
-											_appConfig.getUser().User, e);
-								}
+							} catch (Exception e) {
+								throw new RuntimeException(e);
 							}
 						});
 
@@ -284,42 +231,31 @@ public class SelectDeposit extends Activity {
 				depositoCampanaButton.setTextColor(Color.WHITE);
 				depositoCampanaButton.setTextSize(TEXT_SIZE_BUTTON);
 				depositoCampanaButton.setLayoutParams(params);
-				depositoCampanaButton.setOnClickListener(new OnClickListener() {
+				depositoCampanaButton.setOnClickListener(arg0 -> {
 
-					@Override
-					public void onClick(View arg0) {
-						// TODO Auto-generated method stub
+					Deposito dep = new Deposito();
+					try {
+						dep.assingFromCliente(cliente);
+					} catch (Exception e2) {
+						throw new RuntimeException(e2);
+					}
 
-						Deposito dep = new Deposito();
-						try {
-							dep.assingFromCliente(cliente);
-						} catch (Exception e2) {
-							// TODO Auto-generated catch block
-							_appConfig.getErrorTrace().Send(
-									_appConfig.getUser().User, e2);
-						}
+					dep.TipoDeposito = Constants.TIPO_DEPOSITO_CAMPANA;
 
-						dep.TipoDeposito = Constants.TIPO_DEPOSITO_CAMPANA;
+					try {
+						dep.InitializePersistance(_appConfig,
+								arg0.getContext());
+					} catch (Exception e1) {
+						throw new RuntimeException(e1);
+					}
 
-						try {
-							dep.InitializePersistance(_appConfig,
-									arg0.getContext());
-						} catch (Exception e1) {
-							// TODO Auto-generated catch block
-							_appConfig.getErrorTrace().Send(
-									_appConfig.getUser().User, e1);
-						}
+					try {
+						_appConfig.getWorkingArea().CurrentDeposito = dep;
+						setResult(0);
+						finish();
 
-						try {
-							_appConfig.getWorkingArea().CurrentDeposito = dep;
-							setResult(0);
-							finish();
-
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							_appConfig.getErrorTrace().Send(
-									_appConfig.getUser().User, e);
-						}
+					} catch (Exception e) {
+						throw new RuntimeException(e);
 					}
 				});
 

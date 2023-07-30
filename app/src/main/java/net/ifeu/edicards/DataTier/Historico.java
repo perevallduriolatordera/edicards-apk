@@ -1,5 +1,17 @@
 package net.ifeu.edicards.DataTier;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.util.Log;
+
+import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Persistance.IPersistable;
+import net.ifeu.edicards.DataTier.Persistance.Persistent;
+import net.ifeu.edicards.DepositManagerExtension;
+import net.ifeu.library.Utils.DateTime.DateTimeUtils;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -7,20 +19,12 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.UUID;
 
-import net.ifeu.edicards.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
-import net.ifeu.library.Utils.MessageBoxType;
-import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
-import android.util.Log;
-
 public class Historico extends Persistent implements IPersistable {
 
 	public Long IdHistorico;
 	public Date Fecha;
 	public Cliente Cliente = new Cliente();
-	public LinkedHashMap<String,LineaHistorico> Lineas = new LinkedHashMap<String,LineaHistorico>();
+	public LinkedHashMap<String,LineaHistorico> Lineas = new LinkedHashMap<>();
 	public double Total;
 	public double CantidadPagada;
 	public String Serie;
@@ -40,8 +44,7 @@ public class Historico extends Persistent implements IPersistable {
 	}
 	
 	@Override
-	public void InitializePersistance(AppConfig appConfig, Context context) throws Exception {
-		// TODO Auto-generated method stub
+	public void InitializePersistance(AppConfig appConfig, Context context) {
 		super.InitializePersistance(appConfig, context);
 	}
 	
@@ -75,7 +78,7 @@ public class Historico extends Persistent implements IPersistable {
 			this.IdHistorico = super.getDatabaseOperations().insert(Constants.TABLE_HISTORICOS, null , values);
 		}
 		catch (Exception e) {
-			throw e;
+			throw new RuntimeException(e);
 		}
 		
 	}
@@ -111,57 +114,7 @@ public class Historico extends Persistent implements IPersistable {
 	{
 		return super.getDatabaseOperations().getRecordsCount(Constants.TABLE_HISTORICOS);
 	}
-	
-	public boolean setHistoricoById(String IdHistorico) throws Exception
-	{
-		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(Constants.TABLE_HISTORICOS, "IdHistorico", IdHistorico, false);
-		
-		if (cursor != null) {
-			
-			this.IdHistorico = Long.parseLong(cursor.getString(cursor.getColumnIndex("IdHistorico")));
-			SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy"); //please notice the capital M
-			this.Fecha = formatter.parse(cursor.getString(cursor.getColumnIndex("Fecha")));
-			this.Serie = cursor.getString(cursor.getColumnIndex("Serie"));
-			this.NumeroAlbaran = cursor.getString(cursor.getColumnIndex("NumeroAlbaran"));
-			this.NombrePresentacion = cursor.getString(cursor.getColumnIndex("NombrePresentacion"));
-			this.PoblacionPresentacion = cursor.getString(cursor.getColumnIndex("PoblacionPresentacion"));
-			this.CodigoPostalPresentacion = cursor.getString(cursor.getColumnIndex("CodigoPostalPresentacion"));
-			this.CantidadPagada = Double.parseDouble(cursor.getString(cursor.getColumnIndex("CantidadPagada")));
-			this.Total = Double.parseDouble(cursor.getString(cursor.getColumnIndex("Total")));
-			this.Tipo = Integer.parseInt(cursor.getString(cursor.getColumnIndex("Tipo")));
-			this.GUID = cursor.getString(cursor.getColumnIndex("Tipo"));
-			this.Serializacion = cursor.getString(cursor.getColumnIndex("Serializacion"));
-			this.ActualizarStock = cursor.getInt(cursor.getColumnIndex("ActualizarStock")) == 1 ? true : false;
-			
-			Cliente cliente = new Cliente();
-			
-			try {
-				cliente.InitializePersistance(super.appConfig, super.context);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				super.appConfig.getMessageBox().Show("Error", e.getMessage().toString(), super.appConfig, MessageBoxType.Error);
-			}
-			
-			if (cliente.setClienteById(cursor.getString(cursor.getColumnIndex("IdCliente"))))
-				this.Cliente = cliente;
-			
-			LineaHistorico linea = new LineaHistorico();
-			
-			try {
-				linea.InitializePersistance(super.appConfig, super.context);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				super.appConfig.getMessageBox().Show("Error", e.getMessage().toString(), super.appConfig, MessageBoxType.Error);
-			}
-			
-			this.Lineas = linea.getLineasHistoricoByHistorico(this);
-			cursor.close();
-		}
-		
-		return false;
-			
-	}
-	
+
 	public ArrayList<Historico> getHistoricosBetweenDates(Date fecha1, Date fecha2) throws Exception
 	{
 		SimpleDateFormat formatter;
@@ -172,19 +125,12 @@ public class Historico extends Persistent implements IPersistable {
 		
 		SimpleDateFormat formatterSpain;
 		formatterSpain = new SimpleDateFormat("MM/dd/yyyy");
-		
-		Log.i("Report", "Fecha Inicial: " + formatter.format(fecha1));
-		Log.i("Report", "Fecha Final: " + formatter.format(fecha2));
-		
-		ArrayList<Historico> list = new ArrayList<Historico>();
+
+		ArrayList<Historico> list = new ArrayList<>();
 		
 		String dateStart = formatterSQL.format(fecha1);
 		String dateEnd = formatterSQL.format(fecha2);
-		
-		
-//		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_HISTORICOS + " WHERE Fecha BETWEEN '" +
-//				dateStart + "' AND '" + dateEnd + "' ORDER BY NumeroAlbaran ASC");
-		
+
 		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_HISTORICOS + " WHERE substr(fecha,7)||substr(fecha,1,2)||substr(fecha,4,2) " +
 				"BETWEEN '" + dateStart + "' AND '" + dateEnd + "' ORDER BY NumeroAlbaran ASC");
 		
@@ -201,7 +147,6 @@ public class Historico extends Persistent implements IPersistable {
 					Historico historico = new Historico();
 					historico.IdHistorico = Long.parseLong(cursor.getString(cursor.getColumnIndex("IdHistorico")));
 					historico.Fecha = formatterSpain.parse(cursor.getString(cursor.getColumnIndex("Fecha")));
-					Log.i("Historico Entre Fechas",cursor.getString(cursor.getColumnIndex("Fecha")));
 					historico.Serie = cursor.getString(cursor.getColumnIndex("Serie"));
 					historico.NumeroAlbaran = cursor.getString(cursor.getColumnIndex("NumeroAlbaran"));
 					historico.NombrePresentacion = cursor.getString(cursor.getColumnIndex("NombrePresentacion"));
@@ -212,262 +157,39 @@ public class Historico extends Persistent implements IPersistable {
 					historico.Tipo = Integer.parseInt(cursor.getString(cursor.getColumnIndex("Tipo")));
 					historico.GUID = cursor.getString(cursor.getColumnIndex("GUID"));
 					historico.Serializacion = cursor.getString(cursor.getColumnIndex("Serializacion"));
-					historico.ActualizarStock = (cursor.getInt(cursor.getColumnIndex("ActualizarStock")) == 1 ? true : false);
+					historico.ActualizarStock = (cursor.getInt(cursor.getColumnIndex("ActualizarStock")) == 1);
 
 					Cliente cliente = new Cliente();
-					
-					try {
-						cliente.InitializePersistance(super.appConfig, super.context);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						super.appConfig.getMessageBox().Show("Error", e.getMessage().toString(), super.appConfig, MessageBoxType.Error);
-					}
+					cliente.InitializePersistance(super.appConfig, super.context);
 					
 					if (cliente.setClienteById(cursor.getString(cursor.getColumnIndex("IdCliente"))))
 						historico.Cliente = cliente;
 					
 					LineaHistorico linea = new LineaHistorico();
-						
-					try {
-						linea.InitializePersistance(super.appConfig, super.context);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						super.appConfig.getMessageBox().Show("Error", e.getMessage().toString(), super.appConfig, MessageBoxType.Error);
-					}
-					
+					linea.InitializePersistance(super.appConfig, super.context);
+
 					historico.Lineas = linea.getLineasHistoricoByHistorico(historico);
 					
 					if (this.isDateInList(formatter.format(fecha1),formatter.format(fecha2),cursor.getString(cursor.getColumnIndex("Fecha"))))
 						list.add(historico);
 					
 				} while (cursor.moveToNext());
-				
-				cursor.close();
-				return list;
-			}
-			else
-			{
-				cursor.close();
-				return list;
-			}
-		}
-		else
-			return list;
 
-	}
-	
-	public ArrayList<Historico> getHistoricosOfThisWeek(Date today) throws Exception
-	{
-		SimpleDateFormat formatter;
-		formatter = new SimpleDateFormat("yyyyMMdd");
-		
-		SimpleDateFormat formatterSpain;
-		formatterSpain = new SimpleDateFormat("MM/dd/yyyy");
-		
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(today);
-		
-		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-		int daysToSubstract = 0;
-		
-		switch (dayOfWeek) {
-		    case Calendar.SUNDAY:
-		    	daysToSubstract = -6;
-		    	break;
-		    case Calendar.MONDAY:
-		    	daysToSubstract = 0;
-		    	break;
-		    case Calendar.TUESDAY:
-		    	daysToSubstract = -1;
-		    	break;
-		    case Calendar.WEDNESDAY:
-		        daysToSubstract = -2;
-		        break;
-		    case Calendar.THURSDAY:
-		    	daysToSubstract = -3;
-		    	break;
-		    case Calendar.FRIDAY:
-		    	daysToSubstract = -4;
-		    	break;
-		    case Calendar.SATURDAY:
-		    	daysToSubstract = -5;
-		    	break;
-		}
-		
-		calendar.add( Calendar.DAY_OF_YEAR, daysToSubstract);
-		Date firstDate = calendar.getTime();
-		
-		ArrayList<Historico> list = new ArrayList<Historico>();
-		
-		//Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_HISTORICOS + " WHERE Fecha BETWEEN '" +
-		//		formatter.format(firstDate) + "' AND '" + formatter.format(today) + "' ORDER BY NumeroAlbaran ASC");
-		
-		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_HISTORICOS + " WHERE substr(fecha,7)||substr(fecha,1,2)||substr(fecha,4,2) " +
-				"BETWEEN '" + formatter.format(firstDate) + "' AND '" + formatter.format(today) + "' ORDER BY NumeroAlbaran ASC");
-		
-		
-		if (cursor != null)
-		{
-			cursor.moveToFirst();
-			
-			if (cursor.getCount() > 0)
-			{
-				
-				do {
-						
-					Historico historico = new Historico();
-					historico.IdHistorico = Long.parseLong(cursor.getString(cursor.getColumnIndex("IdHistorico")));
-					historico.Fecha = formatterSpain.parse(cursor.getString(cursor.getColumnIndex("Fecha")));
-					Log.i("Historico Entre Fechas",cursor.getString(cursor.getColumnIndex("Fecha")));
-					historico.Serie = cursor.getString(cursor.getColumnIndex("Serie"));
-					historico.NumeroAlbaran = cursor.getString(cursor.getColumnIndex("NumeroAlbaran"));
-					historico.NombrePresentacion = cursor.getString(cursor.getColumnIndex("NombrePresentacion"));
-					historico.PoblacionPresentacion = cursor.getString(cursor.getColumnIndex("PoblacionPresentacion"));
-					historico.CodigoPostalPresentacion = cursor.getString(cursor.getColumnIndex("CodigoPostalPresentacion"));
-					historico.CantidadPagada = Double.parseDouble(cursor.getString(cursor.getColumnIndex("CantidadPagada")));
-					historico.Total = Double.parseDouble(cursor.getString(cursor.getColumnIndex("Total")));
-					historico.Tipo = Integer.parseInt(cursor.getString(cursor.getColumnIndex("Tipo")));
-					historico.GUID = cursor.getString(cursor.getColumnIndex("GUID"));
-					historico.Serializacion = cursor.getString(cursor.getColumnIndex("Serializacion"));
-					historico.ActualizarStock = (cursor.getInt(cursor.getColumnIndex("ActualizarStock"))) == 1 ? true : false;
-
-					Cliente cliente = new Cliente();
-					
-					try {
-						cliente.InitializePersistance(super.appConfig, super.context);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						super.appConfig.getMessageBox().Show("Error", e.getMessage().toString(), super.appConfig, MessageBoxType.Error);
-					}
-					
-					if (cliente.setClienteById(cursor.getString(cursor.getColumnIndex("IdCliente"))))
-						historico.Cliente = cliente;
-					
-					LineaHistorico linea = new LineaHistorico();
-					
-					try {
-						linea.InitializePersistance(super.appConfig, super.context);
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						super.appConfig.getMessageBox().Show("Error", e.getMessage().toString(), super.appConfig, MessageBoxType.Error);
-					}
-					
-					historico.Lineas = linea.getLineasHistoricoByHistorico(historico);
-					
-					list.add(historico);
-					
-				} while (cursor.moveToNext());
-				
-				cursor.close();
-				return list;
 			}
-			else
-			{
-				cursor.close();
-				return list;
-			}
+			cursor.close();
 		}
-		else
-			return list;
+		return list;
 
 	}
 
-	public ArrayList<String> getCantidadPagadaOfThisWeekList(Date today) throws Exception
-	{
-
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(today);
-		
-		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-		int daysToSubstract = 0;
-		
-		switch (dayOfWeek) {
-		    case Calendar.SUNDAY:
-		    	daysToSubstract = -6;
-		    	break;
-		    case Calendar.MONDAY:
-		    	daysToSubstract = 0;
-		    	break;
-		    case Calendar.TUESDAY:
-		    	daysToSubstract = -1;
-		    	break;
-		    case Calendar.WEDNESDAY:
-		        daysToSubstract = -2;
-		        break;
-		    case Calendar.THURSDAY:
-		    	daysToSubstract = -3;
-		    	break;
-		    case Calendar.FRIDAY:
-		    	daysToSubstract = -4;
-		    	break;
-		    case Calendar.SATURDAY:
-		    	daysToSubstract = -5;
-		    	break;
-		}
-		
-		calendar.add( Calendar.DAY_OF_YEAR, daysToSubstract);
-		Date firstDate = calendar.getTime();
-		
-		
-		Historico historico = new Historico();
-		historico.InitializePersistance(this.appConfig, this.appConfig);
-
-		ArrayList<Historico> list = historico.getHistoricosBetweenDates(
-				firstDate, today);
-
-		ArrayList<String> listString = new ArrayList<String>();
-		
-		for (Historico hist : list) {
-
-			listString.add(hist.Fecha + " -- " + hist.CantidadPagada);
-		}
-
-		return listString;
-
-	}
-	
 	public double getCantidadPagadaOfThisWeek(Date today) throws Exception
 	{
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("yyyyMMdd");
 
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(today);
-		
-		int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-		int daysToSubstract = 0;
-		
-		switch (dayOfWeek) {
-		    case Calendar.SUNDAY:
-		    	daysToSubstract = -6;
-		    	break;
-		    case Calendar.MONDAY:
-		    	daysToSubstract = 0;
-		    	break;
-		    case Calendar.TUESDAY:
-		    	daysToSubstract = -1;
-		    	break;
-		    case Calendar.WEDNESDAY:
-		        daysToSubstract = -2;
-		        break;
-		    case Calendar.THURSDAY:
-		    	daysToSubstract = -3;
-		    	break;
-		    case Calendar.FRIDAY:
-		    	daysToSubstract = -4;
-		    	break;
-		    case Calendar.SATURDAY:
-		    	daysToSubstract = -5;
-		    	break;
-		}
-		
-		calendar.add( Calendar.DAY_OF_YEAR, daysToSubstract);
-		Date firstDate = calendar.getTime();
-		
-		//Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_HISTORICOS + " WHERE Fecha BETWEEN '" +
-		//		formatter.format(firstDate) + "' AND '" + formatter.format(today) + "' ORDER BY NumeroAlbaran ASC");
-		
-		double cantidadPagada = 0;
+		Date firstDate = DateTimeUtils.getFirstDayOfCurrentWeek(today);
+
+		double cantidadPagada;
 		
 		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT ifnull(sum(CantidadPagada),0) as CantidadPagada FROM " + Constants.TABLE_HISTORICOS + " WHERE substr(fecha,7)||substr(fecha,1,2)||substr(fecha,4,2) " +
 				"BETWEEN '" + formatter.format(firstDate) + "' AND '" + formatter.format(today) + "'");
@@ -497,9 +219,7 @@ public class Historico extends Persistent implements IPersistable {
 
 	
 	private void DeleteAllLines() throws Exception {
-		
-		Log.i("Historico","Borrar lineas: " + this.IdHistorico);
-		
+
 		Cursor cursor = super.getDatabaseOperations().executeSentence(
 				"DELETE FROM " + Constants.TABLE_LINEAS_HISTORICO + " WHERE IdHistorico = "
 						+ this.IdHistorico);
@@ -507,24 +227,10 @@ public class Historico extends Persistent implements IPersistable {
 		if (cursor != null)
 			cursor.close();
 	}
-	
-	private void DeleteAllLines(Long id) throws Exception {
-		
-		Log.i("Historico","Borrar lineas: " + id);
-		
-		Cursor cursor = super.getDatabaseOperations().executeSentence(
-				"DELETE FROM " + Constants.TABLE_LINEAS_HISTORICO + " WHERE IdHistorico = "
-						+ id);
-		
-		if (cursor != null)
-			cursor.close();
-	}
-	
+
 	@Override
 	public void delete() throws Exception {
-		
-		Log.i("Historico","Borrar cabecera: " + this.IdHistorico);
-		
+
 		this.DeleteAllLines();
 		
 		Cursor cursor = super.getDatabaseOperations().executeSentence(
@@ -535,58 +241,148 @@ public class Historico extends Persistent implements IPersistable {
 			cursor.close();
 		
 	}
-	
-	public void deleteFromGUID(String guid) throws Exception {
-	
-		Log.i("Historico","Borrar cabecera: " + guid);
-		
-		Cursor cursor = super.getDatabaseOperations().executeSentence(
-				"DELETE FROM " + Constants.TABLE_HISTORICOS + " WHERE GUID = "
-						+ guid);
-		
-		if (cursor != null)
-			cursor.close();
-		
-		this.DeleteAllLines(this.getIdFromGUID(guid));
-	}
-	
-	private Long getIdFromGUID(String guid) throws Exception {
-		
-		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(Constants.TABLE_HISTORICOS, "GUID", guid, false);
-		
-		if (cursor != null) {
-			
-			Long result = Long.parseLong(cursor.getString(cursor.getColumnIndex("IdHistorico"))); 
-			cursor.close();
-			
-			return result;
-		}
-		
-		return Long.MIN_VALUE;
- 
-	}
-	
+
 	private boolean isDateInList(String date1, String date2, String dateValue)
 	{
-		
-		Log.i("IsDateInList old",date1);
-		Log.i("IsDateInList old ",date2);
-		Log.i("IsDateInList old",dateValue);
-	
 		String date1Formatted = date1.substring(6,10) + date1.substring(0,2) + date1.substring(3,5);
 		String date2Formatted = date2.substring(6,10) + date2.substring(0,2) + date2.substring(3,5);
 		String dateValueFormatted = dateValue.substring(6,10) + dateValue.substring(0,2) + dateValue.substring(3,5);
-		
-		Log.i("IsDateInList new",date1Formatted);
-		Log.i("IsDateInList new",date2Formatted);
-		Log.i("IsDateInList new",dateValueFormatted);
-		
+
 		boolean result = (dateValueFormatted.compareTo(date1Formatted) > 0 || dateValueFormatted.compareTo(date1Formatted) == 0) 
 				&& (dateValueFormatted.compareTo(date2Formatted) < 0 || dateValueFormatted.compareTo(date2Formatted) == 0);
-		
-		Log.i("IsDateInList result",String.valueOf(result));
-		
+
 		return result;
+	}
+
+	public void saveChangesToHistorico(Deposito deposito) {
+		this.InitializePersistance(appConfig, context);
+		this.Cliente = deposito.Cliente;
+		this.NombrePresentacion = deposito.Nombre;
+		this.PoblacionPresentacion = deposito.Poblacion;
+		this.CodigoPostalPresentacion = deposito.CodigoPostal;
+
+		this.Serie = deposito.Serie;
+		this.NumeroAlbaran = deposito.NumeroAlbaran;
+
+		this.Fecha = new Date();
+
+		try {
+			deposito.Calculate();
+		} catch (Exception e1) {
+			throw new RuntimeException(e1);
+		}
+
+		this.Total = deposito.Totales.TotalBase;
+		this.CantidadPagada = deposito.CantidadPagada;
+
+		if (!deposito.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE) && !deposito.Retirado)
+			this.Tipo = Constants.TIPO_HISTORICO_CLIENTE_EXISTENTE;
+		else if (deposito.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE))
+			this.Tipo = Constants.TIPO_HISTORICO_CLIENTE_NUEVO;
+		else if (deposito.Retirado)
+			this.Tipo = Constants.TIPO_HISTORICO_CLIENTE_BAJA;
+
+		this.ActualizarStock = appConfig.getWorkingArea().CurrentDepositoModalidad != DepositoModalidad.Edicards;
+
+		// Serializamos el objeto deposito a JSON
+		try {
+			this.Serializacion = deposito.getDTO().serialize();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		try {
+			this.save();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		appConfig.getWorkingArea().CurrentHistorico = this;
+
+		for (LineaDeposito linea : deposito.Lineas.values()) {
+
+			LineaHistorico lineaHistorico = new LineaHistorico();
+			lineaHistorico.InitializePersistance(appConfig, context);
+			lineaHistorico.Historico = this;
+			lineaHistorico.Articulo = linea.Articulo;
+
+			if (linea.UnidadesFacturadas > 0) {
+
+				lineaHistorico.Unidades = linea.UnidadesFacturadas;
+				lineaHistorico.MovimientoStock = linea.UnidadesRepuestas;
+				lineaHistorico.MovimientoStockDefectuosas = 0;
+
+				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_FACTURADAS;
+
+			}
+
+			if (linea.UnidadesInicialesFijas == 0 && linea.UnidadesRepuestas > 0) {
+				lineaHistorico.Unidades = linea.UnidadesRepuestas;
+				lineaHistorico.MovimientoStock = linea.Articulo.MovimientoStock;
+				lineaHistorico.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas;
+
+				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_POTENCIADAS;
+
+			}
+
+			if (!linea.IsNew && linea.UnidadesRepuestas == 0) {
+				lineaHistorico.Unidades = linea.UnidadesInicialesFijas; //
+				lineaHistorico.MovimientoStock = 0;
+				lineaHistorico.MovimientoStockDefectuosas = 0;
+
+				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_BAJAS;
+
+			}
+
+			if (linea.UnidadesDefectuosas > 0) {
+				lineaHistorico.MovimientoStock = 0;
+				lineaHistorico.MovimientoStockDefectuosas = 0;
+
+				// linea.UnidadesFacturadas;
+
+				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_DEFECTUOSAS;
+
+			}
+
+			if (linea.Articulo.MovimientoStock != 0 || linea.Articulo.MovimientoStockDefectuosas != 0) {
+
+				lineaHistorico.Unidades = 0;
+				lineaHistorico.MovimientoStock = linea.Articulo.MovimientoStock;
+				lineaHistorico.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas;
+
+				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_STOCK;
+
+			}
+
+			if (linea.UnidadesAbono > 0) {
+				lineaHistorico.Unidades = linea.UnidadesAbono * -1;
+				lineaHistorico.MovimientoStock = 0;
+				lineaHistorico.MovimientoStockDefectuosas = 0;
+
+				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_FACTURADAS;
+
+			}
+
+			if (linea.UnidadesInicialesFijas > 0) {
+				lineaHistorico.Unidades = linea.UnidadesInicialesFijas;
+				lineaHistorico.PVP = (float) linea.PVP;
+				lineaHistorico.MovimientoStock =
+						lineaHistorico.MovimientoStockDefectuosas = 0;
+
+				// linea.UnidadesFacturadas;
+
+				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_UNIDADES_INICIALES;
+
+			}
+
+			try {
+				lineaHistorico.save();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+
+		}
+
 	}
 				
 }

@@ -1,25 +1,5 @@
 package net.ifeu.edicards.Pdf;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.PdfWriter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -28,9 +8,27 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.util.Log;
-import net.ifeu.edicards.AppConfig;
-import net.ifeu.edicards.R;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.R;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class pdfBase {
 	protected Document _document;
@@ -47,17 +45,12 @@ public class pdfBase {
 	
 	protected static final int BUFFER_IO_SIZE = 8000;
 
-	public static Map<String, String> getInfo(String src) throws IOException {
-		PdfReader reader = new PdfReader(src);
-		return reader.getInfo();
-	}
-	
 	public pdfBase (Context context, AppConfig appConfig) {
 		this._context = context;
 		this._app = appConfig;
 	}
 	
-	protected void addLogo() throws FileNotFoundException, DocumentException {
+	protected void addLogo() {
 
 		Drawable myImage = _context.getResources().getDrawable(
 				R.drawable.edicardsprint);
@@ -75,44 +68,27 @@ public class pdfBase {
 			_document.add(bgImage);
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			_app.getErrorTrace().Send(_app.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 	}
 	
 	protected void closePage() throws DocumentException {
-
 		_document.add(new Paragraph("\n"));
-
-		//this.insertSeparators();
-		//this.insertSeparators();
-
 		_document.close();
-
 	}
 	
-	protected void addSignature() throws MalformedURLException,
-		IOException, DocumentException {
+	protected void addSignature() {
 
-		String prefix = Constants.EMPTY_STRING;
-		
+		String prefix;
 		prefix = "C_";
 		
 		String imageFile = Environment.getExternalStorageDirectory().toString()
 				+ "/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_FIRMAS
 				+ "/" + prefix + _GUID + ".png";
-		
-		Log.i("PdfCreator", imageFile);
-		
-		// Image image = Image.getInstance(imageFile);
-		// image.scaleToFit(image.getWidth() / 1, image.getHeight() / 1);
-		// _document.add(image);
-		
+
 		try {
-		
-			// Drawable drawable = Drawable.createFromPath(imageFile);
-			// Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+
 			Bitmap bitmap = this.loadImageFromFile(imageFile);
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		
@@ -128,38 +104,24 @@ public class pdfBase {
 				System.gc();
 		
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 		
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			_app.getErrorTrace().Send(_app.getUser().User, e);
+			throw new RuntimeException(e);
 		}
-	
 	}
 	
-	protected void addSignature(int tipo) throws MalformedURLException,
-		IOException, DocumentException {
+	protected void addSignature(int tipo) {
 
-		String prefix = Constants.EMPTY_STRING;
-		
+		String prefix;
 		prefix = tipo == 1 ? "C_" : "V_";
 		
 		String imageFile = Environment.getExternalStorageDirectory().toString()
 				+ "/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_FIRMAS
 				+ "/" + prefix + _GUID + ".png";
-		
-		Log.i("PdfCreator", imageFile);
-		
-		// Image image = Image.getInstance(imageFile);
-		// image.scaleToFit(image.getWidth() / 1, image.getHeight() / 1);
-		// _document.add(image);
-		
 		try {
-		
-			// Drawable drawable = Drawable.createFromPath(imageFile);
-			// Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+
 			Bitmap bitmap = this.loadImageFromFile(imageFile);
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		
@@ -167,51 +129,24 @@ public class pdfBase {
 			byte[] bitmapdata = stream.toByteArray();
 			try {
 				Image bgImage = Image.getInstance(bitmapdata);
-				// bgImage.setAbsolutePosition(5f, 400f);
 				bgImage.scaleToFit(bgImage.getWidth() / 7,
 						bgImage.getHeight() / 7);
 		
 				_document.add(bgImage);
 				
 				bitmap.recycle();
-				bitmap = null;
 				System.gc();
 		
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 		
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			_app.getErrorTrace().Send(_app.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
 	}
 
-	protected boolean isMadeInSpain(String codigoPostal) {
-		String codigoProvincia = codigoPostal.substring(0, 2);
-
-		if (codigoProvincia.equals("01"))
-			return false;
-		if (codigoProvincia.equals("08"))
-			return false;
-		if (codigoProvincia.equals("17"))
-			return false;
-		if (codigoProvincia.equals("20"))
-			return false;
-		if (codigoProvincia.equals("25"))
-			return false;
-		if (codigoProvincia.equals("31"))
-			return false;
-		if (codigoProvincia.equals("43"))
-			return false;
-		if (codigoProvincia.equals("48"))
-			return false;
-
-		return true;
-	}
-	
 	protected void insertSeparators() throws DocumentException {
 		_document.add(new Paragraph(
 				"_____________________________________________________________________"
@@ -249,8 +184,6 @@ public class pdfBase {
 	
 	protected Bitmap loadImageFromFile(final String file) {
 		try {
-			// Addresses bug in SDK :
-			// http://groups.google.com/group/android-developers/browse_thread/thread/4ed17d7e48899b26/
 			BufferedInputStream bis = new BufferedInputStream(
 					new FileInputStream(file), BUFFER_IO_SIZE);
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();

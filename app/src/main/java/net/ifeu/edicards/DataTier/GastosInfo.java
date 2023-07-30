@@ -4,6 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Persistance.IPersistable;
+import net.ifeu.edicards.DataTier.Persistance.Persistent;
+
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -32,16 +35,11 @@ public class GastosInfo extends Persistent implements IPersistable {
 		values.put("Fecha",formatter.format(this.Fecha));
 		values.put("Comentario", this.Comentario);
 		
-		Log.i("Gasto Info save",formatter.format(this.Fecha));
-		Log.i("Gasto Info save",this.Comentario);
-		
 		try {
 			this.IdGastoInfo = super.getDatabaseOperations().insert(Constants.TABLE_GASTOS_INFO, null , values);
-			Log.i("GastosInfo", "El save s'ha efectuat correctament");
 		}
 		catch (Exception e) {
-			Log.i("GastosInfo", "Error Save: " + e.getMessage());
-			throw e;
+			throw new RuntimeException(e);
 		}
 		
 	}
@@ -57,9 +55,7 @@ public class GastosInfo extends Persistent implements IPersistable {
 		values.put("IdGastoInfo", this.IdGastoInfo);
 		values.put("Fecha",formatter.format(this.Fecha));
 		values.put("Comentario", this.Comentario);
-		
-		Log.i("Gasto Info update",formatter.format(this.Fecha));
-		
+
 		String[] whereArgs = { String.valueOf(this.IdGastoInfo) }; 
 		
 	    super.getDatabaseOperations().update(Constants.TABLE_GASTOS_INFO, values, "IdGastoInfo = ?", whereArgs);
@@ -88,7 +84,7 @@ public class GastosInfo extends Persistent implements IPersistable {
 			return true;
 		}
 		
-		return false ; //(cursor != null);
+		return false ; 
 	}
 	
 	public GastosInfo getGastoInfoByFecha(Date fecha) throws Exception
@@ -99,11 +95,11 @@ public class GastosInfo extends Persistent implements IPersistable {
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("dd/MM/yyyy");
 		
-		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_GASTOS_INFO + " WHERE Fecha='" + 
-				String.valueOf(formatter.format(fecha)) + "'");
+		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_GASTOS_INFO + " WHERE Fecha='" +
+				formatter.format(fecha) + "'");
 		
 		GastosInfo gastoInfo = new GastosInfo();
-		Boolean result = false;
+		boolean result = false;
 		
 		if (cursor != null)
 		{

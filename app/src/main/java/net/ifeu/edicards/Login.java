@@ -1,12 +1,15 @@
 package net.ifeu.edicards;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
-import net.ifeu.library.Utils.MessageBoxType;
+
+import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
 public class Login extends Activity {
 
@@ -16,8 +19,8 @@ public class Login extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        
-        // Inicialitzem l'objecte d'aplicació
+
+		// Inicialitzem l'objecte d'aplicació
         _appConfig = (AppConfig) this.getApplicationContext();
     }
 

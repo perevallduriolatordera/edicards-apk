@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import net.ifeu.edicards.AppConfig;
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.MovimientosAlmacen;
@@ -23,19 +23,16 @@ import com.itextpdf.text.pdf.PdfWriter;
 
 public class PdfInventory extends pdfBase {
 
-	public PdfInventory(Context context, AppConfig app)
-			throws FileNotFoundException, DocumentException {
-
+	public PdfInventory(Context context, AppConfig app) {
 		super(context, app);
-		
 	}
 
 	@SuppressLint("SimpleDateFormat")
-	private void printHeader() throws DocumentException, FileNotFoundException {
+	private void printHeader() throws DocumentException {
 
 		this.addLogo();
 
-		String text = Constants.EMPTY_STRING;
+		String text;
 
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("dd/MM/yyyy");
@@ -69,49 +66,35 @@ public class PdfInventory extends pdfBase {
 	@SuppressWarnings("deprecation")
 	private void printHeaderDetail() {
 
-		//DecimalFormat df = new DecimalFormat("0.00");
+		LinkedHashMap<String, Articulo> articulos;
 
-		Articulo articulo = new Articulo();
-		LinkedHashMap<String, Articulo> articulos = null;
-	        
-        try {
-        	articulo.InitializePersistance(_app, _context);
+		try {
+			articulos = _app.getCache().getAllArticulos();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			_app.getErrorTrace().Send(_app.getUser().User, e);
+			throw new RuntimeException(e);
 		}
 
-        try {
-			articulos = articulo.getAllArticulos(1);
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			_app.getErrorTrace().Send(_app.getUser().User, e1);
-		}
-        
-        MovimientosAlmacen movimientos = new MovimientosAlmacen();
+		MovimientosAlmacen movimientos = new MovimientosAlmacen();
         try {
         	movimientos.InitializePersistance(_app, _context);
         } catch (Exception e1) {
-			// TODO Auto-generated catch block
-			_app.getErrorTrace().Send(_app.getUser().User, e1);
+			throw new RuntimeException(e1);
 		}
 		
 		Date now = new Date();
 		
-		LinkedHashMap<String,ArrayList<MovimientosAlmacen>> movs 
-			= new LinkedHashMap<String,ArrayList<MovimientosAlmacen>>();
+		LinkedHashMap<String,ArrayList<MovimientosAlmacen>> movs = new LinkedHashMap<>();
 		
 		try {
 			 
 			movs = movimientos.getMovimientosByMonth(2000 + (now.getYear() % 100), 
 						now.getMonth() + 1);
 		 } catch (Exception e1) {
-				// TODO Auto-generated catch block
-				_app.getErrorTrace().Send(_app.getUser().User, e1);
+			throw new RuntimeException(e1);
 		  }
-			
-		
-        
+
+
+
         for (Articulo art : articulos.values())
         {
 			try {
@@ -157,8 +140,7 @@ public class PdfInventory extends pdfBase {
 					_document.add(new Paragraph(Constants.EMPTY_STRING, _fontBold));
 				}
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				_app.getErrorTrace().Send(_app.getUser().User, e);
+				throw new RuntimeException(e);
 			}
         
 		
@@ -175,9 +157,6 @@ public class PdfInventory extends pdfBase {
 				+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_INVENTARIO + "/"
 				+ _app.getUser().User + "_" 
 				+ this.getDateTimeFormat() + ".pdf";
-
-		//_document.addTitle(_app.getUser().User + "_"
-		//		+ "_" + String.valueOf(new Date(0)));
 
 		_writer = PdfWriter.getInstance(_document, new FileOutputStream(
 				_pdfName));
