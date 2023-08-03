@@ -7,7 +7,7 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/headerButtonsLinearLayout"
         android:layout_width="fill_parent"
-        android:layout_height="50px"
+        android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:background="@color/WhiteSmoke"
         android:orientation="horizontal" />
@@ -15,151 +15,135 @@
     <LinearLayout
         android:id="@+id/headerMainLinearLayout"
         android:layout_width="fill_parent"
-        android:layout_height="250dp"
-        android:layout_marginTop="5dp"
+        android:layout_height="wrap_content"
         android:background="@color/DarkBlue"
+        android:visibility="gone"
         android:orientation="vertical" >
 
-        <LinearLayout
-            android:id="@+id/headerMainLinearLayout2"
-            android:layout_width="fill_parent"
-            android:layout_height="100dp"
-            android:layout_marginTop="5dp"
-            android:background="@color/DarkBlue"
-            android:orientation="vertical" >
-
             <LinearLayout
-                android:id="@+id/headerMainLinearLayout3"
+                android:id="@+id/headerMainLinearLayout1"
                 android:layout_width="fill_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="5dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="50dp"
                 android:background="@color/DarkBlue"
                 android:orientation="horizontal" >
 
                 <TextView
-                    android:layout_width="100dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="10dp"
-                    android:text="  Cliente: "
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cliente:"
+                    android:layout_marginRight="10dp"
                     android:textSize="12dp" />
 
                 <TextView
                     android:textColor="#FFFFFF"
                     android:id="@+id/lblCliente"
                     android:layout_width="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="25dp"
                     android:textSize="12dp" />
 
                 <TextView
-                    android:layout_width="100dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="10dp"
-                    android:text="  Total Base: "
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total Base:"
+                    android:layout_marginRight="10dp"
                     android:textSize="12dp" />
 
                 <TextView
                     android:textColor="#FFFFFF"
                     android:id="@+id/lblBase"
-                    android:layout_width="100dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="25dp"
                     android:textSize="12dp" />
 
                 <TextView
-                    android:layout_width="100dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="10dp"
-                    android:text="  Total Factura: "
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total Factura:"
+                    android:layout_marginRight="10dp"
                     android:textSize="12dp" />
 
                 <TextView
                     android:textColor="#FFFFFF"
                     android:id="@+id/lblTotalFactura"
-                    android:layout_width="100dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:textSize="12dp" />
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/headerMainLinearLayout2"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="50dp"
+                android:background="@color/DarkBlue"
+                android:orientation="horizontal" />
+
+            <LinearLayout
+                android:id="@+id/headerMainLinearLayout3"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/DarkBlue"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="50dp"
+                android:orientation="horizontal"/>
+
+            <LinearLayout
                 android:id="@+id/headerMainLinearLayout4"
                 android:layout_width="fill_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="5dp"
+                android:layout_height="wrap_content"
                 android:background="@color/DarkBlue"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="50dp"
+                android:orientation="horizontal"/>
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/headerMainLinearLayout5"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/DarkBlue"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="50dp"
                 android:orientation="horizontal" >
 
+                <TextView
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="Tipo de entrega:"
+                    android:textSize="14dp" />
+
+                <TextView
+                    android:textColor="#FFFFFF"
+                    android:id="@+id/lblTipoEntrega"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14dp" />
 
             </LinearLayout>
-        </LinearLayout>
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="fill_parent"
-            android:layout_height="50dp"
-            android:background="@color/DarkBlue"
-            android:layout_marginTop="5dp"
-            android:orientation="horizontal" >
-
-
-            <AutoCompleteTextView android:id="@+id/myautocomplete"
-                android:layout_width="400px"
+            <LinearLayout
+                android:id="@+id/headerMainLinearLayout6"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:textColor="#FFFFFF"
-                android:hint="nombre del artículo"
-                android:completionThreshold="1"/>
+                android:background="@color/DarkBlue"
+                android:layout_marginTop="25dp"
+                android:orientation="horizontal" />
 
-            <Button
-                android:id="@+id/btnSearchClear"
-                android:layout_width="100px"
-                android:layout_height="30px"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="50dp"
-                android:background="@drawable/background_button"
-                android:onClick="OnViewAll"
-                android:text="Ver todos"
-                android:textColor="#FFF" />
-
-            <TextView
-                android:layout_width="150dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="10dp"
-                android:text="  Tipo de entrega: "
-                android:textSize="14dp" />
-
-            <TextView
-                android:textColor="#FFFFFF"
-                android:id="@+id/lblTipoEntrega"
-                android:layout_width="200dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="10dp"
-                android:textSize="14dp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/headerMainLinearLayout5"
-            android:layout_width="fill_parent"
-            android:layout_height="25dp"
-            android:layout_marginTop="5dp"
-            android:background="@color/DarkBlue"
-            android:orientation="horizontal" >
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/headerMainLinearLayout6"
-            android:layout_width="fill_parent"
-            android:layout_height="50dp"
-            android:layout_marginTop="5dp"
-            android:background="@color/Edicards"
-            android:orientation="horizontal" >
-        </LinearLayout>
+            <LinearLayout
+                android:id="@+id/headerMainLinearLayout7"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/Edicards"
+                android:orientation="horizontal" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="200dp"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="0dp"
         android:layout_marginRight="0dp"
         android:orientation="vertical" >
@@ -183,24 +167,13 @@
         </ScrollView>
     </LinearLayout>
 
-    <!--  <LinearLayout
-      xmlns:android="http://schemas.android.com/apk/res/android"
-      android:id="@+id/footerMainLinearLayout"
-      android:layout_width="fill_parent"
-      android:layout_height="180dp"
-      android:layout_marginTop="520dp"
-      android:background="@drawable/border_layout"
-      android:orientation="horizontal" >
-  </LinearLayout>-->
-
     <!--  para V7 de Android -->
-    <LinearLayout
+    <!--<LinearLayout
         android:id="@+id/footerMainLinearLayout"
         android:layout_width="fill_parent"
-        android:layout_height="150dp"
+        android:layout_height="wrap_content"
         android:background="@color/DarkBlue"
         android:orientation="horizontal" >
-    </LinearLayout>
-
+    </LinearLayout>-->
 
 </LinearLayout>

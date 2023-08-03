@@ -1,12 +1,10 @@
 package net.ifeu.edicards;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +14,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -39,12 +36,10 @@ import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.Incidencia;
 import net.ifeu.edicards.DataTier.IncidenciaType;
 import net.ifeu.edicards.DataTier.LineaDeposito;
-import net.ifeu.edicards.DataTier.LineaHistorico;
 import net.ifeu.edicards.DataTier.TipoIVA;
 import net.ifeu.edicards.DataTier.TransferMode;
 import net.ifeu.edicards.Pdf.PdfGDPR;
 import net.ifeu.edicards.Printer.PrintManager;
-import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.ComboBox;
@@ -72,8 +67,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 	private Deposito _deposito;
 	private Cliente _cliente;
 	private AppConfig _appConfig;
-
-	private boolean _searched = false;
 	private boolean _newDeposit = false;
 	private boolean _abonoMode = false;
 
@@ -87,8 +80,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 	private TextBoxColor _textBoxColorRequestFocus;
 	private TextBoxColor _lastTextBox;
 	private LinearLayout _lastSelectedLayout;
-	private AutoCompleteTextView _myAutoComplete;
-	
+
 	private LinkedList<String> _articles = new LinkedList<>();
 	private AdvancedMessageBox _dialogDepositoModalidad;
 
@@ -103,7 +95,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		super.onCreate(savedInstanceState);
 	}
 
-
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.activity_deposit_manager, container, false);
@@ -112,26 +103,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
-		final Button viewAllButton = (Button) this.getActivity().findViewById(
-				R.id.btnSearchClear);
-
-		final DepositManager that = this;
-		
-		viewAllButton.setOnClickListener(v -> {
-			LinearLayout layout = (LinearLayout) that.getActivity()
-					.findViewById(R.id.mainLinearLayoutDepositManager);
-
-			int count = layout.getChildCount();
-
-			for(int i=0; i<count; i++) {
-				View view = layout.getChildAt(i);
-				view.setVisibility(View.VISIBLE);
-			}
-
-			that._myAutoComplete.setText(Constants.EMPTY_STRING);
-		});
-		
 	}
 
 	@Override
@@ -143,23 +114,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		_comboPago = null;
-		_comboCopias = null;
-		_comboSerie = null;
-		_comboFiliacion = null;
-		_textBoxCantidadPagada = null;
-		_checkPagado = null;
-
-		_textBoxColorRequestFocus = null;
-		_lastTextBox = null;
-		_lastSelectedLayout = null;
-		_myAutoComplete = null;
-
-		_articles = null;
-		_dialogDepositoModalidad = null;
-
-		_headerLayout = null;
-		_headerAbonoLayout = null;
 		super.onDestroyView();
 		System.gc();
 	}
@@ -263,7 +217,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 	private void resetFooter() {
 
-		LinearLayout footerLinearLayout1 = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout4);
+		LinearLayout footerLinearLayout1 = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout2);
 		footerLinearLayout1.removeAllViews();
 
 		LinearLayout footerLinearLayout2 = (LinearLayout) this.getActivity().findViewById(R.id.footerMainLinearLayout);
@@ -291,35 +245,24 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		footerLinearLayout2.addView(layout);
 	}
 
-	private void FillFooter() throws Exception {
-
-		final LinearLayout layout = new LinearLayout(_appConfig);
-		final LinearLayout layout2 = new LinearLayout(_appConfig);
-		final LinearLayout topLayout = new LinearLayout(_appConfig);
+	private void createHeaderControls() throws Exception {
 
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params.setMargins(0, 5, 0, 0);
-
-		LayoutParams params2 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		params.setMargins(0, 4, 0, 0);
-
-		layout.setOrientation(LinearLayout.HORIZONTAL);
-		layout2.setOrientation(LinearLayout.HORIZONTAL);
-		topLayout.setOrientation(LinearLayout.HORIZONTAL);
 
 		FormaPago formaPago = new FormaPago();
 		formaPago.InitializePersistance(_appConfig, _appConfig);
 		
 		// Formas de pago
 		
-		LabelColor labelPago = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+		LabelColor labelPago = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				"Forma de pago", TEXT_SIZE, 200, params);
 		
-		_comboPago = DepositManagerExtension.UI.addCombo(_appConfig, 300, params, _appConfig.getCache().getAllFormasPagoList(), _deposito.Cliente.formaPago.Descripcion);
+		_comboPago = DepositManagerExtension.UI.addCombo(_appConfig, 350, params, _appConfig.getCache().getAllFormasPagoList(), _deposito.Cliente.formaPago.Descripcion);
 		
 		// Filiacion
 		
-		LabelColor labelFiliacion = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+		LabelColor labelFiliacion = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				"Filiación", TEXT_SIZE, 200, params);
 
 		
@@ -331,7 +274,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		// //Copias
 		
 		LabelColor labelCopias = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				"Copias", TEXT_SIZE, 150, params);
+				"Copias", TEXT_SIZE, 90, params);
 		List<String> copias = new ArrayList<>();
 		for (int i=1; i < 6; i++) copias.add(String.valueOf(i));
 		
@@ -340,15 +283,14 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		// Series
 
 		LabelColor labelSeries = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				"Series", TEXT_SIZE, 150, params);
+				"Series", TEXT_SIZE, 90, params);
 		
 		List<String> series = new ArrayList<>();
 		series.add(_appConfig.getUser().SerialInvoiceA);
 		series.add(_appConfig.getUser().SerialInvoiceB);
 
 		_comboSerie = DepositManagerExtension.UI.addCombo(_appConfig, 150, params, series, _appConfig.getUser().SerialInvoiceA);
-		
-		
+
 		_deposito.Serie = _appConfig.getUser().SerialInvoiceA;
 
 		// //Pagado
@@ -362,11 +304,11 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 				"Cantidad Pagada", TEXT_SIZE, 200, params);
 		
 		_textBoxCantidadPagada = DepositManagerExtension.UI.addEdit(getActivity(), Color.GREEN, Gravity.LEFT, 
-				"0", TEXT_SIZE, 100, params2, false);
+				"0", TEXT_SIZE, 100, params, false);
 
 		// descuento 1
 		
-		LabelColor labelDescuento1 = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+		LabelColor labelDescuento1 = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				"Dte. com.", TEXT_SIZE, 150, params);
 
 		DecimalFormat dec = new DecimalFormat("0.00");
@@ -468,41 +410,38 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 			}
 		}
 
-		layout.addView(labelPago);
-		layout.addView(_comboPago);
-		topLayout.addView(_checkPagado);
-		topLayout.addView(labelCantidadPagada);
-		topLayout.addView(_textBoxCantidadPagada);
-		topLayout.addView(labelFiliacion);
-		topLayout.addView(_comboFiliacion);
-		layout.addView(labelCopias);
-		layout.addView(_comboCopias);
-		layout.addView(labelSeries);
-		layout.addView(_comboSerie);
-		layout2.addView(labelDescuento1);
-		layout2.addView(descuento1);
-		layout2.addView(labelDescuento2);
-		layout2.addView(descuento2);
+		LinearLayout topLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout2);
+		LinearLayout topLinearLayout2 = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout3);
+		LinearLayout topLinearLayout3 = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout4);
 
-		LinearLayout topLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout4);
-		topLinearLayout.removeAllViews();
-		topLinearLayout.setOrientation(LinearLayout.VERTICAL);
-		topLinearLayout.addView(topLayout);
-
-		this.FillHeaderButtons();
+		topLinearLayout.addView(labelPago);
+		topLinearLayout.addView(_comboPago);
+		topLinearLayout.addView(_checkPagado);
+		topLinearLayout.addView(labelCantidadPagada);
+		topLinearLayout.addView(_textBoxCantidadPagada);
+		topLinearLayout2.addView(labelFiliacion);
+		topLinearLayout2.addView(_comboFiliacion);
+		topLinearLayout2.addView(labelCopias);
+		topLinearLayout2.addView(_comboCopias);
+		topLinearLayout2.addView(labelSeries);
+		topLinearLayout2.addView(_comboSerie);
+		topLinearLayout3.addView(labelDescuento1);
+		topLinearLayout3.addView(descuento1);
+		topLinearLayout3.addView(labelDescuento2);
+		topLinearLayout3.addView(descuento2);
 
 		_comboPago.addObserver("PAGADO", this);
 		_comboSerie.addObserver("SERIE", this);
 		
 	}
 
-	private void FillHeaderButtons() {
+	private void createHeaderButtons() {
 
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		params.setMargins(10, 0, 10, 0);
+		params.setMargins(5, 0, 5, 0);
 		
 		LayoutParams params2 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		params2.setMargins(5, 5, 0, 0);
+		params2.setMargins(2, 2, 0, 0);
 
 		// Nuevo Layout
 
@@ -623,12 +562,38 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		});
 
 		print.setVisibility(View.GONE);
-		
+
+		// Autocompletado para articulos
+
+		AutoCompleteTextView searchArticulos = new AutoCompleteTextView(getContext());
+		searchArticulos.setWidth(300);
+		searchArticulos.setTextColor(getResources().getColor(R.color.Black));
+		searchArticulos.setHint("nombre del artículo");
+		searchArticulos.setThreshold(1);
+		searchArticulos.setCompletionHint("Pulse el artículo que desea visualizar");
+		this.createAutoComplete(searchArticulos);
+
+		ButtonColor buttonSearchArticulos = DepositManagerExtension.UI.addButton(getActivity(), Color.RED, "",
+				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params, getResources().getDrawable(R.drawable.ic_view_all));
+
+		buttonSearchArticulos.setOnClickListener( v-> {
+			LinearLayout mainLayout = (LinearLayout) that.getActivity()
+					.findViewById(R.id.mainLinearLayoutDepositManager);
+			int count = mainLayout.getChildCount();
+
+			for(int i=0; i<count; i++) {
+				View view = mainLayout.getChildAt(i);
+				view.setVisibility(View.VISIBLE);
+			}
+		});
+
 		layout.addView(datos);
 		layout.addView(totales);
 		layout.addView(albaran);
 		layout.addView(nuevo);
 		layout.addView(print);
+		layout.addView(searchArticulos);
+		layout.addView(buttonSearchArticulos);
 		
 		LinearLayout footerLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerButtonsLinearLayout);
 		footerLinearLayout.removeAllViews();
@@ -640,12 +605,9 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 	private void FillWindow() throws Exception {
 
-		this.resetLines();
+		this.showHeader();
 		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity()
 				.findViewById(R.id.mainLinearLayoutDepositManager);
-
-
-		this.createHeaderLabels();
 
 		if (DepositManagerExtension.DataTier.RestriccionIngresos(this._appConfig, this.getActivity().getApplicationContext())) {
 
@@ -664,7 +626,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		_cliente = _appConfig.getWorkingArea().CurrentCliente;
 
 		TextView label = (TextView) getActivity().findViewById(R.id.lblCliente);
-		label.setText(cliente.Nombre + " - " + cliente.NIF + "     ");
+		label.setText(cliente.Nombre + " - " + cliente.NIF);
 
 		try {
 
@@ -745,7 +707,9 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 			throw new RuntimeException(e);
 		}
 
-		FillFooter();
+		this.createHeaderLabels();
+		createHeaderControls();
+		this.createHeaderButtons();
 
 		List<LineaDeposito> depositLines = new ArrayList<>();
 		List<LineaDeposito> potentialLines = new ArrayList<>();
@@ -775,25 +739,17 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 				throw new RuntimeException(e);
 			}
 		}
-
-		this.createAutoComplete();
-
 	}
 	
-	private void createAutoComplete() {
+	private void createAutoComplete(AutoCompleteTextView autocomplete) {
 		
 		final DepositManager that = this;
-		
-    	this._myAutoComplete = (AutoCompleteTextView) getActivity().findViewById(R.id.myautocomplete);
-        this._myAutoComplete.addTextChangedListener(new DepositManagerTextWatcher());
-        
-        this._myAutoComplete.setThreshold(1);
-        this._myAutoComplete.setCompletionHint("Pulse el artículo que desea visualizar");
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_dropdown_item_1line, this._articles);
+
+		autocomplete.addTextChangedListener(new DepositManagerTextWatcher());
+		ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_dropdown_item_1line, this._articles);
                 
-        this._myAutoComplete.setAdapter(adapter);
-        
-        this._myAutoComplete.setOnItemClickListener((listView, view, position, id) -> {
+        autocomplete.setAdapter(adapter);
+		autocomplete.setOnItemClickListener((listView, view, position, id) -> {
 
 			String selectedArticle =  listView.getItemAtPosition(position).toString().trim().toUpperCase();
 
@@ -817,9 +773,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 				}
 
 			}
-			that._myAutoComplete.setText(Constants.EMPTY_STRING);
+			autocomplete.setText(Constants.EMPTY_STRING);
 		});
- 
 	}
 	
 	private void addPotentialArticles() throws Exception {
@@ -1302,7 +1257,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 
 	private void resetHeader() {
-		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout6);
+		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout7);
 		mainLinearLayout.removeAllViews();
 	}
 	
@@ -1310,7 +1265,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 		final DepositManager that = this;
 
-		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout6);
+		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout7);
 		mainLinearLayout.removeAllViews();
 
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -1690,7 +1645,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 		final DepositManager that = this;
 
-		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout6);
+		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout7);
 		mainLinearLayout.removeAllViews();
 
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -1924,29 +1879,17 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 	}
 
-	private void resetLines() {
+	private void showHeader() {
+		(this.getActivity().findViewById(R.id.headerMainLinearLayout)).setVisibility(View.VISIBLE);
 
-		TextView label = (TextView) getActivity().findViewById(R.id.lblCliente);
-		label.setText(Constants.EMPTY_STRING);
-
-		TextView label2 = (TextView) getActivity().findViewById(R.id.lblBase);
-		label2.setText(Constants.EMPTY_STRING);
-
-		TextView label3 = (TextView) getActivity().findViewById(R.id.lblTotalFactura);
-		label3.setText(Constants.EMPTY_STRING);
-
-		TextView label4 = (TextView) getActivity().findViewById(R.id.lblTipoEntrega);
-		label4.setText(Constants.EMPTY_STRING);
-
-		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity()
-				.findViewById(R.id.mainLinearLayoutDepositManager);
-		mainLinearLayout.removeAllViews();
+		((LinearLayout) this.getActivity()
+				.findViewById(R.id.mainLinearLayoutDepositManager)).removeAllViews();
 	}
 
 	private void createHeaderLabels() {
 		
 		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity()
-				.findViewById(R.id.headerMainLinearLayout5);
+				.findViewById(R.id.headerMainLinearLayout6);
 		
 		mainLinearLayout.removeAllViews();
 		
@@ -2184,37 +2127,23 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		if (_deposito != null) {
 
 			String filiacion = DepositManagerExtension.DataTier.getFiliacionCode(_comboFiliacion.getText()).trim();
-
 			_deposito.Cliente.Filiacion = filiacion;
 
 			_deposito.InitializePersistance(_appConfig, _appConfig);
 			_deposito.Calculate();
 
 			if (DepositManagerExtension.DataTier.IsSerieA(this._comboSerie, this._appConfig)) {
-				TextView label = (TextView) getActivity().findViewById(R.id.lblBase);
-				label.setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.TotalBase) + " €");
-
-				TextView label2 = (TextView) getActivity().findViewById(R.id.lblTotalFactura);
-				label2.setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.Total) + " €");
+				((TextView) getActivity().findViewById(R.id.lblBase)).setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.TotalBase) + " €");
+				((TextView) getActivity().findViewById(R.id.lblTotalFactura)).setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.Total) + " €");
 			} else {
-				TextView label = (TextView) getActivity().findViewById(R.id.lblBase);
-				label.setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.TotalBase) + " €");
-
-				TextView label2 = (TextView) getActivity().findViewById(R.id.lblTotalFactura);
-				label2.setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.TotalBase) + " €");
+				((TextView) getActivity().findViewById(R.id.lblBase)).setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.TotalBase) + " €");
+				((TextView) getActivity().findViewById(R.id.lblTotalFactura)).setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.TotalBase) + " €");
 			}
-
-			TextView label3 = (TextView) getActivity().findViewById(R.id.lblTipoEntrega);
-			label3.setText(_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
+			((TextView) getActivity().findViewById(R.id.lblTipoEntrega)).setText(_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
 		} else {
-			TextView label = (TextView) getActivity().findViewById(R.id.lblBase);
-			label.setText(Constants.EMPTY_STRING);
-
-			TextView label2 = (TextView) getActivity().findViewById(R.id.lblTotalFactura);
-			label2.setText(Constants.EMPTY_STRING);
-
-			TextView label3 = (TextView) getActivity().findViewById(R.id.lblTipoEntrega);
-			label3.setText(Constants.EMPTY_STRING);
+			((TextView) getActivity().findViewById(R.id.lblBase)).setText(Constants.EMPTY_STRING);
+			((TextView) getActivity().findViewById(R.id.lblTotalFactura)).setText(Constants.EMPTY_STRING);
+			((TextView) getActivity().findViewById(R.id.lblTipoEntrega)).setText(Constants.EMPTY_STRING);
 		}
 	}
 
@@ -2238,7 +2167,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		}
 
 		if (initializeAttributes) {
-			_searched = false;
 			_newDeposit = true;
 			_abonoMode = false;
 			_appConfig.getWorkingArea().CurrentCliente = null;
@@ -2253,8 +2181,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		}
 
 		resetHeader();
-		resetLines();
-		resetFooter();
+		showHeader();
+		//resetFooter();
 	}
 
 	private void closeKeyboard(EditText editText) {
@@ -2306,7 +2234,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 			}
 			case "EventCustomerCancelled": {
 				_appConfig.getWorkingArea().CancelSearchDeposit = true;
-				resetFooter();
+				//resetFooter();
 			}
 		}
 	}
