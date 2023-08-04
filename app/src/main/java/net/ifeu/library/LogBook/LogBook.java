@@ -7,6 +7,8 @@ import android.database.Cursor;
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Articulo;
+import net.ifeu.edicards.DataTier.Cliente;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 import net.ifeu.library.Utils.DateTime.DateTimeUtils;
@@ -60,21 +62,9 @@ public class LogBook extends Persistent implements IPersistable {
     }
 
     @Override
-    public void InitializePersistance(AppConfig appConfig, Context context) {
-        
-        super.InitializePersistance(appConfig, context);
-    }
-
-    @Override
-    public void ReleasePersistance() throws Exception {
-        super.ReleasePersistance();
-    }
-
-    @Override
     public void save() throws Exception {
 
-        Articulo articuloHomonimo = new Articulo();
-        articuloHomonimo.InitializePersistance(appConfig, context);
+        Articulo articuloHomonimo = Factory.build(Articulo.class, appConfig);
 
         boolean isCH = false;
         boolean isFound;
@@ -170,8 +160,7 @@ public class LogBook extends Persistent implements IPersistable {
             {
                 do {
 
-                    LogBook logBook = new LogBook();
-                    logBook.InitializePersistance(super.appConfig, super.context);
+                    LogBook logBook = Factory.build(LogBook.class, appConfig);
 
                     logBook.idLogBook = Long.parseLong(cursor.getString(cursor.getColumnIndex("IdLogBook")));
                     logBook.Fecha = cursor.getString(cursor.getColumnIndex("Fecha"));

@@ -15,6 +15,8 @@ import android.widget.TextView;
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Cliente;
+import net.ifeu.edicards.DataTier.Factories.Factory;
+import net.ifeu.edicards.DataTier.LineaDeposito;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +46,7 @@ public class CustomerSearch extends Fragment implements TextWatcher {
     	super.onActivityCreated(savedInstanceState);
     	
     	app = (AppConfig) getActivity().getApplicationContext();  
-    	cliente = new Cliente();
-        cliente.InitializePersistance(app, getActivity());
+    	cliente = Factory.build(Cliente.class, app);
 
         try {
    			item = cliente.getClientesNameByFilter("", Constants.CUSTOMER_FILTER_NAME, false);

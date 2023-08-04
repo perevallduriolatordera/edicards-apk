@@ -4,6 +4,7 @@ import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.ClienteInfo;
 import net.ifeu.edicards.DataTier.Deposito;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Incidencia;
 import net.ifeu.edicards.DataTier.IncidenciaType;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
@@ -27,12 +28,6 @@ public class CustomerData extends Activity {
 		setContentView(R.layout.activity_customer_data);
 
 		_appConfig = (AppConfig) this.getApplicationContext();
-		try {
-			_appConfig.getWorkingArea().CurrentDeposito.InitializePersistance(
-					_appConfig, this);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 
 		android.view.WindowManager.LayoutParams params = getWindow()
 				.getAttributes();
@@ -83,9 +78,7 @@ public class CustomerData extends Activity {
 				.setText(deposito.Telefono2);
 		((EditText) findViewById(R.id.lblFaxCliente)).setText(deposito.Fax);
 		((EditText) findViewById(R.id.lblMailCliente)).setText(deposito.Mail);
-		
-		deposito.ClienteInfo.InitializePersistance(_appConfig, this.getApplicationContext());
-		
+
 		deposito.ClienteInfo.setClienteInfoByCliente(deposito.Cliente);
 
 	    ((EditText) findViewById(R.id.lblCCCCliente)).setText(deposito.ClienteInfo.CCC);
@@ -148,7 +141,6 @@ public class CustomerData extends Activity {
 		_appConfig.getWorkingArea().CurrentDeposito.ClienteInfo.DniRepresentante = ((EditText) findViewById(R.id.lblDniRepresentanteCliente))
 				.getText().toString();
 		
-		_appConfig.getWorkingArea().CurrentDeposito.ClienteInfo.InitializePersistance(_appConfig, this.getApplicationContext());
 		_appConfig.getWorkingArea().CurrentDeposito.ClienteInfo.update();
 		
 		Deposito deposito = _appConfig.getWorkingArea().CurrentDeposito;
@@ -252,7 +244,7 @@ public class CustomerData extends Activity {
 	private boolean isUpdatedCCC()
 	{
 		if (_appConfig.getWorkingArea().CurrentDeposito.ClienteInfo == null)
-			_appConfig.getWorkingArea().CurrentDeposito.ClienteInfo = new ClienteInfo();
+			_appConfig.getWorkingArea().CurrentDeposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
 
 		if (!_appConfig.getWorkingArea().CurrentDeposito.ClienteInfo.CCC.trim().equals(((EditText) findViewById(R.id.lblCCCCliente))
 				.getText().toString().trim()))

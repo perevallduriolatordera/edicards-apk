@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Totales.Base;
 import android.content.Context;
 import android.util.Log;
@@ -234,8 +235,7 @@ public class DTODeposito {
 	
 	public Deposito getDeposito() throws Exception{
 		
-		Deposito dep = new Deposito();
-		dep.InitializePersistance(_appConfig, _context);
+		Deposito dep = Factory.build(Deposito.class, _appConfig);
 
 		dep.Activo = this.Activo;
 		dep.CantidadPagada = this.CantidadPagada;
@@ -274,7 +274,7 @@ public class DTODeposito {
 
 		dep.Lineas.clear();
 		for (DTOLineaDeposito linea : this.Lineas.values()) {
-			LineaDeposito lineaDeposito = new LineaDeposito();
+			LineaDeposito lineaDeposito = Factory.build(LineaDeposito.class, _appConfig);
 
 			lineaDeposito.Articulo.CodigoArticulo = linea.CodigoArticulo;
 			lineaDeposito.Articulo.Descripcion = linea.Descripcion;
@@ -329,17 +329,13 @@ public class DTODeposito {
 				@SuppressWarnings("unused")
 				double dte = round(bruto - neto,3);
 
-				TipoIVA iva = new TipoIVA();
-				iva.InitializePersistance(_appConfig, _context);
+				TipoIVA iva = Factory.build(TipoIVA.class, _appConfig);
 
-				Cliente cliente = new Cliente();
-				cliente.InitializePersistance(_appConfig, _context);
+				Cliente cliente = Factory.build(Cliente.class, _appConfig);
 				cliente.setClienteByCodigo(this.CodigoCliente);
 
-				Articulo articulo = new Articulo();
-				articulo.InitializePersistance(_appConfig, _context);
+				Articulo articulo = Factory.build(Articulo.class, _appConfig);
 				articulo.setArticuloByCodigo(linea.CodigoArticulo);
-
 
 				if (iva.setTipoIVAByClienteArticulo(cliente,
 						articulo)
@@ -426,15 +422,12 @@ public class DTODeposito {
 				@SuppressWarnings("unused")
 				double dte = round(bruto - neto,3);
 
-				TipoIVA iva = new TipoIVA();
-				iva.InitializePersistance(_appConfig, _context);
+				TipoIVA iva = Factory.build(TipoIVA.class, _appConfig);
 
-				Cliente cliente = new Cliente();
-				cliente.InitializePersistance(_appConfig, _context);
+				Cliente cliente = Factory.build(Cliente.class, _appConfig);
 				cliente.setClienteByCodigo(this.CodigoCliente);
 
-				Articulo articulo = new Articulo();
-				articulo.InitializePersistance(_appConfig, _context);
+				Articulo articulo = Factory.build(Articulo.class, _appConfig);
 				articulo.setArticuloByCodigo(linea.CodigoArticulo);
 
 				if (iva.setTipoIVAByClienteArticulo(cliente,

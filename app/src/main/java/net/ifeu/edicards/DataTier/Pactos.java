@@ -6,28 +6,19 @@ import android.database.Cursor;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 
 public class Pactos extends Persistent implements IPersistable {
 
 	public Long IdPacto;
-	public Cliente Cliente = new Cliente();
-	public Articulo Articulo = new Articulo();
+	public Cliente Cliente = Factory.build(Cliente.class, appConfig);
+	public Articulo Articulo = Factory.build(Articulo.class, appConfig);
 	public double PVP;
 	public double Descuento1;
 	public double Descuento2;
-	
-	public void InitializePersistance(AppConfig appConfig, Context context) {
-		
-		super.InitializePersistance(appConfig, context);
-	}
-	
-	@Override
-	public void ReleasePersistance() throws Exception {
-		super.ReleasePersistance();
-	}
-	
+
 	@Override
 	public void save() throws Exception {
 				

@@ -10,7 +10,10 @@ import java.util.LinkedList;
 import android.content.Context;
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.Articulo;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.FormaPago;
+
+import org.apache.xmlbeans.impl.tool.FactorImports;
 
 public class CacheData {
 	
@@ -29,10 +32,7 @@ public class CacheData {
 
 		if (_articulos == null) {
 			
-			Articulo articulo = new Articulo();
-
-			articulo.InitializePersistance(_appConfig, this._context);
-
+			Articulo articulo = Factory.build(Articulo.class, _appConfig);
 			this._articulos = articulo.getAllArticulos(1); 
 			return this._articulos;
 	
@@ -46,12 +46,7 @@ public class CacheData {
 
 		if (_gastos == null) {
 			
-			Articulo articulo = new Articulo();
-
-			try {
-				articulo.InitializePersistance(_appConfig, this._context);
-			} catch (Exception e) {
-				throw new RuntimeException(e);			}
+			Articulo articulo = Factory.build(Articulo.class, _appConfig);
 
 			this._gastos = articulo.getAllArticulos(2);
 			return this._gastos;
@@ -66,13 +61,7 @@ public class CacheData {
 
 		if (_formasPago == null) {
 			
-			FormaPago formaPago = new FormaPago();
-
-			try {
-				formaPago.InitializePersistance(_appConfig, this._context);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
+			FormaPago formaPago = Factory.build(FormaPago.class, _appConfig);
 
 			this._formasPago = formaPago.getAllFormasPago();
 			return this._formasPago;

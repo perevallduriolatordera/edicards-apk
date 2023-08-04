@@ -9,23 +9,22 @@ public abstract class Persistent implements IPersistable {
 	DatabaseOperations _databaseOperations;
 	
 	public AppConfig appConfig;
-	public Context context;
-	
+
 	public DatabaseOperations getDatabaseOperations()
 	{
 		return _databaseOperations;
 	}
 
 	@Override
-	public void InitializePersistance(AppConfig appConfigParam, Context contextParam) {
+	public void InitializePersistance(AppConfig appConfigParam) {
 		appConfig = appConfigParam;
-		context = contextParam;
+
 
 		_databaseOperations = appConfig.getDatabaseOperations();
 
 		try {
 			if (!_databaseOperations.isOpen())
-				_databaseOperations.openDB(context);
+				_databaseOperations.openDB(appConfig);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

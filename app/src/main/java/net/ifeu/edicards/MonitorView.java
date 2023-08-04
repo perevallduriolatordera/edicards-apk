@@ -14,6 +14,7 @@ import android.widget.RelativeLayout;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.Contador;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.Excel.LogBookCreator;
 import net.ifeu.edicards.Services.ParserMonitor;
 import net.ifeu.edicards.Services.ServiceMonitor;
@@ -239,8 +240,7 @@ public class MonitorView extends Fragment {
 
 		// contadores de facturas
 
-		Contador contador = new Contador();
-		contador.InitializePersistance(_appConfig, _appConfig);
+		Contador contador = Factory.build(Contador.class, _appConfig);
 
 		layout2.addView(this.createLabel("contador tipo A" , String.valueOf(contador.ContadorSerieA), false));
 		layout2.addView(this.createLabel("contador tipo B" , String.valueOf(contador.ContadorSerieB), false));

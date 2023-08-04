@@ -6,6 +6,7 @@ import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Deposito;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.library.Controls.ButtonColor;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
@@ -60,13 +61,7 @@ public class SelectDeposit extends Activity {
 		params.setMargins(0, 30, 0, 30);
 
 		final Cliente cliente = _appConfig.getWorkingArea().CurrentCliente;
-		Deposito deposito = new Deposito();
-
-		try {
-			deposito.InitializePersistance(_appConfig, this);
-		} catch (Exception e1) {
-			throw new RuntimeException(e1);
-		}
+		Deposito deposito = Factory.build(Deposito.class, _appConfig);
 
 		ArrayList<Deposito> depositosList = (ArrayList<Deposito>) deposito
 				.getDepositosByCliente(String.valueOf(cliente.IdCliente));
@@ -117,7 +112,7 @@ public class SelectDeposit extends Activity {
 			depositoConvencionalButton
 					.setOnClickListener(arg0 -> {
 
-						Deposito dep = new Deposito();
+						Deposito dep = Factory.build(Deposito.class, _appConfig);
 						try {
 							dep.setClienteById(String
 									.valueOf(cliente.IdCliente));
@@ -126,13 +121,6 @@ public class SelectDeposit extends Activity {
 						}
 
 						dep.TipoDeposito = Constants.TIPO_DEPOSITO_CONVENCIONAL;
-
-						try {
-							dep.InitializePersistance(_appConfig,
-									arg0.getContext());
-						} catch (Exception e1) {
-							throw new RuntimeException(e1);
-						}
 
 						try {
 							_appConfig.getWorkingArea().CurrentDeposito = dep;
@@ -154,7 +142,7 @@ public class SelectDeposit extends Activity {
 			depositoCampanaButton.setTextSize(TEXT_SIZE_BUTTON);
 			depositoCampanaButton.setOnClickListener(arg0 -> {
 
-				Deposito dep = new Deposito();
+				Deposito dep = Factory.build(Deposito.class, _appConfig);
 				try {
 					dep.assingFromCliente(cliente);
 				} catch (Exception e2) {
@@ -162,12 +150,6 @@ public class SelectDeposit extends Activity {
 				}
 
 				dep.TipoDeposito = Constants.TIPO_DEPOSITO_CAMPANA;
-
-				try {
-					dep.InitializePersistance(_appConfig, arg0.getContext());
-				} catch (Exception e1) {
-					throw new RuntimeException(e1);
-				}
 
 				try {
 					_appConfig.getWorkingArea().CurrentDeposito = dep;
@@ -196,7 +178,7 @@ public class SelectDeposit extends Activity {
 				depositoConvencionalButton
 						.setOnClickListener(arg0 -> {
 
-							Deposito dep = new Deposito();
+							Deposito dep = Factory.build(Deposito.class, _appConfig);
 							try {
 								dep.assingFromCliente(cliente);
 							} catch (Exception e2) {
@@ -204,13 +186,6 @@ public class SelectDeposit extends Activity {
 							}
 
 							dep.TipoDeposito = Constants.TIPO_DEPOSITO_CONVENCIONAL;
-
-							try {
-								dep.InitializePersistance(_appConfig,
-										arg0.getContext());
-							} catch (Exception e1) {
-								throw new RuntimeException(e1);
-							}
 
 							try {
 								_appConfig.getWorkingArea().CurrentDeposito = dep;
@@ -233,7 +208,7 @@ public class SelectDeposit extends Activity {
 				depositoCampanaButton.setLayoutParams(params);
 				depositoCampanaButton.setOnClickListener(arg0 -> {
 
-					Deposito dep = new Deposito();
+					Deposito dep = Factory.build(Deposito.class,_appConfig);
 					try {
 						dep.assingFromCliente(cliente);
 					} catch (Exception e2) {
@@ -241,13 +216,6 @@ public class SelectDeposit extends Activity {
 					}
 
 					dep.TipoDeposito = Constants.TIPO_DEPOSITO_CAMPANA;
-
-					try {
-						dep.InitializePersistance(_appConfig,
-								arg0.getContext());
-					} catch (Exception e1) {
-						throw new RuntimeException(e1);
-					}
 
 					try {
 						_appConfig.getWorkingArea().CurrentDeposito = dep;

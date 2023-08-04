@@ -24,6 +24,7 @@ import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Deposito;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.MovimientosAlmacen;
 import net.ifeu.edicards.Pdf.PdfInventoryRecycled;
 import net.ifeu.edicards.Services.ServiceWorker;
@@ -128,10 +129,7 @@ public class StockManager extends Fragment {
 		
 		for (Articulo articulo : _articulos.values()) {
 			try {
-				articulo.InitializePersistance(_appConfig, getActivity());
-				
 				articulo.update();
-				
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -144,11 +142,8 @@ public class StockManager extends Fragment {
 		for (Articulo articulo : _articulos.values()) {
 			try {
 
-				LogBook logBookWriter = new LogBook();
-				logBookWriter.InitializePersistance(_appConfig, _appConfig);
+				LogBook logBookWriter = Factory.build(LogBook.class, _appConfig);
 
-				articulo.InitializePersistance(_appConfig, getActivity());
-				
 				if (!onlyReciclado) {
 					articulo.Stock = 0;
 					logBookWriter.setData("INICIALIZACIÓN DE ALMACÉN", Constants.EMPTY_STRING,
@@ -237,11 +232,7 @@ public class StockManager extends Fragment {
 
 					if (that._isManagerPasswordMode)
 					{
-
-						Deposito deposito = new Deposito();
-
-						deposito.InitializePersistance(_appConfig,
-								that.getActivity());
+						Deposito deposito = Factory.build(Deposito.class, _appConfig);
 
 						if (deposito.getDepositosToday().size() > 0) {
 							_appConfig.getMessageBox().Show(
@@ -268,10 +259,7 @@ public class StockManager extends Fragment {
 
 							that._isManagerPasswordMode = true;
 
-							Deposito deposito = new Deposito();
-
-							deposito.InitializePersistance(_appConfig,
-									that.getActivity());
+							Deposito deposito = Factory.build(Deposito.class, _appConfig);
 
 							if (deposito.getDepositosToday().size() > 0) {
 								_appConfig.getMessageBox().Show(
@@ -567,14 +555,10 @@ public class StockManager extends Fragment {
 		unidadesRecuento.setOnFocusChangeListener((view, hasFocus) -> {
 
 			if (!hasFocus) {
-				Deposito deposito = new Deposito();
+				Deposito deposito = Factory.build(Deposito.class, _appConfig);
 
 				try {
-					deposito.InitializePersistance(_appConfig,
-							that.getActivity());
-
-					LogBook logBookWriter = new LogBook();
-					logBookWriter.InitializePersistance(_appConfig, _appConfig);
+					LogBook logBookWriter = Factory.build(LogBook.class, _appConfig);
 
 					if (deposito.getDepositosToday().size() > 0) {
 						_appConfig.getMessageBox().Show(
@@ -722,8 +706,7 @@ public class StockManager extends Fragment {
 		int stockInicial = swap.Articulo.Stock;
 		swap.Articulo.Stock = stockInicial + entradas - salidas;
 
-		LogBook logBookWriter = new LogBook();
-		logBookWriter.InitializePersistance(_appConfig,	_appConfig);
+		LogBook logBookWriter = Factory.build(LogBook.class, _appConfig);
 
 		logBookWriter.setData("ASIGNACION DE ALMACÉN", Constants.EMPTY_STRING,
 				Constants.EMPTY_STRING, swap.Articulo.CodigoArticulo, swap.Articulo.Descripcion,
@@ -742,14 +725,6 @@ public class StockManager extends Fragment {
 		swap.Salidas.setText(Constants.EMPTY_STRING);
 
 		try {
-			swap.Articulo.InitializePersistance(_appConfig, getActivity()
-					.getApplicationContext());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			throw new RuntimeException(e);
-		}
-
-		try {
 			swap.Articulo.update();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -757,15 +732,7 @@ public class StockManager extends Fragment {
 
 		// Damos de alta el movimiento de almacén
 
-		MovimientosAlmacen movimiento = new MovimientosAlmacen();
-
-		try {
-			movimiento.InitializePersistance(_appConfig, getActivity()
-					.getApplicationContext());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			throw new RuntimeException(e);
-		}
+		MovimientosAlmacen movimiento = Factory.build(MovimientosAlmacen.class, _appConfig);
 
 		try {
 			movimiento.Articulo = swap.Articulo;
@@ -821,14 +788,6 @@ public class StockManager extends Fragment {
 		swap.SalidasDefectuoso.setText(Constants.EMPTY_STRING);
 
 		try {
-			swap.Articulo.InitializePersistance(_appConfig, getActivity()
-					.getApplicationContext());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			throw new RuntimeException(e);
-		}
-
-		try {
 			swap.Articulo.update();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -836,15 +795,7 @@ public class StockManager extends Fragment {
 
 		// Damos de alta el movimiento de almacén
 
-		MovimientosAlmacen movimientoDefectuoso = new MovimientosAlmacen();
-
-		try {
-			movimientoDefectuoso.InitializePersistance(_appConfig,
-					getActivity().getApplicationContext());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			throw new RuntimeException(e);
-		}
+		MovimientosAlmacen movimientoDefectuoso = Factory.build(MovimientosAlmacen.class, _appConfig);
 
 		try {
 			movimientoDefectuoso.Articulo = swap.Articulo;

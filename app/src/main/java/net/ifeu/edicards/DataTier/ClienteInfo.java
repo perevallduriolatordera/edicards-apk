@@ -33,18 +33,7 @@ public class ClienteInfo extends Persistent implements IPersistable {
 		else
 			this.CCC = Constants.EMPTY_STRING;
 	}
-	
-	@Override
-	public void InitializePersistance(AppConfig appConfig, Context context)  {
-		
-		super.InitializePersistance(appConfig, context);
-	}
-	
-	@Override
-	public void ReleasePersistance() throws Exception {
-		super.ReleasePersistance();
-	}
-	
+
 	@Override
 	public void save() throws Exception {
 		

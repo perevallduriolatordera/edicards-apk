@@ -17,6 +17,7 @@ import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.DTODeposito;
 import net.ifeu.edicards.DataTier.DTOLineaDeposito;
 import net.ifeu.edicards.DataTier.Deposito;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Gasto;
 import net.ifeu.edicards.DataTier.GastosInfo;
 import net.ifeu.edicards.DataTier.Historico;
@@ -67,14 +68,11 @@ public class XmlCreator {
 			throw new RuntimeException(e);
 		}
 
-		Articulo articulo = new Articulo();
-		articulo.InitializePersistance(_appConfig,_context.getApplicationContext());
+		Articulo articulo = Factory.build(Articulo.class, _appConfig);
 
 		// Obtenemos el histórico a partir de la fecha del día
 
-		Historico historico = new Historico();
-		historico.InitializePersistance(_appConfig,
-				_context.getApplicationContext());
+		Historico historico = Factory.build(Historico.class, _appConfig);
 
 		Calendar calendar1 = this.setWeekStart(Calendar.getInstance());
 		Calendar calendar2 = Calendar.getInstance();
@@ -187,10 +185,6 @@ public class XmlCreator {
 			throw new RuntimeException(e);
 		}
 
-		Articulo articulo = new Articulo();
-		articulo.InitializePersistance(_appConfig,
-				_context.getApplicationContext());
-
 		fileos.write("<StockDiario>".getBytes());
 		
 		fileos.write("<US>".getBytes());
@@ -240,11 +234,8 @@ public class XmlCreator {
 
 	public void createXmlGastos(Date fecha) throws Exception {
 
-		Gasto gasto = new Gasto();
-		gasto.InitializePersistance(_appConfig, _context);
-
-		Articulo articulo = new Articulo();
-		articulo.InitializePersistance(_appConfig, _context);
+		Gasto gasto = Factory.build(Gasto.class, _appConfig);
+		Articulo articulo = Factory.build(Articulo.class, _appConfig);
 
 		SimpleDateFormat formatterDate;
 		formatterDate = new SimpleDateFormat("yyyyMMdd");
@@ -271,9 +262,7 @@ public class XmlCreator {
 			throw new RuntimeException(e);
 		}
 
-		GastosInfo gastosInfo = new GastosInfo();
-		gastosInfo.InitializePersistance(_appConfig, _context);
-		
+		GastosInfo gastosInfo = Factory.build(GastosInfo.class, _appConfig);
 		GastosInfo comment = gastosInfo.getGastoInfoByFecha(fecha);
 		
 		fileos.write(("<Gastos comment='" + comment.Comentario + "'>").getBytes());
@@ -326,8 +315,7 @@ public class XmlCreator {
 			}
 		}
 
-		Historico historico = new Historico();
-		historico.InitializePersistance(_appConfig, _context);
+		Historico historico = Factory.build(Historico.class, _appConfig);
 
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(fecha);

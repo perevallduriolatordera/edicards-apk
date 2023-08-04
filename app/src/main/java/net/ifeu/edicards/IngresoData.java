@@ -12,6 +12,8 @@ import android.widget.EditText;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Cliente;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Incidencia;
 import net.ifeu.edicards.DataTier.IncidenciaType;
 import net.ifeu.edicards.DataTier.Ingresos;
@@ -95,7 +97,7 @@ public class IngresoData extends Fragment {
 			return;
 		}
 
-		Ingresos ingreso = new Ingresos();
+		Ingresos ingreso = Factory.build(Ingresos.class, _appConfig);
 
 		ingreso.Entidad = entidad;
 		ingreso.Fecha = fecha;
@@ -103,8 +105,6 @@ public class IngresoData extends Fragment {
 		ingreso.Referencia = referencia;
 		ingreso.Descripcion = descripcion;
 
-		
-		ingreso.InitializePersistance(_appConfig, this.getActivity().getApplicationContext());
 		ingreso.save();
 
 		_appConfig.getMessageBox().Show("Ingreso", "El ingreso se ha realizado correctamente", getActivity(),

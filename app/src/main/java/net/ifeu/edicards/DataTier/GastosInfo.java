@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 
@@ -18,12 +19,7 @@ public class GastosInfo extends Persistent implements IPersistable {
 	public Date Fecha;
 	public String Comentario = Constants.EMPTY_STRING;
 	public Boolean IsNew;
-	
-	@Override
-	public void ReleasePersistance() throws Exception {
-		super.ReleasePersistance();
-	}
-	
+
 	@SuppressLint("SimpleDateFormat")
 	@Override
 	public void save() throws Exception {
@@ -98,7 +94,7 @@ public class GastosInfo extends Persistent implements IPersistable {
 		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_GASTOS_INFO + " WHERE Fecha='" +
 				formatter.format(fecha) + "'");
 		
-		GastosInfo gastoInfo = new GastosInfo();
+		GastosInfo gastoInfo = Factory.build(GastosInfo.class, appConfig);
 		boolean result = false;
 		
 		if (cursor != null)
@@ -107,10 +103,7 @@ public class GastosInfo extends Persistent implements IPersistable {
 			
 			if (cursor.getCount() > 0)
 			{
-				
 				Long idGastoInfo = Long.parseLong(cursor.getString(cursor.getColumnIndex("IdGastoInfo")));
-				gastoInfo.InitializePersistance(super.appConfig, super.context);
-				
 				result = gastoInfo.setGastoInfoById(String.valueOf(idGastoInfo));
 			}
 			

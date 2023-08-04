@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.util.Log;
 
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 
@@ -17,16 +18,11 @@ public class Tarifa extends Persistent implements IPersistable {
 	public String CodigoTarifa;
 	public Date FechaIni;
 	public Date FechaFin;
-	public Articulo Articulo = new Articulo();
+	public Articulo Articulo = Factory.build(Articulo.class, appConfig);
 	public double PVP;
 	public double Descuento1;
 	public double Descuento2;
-	
-	@Override
-	public void ReleasePersistance() throws Exception {
-		super.ReleasePersistance();
-	}
-	
+
 	@Override
 	public void save() throws Exception {
 				

@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Articulo;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.MovimientosAlmacen;
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -74,15 +75,9 @@ public class PdfInventory extends pdfBase {
 			throw new RuntimeException(e);
 		}
 
-		MovimientosAlmacen movimientos = new MovimientosAlmacen();
-        try {
-        	movimientos.InitializePersistance(_app, _context);
-        } catch (Exception e1) {
-			throw new RuntimeException(e1);
-		}
-		
+		MovimientosAlmacen movimientos = Factory.build(MovimientosAlmacen.class, _app);
+
 		Date now = new Date();
-		
 		LinkedHashMap<String,ArrayList<MovimientosAlmacen>> movs = new LinkedHashMap<>();
 		
 		try {

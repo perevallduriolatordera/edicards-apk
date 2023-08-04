@@ -6,6 +6,7 @@ import android.database.Cursor;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 
@@ -16,16 +17,6 @@ public class FormaPago extends Persistent implements IPersistable {
 	public Long IdFormaPago;
 	public String CodigoFormaPago;
 	public String Descripcion;
-
-	public void InitializePersistance(AppConfig appConfig, Context context)
-	{
-		super.InitializePersistance(appConfig, context);
-	}
-	
-	@Override
-	public void ReleasePersistance() throws Exception {
-		super.ReleasePersistance();
-	}
 
 	@Override
 	public void save() throws Exception {
@@ -122,7 +113,7 @@ public class FormaPago extends Persistent implements IPersistable {
 			if (cursor.getCount() > 0) {
 
 				do {
-					FormaPago formaPago = new FormaPago();
+					FormaPago formaPago = Factory.build(FormaPago.class, appConfig);
 
 					formaPago.IdFormaPago = Long.parseLong(cursor
 							.getString(cursor.getColumnIndex("IdFormaPago")));

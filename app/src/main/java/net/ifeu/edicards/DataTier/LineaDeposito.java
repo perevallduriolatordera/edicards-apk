@@ -6,6 +6,7 @@ import android.database.Cursor;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 
@@ -17,8 +18,8 @@ public class LineaDeposito extends Persistent implements IPersistable {
 	public long IdLineaDeposito;
 	public long IdDeposito;
 	public long IdArticulo;
-	public Deposito Deposito = new Deposito();
-	public Articulo Articulo = new Articulo();
+	public Deposito Deposito = Factory.build(Deposito.class, appConfig);
+	public Articulo Articulo = Factory.build(Articulo.class, appConfig);
 	public int StockInicial;
 	public int UnidadesIniciales;
 	public int UnidadesInicialesFijas;
@@ -38,18 +39,7 @@ public class LineaDeposito extends Persistent implements IPersistable {
 	public int DefectuosasAbono;
 	public double PVPAbono;
 	public double TotalAbono;
-	
-	@Override
-	public void InitializePersistance(AppConfig appConfig, Context context) {
-		
-		super.InitializePersistance(appConfig, context);
-	}
-	
-	@Override
-	public void ReleasePersistance() throws Exception {
-		super.ReleasePersistance();
-	}
-	
+
 	@Override
 	public void save() throws Exception {
 		
@@ -108,15 +98,8 @@ public class LineaDeposito extends Persistent implements IPersistable {
 				{
 					
 					do {
-						Articulo articulo = new Articulo();
-						
-						try {
-							articulo.InitializePersistance(super.appConfig, super.context);
-						} catch (Exception e) {
-							throw new RuntimeException(e);
-						}
-						
-						LineaDeposito linea = new LineaDeposito();
+						Articulo articulo = Factory.build(Articulo.class, appConfig);
+						LineaDeposito linea = Factory.build(LineaDeposito.class, appConfig);
 						
 						linea.Deposito = deposito; 
 						linea.IdLineaDeposito = Integer.parseInt(cursor.getString(cursor.getColumnIndex("IdLineaDeposito")));
@@ -163,28 +146,15 @@ public class LineaDeposito extends Persistent implements IPersistable {
 	public double getPVP(Cliente cliente, Articulo articulo) throws Exception {
 		double pvp = articulo.PVP;
 
-		Tarifa tarifa = new Tarifa();
-
-		try {
-			tarifa.InitializePersistance(super.appConfig, super.context);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
+		Tarifa tarifa = Factory.build(Tarifa.class, appConfig);
 
 		if (tarifa.setTarifaByClienteArticulo(cliente, articulo)) {
 			if (tarifa.PVP != 0) {
 				pvp = tarifa.PVP;
 			}
 		}
-    	Pactos pactos = new Pactos();
-    	
-    	try {
-    		pactos.InitializePersistance(super.appConfig, super.context.getApplicationContext());
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-    	
+    	Pactos pactos = Factory.build(Pactos.class, appConfig);
+
     	if (pactos.setPactoByClienteArticulo(cliente, articulo)) {
 			if (pactos.PVP != 0)
 				pvp = pactos.PVP;
@@ -196,27 +166,14 @@ public class LineaDeposito extends Persistent implements IPersistable {
     public double getDte(Cliente cliente, Articulo articulo) throws Exception {
 		double dte = articulo.Descuento1;
 
-		Tarifa tarifa = new Tarifa();
-
-		try {
-			tarifa.InitializePersistance(super.appConfig, super.context);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
+		Tarifa tarifa = Factory.build(Tarifa.class, appConfig);
 
 		if (tarifa.setTarifaByClienteArticulo(cliente, articulo)) {
 			if (tarifa.Descuento1 != 0)
 				dte = tarifa.Descuento1;
 		}
 
-    	Pactos pactos = new Pactos();
-    	
-    	try {
-    		pactos.InitializePersistance(appConfig, super.context);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+    	Pactos pactos = Factory.build(Pactos.class, appConfig);
     	
     	if (pactos.setPactoByClienteArticulo(cliente, articulo)) {
 			if (pactos.Descuento1 != 0)

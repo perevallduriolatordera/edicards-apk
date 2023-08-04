@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 import net.ifeu.library.Utils.DateTime.DateTimeUtils;
@@ -23,11 +24,7 @@ public class Ingresos extends Persistent implements IPersistable {
 	public String Referencia;
 	public String Descripcion;
 	
-	@Override
-	public void ReleasePersistance() throws Exception {
-		super.ReleasePersistance();
-	}
-	
+
 	@Override
 	public void save() throws Exception {
 				
@@ -119,8 +116,7 @@ public class Ingresos extends Persistent implements IPersistable {
 			{
 				do {
 					Long idIngreso = Long.parseLong(cursor.getString(cursor.getColumnIndex("IdIngreso")));
-					Ingresos ingreso = new Ingresos();
-					ingreso.InitializePersistance(super.appConfig, super.context);
+					Ingresos ingreso = Factory.build(Ingresos.class, appConfig);
 					
 					if (ingreso.setIngresoById(String.valueOf(idIngreso)))
 						list.add(ingreso);

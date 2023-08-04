@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 
@@ -17,24 +18,12 @@ import android.util.Log;
 
 public class MovimientosAlmacen extends Persistent implements IPersistable {
 
-	public Articulo Articulo = new Articulo();
+	public Articulo Articulo = Factory.build(Articulo.class, appConfig);
 	public int Entradas;
 	public int Salidas;
 	public Date Fecha;
 	public int Tipo; // 1-Entradas, 2-Salidas
 	public int TipoStock; // 1-Stock, 2-Stock Defectuoso
-	
-	@Override
-	public void InitializePersistance(AppConfig appConfig, Context context) {
-		
-		super.InitializePersistance(appConfig, context);
-	}
-	
-	@Override
-	public void ReleasePersistance() throws Exception {
-		super.ReleasePersistance();
-	}
-	
 	@Override
 	public void save() throws Exception {
 				
@@ -64,13 +53,11 @@ public class MovimientosAlmacen extends Persistent implements IPersistable {
 			if (cursor.getCount() > 0)
 			{
 				do {
-					MovimientosAlmacen movimiento = new MovimientosAlmacen();
+					MovimientosAlmacen movimiento = Factory.build(MovimientosAlmacen.class, appConfig);
 					
 					long id = cursor.getLong(cursor.getColumnIndex("IdArticulo"));
 					
-					Articulo articulo = new Articulo();
-					articulo.InitializePersistance(super.appConfig, super.appConfig);
-					
+					Articulo articulo = Factory.build(Articulo.class, appConfig);
 					articulo.setArticuloById(String.valueOf(id));
 					
 					movimiento.Articulo = articulo;

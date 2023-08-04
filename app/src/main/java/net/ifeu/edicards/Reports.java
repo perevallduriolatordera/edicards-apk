@@ -30,6 +30,7 @@ import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.DataTier.DTODeposito;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.DepositoModalidad;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.Incidencia;
 import net.ifeu.edicards.DataTier.IncidenciaType;
@@ -103,9 +104,7 @@ public class Reports extends Fragment {
 		
 		_appConfig = (AppConfig) this.getActivity().getApplicationContext();
 
-		Historico historico = new Historico();
-		historico.InitializePersistance(_appConfig, this.getActivity());
-
+		Historico historico = Factory.build(Historico.class, _appConfig);
 		ArrayList<Historico> list = historico.getHistoricosBetweenDates(
 				_calendar1.getTime(), _calendar2.getTime());
 
@@ -392,8 +391,6 @@ public class Reports extends Fragment {
 
 		int TEXT_SIZE = 16;
 		for (final Historico hist : list) {
-
-			hist.InitializePersistance(_appConfig, getActivity());
 
 			int colorText = Color.BLACK;
 
@@ -708,8 +705,7 @@ public class Reports extends Fragment {
 			int lastStock = 0;
 			int lastStockDefectuoso = 0;
 
-			LogBook logBookWriter= new LogBook();
-			logBookWriter.InitializePersistance(_appConfig, _appConfig);
+			LogBook logBookWriter= Factory.build(LogBook.class, _appConfig);
 
 			for (LineaHistorico linea : historico.Lineas.values()) {
 
@@ -717,9 +713,6 @@ public class Reports extends Fragment {
 					linea.Articulo.Stock = lastStock;
 					linea.Articulo.StockDefectuoso = lastStockDefectuoso;
 				}
-
-				linea.Articulo.InitializePersistance(
-						_appConfig, _appConfig);
 
 				switch (linea.Tipo) {
 					case Constants.TIPO_LINEA_HISTORICO_FACTURADAS: {
@@ -798,8 +791,7 @@ public class Reports extends Fragment {
 	private void upgradeDeposito(Historico historico) {
 		
 		try {
-			Deposito deposito = new Deposito();
-			deposito.InitializePersistance(_appConfig, _appConfig);
+			Deposito deposito = Factory.build(Deposito.class, _appConfig);
 			deposito.setFirstDepositoByCliente(historico.Cliente.CodigoCliente);
 			
 			deposito.DeleteAllLines();
@@ -809,10 +801,8 @@ public class Reports extends Fragment {
 				switch (historicoLinea.Tipo) {
 					case Constants.TIPO_LINEA_HISTORICO_UNIDADES_INICIALES: {
 						
-						LineaDeposito linea = new LineaDeposito();
-	
-						linea.InitializePersistance(_appConfig, this.getActivity().getApplicationContext());
-	
+						LineaDeposito linea = Factory.build(LineaDeposito.class, _appConfig);
+
 						linea.Articulo = historicoLinea.Articulo;
 						linea.Deposito = deposito;
 						
@@ -846,9 +836,7 @@ public class Reports extends Fragment {
 	
 	private void GenerateAlbaran(DTODeposito deposito, Historico historico) throws Exception {
 		
-		Contador contador = new Contador();
-		contador.InitializePersistance(_appConfig, getActivity());
-
+		Contador contador = Factory.build(Contador.class, _appConfig);
 		contador.getContadores();
 
 		if (deposito.Serie.equals(_appConfig.getUser().SerialInvoiceA)) {

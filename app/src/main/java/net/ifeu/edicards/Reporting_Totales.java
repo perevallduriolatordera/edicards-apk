@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Ingresos;
 import net.ifeu.edicards.DataTier.Reporting;
 import net.ifeu.library.Controls.LabelColor;
@@ -195,9 +196,7 @@ public class Reporting_Totales extends Activity {
     	double IngresosTotales = 0;
     	
     	try {
-    		Ingresos ingresos = new Ingresos();
-    		ingresos.InitializePersistance(_appConfig, this.getApplicationContext());
-
+    		Ingresos ingresos = Factory.build(Ingresos.class, _appConfig);
     		ArrayList<Ingresos> list = ingresos.getIngresosOfThisWeek(new Date());
 
     		for (Ingresos ingreso : list) {

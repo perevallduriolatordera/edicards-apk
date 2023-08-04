@@ -7,6 +7,7 @@ import android.util.Log;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 import net.ifeu.edicards.DepositManagerExtension;
@@ -23,7 +24,7 @@ public class Historico extends Persistent implements IPersistable {
 
 	public Long IdHistorico;
 	public Date Fecha;
-	public Cliente Cliente = new Cliente();
+	public Cliente Cliente = Factory.build(Cliente.class, appConfig);
 	public LinkedHashMap<String,LineaHistorico> Lineas = new LinkedHashMap<>();
 	public double Total;
 	public double CantidadPagada;
@@ -43,16 +44,7 @@ public class Historico extends Persistent implements IPersistable {
         GUID = uuid.toString();
 	}
 	
-	@Override
-	public void InitializePersistance(AppConfig appConfig, Context context) {
-		super.InitializePersistance(appConfig, context);
-	}
-	
-	@Override
-	public void ReleasePersistance() throws Exception {
-		super.ReleasePersistance();
-	}
-	
+
 	@Override
 	public void save() throws Exception {
 		
@@ -144,7 +136,7 @@ public class Historico extends Persistent implements IPersistable {
 				
 				do {
 						
-					Historico historico = new Historico();
+					Historico historico = Factory.build(Historico.class, appConfig);
 					historico.IdHistorico = Long.parseLong(cursor.getString(cursor.getColumnIndex("IdHistorico")));
 					historico.Fecha = formatterSpain.parse(cursor.getString(cursor.getColumnIndex("Fecha")));
 					historico.Serie = cursor.getString(cursor.getColumnIndex("Serie"));
@@ -159,14 +151,12 @@ public class Historico extends Persistent implements IPersistable {
 					historico.Serializacion = cursor.getString(cursor.getColumnIndex("Serializacion"));
 					historico.ActualizarStock = (cursor.getInt(cursor.getColumnIndex("ActualizarStock")) == 1);
 
-					Cliente cliente = new Cliente();
-					cliente.InitializePersistance(super.appConfig, super.context);
+					Cliente cliente = Factory.build(Cliente.class, appConfig);
 					
 					if (cliente.setClienteById(cursor.getString(cursor.getColumnIndex("IdCliente"))))
 						historico.Cliente = cliente;
 					
-					LineaHistorico linea = new LineaHistorico();
-					linea.InitializePersistance(super.appConfig, super.context);
+					LineaHistorico linea = Factory.build(LineaHistorico.class, appConfig);
 
 					historico.Lineas = linea.getLineasHistoricoByHistorico(historico);
 					
@@ -255,7 +245,6 @@ public class Historico extends Persistent implements IPersistable {
 	}
 
 	public void saveChangesToHistorico(Deposito deposito) {
-		this.InitializePersistance(appConfig, context);
 		this.Cliente = deposito.Cliente;
 		this.NombrePresentacion = deposito.Nombre;
 		this.PoblacionPresentacion = deposito.Poblacion;
@@ -301,8 +290,7 @@ public class Historico extends Persistent implements IPersistable {
 
 		for (LineaDeposito linea : deposito.Lineas.values()) {
 
-			LineaHistorico lineaHistorico = new LineaHistorico();
-			lineaHistorico.InitializePersistance(appConfig, context);
+			LineaHistorico lineaHistorico = Factory.build(LineaHistorico.class, appConfig);
 			lineaHistorico.Historico = this;
 			lineaHistorico.Articulo = linea.Articulo;
 

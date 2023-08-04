@@ -31,6 +31,7 @@ import net.ifeu.edicards.DataTier.ClienteInfo;
 import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.DepositoModalidad;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.FormaPago;
 import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.Incidencia;
@@ -250,9 +251,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params.setMargins(0, 5, 0, 0);
 
-		FormaPago formaPago = new FormaPago();
-		formaPago.InitializePersistance(_appConfig, _appConfig);
-		
+		FormaPago formaPago = Factory.build(FormaPago.class, _appConfig);
+
 		// Formas de pago
 		
 		LabelColor labelPago = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
@@ -266,9 +266,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 				"Filiación", TEXT_SIZE, 200, params);
 
 		
-		TipoIVA iva = new TipoIVA();
-		iva.InitializePersistance(_appConfig, _appConfig);
-		
+		TipoIVA iva = Factory.build(TipoIVA.class, _appConfig);
 		_comboFiliacion = DepositManagerExtension.UI.addCombo(_appConfig, 350, params, iva.getFiliaciones(), iva.getFiliacionByCode(_deposito.Cliente.Filiacion));
 		
 		// //Copias
@@ -540,28 +538,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 			}
 		});
 
-		ButtonColor print = DepositManagerExtension.UI.addButton(getActivity(), Color.CYAN, "Estado impresora", 
-				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params);
-				
-		print.setOnClickListener(view -> {
-
-			try {
-
-				if (!DepositManagerExtension.Devices.PrinterStatus(false, that._appConfig, that.getActivity().getApplicationContext() ))
-					_appConfig.getMessageBox().Show("Estado de la impresora",
-							"La impresora no está activada. Revise que esté correctamente encendida y con la batería cargada.",
-							view.getContext(), MessageBoxType.Error);
-				else
-					_appConfig.getMessageBox().Show("Estado de la impresora",
-							"La impresora está activada, preparada para imprimir.", view.getContext(),
-							MessageBoxType.Error);
-
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		});
-
-		print.setVisibility(View.GONE);
 
 		// Autocompletado para articulos
 
@@ -591,7 +567,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		layout.addView(totales);
 		layout.addView(albaran);
 		layout.addView(nuevo);
-		layout.addView(print);
 		layout.addView(searchArticulos);
 		layout.addView(buttonSearchArticulos);
 		
@@ -609,7 +584,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity()
 				.findViewById(R.id.mainLinearLayoutDepositManager);
 
-		if (DepositManagerExtension.DataTier.RestriccionIngresos(this._appConfig, this.getActivity().getApplicationContext())) {
+		if (DepositManagerExtension.DataTier.RestriccionIngresos(this._appConfig)) {
 
 			_appConfig.getMessageBox().Show("Atención",
 					"Ha superado los " + Constants.MAXIMO_SIN_INGRESAR
@@ -621,8 +596,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		}
 
 		Cliente cliente = _appConfig.getWorkingArea().CurrentCliente;
-		cliente.InitializePersistance(_appConfig, this.getActivity().getApplicationContext());
-
 		_cliente = _appConfig.getWorkingArea().CurrentCliente;
 
 		TextView label = (TextView) getActivity().findViewById(R.id.lblCliente);
@@ -632,8 +605,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 			// Busquem el número de dipòsits del client
 
-			Deposito deposito = new Deposito();
-			deposito.InitializePersistance(_appConfig, _appConfig);
+			Deposito deposito = Factory.build(Deposito.class, _appConfig);
 
 			try {
 
@@ -646,8 +618,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 						_appConfig.getMessageBox().Show("Información", "Se va a proceder a crear un cliente nuevo.",
 								this.getActivity(), MessageBoxType.Information);
 
-						_deposito = new Deposito();
-						_deposito.ClienteInfo = new ClienteInfo();
+						_deposito = Factory.build(Deposito.class, _appConfig);
+						_deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
 						_deposito.assingFromCliente(_cliente);
 						_deposito.Lineas.clear();
 						this.addPotentialArticles();
@@ -667,8 +639,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 					if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
 
-						_deposito = new Deposito();
-						_deposito.ClienteInfo = new ClienteInfo();
+						_deposito = Factory.build(Deposito.class, _appConfig);
+						_deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
 						_deposito.assingFromCliente(_cliente);
 
 						this.addPotentialArticles();
@@ -688,8 +660,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 					}
 
 				} else if (depositos.size() > 0 && !_cliente.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE)) {
-					_deposito = new Deposito();
-					_deposito.InitializePersistance(_appConfig, _appConfig);
+					_deposito = Factory.build(Deposito.class, _appConfig);
 					_deposito.setFirstDepositoByCliente(cliente.CodigoCliente);
 					_deposito.assingFromCliente(_cliente);
 					this.addPotentialArticles();
@@ -780,11 +751,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 	private void addPotentialArticles() throws Exception {
 		// Buscamos los artículos que no están asociados al depósito
 
-		Articulo articulo = new Articulo();
-		articulo.InitializePersistance(_appConfig, _appConfig);
-
+		Articulo articulo = Factory.build(Articulo.class, _appConfig);
 		LinkedHashMap<String, Articulo> articulos = _appConfig.getCache().getAllArticulos();
-		//LinkedHashMap<String, Articulo> articulos = articulo.getAllArticulos(1);
 
 		for (Articulo articuloInCatalgo : articulos.values())
 			try {
@@ -792,9 +760,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 				if (_deposito.Lineas.containsKey(articuloInCatalgo.CodigoArticulo))
 					continue;
 
-				LineaDeposito linea = new LineaDeposito();
-				linea.InitializePersistance(_appConfig, this.getActivity().getApplicationContext());
-
+				LineaDeposito linea = Factory.build(LineaDeposito.class, _appConfig);
 				linea.Articulo = articuloInCatalgo;
 				linea.Deposito = _deposito;
 				linea.StockInicial = 0;
@@ -824,8 +790,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 		if (_deposito.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE)) {
 
-			Deposito depositoNuevoCliente = new Deposito();
-			depositoNuevoCliente.InitializePersistance(_appConfig, _appConfig);
+			Deposito depositoNuevoCliente = Factory.build(Deposito.class, _appConfig);
 			depositoNuevoCliente.assingFromDeposito(_deposito);
 			depositoNuevoCliente.save();
 
@@ -947,8 +912,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 				for (LineaDeposito linea : _deposito.Lineas.values()) {
 					
 					if (linea.UnidadesDevueltas > 0) {
-						LogBook logBookTrace = new LogBook();
-						logBookTrace.InitializePersistance(_appConfig,_appConfig);
+						LogBook logBookTrace = Factory.build(LogBook.class, _appConfig);
 
 						int stockInicial = linea.Articulo.Stock;
 						linea.Articulo.Stock = stockInicial + linea.UnidadesDevueltas - linea.UnidadesDefectuosas
@@ -1027,7 +991,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 			GUID = historico.GUID;
 			_appConfig.getWorkingArea().CurrentHistorico = historico;
 
-			this.CheckIfNewFiliacion(_deposito.Cliente.Filiacion);
+			_deposito.Cliente.CheckIfNewFiliacion(_deposito.Filiacion, _deposito.Cliente.CodigoCliente);
 
 			if (_deposito.isDeposito() || _deposito.isAlbaran() || _deposito.isDepositoRetirado()) {
 				DepositManagerExtension.Dialogs.StartSignatureCustomerDialog(this);
@@ -1088,26 +1052,11 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 			else
 				_deposito.Serie = _appConfig.getUser().SerialInvoiceB;
 
-			Contador contador = new Contador();
-			contador.InitializePersistance(_appConfig, getActivity());
-
-			contador.getContadores();
-
-			if (_deposito.Serie == _appConfig.getUser().SerialInvoiceA) {
-				contador.ContadorSerieA = contador.ContadorSerieA + 1;
-				_deposito.NumeroAlbaran = String.valueOf(contador.ContadorSerieA);
-			} else {
-				contador.ContadorSerieB = contador.ContadorSerieB + 1;
-				_deposito.NumeroAlbaran = String.valueOf(contador.ContadorSerieB);
-			}
-
-			contador.update();
+			Contador contador = Factory.build(Contador.class, _appConfig);
+			_deposito.NumeroAlbaran = contador.updateContador(_deposito, _appConfig.getUser());
 		}
 
-
-		_appConfig.getWorkingArea().CurrentHistorico.InitializePersistance(_appConfig, getActivity());
 		_appConfig.getWorkingArea().CurrentHistorico.saveChangesToHistorico(_deposito);
-
 	}
 
 	private void printDeposito(String GUID) {
@@ -1929,8 +1878,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 	private LinearLayout addLine(final LineaDeposito lineaDeposito) throws Exception {
 
-		lineaDeposito.InitializePersistance(_appConfig, getActivity());
-
 		this._articles.add(lineaDeposito.Articulo.Descripcion);
 
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -2101,35 +2048,13 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		}
 	}
 
-	private void CheckIfNewFiliacion(String filiacion) throws Exception {
-		Cliente cliente = new Cliente();
-		cliente.InitializePersistance(_appConfig, this.getActivity());
 
-		cliente.setClienteByCodigo(_cliente.CodigoCliente);
-
-		if (!cliente.Filiacion.equals(filiacion)) {
-			cliente.Filiacion = filiacion;
-			cliente.update();
-
-			String text = "Datos de filiacion del cliente: " + Constants.NEW_LINE + Constants.NEW_LINE
-					+ "CODIGO CLIENTE: " + _deposito.CodigoCliente + Constants.NEW_LINE + "NOMBRE DEL CLIENTE: "
-					+ _deposito.Nombre + Constants.NEW_LINE + "CODIGO FILIACION: " + filiacion
-					+ Constants.NEW_LINE + "NOMBRE FILIACION: " + _comboFiliacion.getText()
-					+ Constants.NEW_LINE;
-
-			Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(), IncidenciaType.Filiacion,
-					text);
-			incidencia.create();
-		}
-	}
 
 	private void refreshTotals() throws Exception {
 		if (_deposito != null) {
 
 			String filiacion = DepositManagerExtension.DataTier.getFiliacionCode(_comboFiliacion.getText()).trim();
 			_deposito.Cliente.Filiacion = filiacion;
-
-			_deposito.InitializePersistance(_appConfig, _appConfig);
 			_deposito.Calculate();
 
 			if (DepositManagerExtension.DataTier.IsSerieA(this._comboSerie, this._appConfig)) {
@@ -2151,7 +2076,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 		try {
 			
-			if (DepositManagerExtension.DataTier.RestriccionIngresos(this._appConfig, this.getActivity().getApplicationContext())) {
+			if (DepositManagerExtension.DataTier.RestriccionIngresos(this._appConfig)) {
 
 				_appConfig.getMessageBox().Show("Atención",
 						"Ha superado los " + Constants.MAXIMO_SIN_INGRESAR

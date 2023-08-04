@@ -21,7 +21,9 @@ import com.itextpdf.text.DocumentException;
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Articulo;
+import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Deposito;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.FormaPago;
 import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.Ingresos;
@@ -50,28 +52,22 @@ public class DepositManagerExtension {
 
 // ******************************** DATA TIER **********************	
 	static class DataTier {
-		public static double getCantidadPagada(AppConfig config, Context context) throws Exception {
+		public static double getCantidadPagada(AppConfig config) throws Exception {
 	
-			Historico historico = new Historico();
-			historico.InitializePersistance(config, context);
-	
+			Historico historico = Factory.build(Historico.class, config);
 			return historico.getCantidadPagadaOfThisWeek(new Date());
 	
 		}
 		
-		public static double getIngresos(AppConfig config, Context context) throws Exception {
-	
-			Ingresos ingresos = new Ingresos();
-			ingresos.InitializePersistance(config, context);
-	
+		public static double getIngresos(AppConfig config) throws Exception {
+			Ingresos ingresos = Factory.build(Ingresos.class, config);
 			return  ingresos.getTotalIngresosThisWeek(new Date());
-	
 		}
 		
-		public static boolean RestriccionIngresos(AppConfig config, Context context) throws Exception {
+		public static boolean RestriccionIngresos(AppConfig config) throws Exception {
 	
-			double cantidadPagada = DepositManagerExtension.DataTier.getCantidadPagada(config, context);
-			double ingresos = getIngresos(config, context);
+			double cantidadPagada = DepositManagerExtension.DataTier.getCantidadPagada(config);
+			double ingresos = getIngresos(config);
 
 			return Constants.MAXIMO_SIN_INGRESAR <= (cantidadPagada - ingresos);
 		}

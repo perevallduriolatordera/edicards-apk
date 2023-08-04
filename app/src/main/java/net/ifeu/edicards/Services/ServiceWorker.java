@@ -11,6 +11,7 @@ import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.DataTier.Deposito;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.FormaPago;
 import net.ifeu.edicards.DataTier.Pactos;
 import net.ifeu.edicards.DataTier.Tarifa;
@@ -546,9 +547,8 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 			// Comprobamos la existencia de la tabla Contadores                                                                      
                                                                                                                                      
-			Contador contador = new Contador();
-			contador.InitializePersistance(app, context);
-                                                                                                                                     
+			Contador contador = Factory.build(Contador.class, app);
+
 			if (contador.getRecordsCount() == 0) {
 				if (isNumeric(app.getUser().InitSerieA))                                                                             
 					contador.ContadorSerieA = Integer.parseInt(app.getUser().InitSerieA);                                            
@@ -565,14 +565,10 @@ public class ServiceWorker extends ServiceBase {
 					result = false;                                                                                                  
 				}
 			}                                                                                                                        
-                                                                                                                                     
-			contador.ReleasePersistance();                                                                                           
-                                                                                                                                     
+
 			// * * * * * * * * * * LLAMADA A FORMAS DE PAGO * * * * * * * * * *                                                      
 
-			FormaPago formaPago = new FormaPago();
-			formaPago.InitializePersistance(app, context);
-			                                                                                                                         
+			FormaPago formaPago = Factory.build(FormaPago.class, app);
 			http = new HttpService();
                                                                                                                                      
 			try {                                                                                                                    
@@ -586,14 +582,10 @@ public class ServiceWorker extends ServiceBase {
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                     				
 			}                                                                                                                        
-                                                                                                                                             
-			formaPago.ReleasePersistance();
 
 			// * * * * * * * * * * LLAMADA A TIPOS DE IVA * * * * * * * * * *                                                        
 
-			TipoIVA iva = new TipoIVA();
-			iva.InitializePersistance(app, context);
-
+			TipoIVA iva = Factory.build(TipoIVA.class, app);
 			http = new HttpService();                                                                                                
                                                                                                                                      
 			try {                                                                                                                    
@@ -609,14 +601,10 @@ public class ServiceWorker extends ServiceBase {
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                                                                                         
 			}                                                                                                                        
-			                                                                                                                         
-			iva.ReleasePersistance();
 
 			// * * * * * * * * * * LLAMADA A ARTICULOS * * * * * * * * * *                                                           
 
-			Articulo articulo = new Articulo();
-			articulo.InitializePersistance(app, context);
-
+			Articulo articulo = Factory.build(Articulo.class, app);
 			http = new HttpService();                                                                                                
                                                                                                                                      
 			try {                                                                                                                    
@@ -644,13 +632,11 @@ public class ServiceWorker extends ServiceBase {
 				boolean hasNew = false;
 				for (Articulo art : articulos.values()) {
 					if (stock.articulos.containsKey(art.CodigoArticulo)) {
-						Articulo articuloUpdate = new Articulo();
-						articuloUpdate.InitializePersistance(app, context);
+						Articulo articuloUpdate = Factory.build(Articulo.class, app);
 						articuloUpdate.setArticuloById(String.valueOf(art.IdArticulo));
 						art.StockPropio = stock.articulos.get(art.CodigoArticulo).stock;
 						articuloUpdate.StockPropio = art.StockPropio;
 						articuloUpdate.update();
-						articuloUpdate.ReleasePersistance();
 					} else {
 						ArticuloStock articuloStock = new ArticuloStock();
 						articuloStock.idArticulo = art.CodigoArticulo;
@@ -663,13 +649,11 @@ public class ServiceWorker extends ServiceBase {
 
 				if (hasNew)
 					result = fireStoreServices.createStock(idToken, stock.name, stock.articulos);
-				articulo.ReleasePersistance();
+
 			} catch (Exception e) {
 				result = false;
 			}
 			// * * * * * * * * * * LLAMADA A TRASPASO ALMACEN * * * * * * * * *                                                                                                                                                                        
-
-			articulo.InitializePersistance(app, context);
 
 			http = new HttpService();
 			boolean resultTraspaso;
@@ -687,8 +671,6 @@ public class ServiceWorker extends ServiceBase {
 				result = false;                                                                                                      
 				resultTraspaso = false;                                                                                              
 			}                                                                                                                        
-                                                                                                                                     
-			articulo.ReleasePersistance();
 
 			// * * * * * * * * * * LLAMADA A VALIDACIÓN TRASPASO * * * * * * * *                                                     
                                                                                                                                      
@@ -713,9 +695,7 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 			// * * * * * * * * * * LLAMADA A CLIENTES * * * * * * * * * *                                                            
 
-			Cliente cliente = new Cliente();
-			cliente.InitializePersistance(app, context);
-
+			Cliente cliente = Factory.build(Articulo.class, app);
 			http = new HttpService();                                                                                                
                                                                                                                                      
 			try {                                                                                                                    
@@ -730,13 +710,9 @@ public class ServiceWorker extends ServiceBase {
 				result = false;                                                                                                      
 			}                                                                                                                        
 
-			cliente.ReleasePersistance();                                                                                            
-                                                                                                                                     
 			// * * * * * * * * * * LLAMADA A TARIFAS * * * * * * * * * *                                                             
 
-			Tarifa tarifa = new Tarifa();
-			tarifa.InitializePersistance(app, context);
-
+			Tarifa tarifa = Factory.build(Tarifa.class, app);
 			http = new HttpService();                                                                                                
                                                                                                                                      
 			try {                                                                                                                    
@@ -751,14 +727,10 @@ public class ServiceWorker extends ServiceBase {
 				result = false;                                                                                                      
 			}                                                                                                                        
 
-			tarifa.ReleasePersistance();                                                                                             
-                                                                                                                                     
 			// * * * * * * * * * * LLAMADA A PACTOS * * * * * * * * * *                                                              
 
 			http = new HttpService();
-
-			Pactos pacto = new Pactos();
-			pacto.InitializePersistance(app, context);
+			Pactos pacto = Factory.build(Pactos.class, app);
 
 			try {                                                                                                                    
 				all = (pacto.getRecordsCount() == 0);
@@ -772,8 +744,6 @@ public class ServiceWorker extends ServiceBase {
 				result = false;                                                                                                      
 			}                                                                                                                        
 
-			pacto.ReleasePersistance();                                                                                              
-                                                                                                                                                                                                                                                                          
 			// * * * * * * * * * * LLAMADA A DEPOSITOS * * * * * * * * * *                                                           
 
 			// Obtenemos el total de registros                                                                                       
@@ -794,8 +764,7 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 			// Obtenemos los depósitos                                                                                               
 			System.gc();                                                                                                             
-			Deposito deposito = new Deposito();
-			deposito.InitializePersistance(app, context);
+			Deposito deposito = Factory.build(Deposito.class, app);
 
 			all = (deposito.getRecordsCount() == 0 || app.getWorkingArea().UpgradeDataPost);                                         
 			if (all) {                                                                                                               
@@ -831,7 +800,6 @@ public class ServiceWorker extends ServiceBase {
 					result = false;                                                                                                  
 				}                                                                                                                    
                                                                                                                                               
-				deposito.ReleasePersistance();
 			}
                                                                                                                                      
 			// * * * * * * * * * * HACEMOS BACKUP A BASE DE DATOS * * * * * * *                                                      
@@ -848,8 +816,7 @@ public class ServiceWorker extends ServiceBase {
 		// Creamos excel de trazabilidad si es necesario
 
 		try {
-			LogBook logBook = new LogBook();
-			logBook.InitializePersistance(app, app);
+			LogBook logBook = Factory.build(LogBook.class, app);
 
 			if (!logBook.hasLogBookCurrentWeek()) {
 				LogBookCreator logBookCreator = new LogBookCreator(app);

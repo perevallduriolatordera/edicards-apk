@@ -90,7 +90,6 @@ public class Totals extends Activity {
     {
     	
     	_appConfig = (AppConfig) this.getApplicationContext();
-		_appConfig.getWorkingArea().CurrentDeposito.InitializePersistance(_appConfig, this);
 
     	try {
 			_appConfig.getWorkingArea().CurrentDeposito.Calculate();

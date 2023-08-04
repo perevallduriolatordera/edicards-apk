@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.util.Log;
 
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 
@@ -15,15 +16,10 @@ public class Gasto extends Persistent implements IPersistable {
 
 	public long IdGasto;
 	public Date Fecha;
-	public Articulo Articulo = new Articulo();
+	public Articulo Articulo = Factory.build(Articulo.class, appConfig);
 	public double Cantidad; 
 	public boolean IsNew;
-	
-	@Override
-	public void ReleasePersistance() throws Exception {
-		super.ReleasePersistance();
-	}
-	
+
 	@Override
 	public void save() throws Exception {
 				
@@ -82,14 +78,8 @@ public class Gasto extends Persistent implements IPersistable {
 			this.Fecha = (Date) formatter.parse(cursor.getString(cursor.getColumnIndex("Fecha")));
 			this.Cantidad = Double.parseDouble(cursor.getString(cursor.getColumnIndex("Cantidad")));
 			
-			Articulo articulo = new Articulo();
-			
-			try {
-				articulo.InitializePersistance(super.appConfig, super.context);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-			
+			Articulo articulo = Factory.build(Articulo.class, appConfig);
+
 			if (articulo.setArticuloById(cursor.getString(cursor.getColumnIndex("IdArticulo"))))
 				this.Articulo = articulo;
 			

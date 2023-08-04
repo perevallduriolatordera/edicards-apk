@@ -7,6 +7,9 @@ import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Application.WorkingArea;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Cliente;
+import net.ifeu.edicards.DataTier.Factories.Factory;
+import net.ifeu.edicards.DataTier.LineaDeposito;
+
 import android.app.ListActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -42,8 +45,7 @@ public class CustomerSearchListDialog extends ListActivity {
 		int filter = bundle != null ? bundle.getInt("Filter") : 0;
 		boolean onlyStartsWith = bundle != null ? bundle.getBoolean("OnlyStartsWith") : false;
 
-		Cliente cliente = new Cliente();
-		cliente.InitializePersistance(_appConfig, this.getApplicationContext());
+		Cliente cliente = Factory.build(Cliente.class, _appConfig);
 
 		try {
 			_customers = cliente.getClientesByFilter(text, filter, onlyStartsWith);
@@ -108,8 +110,7 @@ public class CustomerSearchListDialog extends ListActivity {
 				AppConfig app = (AppConfig) this.getApplicationContext();
 				WorkingArea workingArea = app.getWorkingArea();
 
-				Cliente cliente = new Cliente();
-				cliente.InitializePersistance(_appConfig, this.getApplicationContext().getApplicationContext());
+				Cliente cliente = Factory.build(Cliente.class, app);
 
 				if (cliente.setClienteByCodigo(_customerSelected)) {
 					workingArea.CurrentCliente = cliente;

@@ -16,6 +16,7 @@ import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Deposito;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.FormaPago;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.Pactos;
@@ -169,14 +170,10 @@ public class ParserResponse extends ParserBase {
 				Element pvpValue = (Element) pvp.item(0);
 				Element dteValue = (Element) dte.item(0);
 
-				Articulo articulo = new Articulo();
-				articulo.InitializePersistance(app, context);
-
+				Articulo articulo = Factory.build(Articulo.class, app);
 				articulo.setArticuloByCodigo(getCharacterDataFromElement(codigoArticuloValue));
 
-				Cliente cliente = new Cliente();
-				cliente.InitializePersistance(app, context);
-
+				Cliente cliente = Factory.build(Cliente.class, app);
 				cliente.setClienteByCodigo(getCharacterDataFromElement(codigoClienteValue));
 
 				pacto.PVP = Double
@@ -193,9 +190,6 @@ public class ParserResponse extends ParserBase {
 					pacto.update();
 					this.Monitor().PactoUpdateCounter++;
 				}
-				
-				articulo.ReleasePersistance();
-				cliente.ReleasePersistance();
 
 			}
 		} catch (Exception e) {
@@ -306,8 +300,7 @@ public class ParserResponse extends ParserBase {
 				tarifa.FechaFin = (Date) formatter
 						.parse(transformWsDate(getCharacterDataFromElement(fechaFinValue)));
 
-				Articulo articulo = new Articulo();
-				articulo.InitializePersistance(app, context);
+				Articulo articulo = Factory.build(Articulo.class, app);
 
 				articulo.setArticuloByCodigo(getCharacterDataFromElement(codigoArticuloValue));
 				tarifa.Articulo = articulo;
@@ -320,7 +313,6 @@ public class ParserResponse extends ParserBase {
 				tarifa.save();
 				this.Monitor().TarifaSaveCounter++;
 				
-				articulo.ReleasePersistance();
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -332,8 +324,8 @@ public class ParserResponse extends ParserBase {
 			throws Exception
 	{
 
-		Articulo nuevo = new Articulo();
-		nuevo.InitializePersistance(app, context);
+		Articulo nuevo = Factory.build(Articulo.class, app);
+
 		if (!nuevo.setArticuloByName(".KILOMETRAJE 1(INICIAL)")) {
 			nuevo.Activo = true;
 			nuevo.CodigoArticulo = "KM-INICIAL";
@@ -349,8 +341,7 @@ public class ParserResponse extends ParserBase {
 			nuevo.save();
 		}
 
-		nuevo = new Articulo();
-		nuevo.InitializePersistance(app, context);
+		nuevo = Factory.build(Articulo.class, app);
 		if (!nuevo.setArticuloByName(".KILOMETRAJE 2(FINAL)")) {
 			nuevo.Activo = true;
 			nuevo.CodigoArticulo = "KM-FINAL";
@@ -502,8 +493,7 @@ public class ParserResponse extends ParserBase {
 
 					app.getTraspasoAlmacen().put(articulo.CodigoArticulo, stockDouble);
 
-					LogBook logBookTrace = new LogBook();
-					logBookTrace.InitializePersistance(app, app);
+					LogBook logBookTrace = Factory.build(LogBook.class, app);
 					logBookTrace.setData("TRASPASO ALMACÉN", "","",
 							articulo.CodigoArticulo, articulo.Descripcion,
 							stockInicial, articulo.Stock, articulo.Entradas, 0,
@@ -526,8 +516,7 @@ public class ParserResponse extends ParserBase {
 								// DOMException, SAXException, IOException
 	{
 
-		Articulo articulo = new Articulo();
-		articulo.InitializePersistance(app, context);
+		Articulo articulo = Factory.build(Articulo.class, app);
 		
 		try {
 
@@ -546,8 +535,7 @@ public class ParserResponse extends ParserBase {
 
 					this.Monitor().ArticuloUpdateCounter++;
 
-					LogBook logBookTrace = new LogBook();
-					logBookTrace.InitializePersistance(app, app);
+					LogBook logBookTrace = Factory.build(LogBook.class, app);
 					logBookTrace.setData("DESHACER TRASPASO ALMACÉN", "","",
 							articulo.CodigoArticulo, articulo.Descripcion,
 							stockInicial, articulo.Stock, 0, 0,
@@ -577,9 +565,7 @@ public class ParserResponse extends ParserBase {
 		// Añadimos el cliente "Nuevo Cliente"
 
 		try{
-			Cliente nuevo = new Cliente();
-			nuevo.InitializePersistance(app, context);
-			
+			Cliente nuevo = Factory.build(Cliente.class, app);
 			if (!nuevo.setClienteByName("Nuevo Cliente")) {
 				nuevo.CodigoCliente = Constants.NEW_CUSTOMER_CODE;
 				nuevo.Nombre = "Nuevo Cliente";
@@ -715,14 +701,10 @@ public class ParserResponse extends ParserBase {
 							.parseDouble(getCharacterDataFromElement(dteFinancieroValue));
 					
 
-					FormaPago pago = new FormaPago();
-					pago.InitializePersistance(app, context);
-
+					FormaPago pago = Factory.build(FormaPago.class, app);
 					pago.setFormaPagoByCode(getCharacterDataFromElement(formaPagoValue));
 					cliente.formaPago = pago;
-					
-					cliente.ClienteInfo.InitializePersistance(app, context);
-					
+
 					String codigoBancoString = getCharacterDataFromElement(codigoBancoValue);
 					String codigoAgenciaString = getCharacterDataFromElement(codigoAgenciaValue);
 					String digitoControlString = getCharacterDataFromElement(digitoControlValue);
@@ -735,8 +717,7 @@ public class ParserResponse extends ParserBase {
 					cliente.save();
 					this.Monitor().ClienteSaveCounter++;
 
-					Deposito deposito = new Deposito();
-					deposito.InitializePersistance(app, context);
+					Deposito deposito = Factory.build(Deposito.class, app);
 
 					if (deposito
 							.setDepositoById(getCharacterDataFromElement(idDepositoValue))) {
@@ -744,9 +725,6 @@ public class ParserResponse extends ParserBase {
 						deposito.update();
 						this.Monitor().DepositoUpdateCounter++;
 					}
-					
-					//pago.ReleasePersistance();
-					//deposito.ReleasePersistance();
 
 				} else {
 
@@ -774,14 +752,11 @@ public class ParserResponse extends ParserBase {
 					cliente.DescuentoFinanciero = Double
 							.parseDouble(getCharacterDataFromElement(dteFinancieroValue));
 
-					FormaPago pago = new FormaPago();
-					pago.InitializePersistance(app, context);
+					FormaPago pago = Factory.build(FormaPago.class, app);
 
 					pago.setFormaPagoByCode(getCharacterDataFromElement(formaPagoValue));
 					cliente.formaPago = pago;
-					
-					cliente.ClienteInfo.InitializePersistance(app, context);
-					
+
 					String codigoBancoString = getCharacterDataFromElement(codigoBancoValue);
 					String codigoAgenciaString = getCharacterDataFromElement(codigoAgenciaValue);
 					String digitoControlString = getCharacterDataFromElement(digitoControlValue);
@@ -794,9 +769,6 @@ public class ParserResponse extends ParserBase {
 					cliente.update();
 					
 					this.Monitor().ClienteUpdateCounter++;
-					
-					//pago.ReleasePersistance();
-					//cliente.ReleasePersistance();
 				}
 			}
 
@@ -816,13 +788,10 @@ public class ParserResponse extends ParserBase {
 		if (doc == null)
 			return;
 
-		Deposito depo = new Deposito();
-		depo.InitializePersistance(app, context);
-		
-		Articulo articulo = new Articulo();
-		articulo.InitializePersistance(app, context);
+		Deposito depo = Factory.build(Deposito.class, app);
+		Articulo articulo = Factory.build(Articulo.class, app);
+
 		LinkedHashMap<String, Articulo> articulos = articulo.getAllArticulos(1);
-		
 		LinkedHashMap<String, Deposito> cacheDepositos = new LinkedHashMap<String, Deposito>();
 		
 		try {
@@ -867,14 +836,11 @@ public class ParserResponse extends ParserBase {
 					
 						if (!depo.setFirstDepositoByCliente(strCodigoCliente)) {
 							
-							Cliente cliente = new Cliente();
-							cliente.InitializePersistance(app, context);
-							
+							Cliente cliente = Factory.build(Cliente.class, app);
 							cliente.setClienteByCodigo(strCodigoCliente);
 
-							depo = new Deposito();
-							depo.InitializePersistance(app, context);
-							
+							depo = Factory.build(Deposito.class, app);
+
 							depo.assingFromCliente(cliente);
 							depo.NumDoc = strNumDoc;
 							depo.FechaDeposito = new Date();
@@ -891,14 +857,13 @@ public class ParserResponse extends ParserBase {
 						
 					}
 					
-					Articulo art = new Articulo();
+					Articulo art = Factory.build(Articulo.class, app);
 					
 					if (articulos.containsKey(strCodigoArticulo)) 
 						art = articulos.get(strCodigoArticulo);
 					
-					LineaDeposito linea = new LineaDeposito();
-					linea.InitializePersistance(app, context);
-					
+					LineaDeposito linea = Factory.build(LineaDeposito.class, app);
+
 					linea.Articulo = art;
 					linea.Deposito = depo;
 					linea.UnidadesIniciales = Math.round(intUnidades);

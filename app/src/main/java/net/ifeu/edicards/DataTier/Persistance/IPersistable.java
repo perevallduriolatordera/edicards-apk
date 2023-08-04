@@ -5,7 +5,7 @@ import net.ifeu.edicards.Application.AppConfig;
 
 public interface IPersistable {
 
-	void InitializePersistance(AppConfig appConfig, Context context) throws Exception;
+	void InitializePersistance(AppConfig appConfig) throws Exception;
 	void ReleasePersistance() throws Exception;
 	void save() throws Exception;
 	void delete() throws Exception;

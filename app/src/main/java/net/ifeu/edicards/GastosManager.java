@@ -21,6 +21,8 @@ import android.widget.LinearLayout;
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.DataTier.Articulo;
+import net.ifeu.edicards.DataTier.Cliente;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Gasto;
 import net.ifeu.edicards.DataTier.GastosInfo;
 import net.ifeu.edicards.Xml.XmlCreator;
@@ -176,9 +178,8 @@ public class GastosManager extends Fragment {
 	    	articuloDescripcion.setPaintFlags(articuloDescripcion.getPaintFlags() | Paint.FAKE_BOLD_TEXT_FLAG);
 	    	articuloDescripcion.setLayoutParams(params);
 	    	
-	    	Gasto gasto = new Gasto();
-	    	gasto.InitializePersistance(_appConfig, this.getActivity().getApplicationContext());
-	    	
+	    	Gasto gasto = Factory.build(Gasto.class, _appConfig);
+
 	    	@SuppressWarnings("deprecation")
 			Date fecha = new Date(_datePic.getYear() - 1900, _datePic.getMonth(), _datePic.getDayOfMonth());
 	    	_calendar.setTime(fecha);
@@ -194,9 +195,8 @@ public class GastosManager extends Fragment {
 	    		gasto.IsNew = true;
 	    	}
 	    	
-	    	GastosInfo gastosInfo = new GastosInfo();
-	    	gastosInfo.InitializePersistance(_appConfig, this.getActivity().getApplicationContext());
-	    	
+	    	GastosInfo gastosInfo = Factory.build(GastosInfo.class, _appConfig);
+
 	    	gastosInfo = gastosInfo.getGastoInfoByFecha(_calendar.getTime());
 	    	_editTextComment.setText(gastosInfo.Comentario);
 	    	_editTextComment.setTag(gastosInfo);
@@ -207,10 +207,6 @@ public class GastosManager extends Fragment {
 				GastosInfo gastosInfo1 = (GastosInfo) view.getTag();
 				gastosInfo1.Comentario = textBox.getText().toString();
 				gastosInfo1.Fecha = setWeekStart(_calendar).getTime();
-				try {
-					gastosInfo1.InitializePersistance(_appConfig, getActivity());
-				} catch (Exception e1) {
-					throw new RuntimeException(e1);				}
 
 				if (gastosInfo1.IsNew)
 					try {

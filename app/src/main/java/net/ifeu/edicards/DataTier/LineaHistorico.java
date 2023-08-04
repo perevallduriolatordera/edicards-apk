@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 
@@ -16,24 +17,13 @@ public class LineaHistorico extends Persistent implements IPersistable {
 	public long IdLineaHistorico;
 	public long IdHistorico;
 	public long IdArticulo;
-	public Historico Historico = new Historico();
-	public Articulo Articulo = new Articulo();
+	public Historico Historico = Factory.build(Historico.class, appConfig);
+	public Articulo Articulo = Factory.build(Articulo.class, appConfig);
 	public int Unidades;
 	public float PVP;
 	public int Tipo; 
 	public int MovimientoStock;
 	public int MovimientoStockDefectuosas;
-	
-	@Override
-	public void InitializePersistance(AppConfig appConfig, Context context) {
-		super.InitializePersistance(appConfig, context);
-	}
-	
-	@Override
-	public void ReleasePersistance() throws Exception {
-		super.ReleasePersistance();
-	}
-	
 	@Override
 	public void save() throws Exception {
 		
@@ -92,7 +82,7 @@ public class LineaHistorico extends Persistent implements IPersistable {
 				if (cursor.getCount() > 0)
 				{
 					do {
-						LineaHistorico linea = new LineaHistorico();
+						LineaHistorico linea = Factory.build(LineaHistorico.class, appConfig);
 						
 						linea.Historico = historico; 
 						linea.IdLineaHistorico = Integer.parseInt(cursor.getString(cursor.getColumnIndex("IdLineaHistorico")));
@@ -106,14 +96,8 @@ public class LineaHistorico extends Persistent implements IPersistable {
 						if (!cursor.isNull(cursor.getColumnIndex("PVP")))
 							linea.PVP = Float.parseFloat(cursor.getString(cursor.getColumnIndex("PVP")));
 						
-						Articulo articulo = new Articulo();
-						
-						try {
-							articulo.InitializePersistance(super.appConfig, super.context);
-						} catch (Exception e) {
-							throw new RuntimeException(e);
-						}
-						
+						Articulo articulo = Factory.build(Articulo.class, appConfig);
+
 						if (articulo.setArticuloById(cursor.getString(cursor.getColumnIndex("IdArticulo"))))
 						{
 							linea.Articulo = articulo;

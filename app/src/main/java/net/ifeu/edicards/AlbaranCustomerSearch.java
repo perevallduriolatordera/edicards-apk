@@ -14,6 +14,7 @@ import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
 import net.ifeu.edicards.Constants.ConstantsEvents;
 import net.ifeu.edicards.DataTier.Cliente;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
@@ -78,11 +79,7 @@ public class AlbaranCustomerSearch extends Activity {
 
 		newCustomerButton.setOnClickListener(v -> {
 
-			Cliente cliente = new Cliente();
-			cliente.InitializePersistance(_appConfig, v.getContext()
-					.getApplicationContext());
-
-
+			Cliente cliente = Factory.build(Cliente.class, _appConfig);
 
 			try {
 				finish();

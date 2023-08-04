@@ -4,6 +4,8 @@ import android.os.Environment;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Cliente;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.library.LogBook.LogBook;
 
 import org.apache.poi.hssf.util.HSSFColor;
@@ -35,9 +37,7 @@ public class LogBookCreator {
 
         Date today = new Date();
 
-        LogBook logBook = new LogBook();
-        logBook.InitializePersistance(this._app, this._app);
-
+        LogBook logBook = Factory.build(LogBook.class, _app);
         ArrayList<LogBook> trace = logBook.getLogBookLastPeriod(today);
 
         if (this.createExcel(trace))

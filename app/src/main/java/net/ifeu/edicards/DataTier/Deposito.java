@@ -7,6 +7,7 @@ import android.util.Log;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Totales.Base;
 import net.ifeu.library.LogBook.LogBook;
@@ -24,7 +25,7 @@ public class Deposito extends Cliente implements IPersistable {
 	public Long IdDeposito;
 	public Date FechaDeposito;
 	public String Ejercicio;
-	public Cliente Cliente = new Cliente();
+	public Cliente Cliente = Factory.build(Cliente.class, appConfig);
 	public LinkedHashMap<String, LineaDeposito> Lineas = new LinkedHashMap<>();
 	public Totales Totales = new Totales();
 	public Totales TotalesDeposito = new Totales();
@@ -44,18 +45,9 @@ public class Deposito extends Cliente implements IPersistable {
 
 	public Deposito()
 	{
-		this.ClienteInfo = new ClienteInfo();
+		this.ClienteInfo = Factory.build(ClienteInfo.class, appConfig);
 	}
 	
-	@Override
-	public void InitializePersistance(AppConfig appConfig, Context context) {
-		super.InitializePersistance(appConfig, context);
-	}
-	
-	@Override
-	public void ReleasePersistance() throws Exception {
-		super.ReleasePersistance();
-	}
 
 	@Override
 	public void save() throws Exception {
@@ -202,37 +194,18 @@ public class Deposito extends Cliente implements IPersistable {
 			this.TipoDeposito = cursor.getString(cursor
 					.getColumnIndex("TipoDeposito"));
 
-			Cliente cliente = new Cliente();
-
-			try {
-				cliente.InitializePersistance(super.appConfig, super.context);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
+			Cliente cliente = Factory.build(Cliente.getClass(), appConfig);
 
 			if (cliente.setClienteById(cursor.getString(cursor
 					.getColumnIndex("IdCliente"))))
 				this.Cliente = cliente;
 			
-			ClienteInfo clienteInfo = new ClienteInfo();
-
-			try {
-				clienteInfo.InitializePersistance(super.appConfig, super.context);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
+			ClienteInfo clienteInfo = Factory.build(ClienteInfo.class, appConfig);
 
 			if (clienteInfo.setClienteInfoByCliente(cliente))
 				this.Cliente.ClienteInfo = clienteInfo;
 			
-			LineaDeposito linea = new LineaDeposito();
-
-			try {
-				linea.InitializePersistance(super.appConfig,
-						super.context);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
+			LineaDeposito linea = Factory.build(LineaDeposito.class, appConfig);
 
 			this.Lineas = linea
 					.getLineasDepositosByDeposito(this);
@@ -296,44 +269,23 @@ public class Deposito extends Cliente implements IPersistable {
 				this.TipoDeposito = cursor.getString(cursor
 						.getColumnIndex("TipoDeposito"));
 
-				Cliente cliente = new Cliente();
-
-				try {
-					cliente.InitializePersistance(super.appConfig,
-							super.context);
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
+				Cliente cliente = Factory.build(Cliente.class, appConfig);
 
 				if (cliente.setClienteById(cursor.getString(cursor
 						.getColumnIndex("IdCliente"))))
 					this.Cliente = cliente;
 				
-				ClienteInfo clienteInfo = new ClienteInfo();
-
-				try {
-					clienteInfo.InitializePersistance(super.appConfig, super.context);
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
+				ClienteInfo clienteInfo = Factory.build(ClienteInfo.class, appConfig);
 
 				if (clienteInfo.setClienteInfoByCliente(cliente))
 					this.Cliente.ClienteInfo = clienteInfo;
 				
-				LineaDeposito linea = new LineaDeposito();
-
-				try {
-					linea.InitializePersistance(super.appConfig,
-							super.context);
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
+				LineaDeposito linea = Factory.build(LineaDeposito.class, appConfig);
 
 				this.Lineas = linea
 						.getLineasDepositosByDeposito(this);
 
 				cursor.close();
-
 				return true;
 			}
 		}
@@ -356,7 +308,7 @@ public class Deposito extends Cliente implements IPersistable {
 			if (cursor.getCount() > 0) {
 
 				do {
-					Deposito deposito = new Deposito();
+					Deposito deposito = Factory.build(Deposito.class, appConfig);
 
 					deposito.IdDeposito = Long.parseLong(cursor
 							.getString(cursor.getColumnIndex("IdDeposito")));
@@ -407,38 +359,18 @@ public class Deposito extends Cliente implements IPersistable {
 					deposito.TipoDeposito = cursor.getString(cursor
 							.getColumnIndex("TipoDeposito"));
 
-					Cliente cliente = new Cliente();
-
-					try {
-						cliente.InitializePersistance(super.appConfig,
-								super.context);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
+					Cliente cliente = Factory.build(Cliente.class, appConfig);
 
 					if (cliente.setClienteById(cursor.getString(cursor
 							.getColumnIndex("IdCliente"))))
 						deposito.Cliente = cliente;
 					
-					ClienteInfo clienteInfo = new ClienteInfo();
-
-					try {
-						clienteInfo.InitializePersistance(super.appConfig, super.context);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
+					ClienteInfo clienteInfo = Factory.build(ClienteInfo.class, appConfig);
 
 					if (clienteInfo.setClienteInfoByCliente(cliente))
 						this.Cliente.ClienteInfo = clienteInfo;
 
-					LineaDeposito linea = new LineaDeposito();
-
-					try {
-						linea.InitializePersistance(super.appConfig,
-								super.context);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
+					LineaDeposito linea = Factory.build(LineaDeposito.class, appConfig);
 
 					deposito.Lineas = linea
 							.getLineasDepositosByDeposito(deposito);
@@ -470,7 +402,7 @@ public class Deposito extends Cliente implements IPersistable {
 			if (cursor.getCount() > 0) {
 
 				do {
-					Deposito deposito = new Deposito();
+					Deposito deposito = Factory.build(Deposito.class, appConfig);
 
 					deposito.IdDeposito = Long.parseLong(cursor
 							.getString(cursor.getColumnIndex("IdDeposito")));
@@ -521,38 +453,18 @@ public class Deposito extends Cliente implements IPersistable {
 					deposito.TipoDeposito = cursor.getString(cursor
 							.getColumnIndex("TipoDeposito"));
 
-					Cliente cliente = new Cliente();
-
-					try {
-						cliente.InitializePersistance(super.appConfig,
-								super.context);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
+					Cliente cliente = Factory.build(Cliente.class, appConfig);
 
 					if (cliente.setClienteById(cursor.getString(cursor
 							.getColumnIndex("IdCliente"))))
 						deposito.Cliente = cliente;
 					
-					ClienteInfo clienteInfo = new ClienteInfo();
-
-					try {
-						clienteInfo.InitializePersistance(super.appConfig, super.context);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
+					ClienteInfo clienteInfo = Factory.build(ClienteInfo.class, appConfig);
 
 					if (clienteInfo.setClienteInfoByCliente(cliente))
 						this.Cliente.ClienteInfo = clienteInfo;
 
-					LineaDeposito linea = new LineaDeposito();
-
-					try {
-						linea.InitializePersistance(super.appConfig,
-								super.context);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
+					LineaDeposito linea = Factory.build(LineaDeposito.class, appConfig);
 
 					deposito.Lineas = linea
 							.getLineasDepositosByDeposito(deposito);
@@ -588,7 +500,7 @@ public class Deposito extends Cliente implements IPersistable {
 			if (cursor.getCount() > 0) {
 
 				do {
-					Deposito deposito = new Deposito();
+					Deposito deposito = Factory.build(Deposito.class, appConfig);
 
 					deposito.IdDeposito = Long.parseLong(cursor
 							.getString(cursor.getColumnIndex("IdDeposito")));
@@ -637,38 +549,18 @@ public class Deposito extends Cliente implements IPersistable {
 					deposito.TipoDeposito = cursor.getString(cursor
 							.getColumnIndex("TipoDeposito"));
 
-					Cliente cliente = new Cliente();
-
-					try {
-						cliente.InitializePersistance(super.appConfig,
-								super.context);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
+					Cliente cliente = Factory.build(Cliente.class, appConfig);
 
 					if (cliente.setClienteById(cursor.getString(cursor
 							.getColumnIndex("IdCliente"))))
 						deposito.Cliente = cliente;
 					
-					ClienteInfo clienteInfo = new ClienteInfo();
-
-					try {
-						clienteInfo.InitializePersistance(super.appConfig, super.context);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
+					ClienteInfo clienteInfo = Factory.build(ClienteInfo.class, appConfig);
 
 					if (clienteInfo.setClienteInfoByCliente(cliente))
 						this.Cliente.ClienteInfo = clienteInfo;
 
-					LineaDeposito linea = new LineaDeposito();
-
-					try {
-						linea.InitializePersistance(super.appConfig,
-								super.context);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
+					LineaDeposito linea = Factory.build(LineaDeposito.class, appConfig);
 
 					deposito.Lineas = linea
 							.getLineasDepositosByDeposito(deposito);
@@ -705,8 +597,7 @@ public class Deposito extends Cliente implements IPersistable {
 				@SuppressWarnings("unused")
 				double dte = round(bruto - neto,3);
 
-				TipoIVA iva = new TipoIVA();
-				iva.InitializePersistance(super.appConfig, super.context);
+				TipoIVA iva = Factory.build(TipoIVA.class, appConfig);
 
 				if (iva.setTipoIVAByClienteArticulo(this.Cliente,
 						linea.Articulo)
@@ -793,8 +684,7 @@ public class Deposito extends Cliente implements IPersistable {
 				@SuppressWarnings("unused")
 				double dte = round(bruto - neto,3);
 
-				TipoIVA iva = new TipoIVA();
-				iva.InitializePersistance(super.appConfig, super.context);
+				TipoIVA iva = Factory.build(TipoIVA.class, appConfig);
 
 				if (iva.setTipoIVAByClienteArticulo(this.Cliente,
 						linea.Articulo)
@@ -1008,7 +898,7 @@ public class Deposito extends Cliente implements IPersistable {
 	
 	public Deposito CloneOnlyLineas()
 	{
-		Deposito deposito = new Deposito();
+		Deposito deposito = Factory.build(Deposito.class, appConfig);
 		
 		for (LineaDeposito linea : Lineas.values()) {
 			
@@ -1128,7 +1018,6 @@ public class Deposito extends Cliente implements IPersistable {
 	}
 
 	public void saveChangesToDeposito() {
-		this.InitializePersistance(appConfig, context);
 		this.FechaDeposito = new Date();
 
 		if (this.IdDeposito == null) {
@@ -1147,8 +1036,7 @@ public class Deposito extends Cliente implements IPersistable {
 			}
 		}
 		// Solo restamos stock, en el caso de que el deposito sea de tipo Furgoneta
-		LogBook logBookTrace = new LogBook();
-		logBookTrace.InitializePersistance(appConfig,context);
+		LogBook logBookTrace = Factory.build(LogBook.class, appConfig);
 
 		for (LineaDeposito linea : this.Lineas.values()) {
 
@@ -1162,7 +1050,6 @@ public class Deposito extends Cliente implements IPersistable {
 					}
 
 					if (appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Furgoneta) {
-						linea.Articulo.InitializePersistance(appConfig, context);
 						linea.Articulo.Activo = true;
 
 						if (linea.IsVentaDirecta) {
@@ -1229,7 +1116,6 @@ public class Deposito extends Cliente implements IPersistable {
 
 					if (appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Furgoneta) {
 
-						linea.Articulo.InitializePersistance(appConfig, context);
 						linea.Articulo.Activo = true;
 
 						if (linea.IsVentaDirecta) {
@@ -1291,7 +1177,6 @@ public class Deposito extends Cliente implements IPersistable {
 				}
 
 				if (linea.UnidadesAbono > 0 && appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Furgoneta) {
-					linea.Articulo.InitializePersistance(appConfig, context);
 					linea.Articulo.Activo = true;
 
 					int stockInicial = linea.Articulo.Stock;

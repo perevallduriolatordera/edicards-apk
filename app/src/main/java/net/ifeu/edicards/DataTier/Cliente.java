@@ -1,16 +1,15 @@
 package net.ifeu.edicards.DataTier;
 
+import java.util.Date;
 import java.util.LinkedList;
 
-import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 
 public class Cliente extends Persistent implements IPersistable {
 
@@ -36,7 +35,7 @@ public class Cliente extends Persistent implements IPersistable {
 	public double DescuentoProntoPago;
 	public double DescuentoFinanciero;
 	public String Filiacion;
-	public FormaPago formaPago = new FormaPago();
+	public FormaPago formaPago = Factory.build(FormaPago.class, appConfig);
 	public String CodigoTarifa;
 	public ClienteInfo ClienteInfo;
 	
@@ -55,20 +54,9 @@ public class Cliente extends Persistent implements IPersistable {
 	
 	
 	public Cliente() {
-		// TODO Auto-generated constructor stub
-		this.ClienteInfo = new ClienteInfo();
+		this.ClienteInfo = Factory.build(ClienteInfo.class, appConfig);
 	}
 
-	@Override
-	public void InitializePersistance(AppConfig appConfig, Context context) {
-		super.InitializePersistance(appConfig, context);
-	}
-
-	@Override
-	public void ReleasePersistance() throws Exception {
-		super.ReleasePersistance();
-	}
-	
 	@Override
 	public void save() throws Exception {
 		
@@ -99,8 +87,7 @@ public class Cliente extends Persistent implements IPersistable {
 
 		try {
 			this.IdCliente = super.getDatabaseOperations().insert(Constants.TABLE_CLIENTES, null , values);
-			
-			this.ClienteInfo.InitializePersistance(appConfig, context);
+
 			this.ClienteInfo.save();
 		}
 		catch (Exception e) {
@@ -141,9 +128,7 @@ public class Cliente extends Persistent implements IPersistable {
 		String[] whereArgs = { String.valueOf(this.IdCliente) }; 
 		
 			super.getDatabaseOperations().update(Constants.TABLE_CLIENTES, values, "IdCliente = ?", whereArgs);
-	    
-	    this.ClienteInfo.InitializePersistance(appConfig, context);
-	    
+
 	    if (this.ClienteInfo.ExistsClienteInfoByCliente(this))
 	    	this.ClienteInfo.update();
 	    else
@@ -167,9 +152,8 @@ public class Cliente extends Persistent implements IPersistable {
 		
 		for (String value: list)
 		{
-			Cliente cliente = new Cliente();
-			cliente.InitializePersistance(super.appConfig, super.context);
-			
+			Cliente cliente = Factory.build(Cliente.class, appConfig);
+
 			String finalValue;
 			if (cliente.setClienteByCodigo(value))
 			{
@@ -196,8 +180,7 @@ public class Cliente extends Persistent implements IPersistable {
 		
 		for (String value: list)
 		{
-			Cliente cliente = new Cliente();
-			cliente.InitializePersistance(super.appConfig, super.context);
+			Cliente cliente = Factory.build(Cliente.class, appConfig);
 			
 			String finalValue;
 			if (cliente.setClienteByCodigo(value))
@@ -249,14 +232,12 @@ public class Cliente extends Persistent implements IPersistable {
 				this.Filiacion = cursor.getString(cursor.getColumnIndex("Filiacion"));
 				
 				// Forma de Pago
-				FormaPago formaPago = new FormaPago();
-				formaPago.InitializePersistance(super.appConfig, super.context);
+				FormaPago formaPago = Factory.build(FormaPago.class, appConfig);
 
 				if (formaPago.setFormaPagoById(cursor.getString(cursor.getColumnIndex("IdFormaPago"))))
 					this.formaPago = formaPago;
 				
-				ClienteInfo clienteInfo = new ClienteInfo();
-				clienteInfo.InitializePersistance(super.appConfig, super.context);
+				ClienteInfo clienteInfo = Factory.build(ClienteInfo.class, appConfig);
 
 				if (clienteInfo.setClienteInfoByCliente(this))
 					this.ClienteInfo = clienteInfo;
@@ -309,15 +290,13 @@ public class Cliente extends Persistent implements IPersistable {
 				this.Filiacion = cursor.getString(cursor.getColumnIndex("Filiacion"));
 				
 				// Forma de Pago
-				FormaPago formaPago = new FormaPago();
-				formaPago.InitializePersistance(super.appConfig, super.context);
+				FormaPago formaPago = Factory.build(FormaPago.class, appConfig);
 
 				if (formaPago.setFormaPagoById(cursor.getString(cursor.getColumnIndex("IdFormaPago"))))
 					this.formaPago = formaPago;
 				
 				// ClienteInfo
-				ClienteInfo clienteInfo = new ClienteInfo();
-				clienteInfo.InitializePersistance(super.appConfig, super.context);
+				ClienteInfo clienteInfo = Factory.build(ClienteInfo.class, appConfig);
 
 				if (clienteInfo.setClienteInfoByCliente(this))
 					this.ClienteInfo = clienteInfo;
@@ -368,15 +347,13 @@ public class Cliente extends Persistent implements IPersistable {
 			this.Filiacion = cursor.getString(cursor.getColumnIndex("Filiacion"));
 			
 			// Forma de Pago
-			FormaPago formaPago = new FormaPago();
-			formaPago.InitializePersistance(super.appConfig, super.context);
+			FormaPago formaPago = Factory.build(FormaPago.class, appConfig);
 
 			if (formaPago.setFormaPagoById(cursor.getString(cursor.getColumnIndex("IdFormaPago"))))
 				this.formaPago = formaPago;
 			
 			// ClienteInfo
-			ClienteInfo clienteInfo = new ClienteInfo();
-			clienteInfo.InitializePersistance(super.appConfig, super.context);
+			ClienteInfo clienteInfo = Factory.build(ClienteInfo.class, appConfig);
 
 			if (clienteInfo.setClienteInfoByCliente(this))
 				this.ClienteInfo = clienteInfo;
@@ -426,15 +403,13 @@ public class Cliente extends Persistent implements IPersistable {
 				this.Filiacion = cursor.getString(cursor.getColumnIndex("Filiacion"));
 				
 				// Forma de Pago
-				FormaPago formaPago = new FormaPago();
-				formaPago.InitializePersistance(super.appConfig, super.context);
+				FormaPago formaPago = Factory.build(FormaPago.class, appConfig);
 
 				if (formaPago.setFormaPagoById(cursor.getString(cursor.getColumnIndex("IdFormaPago"))))
 					this.formaPago = formaPago;
 				
 				// ClienteInfo
-				ClienteInfo clienteInfo = new ClienteInfo();
-				clienteInfo.InitializePersistance(super.appConfig, super.context);
+				ClienteInfo clienteInfo = Factory.build(ClienteInfo.class, appConfig);
 
 				if (clienteInfo.setClienteInfoByCliente(this))
 					this.ClienteInfo = clienteInfo;
@@ -480,6 +455,26 @@ public class Cliente extends Persistent implements IPersistable {
 		}
 		
 	}
+	public void CheckIfNewFiliacion(String filiacion, String codigoCliente) throws Exception {
+		Cliente cliente = Factory.build(Cliente.class, appConfig);
+		cliente.setClienteByCodigo(codigoCliente);
+
+		if (!cliente.Filiacion.equals(filiacion)) {
+			cliente.Filiacion = filiacion;
+			cliente.update();
+
+			String text = "Datos de filiacion del cliente: " + Constants.NEW_LINE + Constants.NEW_LINE
+					+ "CODIGO CLIENTE: " + cliente + Constants.NEW_LINE + "NOMBRE DEL CLIENTE: "
+					+ cliente.Nombre + Constants.NEW_LINE + "CODIGO FILIACION: " + filiacion
+					+ Constants.NEW_LINE + "NOMBRE FILIACION: " + filiacion
+					+ Constants.NEW_LINE;
+
+			Incidencia incidencia = new Incidencia(appConfig.getUser().User, new Date(), IncidenciaType.Filiacion,
+					text);
+			incidencia.create();
+		}
+	}
+
 	              
 
 }
