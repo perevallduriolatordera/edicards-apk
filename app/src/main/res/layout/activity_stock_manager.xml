@@ -19,7 +19,7 @@
               android:layout_width="fill_parent" 
               android:layout_height="50px" 
               android:layout_marginTop="5dp" 
-              android:background="@color/SlateBlue"
+              android:background="@color/DarkBlue"
               android:orientation="horizontal" >
               
         <TextView

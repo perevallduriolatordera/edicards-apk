@@ -17,7 +17,8 @@ import com.itextpdf.text.pdf.PdfWriter;
 import android.content.Context;
 import android.os.Environment;
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.DataTier.DTODeposito;
 import net.ifeu.edicards.DataTier.DTOLineaDeposito;
 import net.ifeu.edicards.DataTier.Totales;
@@ -85,10 +86,10 @@ public class PdfDTOCreator extends pdfBase {
 		this.insertSeparators();
 
 		String total;
-		if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN)
+		if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN)
 			total = padLeft("TOTAL", 10);
 		else
-			total = Constants.EMPTY_STRING;
+			total = ConstantsTypes.EMPTY_STRING;
 
 		String text = padRight("COD.", 10) + padRight("DESCRIPCION", 25)
 				+ padLeft("UNID.", 10) + padLeft("PRECIO.", 10) + total + "\n";
@@ -100,7 +101,7 @@ public class PdfDTOCreator extends pdfBase {
 	private void printTotals(int tipo) throws DocumentException {
 		DecimalFormat df = new DecimalFormat("0.00");
 
-		if (tipo == Constants.TIPO_DOCUMENTO_DEPOSITO) {
+		if (tipo == ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO) {
 			try {
 				_deposito.CalculateDeposito();
 			} catch (Exception e) {
@@ -175,7 +176,7 @@ public class PdfDTOCreator extends pdfBase {
 
 			}
 
-			String total = Constants.EMPTY_STRING;
+			String total = ConstantsTypes.EMPTY_STRING;
 			
 			if (_deposito.Serie.equals(_app.getUser().SerialInvoiceA)) {
 					total = padLeft(" ", 43)
@@ -302,7 +303,7 @@ public class PdfDTOCreator extends pdfBase {
 		Collections
 				.sort(tempList, new DTOLineaDeposito().new ArticuloComparator());
 
-		if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN)
+		if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN)
 			for (DTOLineaDeposito linea : tempList) {
 				if (linea.UnidadesFacturadas != 0) {
 					String desc;
@@ -398,7 +399,7 @@ public class PdfDTOCreator extends pdfBase {
 		_document = new Document();
 
 		_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
-				+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_PDF + "/"
+				+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_PDF + "/"
 				+ "REC_A_" + _app.getUser().User + " " + _deposito.NumeroAlbaran
 				+ "_" + this.getDateTimeFormat() + "_" + (envioEdicards ? "E" : "F") + ".pdf";
 
@@ -431,10 +432,10 @@ public class PdfDTOCreator extends pdfBase {
 				_document.add(new Paragraph(albaranText, _fontBold));
 			}
 
-			this.printHeaderData(Constants.TIPO_DOCUMENTO_ALBARAN);
-			printHeaderFields(Constants.TIPO_DOCUMENTO_ALBARAN);
-			printHeaderDetail(Constants.TIPO_DOCUMENTO_ALBARAN);
-			printTotals(Constants.TIPO_DOCUMENTO_ALBARAN);
+			this.printHeaderData(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
+			printHeaderFields(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
+			printHeaderDetail(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
+			printTotals(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
 			closePage();
 
 		} catch (Exception e) {
@@ -452,7 +453,7 @@ public class PdfDTOCreator extends pdfBase {
 		_document = new Document();
 
 		_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
-				+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_PDF + "/"
+				+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_PDF + "/"
 				+ "D_" + _app.getUser().User + " " + _deposito.IdDeposito + "_"
 				+ this.getDateTimeFormat() + ".pdf";
 
@@ -470,13 +471,13 @@ public class PdfDTOCreator extends pdfBase {
 					+ String.valueOf(_deposito.IdDeposito) + "\n";
 
 			_document.add(new Paragraph(depositoNum, _fontBold));
-			this.printHeaderData(Constants.TIPO_DOCUMENTO_DEPOSITO);
-			printHeaderFields(Constants.TIPO_DOCUMENTO_DEPOSITO);
-			printHeaderDetail(Constants.TIPO_DOCUMENTO_DEPOSITO);
-			printTotals(Constants.TIPO_DOCUMENTO_DEPOSITO);
+			this.printHeaderData(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
+			printHeaderFields(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
+			printHeaderDetail(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
+			printTotals(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
 			String firmaCliente = "Conforme - Firma Cliente:\n";
 			_document.add(new Paragraph(firmaCliente, _fontNormal));
-			this.addSignature(Constants.TIPO_DOCUMENTO_DEPOSITO);
+			this.addSignature(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
 			closePage();
 
 		} catch (Exception e) {

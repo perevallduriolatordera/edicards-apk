@@ -199,6 +199,8 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 
 		}
 
+		System.gc();
+
 	}
 
 	private void assignToMediator(IMediator mediator) {

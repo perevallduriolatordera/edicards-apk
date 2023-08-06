@@ -3,8 +3,7 @@ package net.ifeu.edicards.Excel;
 import android.os.Environment;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
-import net.ifeu.edicards.DataTier.Cliente;
+import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.library.LogBook.LogBook;
 
@@ -201,8 +200,8 @@ public class LogBookCreator {
     public void saveExcelFile(Workbook workbook) {
 
         SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyyHHmmss");
-        String excelFilePath = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
-                + Constants.FOLDER_LOGBOOK + "/Stock_" + _app.getUser().User + "_" + formatter.format(new Date()) + ".xlsx";
+        String excelFilePath = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+                + ConstantsFolders.FOLDER_LOGBOOK + "/Stock_" + _app.getUser().User + "_" + formatter.format(new Date()) + ".xlsx";
 
         try (FileOutputStream outputStream = new FileOutputStream(excelFilePath)) {
             workbook.write(outputStream);

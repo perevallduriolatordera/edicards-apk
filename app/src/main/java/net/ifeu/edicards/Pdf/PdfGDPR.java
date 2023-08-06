@@ -11,7 +11,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import android.content.Context;
 import android.os.Environment;
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.DataTier.Cliente;
 
 public class PdfGDPR extends pdfBase {
@@ -73,7 +73,7 @@ public class PdfGDPR extends pdfBase {
 		_document = new Document();
 
 		_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
-				+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_GDPR + "/"
+				+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_GDPR + "/"
 				+ _cliente.CodigoCliente 
 				+ ".pdf";
 

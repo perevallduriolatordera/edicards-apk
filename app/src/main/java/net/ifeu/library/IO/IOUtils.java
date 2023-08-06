@@ -1,6 +1,6 @@
 package net.ifeu.library.IO;
 
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -47,7 +47,7 @@ public class IOUtils {
 	{
 		BufferedReader reader = new BufferedReader( new FileReader (file));
 	    String line;
-	    String finalString = Constants.EMPTY_STRING;
+	    String finalString = ConstantsTypes.EMPTY_STRING;
 	    
 	    while( ( line = reader.readLine() ) != null ) {
 	    	finalString = finalString + line;

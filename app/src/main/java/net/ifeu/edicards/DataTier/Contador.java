@@ -1,13 +1,10 @@
 package net.ifeu.edicards.DataTier;
 
-import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
-import net.ifeu.edicards.DataTier.Factories.Factory;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 
 public class Contador extends Persistent implements IPersistable {
@@ -25,7 +22,7 @@ public class Contador extends Persistent implements IPersistable {
 
 		try {
 			this.IdContador = super.getDatabaseOperations().insert(
-					Constants.TABLE_CONTADORES, null, values);
+					ConstantsDatabase.TABLE_CONTADORES, null, values);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -43,18 +40,18 @@ public class Contador extends Persistent implements IPersistable {
 
 		String[] whereArgs = { String.valueOf(this.IdContador) };
 
-		super.getDatabaseOperations().update(Constants.TABLE_CONTADORES,
+		super.getDatabaseOperations().update(ConstantsDatabase.TABLE_CONTADORES,
 				values, "IdContador = ?", whereArgs);
 	}
 
 	public int getRecordsCount() {
 		return super.getDatabaseOperations().getRecordsCount(
-				Constants.TABLE_CONTADORES);
+				ConstantsDatabase.TABLE_CONTADORES);
 	}
 
 	public void getContadores() throws Exception {
 		Cursor cursor = super.getDatabaseOperations().executeSentence(
-				"SELECT * FROM " + Constants.TABLE_CONTADORES);
+				"SELECT * FROM " + ConstantsDatabase.TABLE_CONTADORES);
 
 		if (cursor != null) {
 			cursor.moveToFirst();

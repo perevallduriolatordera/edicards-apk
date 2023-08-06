@@ -5,13 +5,12 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.Constants.ConstantsEvents;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Factories.Factory;
@@ -83,7 +82,7 @@ public class AlbaranCustomerSearch extends Activity {
 
 			try {
 				finish();
-				if (cliente.setClienteByCodigo(Constants.NEW_CUSTOMER_CODE))
+				if (cliente.setClienteByCodigo(ConstantsTypes.NEW_CUSTOMER_CODE))
 					_appConfig.getMediator().notify(ConstantsEvents.EVENT_CUSTOMER_NEW, cliente);
 			} catch (Exception e) {
 				throw new RuntimeException(e);			}

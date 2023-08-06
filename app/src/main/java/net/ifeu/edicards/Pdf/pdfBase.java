@@ -7,7 +7,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
-import android.util.Log;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -17,7 +16,7 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.R;
 
 import java.io.BufferedInputStream;
@@ -84,7 +83,7 @@ public class pdfBase {
 		prefix = "C_";
 		
 		String imageFile = Environment.getExternalStorageDirectory().toString()
-				+ "/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_FIRMAS
+				+ "/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_FIRMAS
 				+ "/" + prefix + _GUID + ".png";
 
 		try {
@@ -118,7 +117,7 @@ public class pdfBase {
 		prefix = tipo == 1 ? "C_" : "V_";
 		
 		String imageFile = Environment.getExternalStorageDirectory().toString()
-				+ "/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_FIRMAS
+				+ "/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_FIRMAS
 				+ "/" + prefix + _GUID + ".png";
 		try {
 

@@ -8,7 +8,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.MovimientosAlmacen;
@@ -108,7 +109,7 @@ public class PdfInventory extends pdfBase {
 				{
 					ArrayList<MovimientosAlmacen> array = movs.get(art.CodigoArticulo);
 					
-					String movsText = Constants.EMPTY_STRING;
+					String movsText = ConstantsTypes.EMPTY_STRING;
 					
 					for(Iterator<MovimientosAlmacen> iterator = array.iterator(); iterator.hasNext();) 
 					{
@@ -118,21 +119,21 @@ public class PdfInventory extends pdfBase {
 						{
 							String auxText = this.getDateTimeFormat(movArticulo.Fecha)
 								  + (movArticulo.Tipo == 1 ? " Inventario: " : " Camión: ")
-								  + (movArticulo.Entradas != 0 ? movArticulo.Entradas + " unidades entradas " : Constants.EMPTY_STRING)
-								  + (movArticulo.Salidas != 0 ? movArticulo.Salidas + " unidades sacadas " : Constants.EMPTY_STRING)
+								  + (movArticulo.Entradas != 0 ? movArticulo.Entradas + " unidades entradas " : ConstantsTypes.EMPTY_STRING)
+								  + (movArticulo.Salidas != 0 ? movArticulo.Salidas + " unidades sacadas " : ConstantsTypes.EMPTY_STRING)
 								  + (movArticulo.TipoStock == 1 ? " de unidades en buen estado " : " de unidades de reciclaje ")
 								  + "\n";
 						
 						
 						
-							movsText = movsText + padRight(Constants.EMPTY_STRING,
+							movsText = movsText + padRight(ConstantsTypes.EMPTY_STRING,
 								15)
 								+ padRight(auxText, 60);
 								
 						}					
 					}
 					_document.add(new Paragraph(movsText, _fontNormal));
-					_document.add(new Paragraph(Constants.EMPTY_STRING, _fontBold));
+					_document.add(new Paragraph(ConstantsTypes.EMPTY_STRING, _fontBold));
 				}
 			} catch (Exception e) {
 				throw new RuntimeException(e);
@@ -149,7 +150,7 @@ public class PdfInventory extends pdfBase {
 		_document = new Document();
 
 		_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
-				+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_INVENTARIO + "/"
+				+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_INVENTARIO + "/"
 				+ _app.getUser().User + "_" 
 				+ this.getDateTimeFormat() + ".pdf";
 

@@ -3,7 +3,9 @@ package net.ifeu.edicards.DataTier;
 import java.util.Date;
 import java.util.LinkedList;
 
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
@@ -35,10 +37,9 @@ public class Cliente extends Persistent implements IPersistable {
 	public double DescuentoProntoPago;
 	public double DescuentoFinanciero;
 	public String Filiacion;
-	public FormaPago formaPago = Factory.build(FormaPago.class, appConfig);
 	public String CodigoTarifa;
 	public ClienteInfo ClienteInfo;
-	
+	public FormaPago FormaPago;
 	public String NIFPrevious;
 	public String RazonPrevious;
 	public String NombrePrevious;
@@ -51,10 +52,13 @@ public class Cliente extends Persistent implements IPersistable {
 	public String FaxPrevious;
 	public String MailPrevious;
 	public String CCCPrevious;
-	
-	
-	public Cliente() {
+
+
+	@Override
+	public void InitializePersistance(AppConfig appConfigParam) {
+		super.InitializePersistance(appConfigParam);
 		this.ClienteInfo = Factory.build(ClienteInfo.class, appConfig);
+		this.FormaPago = Factory.build(FormaPago.class, appConfig);
 	}
 
 	@Override
@@ -82,11 +86,11 @@ public class Cliente extends Persistent implements IPersistable {
 		values.put("DescuentoProntoPago", this.DescuentoProntoPago);
 		values.put("DescuentoFinanciero", this.DescuentoFinanciero);
 		values.put("Filiacion", this.Filiacion);
-		values.put("IdFormaPago", this.formaPago.IdFormaPago);
+		values.put("IdFormaPago", this.FormaPago.IdFormaPago);
 		values.put("CodigoTarifa", this.CodigoTarifa);
 
 		try {
-			this.IdCliente = super.getDatabaseOperations().insert(Constants.TABLE_CLIENTES, null , values);
+			this.IdCliente = super.getDatabaseOperations().insert(ConstantsDatabase.TABLE_CLIENTES, null , values);
 
 			this.ClienteInfo.save();
 		}
@@ -122,12 +126,12 @@ public class Cliente extends Persistent implements IPersistable {
 		values.put("DescuentoProntoPago", this.DescuentoProntoPago);
 		values.put("DescuentoFinanciero", this.DescuentoFinanciero);
 		values.put("Filiacion", this.Filiacion);
-		values.put("IdFormaPago", this.formaPago.IdFormaPago);
+		values.put("IdFormaPago", this.FormaPago.IdFormaPago);
 		values.put("CodigoTarifa", this.CodigoTarifa);
 		
 		String[] whereArgs = { String.valueOf(this.IdCliente) }; 
 		
-			super.getDatabaseOperations().update(Constants.TABLE_CLIENTES, values, "IdCliente = ?", whereArgs);
+			super.getDatabaseOperations().update(ConstantsDatabase.TABLE_CLIENTES, values, "IdCliente = ?", whereArgs);
 
 	    if (this.ClienteInfo.ExistsClienteInfoByCliente(this))
 	    	this.ClienteInfo.update();
@@ -144,10 +148,10 @@ public class Cliente extends Persistent implements IPersistable {
 		switch (filter)
 		{
 		    
-			case Constants.CUSTOMER_FILTER_NAME :list = super.getDatabaseOperations().getStringArrayByField(Constants.TABLE_CLIENTES, "CodigoCliente","Nombre",text,onlyStartsWith,"AND Activo = 1","Nombre");break;
-			case Constants.CUSTOMER_FILTER_NIF:list = super.getDatabaseOperations().getStringArrayByField(Constants.TABLE_CLIENTES, "CodigoCliente", "NIF",text,onlyStartsWith,"AND Activo = 1","Nombre");break;
-			case Constants.CUSTOMER_FILTER_PHONE:list = super.getDatabaseOperations().getStringArrayByField(Constants.TABLE_CLIENTES, "CodigoCliente", "Telefono1",text,onlyStartsWith,"AND Activo = 1","Nombre");break;
-			case Constants.CUSTOMER_FILTER_CITY:list = super.getDatabaseOperations().getStringArrayByField(Constants.TABLE_CLIENTES, "CodigoCliente", "Poblacion", text, onlyStartsWith, "AND Activo = 1", "Nombre");break;
+			case ConstantsTypes.CUSTOMER_FILTER_NAME :list = super.getDatabaseOperations().getStringArrayByField(ConstantsDatabase.TABLE_CLIENTES, "CodigoCliente","Nombre",text,onlyStartsWith,"AND Activo = 1","Nombre");break;
+			case ConstantsTypes.CUSTOMER_FILTER_NIF:list = super.getDatabaseOperations().getStringArrayByField(ConstantsDatabase.TABLE_CLIENTES, "CodigoCliente", "NIF",text,onlyStartsWith,"AND Activo = 1","Nombre");break;
+			case ConstantsTypes.CUSTOMER_FILTER_PHONE:list = super.getDatabaseOperations().getStringArrayByField(ConstantsDatabase.TABLE_CLIENTES, "CodigoCliente", "Telefono1",text,onlyStartsWith,"AND Activo = 1","Nombre");break;
+			case ConstantsTypes.CUSTOMER_FILTER_CITY:list = super.getDatabaseOperations().getStringArrayByField(ConstantsDatabase.TABLE_CLIENTES, "CodigoCliente", "Poblacion", text, onlyStartsWith, "AND Activo = 1", "Nombre");break;
 		}
 		
 		for (String value: list)
@@ -172,10 +176,10 @@ public class Cliente extends Persistent implements IPersistable {
 		switch (filter)
 		{
 		    
-			case Constants.CUSTOMER_FILTER_NAME :list = super.getDatabaseOperations().getStringArrayByField(Constants.TABLE_CLIENTES, "CodigoCliente","Nombre",text,onlyStartsWith,"AND Activo = 1","Nombre");break;
-			case Constants.CUSTOMER_FILTER_NIF:list = super.getDatabaseOperations().getStringArrayByField(Constants.TABLE_CLIENTES, "CodigoCliente", "NIF",text,onlyStartsWith,"AND Activo = 1","Nombre");break;
-			case Constants.CUSTOMER_FILTER_PHONE:list = super.getDatabaseOperations().getStringArrayByField(Constants.TABLE_CLIENTES, "CodigoCliente", "Telefono1",text,onlyStartsWith,"AND Activo = 1","Nombre");break;
-			case Constants.CUSTOMER_FILTER_CITY:list = super.getDatabaseOperations().getStringArrayByField(Constants.TABLE_CLIENTES, "CodigoCliente", "Poblacion", text, onlyStartsWith, "AND Activo = 1", "Nombre");break;
+			case ConstantsTypes.CUSTOMER_FILTER_NAME :list = super.getDatabaseOperations().getStringArrayByField(ConstantsDatabase.TABLE_CLIENTES, "CodigoCliente","Nombre",text,onlyStartsWith,"AND Activo = 1","Nombre");break;
+			case ConstantsTypes.CUSTOMER_FILTER_NIF:list = super.getDatabaseOperations().getStringArrayByField(ConstantsDatabase.TABLE_CLIENTES, "CodigoCliente", "NIF",text,onlyStartsWith,"AND Activo = 1","Nombre");break;
+			case ConstantsTypes.CUSTOMER_FILTER_PHONE:list = super.getDatabaseOperations().getStringArrayByField(ConstantsDatabase.TABLE_CLIENTES, "CodigoCliente", "Telefono1",text,onlyStartsWith,"AND Activo = 1","Nombre");break;
+			case ConstantsTypes.CUSTOMER_FILTER_CITY:list = super.getDatabaseOperations().getStringArrayByField(ConstantsDatabase.TABLE_CLIENTES, "CodigoCliente", "Poblacion", text, onlyStartsWith, "AND Activo = 1", "Nombre");break;
 		}
 		
 		for (String value: list)
@@ -193,7 +197,7 @@ public class Cliente extends Persistent implements IPersistable {
 	}
 	public int getRecordsCount()
 	{
-		return super.getDatabaseOperations().getRecordsCount(Constants.TABLE_CLIENTES);
+		return super.getDatabaseOperations().getRecordsCount(ConstantsDatabase.TABLE_CLIENTES);
 	}
 	
 	public boolean setClienteByName(String name) throws Exception
@@ -201,7 +205,7 @@ public class Cliente extends Persistent implements IPersistable {
 		
 		name = name.replace("'", "''");
 		
-		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(Constants.TABLE_CLIENTES, "Nombre", name, true);
+		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(ConstantsDatabase.TABLE_CLIENTES, "Nombre", name, true);
 		
 		if (cursor != null)
 		{
@@ -235,7 +239,7 @@ public class Cliente extends Persistent implements IPersistable {
 				FormaPago formaPago = Factory.build(FormaPago.class, appConfig);
 
 				if (formaPago.setFormaPagoById(cursor.getString(cursor.getColumnIndex("IdFormaPago"))))
-					this.formaPago = formaPago;
+					this.FormaPago = formaPago;
 				
 				ClienteInfo clienteInfo = Factory.build(ClienteInfo.class, appConfig);
 
@@ -258,7 +262,7 @@ public class Cliente extends Persistent implements IPersistable {
 	
 	public boolean setClienteById(String IdCliente) throws Exception
 	{
-		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(Constants.TABLE_CLIENTES, "IdCliente", IdCliente, false);
+		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(ConstantsDatabase.TABLE_CLIENTES, "IdCliente", IdCliente, false);
 		
 		if (cursor != null)
 		{
@@ -293,7 +297,7 @@ public class Cliente extends Persistent implements IPersistable {
 				FormaPago formaPago = Factory.build(FormaPago.class, appConfig);
 
 				if (formaPago.setFormaPagoById(cursor.getString(cursor.getColumnIndex("IdFormaPago"))))
-					this.formaPago = formaPago;
+					this.FormaPago = formaPago;
 				
 				// ClienteInfo
 				ClienteInfo clienteInfo = Factory.build(ClienteInfo.class, appConfig);
@@ -318,7 +322,7 @@ public class Cliente extends Persistent implements IPersistable {
 		if (codigoCliente == null)
 			return false;
 		
-		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(Constants.TABLE_CLIENTES, "CodigoCliente", codigoCliente, true);
+		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(ConstantsDatabase.TABLE_CLIENTES, "CodigoCliente", codigoCliente, true);
 		
 		if (cursor != null)
 		{
@@ -350,7 +354,7 @@ public class Cliente extends Persistent implements IPersistable {
 			FormaPago formaPago = Factory.build(FormaPago.class, appConfig);
 
 			if (formaPago.setFormaPagoById(cursor.getString(cursor.getColumnIndex("IdFormaPago"))))
-				this.formaPago = formaPago;
+				this.FormaPago = formaPago;
 			
 			// ClienteInfo
 			ClienteInfo clienteInfo = Factory.build(ClienteInfo.class, appConfig);
@@ -371,7 +375,7 @@ public class Cliente extends Persistent implements IPersistable {
 		if (codigoCliente == null)
 			return false;
 		
-		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(Constants.TABLE_CLIENTES, "CodigoCliente", codigoCliente, true);
+		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(ConstantsDatabase.TABLE_CLIENTES, "CodigoCliente", codigoCliente, true);
 		
 		if (cursor != null)
 		{
@@ -406,7 +410,7 @@ public class Cliente extends Persistent implements IPersistable {
 				FormaPago formaPago = Factory.build(FormaPago.class, appConfig);
 
 				if (formaPago.setFormaPagoById(cursor.getString(cursor.getColumnIndex("IdFormaPago"))))
-					this.formaPago = formaPago;
+					this.FormaPago = formaPago;
 				
 				// ClienteInfo
 				ClienteInfo clienteInfo = Factory.build(ClienteInfo.class, appConfig);
@@ -429,10 +433,10 @@ public class Cliente extends Persistent implements IPersistable {
 	public boolean hasGDPRSigned() throws Exception {
 		
 		boolean result;
-		if (this.CodigoCliente == null || this.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE))
+		if (this.CodigoCliente == null || this.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE))
 			return true;
 
-		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(Constants.TABLE_GDPR, "CodigoCliente", this.CodigoCliente, true);
+		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(ConstantsDatabase.TABLE_GDPR, "CodigoCliente", this.CodigoCliente, true);
 		result = (cursor != null);
 		if (cursor != null) cursor.close();
 				
@@ -447,7 +451,7 @@ public class Cliente extends Persistent implements IPersistable {
 		values.put("CodigoCliente", this.CodigoCliente);
 		
 		try {
-			 super.getDatabaseOperations().insert(Constants.TABLE_GDPR, null , values);
+			 super.getDatabaseOperations().insert(ConstantsDatabase.TABLE_GDPR, null , values);
 			
 		}
 		catch (Exception e) {
@@ -463,11 +467,11 @@ public class Cliente extends Persistent implements IPersistable {
 			cliente.Filiacion = filiacion;
 			cliente.update();
 
-			String text = "Datos de filiacion del cliente: " + Constants.NEW_LINE + Constants.NEW_LINE
-					+ "CODIGO CLIENTE: " + cliente + Constants.NEW_LINE + "NOMBRE DEL CLIENTE: "
-					+ cliente.Nombre + Constants.NEW_LINE + "CODIGO FILIACION: " + filiacion
-					+ Constants.NEW_LINE + "NOMBRE FILIACION: " + filiacion
-					+ Constants.NEW_LINE;
+			String text = "Datos de filiacion del cliente: " + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE
+					+ "CODIGO CLIENTE: " + cliente + ConstantsTypes.NEW_LINE + "NOMBRE DEL CLIENTE: "
+					+ cliente.Nombre + ConstantsTypes.NEW_LINE + "CODIGO FILIACION: " + filiacion
+					+ ConstantsTypes.NEW_LINE + "NOMBRE FILIACION: " + filiacion
+					+ ConstantsTypes.NEW_LINE;
 
 			Incidencia incidencia = new Incidencia(appConfig.getUser().User, new Date(), IncidenciaType.Filiacion,
 					text);

@@ -24,7 +24,7 @@ import android.widget.TextView;
 import com.itextpdf.text.DocumentException;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.ClienteInfo;
@@ -258,7 +258,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		LabelColor labelPago = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				"Forma de pago", TEXT_SIZE, 200, params);
 		
-		_comboPago = DepositManagerExtension.UI.addCombo(_appConfig, 350, params, _appConfig.getCache().getAllFormasPagoList(), _deposito.Cliente.formaPago.Descripcion);
+		_comboPago = DepositManagerExtension.UI.addCombo(_appConfig, 350, params, _appConfig.getCache().getAllFormasPagoList(), _deposito.Cliente.FormaPago.Descripcion);
 		
 		// Filiacion
 		
@@ -321,7 +321,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 				EditText textBox = (EditText) view;
 				float descuento11;
 
-				if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+				if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
 					descuento11 = Float.parseFloat(((EditText) view).getHint().toString());
 				else
 					descuento11 = Float.parseFloat(((EditText) view).getText().toString());
@@ -363,7 +363,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 				EditText textBox = (EditText) view;
 				float descuento21;
 
-				if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+				if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
 					descuento21 = Float.parseFloat(((EditText) view).getHint().toString());
 				else
 					descuento21 = Float.parseFloat(((EditText) view).getText().toString());
@@ -396,8 +396,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 		});
 		
-		if (_deposito.Cliente.formaPago != null && _deposito.Cliente.formaPago.Descripcion != null) {
-			if (_deposito.Cliente.formaPago.Descripcion.trim().equalsIgnoreCase("CONTADO")) {
+		if (_deposito.Cliente.FormaPago != null && _deposito.Cliente.FormaPago.Descripcion != null) {
+			if (_deposito.Cliente.FormaPago.Descripcion.trim().equalsIgnoreCase("CONTADO")) {
 				this._checkPagado.setChecked(true);
 				_deposito.Pagado = true;
 			}
@@ -587,7 +587,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		if (DepositManagerExtension.DataTier.RestriccionIngresos(this._appConfig)) {
 
 			_appConfig.getMessageBox().Show("Atención",
-					"Ha superado los " + Constants.MAXIMO_SIN_INGRESAR
+					"Ha superado los " + ConstantsTypes.MAXIMO_SIN_INGRESAR
 							+ " € pendientes de ingresar. Realice un ingreso para poder seguir trabajando",
 					getActivity(), MessageBoxType.Error);
 
@@ -612,7 +612,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 				ArrayList<Deposito> depositos = (ArrayList<Deposito>) deposito
 						.getDepositosByCodigoCliente(String.valueOf(cliente.CodigoCliente));
 
-				if (_cliente.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE)) {
+				if (_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
 
 					if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
 						_appConfig.getMessageBox().Show("Información", "Se va a proceder a crear un cliente nuevo.",
@@ -635,7 +635,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 					}
 				}
 
-				if (depositos.size() == 0 && !_cliente.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE)) {
+				if (depositos.size() == 0 && !_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
 
 					if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
 
@@ -659,7 +659,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 						return;
 					}
 
-				} else if (depositos.size() > 0 && !_cliente.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE)) {
+				} else if (depositos.size() > 0 && !_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
 					_deposito = Factory.build(Deposito.class, _appConfig);
 					_deposito.setFirstDepositoByCliente(cliente.CodigoCliente);
 					_deposito.assingFromCliente(_cliente);
@@ -744,7 +744,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 				}
 
 			}
-			autocomplete.setText(Constants.EMPTY_STRING);
+			autocomplete.setText(ConstantsTypes.EMPTY_STRING);
 		});
 	}
 	
@@ -788,7 +788,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 		_deposito.saveChangesToDeposito();
 
-		if (_deposito.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE)) {
+		if (_deposito.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
 
 			Deposito depositoNuevoCliente = Factory.build(Deposito.class, _appConfig);
 			depositoNuevoCliente.assingFromDeposito(_deposito);
@@ -801,10 +801,10 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 			// Generamos la incidencia de nuevo cliente
 
-			String text = "Se ha creado un nuevo cliente con los siguientes datos: " + Constants.NEW_LINE
-					+ Constants.NEW_LINE + "NIF/CIF: " + _deposito.NIF + Constants.NEW_LINE + "NOMBRE: "
-					+ _deposito.Nombre + Constants.NEW_LINE + "RAZON: " + _deposito.Razon
-					+ Constants.NEW_LINE;
+			String text = "Se ha creado un nuevo cliente con los siguientes datos: " + ConstantsTypes.NEW_LINE
+					+ ConstantsTypes.NEW_LINE + "NIF/CIF: " + _deposito.NIF + ConstantsTypes.NEW_LINE + "NOMBRE: "
+					+ _deposito.Nombre + ConstantsTypes.NEW_LINE + "RAZON: " + _deposito.Razon
+					+ ConstantsTypes.NEW_LINE;
 
 			Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(), IncidenciaType.ClienteNuevo,
 					text);
@@ -840,7 +840,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		double cantidadPagada;
 		String cantidadPagadaText = _textBoxCantidadPagada.getText().toString();
 
-		if (_textBoxCantidadPagada.getText().toString().equals(Constants.EMPTY_STRING))
+		if (_textBoxCantidadPagada.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
 			cantidadPagada = Double.parseDouble("0");
 		else
 			cantidadPagada = Double.parseDouble(cantidadPagadaText);
@@ -870,7 +870,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		_deposito.Retirado = false;
 
 		if (_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)
-				&& !_deposito.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE)) {
+				&& !_deposito.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
 			boolean retirarDeposito = _appConfig.getMessageBox().ShowWithResult("Cierre de operación",
 					"Este es un proceso de traspaso de cliente. Desea Retirar todo el depósito?", this.getActivity(),
 					MessageBoxType.Information);
@@ -903,7 +903,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 				do {
 					motivo = _appConfig.getMessageBox().InputBox("Cierre de operación",
 							"Introduzca el motivo de la baja", getActivity());	
-				} while (motivo.trim().equals(Constants.EMPTY_STRING));
+				} while (motivo.trim().equals(ConstantsTypes.EMPTY_STRING));
 				
 				_deposito.MotivoRetirado = motivo;
 
@@ -951,13 +951,13 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 				// Generamos la incidencia de baja de cliente
 
-				String text = "Se ha dado de baja el deposito con los siguientes datos: " + Constants.NEW_LINE
-						+ Constants.NEW_LINE + "NUM. DEPOSITO DIMONI: " + _deposito.NumDoc
-						+ Constants.NEW_LINE + "NÚM. DEPOSITO TABLET (RefExt): " + _deposito.IdDeposito
-						+ Constants.NEW_LINE + "NIF/CIF: " + _deposito.NIF + Constants.NEW_LINE + "NOMBRE: "
-						+ _deposito.Nombre + Constants.NEW_LINE + "RAZON: " + _deposito.Razon
-						+ Constants.NEW_LINE + "MOTIVO DE LA BAJA: " + _deposito.MotivoRetirado
-						+ Constants.NEW_LINE;
+				String text = "Se ha dado de baja el deposito con los siguientes datos: " + ConstantsTypes.NEW_LINE
+						+ ConstantsTypes.NEW_LINE + "NUM. DEPOSITO DIMONI: " + _deposito.NumDoc
+						+ ConstantsTypes.NEW_LINE + "NÚM. DEPOSITO TABLET (RefExt): " + _deposito.IdDeposito
+						+ ConstantsTypes.NEW_LINE + "NIF/CIF: " + _deposito.NIF + ConstantsTypes.NEW_LINE + "NOMBRE: "
+						+ _deposito.Nombre + ConstantsTypes.NEW_LINE + "RAZON: " + _deposito.Razon
+						+ ConstantsTypes.NEW_LINE + "MOTIVO DE LA BAJA: " + _deposito.MotivoRetirado
+						+ ConstantsTypes.NEW_LINE;
 
 				
 				Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(),
@@ -987,7 +987,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 		if (_deposito.isDeposito() || _deposito.isAlbaran() || _deposito.isDepositoRetirado()) {
 
-			Historico historico = new Historico();
+			Historico historico = Factory.build(Historico.class, _appConfig);
 			GUID = historico.GUID;
 			_appConfig.getWorkingArea().CurrentHistorico = historico;
 
@@ -1044,7 +1044,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		_deposito.PagoDescripcion = _comboPago.getText();
 		_deposito.Filiacion = DepositManagerExtension.DataTier.getFiliacionCode(_comboFiliacion.getText());
 		_deposito.Pagado = _checkPagado.isChecked();
-		_deposito.formaPago = DepositManagerExtension.DataTier.getFormaPagoByDescripcion(_comboPago.getText(), this._appConfig);
+		_deposito.FormaPago = DepositManagerExtension.DataTier.getFormaPagoByDescripcion(_comboPago.getText(), this._appConfig);
 
 		if (_deposito.isAlbaran()) {
 			if (DepositManagerExtension.DataTier.IsSerieA(this._comboSerie, this._appConfig))
@@ -1155,7 +1155,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 					if (_deposito.isAlbaran()) {
 						do {
 							try {
-								result = printManager.printAlbaran(_deposito, this.getActivity(), _appConfig, GUID, DepositManagerExtension.DataTier.isTransferPayment(_deposito.formaPago));
+								result = printManager.printAlbaran(_deposito, this.getActivity(), _appConfig, GUID, DepositManagerExtension.DataTier.isTransferPayment(_deposito.FormaPago));
 							} catch (Exception e) {
 								throw new RuntimeException(e);
 							}
@@ -1268,7 +1268,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 						TextBoxColor textBox = (TextBoxColor) view;
 						int unidadesDevueltas;
 
-						if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+						if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
 							unidadesDevueltas = Integer.parseInt(textBox.getHint().toString());
 						else
 							unidadesDevueltas = Integer.parseInt(textBox.getText().toString());
@@ -1294,7 +1294,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 						}
 					} else {
-						((TextBoxColor) view).setText(Constants.EMPTY_STRING);
+						((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
 						_lastTextBox = (TextBoxColor) view;
 					}
 
@@ -1320,7 +1320,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 						EditText textBox = (EditText) view;
 						int unidadesDefectuosas;
 
-						if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+						if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
 							unidadesDefectuosas = Integer.parseInt(((EditText) view).getHint().toString());
 						else
 							unidadesDefectuosas = Integer.parseInt(((EditText) view).getText().toString());
@@ -1348,7 +1348,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 						}
 					} else {
-						((TextBoxColor) view).setText(Constants.EMPTY_STRING);
+						((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
 						_lastTextBox = (TextBoxColor) view;
 					}
 
@@ -1371,7 +1371,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 						EditText textBox = (EditText) view;
 						float pvp;
 
-						if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+						if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
 							pvp = Float.parseFloat(textBox.getHint().toString());
 						else {
 							pvp = Float.parseFloat(textBox.getText().toString());
@@ -1386,7 +1386,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 							throw new RuntimeException(e);
 						}
 					} else {
-						((TextBoxColor) view).setText(Constants.EMPTY_STRING);
+						((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
 						_lastTextBox = (TextBoxColor) view;
 					}
 
@@ -1409,7 +1409,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 						EditText textBox = (EditText) view;
 						int unidadesFacturadas = 0;
 
-						if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+						if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
 							unidadesFacturadas = Integer.parseInt(((EditText) view).getHint().toString());
 						else
 							unidadesFacturadas = Integer.parseInt(((EditText) view).getText().toString());
@@ -1450,7 +1450,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 						}
 
 					} else {
-						((TextBoxColor) view).setText(Constants.EMPTY_STRING);
+						((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
 						_lastTextBox = (TextBoxColor) view;
 					}
 
@@ -1472,7 +1472,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 						EditText textBox = (EditText) view;
 						int unidadesRepuestas;
 
-						if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+						if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
 							unidadesRepuestas = Integer.parseInt(((EditText) view).getHint().toString());
 						else
 							unidadesRepuestas = Integer.parseInt(((EditText) view).getText().toString());
@@ -1488,7 +1488,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 						}
 
 					} else {
-						((TextBoxColor) view).setText(Constants.EMPTY_STRING);
+						((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
 						_lastTextBox = (TextBoxColor) view;
 					}
 
@@ -1511,7 +1511,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 						EditText textBox = (EditText) view;
 						float pvpAnterior;
 
-						if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+						if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
 							pvpAnterior = Float.parseFloat(textBox.getHint().toString());
 						else
 							pvpAnterior = Float.parseFloat(textBox.getText().toString());
@@ -1524,7 +1524,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 							throw new RuntimeException(e);
 						}
 					} else {
-						((TextBoxColor) view).setText(Constants.EMPTY_STRING);
+						((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
 						_lastTextBox = (TextBoxColor) view;
 					}
 
@@ -1644,7 +1644,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 					LineaDeposito lineaDeposito = (LineaDeposito) view.getTag();
 
-					if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+					if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
 						unidadesAbono = Integer.parseInt(((EditText) view).getHint().toString());
 					else
 						unidadesAbono = Integer.parseInt(((EditText) view).getText().toString());
@@ -1673,7 +1673,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 					}
 
 				} else {
-					((TextBoxColor) view).setText(Constants.EMPTY_STRING);
+					((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
 					_lastTextBox = (TextBoxColor) view;
 				}
 
@@ -1704,7 +1704,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 					LineaDeposito lineaDeposito = (LineaDeposito) view.getTag();
 					int defectuosas;
 
-					if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+					if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
 						defectuosas = Integer.parseInt(((EditText) view).getHint().toString());
 					else
 						defectuosas = Integer.parseInt(((EditText) view).getText().toString());
@@ -1732,7 +1732,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 					}
 
 				} else {
-					((TextBoxColor) view).setText(Constants.EMPTY_STRING);
+					((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
 					_lastTextBox = (TextBoxColor) view;
 				}
 
@@ -1757,7 +1757,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 					EditText textBox = (EditText) view;
 					float pvpAbono;
 
-					if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+					if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
 						pvpAbono = Float.parseFloat(textBox.getHint().toString());
 					else
 						pvpAbono = Float.parseFloat(textBox.getText().toString());
@@ -1770,7 +1770,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 						throw new RuntimeException(e);
 					}
 				} else {
-					((TextBoxColor) view).setText(Constants.EMPTY_STRING);
+					((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
 					_lastTextBox = (TextBoxColor) view;
 				}
 
@@ -2066,9 +2066,9 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 			}
 			((TextView) getActivity().findViewById(R.id.lblTipoEntrega)).setText(_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
 		} else {
-			((TextView) getActivity().findViewById(R.id.lblBase)).setText(Constants.EMPTY_STRING);
-			((TextView) getActivity().findViewById(R.id.lblTotalFactura)).setText(Constants.EMPTY_STRING);
-			((TextView) getActivity().findViewById(R.id.lblTipoEntrega)).setText(Constants.EMPTY_STRING);
+			((TextView) getActivity().findViewById(R.id.lblBase)).setText(ConstantsTypes.EMPTY_STRING);
+			((TextView) getActivity().findViewById(R.id.lblTotalFactura)).setText(ConstantsTypes.EMPTY_STRING);
+			((TextView) getActivity().findViewById(R.id.lblTipoEntrega)).setText(ConstantsTypes.EMPTY_STRING);
 		}
 	}
 
@@ -2079,7 +2079,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 			if (DepositManagerExtension.DataTier.RestriccionIngresos(this._appConfig)) {
 
 				_appConfig.getMessageBox().Show("Atención",
-						"Ha superado los " + Constants.MAXIMO_SIN_INGRESAR
+						"Ha superado los " + ConstantsTypes.MAXIMO_SIN_INGRESAR
 								+ " € pendientes de ingresar. Realice un ingreso para poder seguir trabajando",
 						getActivity(), MessageBoxType.Error);
 

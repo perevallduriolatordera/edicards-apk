@@ -12,7 +12,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Deposito;
@@ -33,7 +33,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 
 
 @SuppressLint("ShowToast")
@@ -87,7 +86,7 @@ public class ParserResponse extends ParserBase {
 		Element root = document.getDocumentElement();
 
 		if (root.getChildNodes().getLength() == 0)
-			return Constants.EMPTY_STRING;
+			return ConstantsTypes.EMPTY_STRING;
 
 		return root.getChildNodes().item(0).getTextContent();
 
@@ -332,11 +331,11 @@ public class ParserResponse extends ParserBase {
 			nuevo.Descripcion = ".KILOMETRAJE 1(INICIAL)";
 			nuevo.Descuento1 = 0;
 			nuevo.Descuento2 = 0;
-			nuevo.Familia = Constants.EMPTY_STRING;
-			nuevo.FamiliaCorta = Constants.EMPTY_STRING;
+			nuevo.Familia = ConstantsTypes.EMPTY_STRING;
+			nuevo.FamiliaCorta = ConstantsTypes.EMPTY_STRING;
 			nuevo.PVP = 0;
 			nuevo.Tipo = 2;
-			nuevo.TipoIVA = Constants.EMPTY_STRING;
+			nuevo.TipoIVA = ConstantsTypes.EMPTY_STRING;
 
 			nuevo.save();
 		}
@@ -348,11 +347,11 @@ public class ParserResponse extends ParserBase {
 			nuevo.Descripcion = ".KILOMETRAJE 2(FINAL)";
 			nuevo.Descuento1 = 0;
 			nuevo.Descuento2 = 0;
-			nuevo.Familia = Constants.EMPTY_STRING;
-			nuevo.FamiliaCorta = Constants.EMPTY_STRING;
+			nuevo.Familia = ConstantsTypes.EMPTY_STRING;
+			nuevo.FamiliaCorta = ConstantsTypes.EMPTY_STRING;
 			nuevo.PVP = 0;
 			nuevo.Tipo = 2;
-			nuevo.TipoIVA = Constants.EMPTY_STRING;
+			nuevo.TipoIVA = ConstantsTypes.EMPTY_STRING;
 
 			nuevo.save();
 		}
@@ -554,45 +553,38 @@ public class ParserResponse extends ParserBase {
 
 
 	public void parseClientes(Document document, Context context,
-			AppConfig app, Cliente cliente, boolean compress) throws Exception // throws
-																				// ParserConfigurationException,
-																				// DOMException,
-																				// //
-																				// SAXException,
-																				// IOException
-	{
-
+			AppConfig app, Cliente cliente, boolean compress) throws Exception {
 		// Añadimos el cliente "Nuevo Cliente"
 
 		try{
 			Cliente nuevo = Factory.build(Cliente.class, app);
 			if (!nuevo.setClienteByName("Nuevo Cliente")) {
-				nuevo.CodigoCliente = Constants.NEW_CUSTOMER_CODE;
+				nuevo.CodigoCliente = ConstantsTypes.NEW_CUSTOMER_CODE;
 				nuevo.Nombre = "Nuevo Cliente";
 				nuevo.Activo = true;
-				nuevo.Clave = Constants.EMPTY_STRING;
+				nuevo.Clave = ConstantsTypes.EMPTY_STRING;
 				nuevo.CodigoPostal = " ";
-				nuevo.CodigoTarifa = Constants.EMPTY_STRING;
+				nuevo.CodigoTarifa = ConstantsTypes.EMPTY_STRING;
 				nuevo.Descuento1 = 0;
 				nuevo.Descuento2 = 0;
 				nuevo.DescuentoFinanciero = 0;
 				nuevo.DescuentoProntoPago = 0;
 				nuevo.Direccion1 = " ";
-				nuevo.Direccion2 = Constants.EMPTY_STRING;
-				nuevo.Fax = Constants.EMPTY_STRING;
+				nuevo.Direccion2 = ConstantsTypes.EMPTY_STRING;
+				nuevo.Fax = ConstantsTypes.EMPTY_STRING;
 				nuevo.Filiacion = "002";
 	
-				FormaPago pago = new FormaPago();
+				FormaPago pago = Factory.build(FormaPago.class, app);
 				pago.IdFormaPago = Long.parseLong("0009");
-				nuevo.formaPago = pago;
-				nuevo.Mail = Constants.EMPTY_STRING;
+				nuevo.FormaPago = pago;
+				nuevo.Mail = ConstantsTypes.EMPTY_STRING;
 				nuevo.NIF = " ";
 				nuevo.Poblacion = " ";
 				nuevo.Provincia = " ";
 				nuevo.Razon = " ";
-				nuevo.Telefono1 = Constants.EMPTY_STRING;
-				nuevo.Telefono2 = Constants.EMPTY_STRING;
-				nuevo.Web = Constants.EMPTY_STRING;
+				nuevo.Telefono1 = ConstantsTypes.EMPTY_STRING;
+				nuevo.Telefono2 = ConstantsTypes.EMPTY_STRING;
+				nuevo.Web = ConstantsTypes.EMPTY_STRING;
 				
 				nuevo.ClienteInfo.assignCCC("X", "X", "X", "X", "X");
 	
@@ -703,7 +695,7 @@ public class ParserResponse extends ParserBase {
 
 					FormaPago pago = Factory.build(FormaPago.class, app);
 					pago.setFormaPagoByCode(getCharacterDataFromElement(formaPagoValue));
-					cliente.formaPago = pago;
+					cliente.FormaPago = pago;
 
 					String codigoBancoString = getCharacterDataFromElement(codigoBancoValue);
 					String codigoAgenciaString = getCharacterDataFromElement(codigoAgenciaValue);
@@ -755,7 +747,7 @@ public class ParserResponse extends ParserBase {
 					FormaPago pago = Factory.build(FormaPago.class, app);
 
 					pago.setFormaPagoByCode(getCharacterDataFromElement(formaPagoValue));
-					cliente.formaPago = pago;
+					cliente.FormaPago = pago;
 
 					String codigoBancoString = getCharacterDataFromElement(codigoBancoValue);
 					String codigoAgenciaString = getCharacterDataFromElement(codigoAgenciaValue);
@@ -844,7 +836,7 @@ public class ParserResponse extends ParserBase {
 							depo.assingFromCliente(cliente);
 							depo.NumDoc = strNumDoc;
 							depo.FechaDeposito = new Date();
-							depo.TipoDeposito = Constants.TIPO_DEPOSITO_CONVENCIONAL;
+							depo.TipoDeposito = ConstantsTypes.TIPO_DEPOSITO_CONVENCIONAL;
 							depo.Ejercicio = strEjercicio;
 		
 							depo.save();

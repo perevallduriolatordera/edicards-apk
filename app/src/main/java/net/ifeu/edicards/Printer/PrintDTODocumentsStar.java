@@ -7,9 +7,10 @@ import java.util.Collections;
 import java.util.List;
 
 import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.R;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.DTODeposito;
 import net.ifeu.edicards.DataTier.DTOLineaDeposito;
 import net.ifeu.edicards.DataTier.Totales;
@@ -30,7 +31,7 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("dd/MM/yyyy");
-		String pago = (Tipo == Constants.TIPO_DOCUMENTO_DEPOSITO) ? "\n" : "Pago: " + deposito.PagoDescripcion + "\n";
+		String pago = (Tipo == ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO) ? "\n" : "Pago: " + deposito.PagoDescripcion + "\n";
 		
         outputByteBuffer = ("Fecha: " + formatter.format(deposito.FechaDeposito) + "  Vendedor: " + app.getUser().Name + "\n" +
 		            "Codigo Cliente: " + deposito.CodigoCliente + "  Nombre: " + deposito.Nombre + "\n" +
@@ -54,10 +55,10 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 			
 		  String total;
 		  
-		  if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN)
+		  if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN)
 			  total = padLeft("TOTAL",10);
 		  else
-			  total = Constants.EMPTY_STRING;
+			  total = ConstantsTypes.EMPTY_STRING;
 		  
 		  outputByteBuffer = (padRight("COD.",10) + padRight("DESCRIPCION",25) + padLeft("UNID.",10) +  padLeft("PRECIO.",10) + total +"\n").getBytes();
 		  port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
@@ -72,7 +73,7 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 		DecimalFormat df = new DecimalFormat("0.00");
 		byte[] outputByteBuffer;
 		
-		if (tipo == Constants.TIPO_DOCUMENTO_DEPOSITO)
+		if (tipo == ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO)
 		{
 			try {
 				deposito.CalculateDeposito();
@@ -252,7 +253,7 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 
 			}
 
-			if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN &&  app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
+			if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN &&  app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
 
 				port.writePort(new byte[]{0x1b, 0x45, 0x01}, 0, 3);
 				outputByteBuffer = ("MERCANCIA PENDIENTE DE ENVIO" + "\n").getBytes();
@@ -263,7 +264,7 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 				port.writePort(new byte[]{0x1b, 0x45, 0x00}, 0, 3);
 			}
 
-			if (isTransferPayment && tipo == Constants.TIPO_DOCUMENTO_ALBARAN) {
+			if (isTransferPayment && tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN) {
 
 				port.writePort(new byte[] { 0x1b, 0x61, 0x01 }, 0, 3); // Center
 
@@ -310,7 +311,7 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 				.sort(tempList, new DTOLineaDeposito().new ArticuloComparator());
 
 		
-		if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN)
+		if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN)
 			for (DTOLineaDeposito linea: tempList)
 			{
 				if (linea.UnidadesFacturadas > 0)
@@ -396,12 +397,12 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 			
 			port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
             port.writePort(new byte[]{0x1b, 0x45, 0x00}, 0, 3);                 //Set Emphasized Printing OFF (same command as on)
-        	this.printHeaderData(port, deposito, app, Constants.TIPO_DOCUMENTO_ALBARAN);
+        	this.printHeaderData(port, deposito, app, ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
 	        port.writePort(new byte[]{0x1b, 0x45, 0x01}, 0, 3);                 //Set Emphasized Printing ON
 	        
-	        printHeaderFields(port,Constants.TIPO_DOCUMENTO_ALBARAN);
-	        printHeaderDetail(port, Constants.TIPO_DOCUMENTO_ALBARAN, deposito);
-	        printTotals(port,context,app,Constants.TIPO_DOCUMENTO_ALBARAN, deposito, isTransferPayment);
+	        printHeaderFields(port, ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
+	        printHeaderDetail(port, ConstantsTypes.TIPO_DOCUMENTO_ALBARAN, deposito);
+	        printTotals(port,context,app, ConstantsTypes.TIPO_DOCUMENTO_ALBARAN, deposito, isTransferPayment);
 			
 			port.writePort(new byte[]{0x1b, 0x45, 0x00}, 0, 3);                 //Set Emphasized Printing OFF (same command as on)
 			closePage(port);
@@ -449,11 +450,11 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 			outputByteBuffer = ("DEPOSITO: NUM " + app.getUser().User + "/" + deposito.IdDeposito + "\n").getBytes();
 			port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
             port.writePort(new byte[]{0x1b, 0x45, 0x00}, 0, 3);                 //Set Emphasized Printing OFF (same command as on)
-        	this.printHeaderData(port, deposito, app, Constants.TIPO_DOCUMENTO_DEPOSITO);
+        	this.printHeaderData(port, deposito, app, ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
 	        port.writePort(new byte[]{0x1b, 0x45, 0x01}, 0, 3);                 //Set Emphasized Printing ON
-	        printHeaderFields(port,Constants.TIPO_DOCUMENTO_DEPOSITO);
-	        printHeaderDetail(port, Constants.TIPO_DOCUMENTO_DEPOSITO, deposito);
-	        printTotals(port,context,app,Constants.TIPO_DOCUMENTO_DEPOSITO, deposito, false);
+	        printHeaderFields(port, ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
+	        printHeaderDetail(port, ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO, deposito);
+	        printTotals(port,context,app, ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO, deposito, false);
 			
 			outputByteBuffer = ("\nOPERACION ASEGURADA EN CREDITO Y CAUCION\n\n").getBytes();
 			port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
@@ -496,7 +497,7 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 	{
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-		Bitmap bm = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_FIRMAS + "/" + "C_" + _GUID + ".png", options);
+		Bitmap bm = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_FIRMAS + "/" + "C_" + _GUID + ".png", options);
 		
 		StarBitmap starbitmap = new StarBitmap(bm, false, maxWidth);
 		
@@ -539,7 +540,7 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 	{
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-		Bitmap bm = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_FIRMAS + "/" + "V_" + _GUID + ".png", options);
+		Bitmap bm = BitmapFactory.decodeFile(Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_FIRMAS + "/" + "V_" + _GUID + ".png", options);
 		
 		StarBitmap starbitmap = new StarBitmap(bm, false, maxWidth);
 		StarIOPort port = null;

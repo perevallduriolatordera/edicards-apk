@@ -11,7 +11,8 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.DataTier.LineaDeposito;
@@ -96,10 +97,10 @@ public class PdfCreator extends pdfBase{
 		this.insertSeparators();
 		String total;
 
-		if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN)
+		if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN)
 			total = padLeft("TOTAL", 10);
 		else
-			total = Constants.EMPTY_STRING;
+			total = ConstantsTypes.EMPTY_STRING;
 
 		String text = padRight("COD.", 10) + padRight("DESCRIPCION", 25)
 				+ padLeft("UNID.", 10) + padLeft("PRECIO.", 10) + total + "\n";
@@ -112,7 +113,7 @@ public class PdfCreator extends pdfBase{
 			MalformedURLException, IOException {
 		DecimalFormat df = new DecimalFormat("0.00");
 
-		if (tipo == Constants.TIPO_DOCUMENTO_DEPOSITO) {
+		if (tipo == ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO) {
 			try {
 				_deposito.CalculateDeposito();
 			} catch (Exception e) {
@@ -186,7 +187,7 @@ public class PdfCreator extends pdfBase{
 				_document.add(new Paragraph(impuestos + "\n", _fontBold));
 			}
 
-			String total = Constants.EMPTY_STRING;
+			String total = ConstantsTypes.EMPTY_STRING;
 			
 			if (_deposito.Serie.equals(_app.getUser().SerialInvoiceA)) {
 					total = padLeft(" ", 43)
@@ -279,7 +280,7 @@ public class PdfCreator extends pdfBase{
 						_document.add(new Paragraph(firmaVendedorText,
 								_fontNormal));
 
-						this.addSignature(Constants.TIPO_DOCUMENTO_ALBARAN);
+						this.addSignature(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
 
 						_document.add(new Paragraph("\n"));
 						String firmaClienteText = "FIRMA CLIENTE\n";
@@ -287,7 +288,7 @@ public class PdfCreator extends pdfBase{
 						_document.add(new Paragraph(firmaClienteText,
 								_fontNormal));
 
-						this.addSignature(Constants.TIPO_DOCUMENTO_DEPOSITO);
+						this.addSignature(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
 
 					} else {
 						_document.add(new Paragraph(
@@ -297,7 +298,7 @@ public class PdfCreator extends pdfBase{
 				}
 			}
 
-			if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN &&  this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
+			if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN &&  this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
 				String pendienteEnvioText = "MERCANCIA PENDIENTE DE ENVIO"
 						+ "\n";
 
@@ -306,8 +307,8 @@ public class PdfCreator extends pdfBase{
 				this.insertSeparators();
 			}
 
-			if (isTransferPayment && tipo == Constants.TIPO_DOCUMENTO_ALBARAN) {
-				String transferText = Constants.EMPTY_STRING;
+			if (isTransferPayment && tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN) {
+				String transferText = ConstantsTypes.EMPTY_STRING;
 				transferText = "\nHACER TRANSFERENCIA EN UNO DE LOS SIGUIENTES NUMEROS DE CUENTA:\n"
 						+ "\n"
 						+ "BANCO SABADELL\n"
@@ -322,7 +323,7 @@ public class PdfCreator extends pdfBase{
 
 				_document.add(paragraph);
 
-				transferText = Constants.EMPTY_STRING;
+				transferText = ConstantsTypes.EMPTY_STRING;
 				transferText = "Poner en el concepto: " + _deposito.Nombre + " y num de albaran " + _app.getUser().User + "/" + _deposito.NumeroAlbaran + "\n\n";
 
 				paragraph = new Paragraph(transferText, _fontBold);
@@ -345,7 +346,7 @@ public class PdfCreator extends pdfBase{
 		Collections
 				.sort(tempList, new LineaDeposito().new ArticuloComparator());
 
-		if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN)
+		if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN)
 			for (LineaDeposito linea : tempList) {
 				if (linea.UnidadesFacturadas > 0) {
 					String desc;
@@ -447,7 +448,7 @@ public class PdfCreator extends pdfBase{
 			String tipoEnvio = this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "E" : "F";
 
 			_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
-					+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_PDF + "/"
+					+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_PDF + "/"
 					+ "A_" + _app.getUser().User + " " + _deposito.NumeroAlbaran
 					+ "_" + this.getDateTimeFormat() + "_" + tipoEnvio + ".pdf";
 
@@ -479,10 +480,10 @@ public class PdfCreator extends pdfBase{
 				_document.add(new Paragraph(albaranText, _fontBold));
 			}
 
-			this.printHeaderData(Constants.TIPO_DOCUMENTO_ALBARAN);
-			printHeaderFields(Constants.TIPO_DOCUMENTO_ALBARAN);
-			printHeaderDetail(Constants.TIPO_DOCUMENTO_ALBARAN);
-			printTotals(Constants.TIPO_DOCUMENTO_ALBARAN, isTransferPayment);
+			this.printHeaderData(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
+			printHeaderFields(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
+			printHeaderDetail(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
+			printTotals(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN, isTransferPayment);
 			closePage();
 
 		} catch (Exception e) {
@@ -511,7 +512,7 @@ public class PdfCreator extends pdfBase{
 			String tipoEnvio = this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "E" : "F";
 
 			_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
-					+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_PDF + "/"
+					+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_PDF + "/"
 					+ "D_" + _app.getUser().User + " " + _deposito.IdDeposito + "_"
 					+ this.getDateTimeFormat() + "_" + tipoEnvio + ".pdf";
 
@@ -530,14 +531,14 @@ public class PdfCreator extends pdfBase{
 
 			_document.add(new Paragraph(depositoNum, _fontBold));
 
-			this.printHeaderData(Constants.TIPO_DOCUMENTO_DEPOSITO);
-			printHeaderFields(Constants.TIPO_DOCUMENTO_DEPOSITO);
-			printHeaderDetail(Constants.TIPO_DOCUMENTO_DEPOSITO);
-			printTotals(Constants.TIPO_DOCUMENTO_DEPOSITO, false);
+			this.printHeaderData(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
+			printHeaderFields(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
+			printHeaderDetail(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
+			printTotals(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO, false);
 
 			String firmaCliente = "Conforme - Firma Cliente:\n";
 			_document.add(new Paragraph(firmaCliente, _fontNormal));
-			this.addSignature(Constants.TIPO_DOCUMENTO_DEPOSITO);
+			this.addSignature(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
 			closePage();
 		} catch (Exception e) {
 			sendMailToMantenimiento(e, _app.getUser().User, _deposito.NumDoc, "depósito");

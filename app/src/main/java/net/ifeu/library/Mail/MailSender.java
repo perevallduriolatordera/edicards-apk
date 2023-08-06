@@ -14,7 +14,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsMail;
 
 //Class is extending AsyncTask because this class is going to perform a networking operation
 public class MailSender  {
@@ -54,7 +54,7 @@ public class MailSender  {
               new javax.mail.Authenticator() {
                   //Authenticating the password
                   protected PasswordAuthentication getPasswordAuthentication() {
-                      return new PasswordAuthentication(Constants.MAIL_USER, Constants.MAIL_PASSWORD);
+                      return new PasswordAuthentication(ConstantsMail.MAIL_USER, ConstantsMail.MAIL_PASSWORD);
                   }
               });
 
@@ -63,7 +63,7 @@ public class MailSender  {
           MimeMessage mm = new MimeMessage(session);
 
           //Setting sender address
-          mm.setFrom(new InternetAddress(Constants.MAIL_FROM));
+          mm.setFrom(new InternetAddress(ConstantsMail.MAIL_FROM));
           //Adding receiver
           mm.addRecipient(Message.RecipientType.TO, new InternetAddress(this.email));
           //Adding subject

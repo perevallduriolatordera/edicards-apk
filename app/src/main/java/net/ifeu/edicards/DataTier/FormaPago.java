@@ -1,11 +1,10 @@
 package net.ifeu.edicards.DataTier;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 
-import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
@@ -27,7 +26,7 @@ public class FormaPago extends Persistent implements IPersistable {
 
 		try {
 			this.IdFormaPago = super.getDatabaseOperations().insert(
-					Constants.TABLE_FORMAS_PAGO, null, values);
+					ConstantsDatabase.TABLE_FORMAS_PAGO, null, values);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -44,19 +43,19 @@ public class FormaPago extends Persistent implements IPersistable {
 
 		String[] whereArgs = { String.valueOf(this.IdFormaPago) };
 
-		super.getDatabaseOperations().update(Constants.TABLE_FORMAS_PAGO,
+		super.getDatabaseOperations().update(ConstantsDatabase.TABLE_FORMAS_PAGO,
 				values, "IdFormaPago = ?", whereArgs);
 	}
 
 	public int getRecordsCount() {
 		return super.getDatabaseOperations().getRecordsCount(
-				Constants.TABLE_FORMAS_PAGO);
+				ConstantsDatabase.TABLE_FORMAS_PAGO);
 	}
 
 	@Override
 	public void clean() throws Exception {
 		Cursor cursor = super.getDatabaseOperations().executeSentence(
-				"DELETE FROM " + Constants.TABLE_FORMAS_PAGO);
+				"DELETE FROM " + ConstantsDatabase.TABLE_FORMAS_PAGO);
 		
 		cursor.close();
 						
@@ -64,7 +63,7 @@ public class FormaPago extends Persistent implements IPersistable {
 
 	public boolean setFormaPagoById(String idFormaPago) throws Exception {
 		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(
-				Constants.TABLE_FORMAS_PAGO, "IdFormaPago", idFormaPago, false);
+				ConstantsDatabase.TABLE_FORMAS_PAGO, "IdFormaPago", idFormaPago, false);
 
 		if (cursor != null) {
 			this.IdFormaPago = Long.parseLong(idFormaPago);
@@ -82,7 +81,7 @@ public class FormaPago extends Persistent implements IPersistable {
 
 	public boolean setFormaPagoByCode(String codigoFormaPago) throws Exception {
 		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(
-				Constants.TABLE_FORMAS_PAGO, "CodigoFormaPago",
+				ConstantsDatabase.TABLE_FORMAS_PAGO, "CodigoFormaPago",
 				codigoFormaPago, true);
 
 		if (cursor != null) {
@@ -103,8 +102,8 @@ public class FormaPago extends Persistent implements IPersistable {
 		HashMap<String, FormaPago> list = new HashMap<>();
 
 		Cursor cursor = super.getDatabaseOperations().getRecordsFromField(
-				Constants.TABLE_FORMAS_PAGO, Constants.EMPTY_STRING,
-				Constants.EMPTY_STRING, true, Constants.EMPTY_STRING,
+				ConstantsDatabase.TABLE_FORMAS_PAGO, ConstantsTypes.EMPTY_STRING,
+				ConstantsTypes.EMPTY_STRING, true, ConstantsTypes.EMPTY_STRING,
 				"Descripcion");
 
 		if (cursor != null) {

@@ -1,11 +1,11 @@
 package net.ifeu.edicards.DataTier;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
@@ -18,8 +18,8 @@ public class LineaDeposito extends Persistent implements IPersistable {
 	public long IdLineaDeposito;
 	public long IdDeposito;
 	public long IdArticulo;
-	public Deposito Deposito = Factory.build(Deposito.class, appConfig);
-	public Articulo Articulo = Factory.build(Articulo.class, appConfig);
+	public Deposito Deposito;
+	public Articulo Articulo;
 	public int StockInicial;
 	public int UnidadesIniciales;
 	public int UnidadesInicialesFijas;
@@ -41,6 +41,12 @@ public class LineaDeposito extends Persistent implements IPersistable {
 	public double TotalAbono;
 
 	@Override
+	public void InitializePersistance(AppConfig appConfigParam) {
+		super.InitializePersistance(appConfigParam);
+		this.Deposito = Factory.build(Deposito.class, appConfigParam);
+		this.Articulo = Factory.build(Articulo.class, appConfigParam);
+	}
+	@Override
 	public void save() throws Exception {
 		
 		ContentValues values = new ContentValues();
@@ -53,7 +59,7 @@ public class LineaDeposito extends Persistent implements IPersistable {
 		values.put("Descuento2", this.Descuento2);
 	
 		try {
-			this.IdLineaDeposito = super.getDatabaseOperations().insert(Constants.TABLE_LINEAS_DEPOSITO, null , values);
+			this.IdLineaDeposito = super.getDatabaseOperations().insert(ConstantsDatabase.TABLE_LINEAS_DEPOSITO, null , values);
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -75,12 +81,12 @@ public class LineaDeposito extends Persistent implements IPersistable {
 		
 		String[] whereArgs = { String.valueOf(this.IdLineaDeposito) }; 
 		
-	    super.getDatabaseOperations().update(Constants.TABLE_LINEAS_DEPOSITO, values, "IdLineaDeposito = ?", whereArgs);
+	    super.getDatabaseOperations().update(ConstantsDatabase.TABLE_LINEAS_DEPOSITO, values, "IdLineaDeposito = ?", whereArgs);
 	}
 	
 	public int getRecordsCount()
 	{
-		return super.getDatabaseOperations().getRecordsCount(Constants.TABLE_LINEAS_DEPOSITO);
+		return super.getDatabaseOperations().getRecordsCount(ConstantsDatabase.TABLE_LINEAS_DEPOSITO);
 	}
 	
 	
@@ -88,7 +94,7 @@ public class LineaDeposito extends Persistent implements IPersistable {
 	{
 			LinkedHashMap<String,LineaDeposito> list = new LinkedHashMap<>();
 			
-			Cursor cursor = super.getDatabaseOperations().getRecordsFromFieldNumeric(Constants.TABLE_LINEAS_DEPOSITO, "IdDeposito", String.valueOf(deposito.IdDeposito), Constants.EMPTY_STRING, null);
+			Cursor cursor = super.getDatabaseOperations().getRecordsFromFieldNumeric(ConstantsDatabase.TABLE_LINEAS_DEPOSITO, "IdDeposito", String.valueOf(deposito.IdDeposito), ConstantsTypes.EMPTY_STRING, null);
 			
 			if (cursor != null)
 			{

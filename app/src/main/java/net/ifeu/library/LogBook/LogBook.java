@@ -1,13 +1,10 @@
 package net.ifeu.library.LogBook;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 
-import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Articulo;
-import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
@@ -105,7 +102,7 @@ public class LogBook extends Persistent implements IPersistable {
         values.put("UnidadesDefectuosasAbono", this.UnidadesDefectuosasAbono);
 
         try {
-            super.getDatabaseOperations().insert(Constants.TABLE_LOGBOOK, null , values);
+            super.getDatabaseOperations().insert(ConstantsDatabase.TABLE_LOGBOOK, null , values);
         }
         catch (Exception e) {
             throw new RuntimeException(e);
@@ -121,7 +118,7 @@ public class LogBook extends Persistent implements IPersistable {
 
         Date firstDate = DateTimeUtils.getFirstDayOfCurrentWeek(today);
 
-        Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_LOGBOOK + " WHERE substr(Fecha,1,4)||substr(Fecha,6,2)||substr(Fecha,9,2) " +
+        Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + ConstantsDatabase.TABLE_LOGBOOK + " WHERE substr(Fecha,1,4)||substr(Fecha,6,2)||substr(Fecha,9,2) " +
                 "BETWEEN '" + formatter.format(firstDate) + "' AND '" + formatter.format(today) + "'");
 
         boolean result = false;
@@ -147,7 +144,7 @@ public class LogBook extends Persistent implements IPersistable {
         calendar.add( Calendar.DAY_OF_YEAR, DAYS_BY_EXTRACT);
         Date firstDate = calendar.getTime();
 
-        Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_LOGBOOK + " WHERE substr(Fecha,1,4)||substr(Fecha,6,2)||substr(Fecha,9,2) " +
+        Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + ConstantsDatabase.TABLE_LOGBOOK + " WHERE substr(Fecha,1,4)||substr(Fecha,6,2)||substr(Fecha,9,2) " +
                 "BETWEEN '" + formatter.format(firstDate) + "' AND '" + formatter.format(today) + "'");
 
         ArrayList<LogBook> list = new ArrayList<>();
@@ -201,7 +198,7 @@ public class LogBook extends Persistent implements IPersistable {
         calendar.add( Calendar.DAY_OF_YEAR, DAYS_BY_EXTRACT);
         Date firstDate = calendar.getTime();
 
-        Cursor cursor = super.getDatabaseOperations().executeSentence("DELETE FROM " + Constants.TABLE_LOGBOOK + " WHERE Fecha < '" + formatter.format(firstDate) + "'");
+        Cursor cursor = super.getDatabaseOperations().executeSentence("DELETE FROM " + ConstantsDatabase.TABLE_LOGBOOK + " WHERE Fecha < '" + formatter.format(firstDate) + "'");
 
         if (cursor != null)
             cursor.close();

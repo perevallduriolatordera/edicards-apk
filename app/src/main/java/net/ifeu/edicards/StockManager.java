@@ -21,7 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.Factories.Factory;
@@ -146,8 +146,8 @@ public class StockManager extends Fragment {
 
 				if (!onlyReciclado) {
 					articulo.Stock = 0;
-					logBookWriter.setData("INICIALIZACIÓN DE ALMACÉN", Constants.EMPTY_STRING,
-							Constants.EMPTY_STRING, articulo.CodigoArticulo, articulo.Descripcion,
+					logBookWriter.setData("INICIALIZACIÓN DE ALMACÉN", ConstantsTypes.EMPTY_STRING,
+							ConstantsTypes.EMPTY_STRING, articulo.CodigoArticulo, articulo.Descripcion,
 							articulo.Stock, 0, 0, 0, 0, 0, 0, 0,0);
 
 					logBookWriter.save();
@@ -255,7 +255,7 @@ public class StockManager extends Fragment {
 					} else {
 						String password = _appConfig.getMessageBox().InputBox("Recuento de artículo", "introduzca la contraseña", getActivity());
 
-						if (password.equals(Constants.MANAGER_PASSWORD)) {
+						if (password.equals(ConstantsTypes.MANAGER_PASSWORD)) {
 
 							that._isManagerPasswordMode = true;
 
@@ -314,7 +314,7 @@ public class StockManager extends Fragment {
 
 				String password = _appConfig.getMessageBox().InputBox("Recuento de artículo", "introduzca la contraseña", getActivity());
 
-				if (password.equals(Constants.MANAGER_PASSWORD)) {
+				if (password.equals(ConstantsTypes.MANAGER_PASSWORD)) {
 					that.initializeStock(false);
 					_appConfig
 					.getMessageBox()
@@ -571,7 +571,7 @@ public class StockManager extends Fragment {
 
 						int unidades = ((Articulo) unidadesRecuento.getTag()).Stock;
 
-						textBox.setText(Constants.EMPTY_STRING);
+						textBox.setText(ConstantsTypes.EMPTY_STRING);
 						textBox.setHint(unidades);
 
 					} else {
@@ -583,8 +583,8 @@ public class StockManager extends Fragment {
 							int unidades = Integer.parseInt(textBox.getText().toString());
 
 							((Articulo) unidadesRecuento.getTag()).Stock = unidades;
-							logBookWriter.setData("ASIGNACION DE ALMACÉN", Constants.EMPTY_STRING,
-									Constants.EMPTY_STRING, ((Articulo) unidadesRecuento.getTag()).CodigoArticulo, ((Articulo) unidadesRecuento.getTag()).Descripcion,
+							logBookWriter.setData("ASIGNACION DE ALMACÉN", ConstantsTypes.EMPTY_STRING,
+									ConstantsTypes.EMPTY_STRING, ((Articulo) unidadesRecuento.getTag()).CodigoArticulo, ((Articulo) unidadesRecuento.getTag()).Descripcion,
 									articulo.Stock, unidades, 0, 0, 0, 0, 0, 0,0);
 
 							logBookWriter.save();
@@ -593,7 +593,7 @@ public class StockManager extends Fragment {
 
 							String password = _appConfig.getMessageBox().InputBox("Recuento de artículo", "introduzca la contraseña", getActivity());
 
-							if (password.equals(Constants.MANAGER_PASSWORD)) {
+							if (password.equals(ConstantsTypes.MANAGER_PASSWORD)) {
 
 								that._isManagerPasswordMode = true;
 								_lastTextBox = (TextBoxColor) view;
@@ -602,8 +602,8 @@ public class StockManager extends Fragment {
 								int unidades = Integer.parseInt(textBox.getText().toString());
 								((Articulo) unidadesRecuento.getTag()).Stock = unidades;
 
-								logBookWriter.setData("ASIGNACION DE ALMACÉN", Constants.EMPTY_STRING,
-										Constants.EMPTY_STRING, ((Articulo) unidadesRecuento.getTag()).CodigoArticulo, ((Articulo) unidadesRecuento.getTag()).Descripcion,
+								logBookWriter.setData("ASIGNACION DE ALMACÉN", ConstantsTypes.EMPTY_STRING,
+										ConstantsTypes.EMPTY_STRING, ((Articulo) unidadesRecuento.getTag()).CodigoArticulo, ((Articulo) unidadesRecuento.getTag()).Descripcion,
 										articulo.Stock, unidades, 0, 0, 0, 0, 0, 0,0);
 
 								logBookWriter.save();
@@ -686,12 +686,12 @@ public class StockManager extends Fragment {
 		int entradas;
 		int salidas;
 
-		if (swap.Entradas.getText().toString().equals(Constants.EMPTY_STRING))
+		if (swap.Entradas.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
 			entradas = 0;
 		else
 			entradas = Integer.parseInt(swap.Entradas.getText().toString());
 
-		if (swap.Salidas.getText().toString().equals(Constants.EMPTY_STRING))
+		if (swap.Salidas.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
 			salidas = 0;
 		else
 			salidas = Integer.parseInt(swap.Salidas.getText().toString());
@@ -708,8 +708,8 @@ public class StockManager extends Fragment {
 
 		LogBook logBookWriter = Factory.build(LogBook.class, _appConfig);
 
-		logBookWriter.setData("ASIGNACION DE ALMACÉN", Constants.EMPTY_STRING,
-				Constants.EMPTY_STRING, swap.Articulo.CodigoArticulo, swap.Articulo.Descripcion,
+		logBookWriter.setData("ASIGNACION DE ALMACÉN", ConstantsTypes.EMPTY_STRING,
+				ConstantsTypes.EMPTY_STRING, swap.Articulo.CodigoArticulo, swap.Articulo.Descripcion,
 				stockInicial, swap.Articulo.Stock, entradas, 0, salidas, 0, 0, 0,0);
 
 		logBookWriter.save();
@@ -720,9 +720,9 @@ public class StockManager extends Fragment {
 
 		swap.Inicial.setText(String.valueOf(swap.Articulo.Stock));
 		swap.Entradas.setHint(String.valueOf(0));
-		swap.Entradas.setText(Constants.EMPTY_STRING);
+		swap.Entradas.setText(ConstantsTypes.EMPTY_STRING);
 		swap.Salidas.setHint(String.valueOf(0));
-		swap.Salidas.setText(Constants.EMPTY_STRING);
+		swap.Salidas.setText(ConstantsTypes.EMPTY_STRING);
 
 		try {
 			swap.Articulo.update();
@@ -754,14 +754,14 @@ public class StockManager extends Fragment {
 		int salidasDefectuoso;
 
 		if (swap.EntradasDefectuoso.getText().toString()
-				.equals(Constants.EMPTY_STRING))
+				.equals(ConstantsTypes.EMPTY_STRING))
 			entradasDefectuoso = 0;
 		else
 			entradasDefectuoso = Integer.parseInt(swap.EntradasDefectuoso
 					.getText().toString());
 
 		if (swap.SalidasDefectuoso.getText().toString()
-				.equals(Constants.EMPTY_STRING))
+				.equals(ConstantsTypes.EMPTY_STRING))
 			salidasDefectuoso = 0;
 		else
 			salidasDefectuoso = Integer.parseInt(swap.SalidasDefectuoso
@@ -783,9 +783,9 @@ public class StockManager extends Fragment {
 		swap.InicialDefectuoso.setText(String
 				.valueOf(swap.Articulo.StockDefectuoso));
 		swap.EntradasDefectuoso.setHint(String.valueOf(0));
-		swap.EntradasDefectuoso.setText(Constants.EMPTY_STRING);
+		swap.EntradasDefectuoso.setText(ConstantsTypes.EMPTY_STRING);
 		swap.SalidasDefectuoso.setHint(String.valueOf(0));
-		swap.SalidasDefectuoso.setText(Constants.EMPTY_STRING);
+		swap.SalidasDefectuoso.setText(ConstantsTypes.EMPTY_STRING);
 
 		try {
 			swap.Articulo.update();

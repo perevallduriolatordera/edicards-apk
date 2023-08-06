@@ -1,11 +1,10 @@
 package net.ifeu.edicards.DataTier;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
@@ -13,11 +12,18 @@ import net.ifeu.edicards.DataTier.Persistance.Persistent;
 public class Pactos extends Persistent implements IPersistable {
 
 	public Long IdPacto;
-	public Cliente Cliente = Factory.build(Cliente.class, appConfig);
-	public Articulo Articulo = Factory.build(Articulo.class, appConfig);
+	public Cliente Cliente;
+	public Articulo Articulo;
 	public double PVP;
 	public double Descuento1;
 	public double Descuento2;
+
+	@Override
+	public void InitializePersistance(AppConfig appConfigParam) {
+		super.InitializePersistance(appConfigParam);
+		this.Cliente = Factory.build(Cliente.class, appConfigParam);
+		this.Articulo = Factory.build(Articulo.class, appConfigParam);
+	}
 
 	@Override
 	public void save() throws Exception {
@@ -30,7 +36,7 @@ public class Pactos extends Persistent implements IPersistable {
 		values.put("Descuento2", this.Descuento2);
 		
 		try {
-			this.IdPacto = super.getDatabaseOperations().insert(Constants.TABLE_PACTOS, null , values);
+			this.IdPacto = super.getDatabaseOperations().insert(ConstantsDatabase.TABLE_PACTOS, null , values);
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -40,7 +46,7 @@ public class Pactos extends Persistent implements IPersistable {
 	
 	public int getRecordsCount()
 	{
-		return super.getDatabaseOperations().getRecordsCount(Constants.TABLE_PACTOS);
+		return super.getDatabaseOperations().getRecordsCount(ConstantsDatabase.TABLE_PACTOS);
 	}
 
 	public boolean setPactoByClienteArticulo(Cliente cliente, Articulo articulo)
@@ -48,7 +54,7 @@ public class Pactos extends Persistent implements IPersistable {
 		
 		boolean result = false;
 		
-		Cursor cursor = super.getDatabaseOperations().getRecordsFromField(Constants.TABLE_PACTOS, "IdArticulo", String.valueOf(articulo.IdArticulo),false, " AND IdCliente = " + cliente.IdCliente , null);
+		Cursor cursor = super.getDatabaseOperations().getRecordsFromField(ConstantsDatabase.TABLE_PACTOS, "IdArticulo", String.valueOf(articulo.IdArticulo),false, " AND IdCliente = " + cliente.IdCliente , null);
 		
 		if (cursor != null)
 		{

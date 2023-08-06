@@ -16,7 +16,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Environment;
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.DataTier.Articulo;
 
 public class PdfInventoryRecycled extends pdfBase {
@@ -96,7 +96,7 @@ public class PdfInventoryRecycled extends pdfBase {
 		_document = new Document();
 
 		_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
-				+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_INVENTARIO + "/Reciclado_"
+				+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_INVENTARIO + "/Reciclado_"
 				+ _app.getUser().User + "_" 
 				+ this.getDateTimeFormat() + ".pdf";
 

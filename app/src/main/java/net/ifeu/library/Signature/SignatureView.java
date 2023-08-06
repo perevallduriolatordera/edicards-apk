@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.library.Imaging.BitmapConvertor;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -16,7 +16,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.os.Environment;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -126,7 +125,7 @@ public class SignatureView extends View {
 
 		try {
 			path = Environment.getExternalStorageDirectory().toString() + "/"
-					+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_FIRMAS
+					+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_FIRMAS
 					+ "/"; // this is the sd card
 
 			OutputStream fOut;
@@ -160,7 +159,7 @@ public class SignatureView extends View {
 
 		try {
 			path = Environment.getExternalStorageDirectory().toString() + "/"
-					+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_FIRMAS
+					+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_FIRMAS
 					+ "/"; // this is the sd card
 
 			String file;

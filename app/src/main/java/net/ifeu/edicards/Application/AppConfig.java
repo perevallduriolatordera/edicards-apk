@@ -10,7 +10,7 @@ import android.content.SharedPreferences;
 import com.androidnetworking.AndroidNetworking;
 
 import net.ifeu.edicards.Cache.CacheData;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.User;
 import net.ifeu.edicards.DatabaseOperations.DatabaseOperations;
 import net.ifeu.library.Connectivity.Connectivity;
@@ -114,14 +114,14 @@ public class AppConfig extends Application {
 					android.content.Context.MODE_PRIVATE);
 	
 			User user = new User();
-			user.User = preferences.getString("User", Constants.EMPTY_STRING);
-			user.Password = preferences.getString("Password", Constants.EMPTY_STRING);
-			user.SerialInvoiceA = preferences.getString("SerialInvoiceA", Constants.EMPTY_STRING);
-			user.SerialInvoiceB = preferences.getString("SerialInvoiceB", Constants.EMPTY_STRING);
-			user.Company = preferences.getString("Company", Constants.EMPTY_STRING);
-			user.Name = preferences.getString("Name", Constants.EMPTY_STRING);
-			user.InitSerieA = preferences.getString("SerieA", Constants.EMPTY_STRING);
-			user.InitSerieB = preferences.getString("SerieB", Constants.EMPTY_STRING);
+			user.User = preferences.getString("User", ConstantsTypes.EMPTY_STRING);
+			user.Password = preferences.getString("Password", ConstantsTypes.EMPTY_STRING);
+			user.SerialInvoiceA = preferences.getString("SerialInvoiceA", ConstantsTypes.EMPTY_STRING);
+			user.SerialInvoiceB = preferences.getString("SerialInvoiceB", ConstantsTypes.EMPTY_STRING);
+			user.Company = preferences.getString("Company", ConstantsTypes.EMPTY_STRING);
+			user.Name = preferences.getString("Name", ConstantsTypes.EMPTY_STRING);
+			user.InitSerieA = preferences.getString("SerieA", ConstantsTypes.EMPTY_STRING);
+			user.InitSerieB = preferences.getString("SerieB", ConstantsTypes.EMPTY_STRING);
 			
 			this.setUser(user);
 		

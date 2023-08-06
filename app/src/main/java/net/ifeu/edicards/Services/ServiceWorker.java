@@ -3,10 +3,13 @@ package net.ifeu.edicards.Services;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Environment;
-import android.util.Log;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.Constants.ConstantsCredentials;
+import net.ifeu.edicards.Constants.ConstantsEndpoints;
+import net.ifeu.edicards.Constants.ConstantsFolders;
+import net.ifeu.edicards.Constants.ConstantsMail;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Contador;
@@ -69,17 +72,15 @@ public class ServiceWorker extends ServiceBase {
 
 		// Asignamos las credenciales
 
-		WindowsCredentials credentials = new WindowsCredentials();
-		credentials.User = "Tablet";
-		credentials.Password = "tab2012let";
+		WSCredentials credentials = new WSCredentials(ConstantsCredentials.WS_AUTHENTICATION_USER, ConstantsCredentials.WS_AUTHENTICATION_PASSWORD);
 
 		String directory;
 		List<String> files;
 
 		// * * * * * * * * * ENVIAMOS PDF * * * * * * * * * * * *
 
-		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
-				+ Constants.FOLDER_PDF;
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+				+ ConstantsFolders.FOLDER_PDF;
 
 		files = IOUtils.getFilesFromDirectory(directory);
 
@@ -97,10 +98,10 @@ public class ServiceWorker extends ServiceBase {
 				}
 
 				if (!isRectificativo) {
-					albaran = (fileInfo.getName().substring(2).replace(".pdf", Constants.EMPTY_STRING));
+					albaran = (fileInfo.getName().substring(2).replace(".pdf", ConstantsTypes.EMPTY_STRING));
 
 				} else {
-					albaran = (fileInfo.getName().substring(4).replace(".pdf", Constants.EMPTY_STRING));
+					albaran = (fileInfo.getName().substring(4).replace(".pdf", ConstantsTypes.EMPTY_STRING));
 				}
 				title = title + albaran;
 
@@ -109,7 +110,7 @@ public class ServiceWorker extends ServiceBase {
 
 				String[] parts = file.split("_");
 				if (parts.length > 3 && parts[3].startsWith("E") && fileInfo.getName().subSequence(0, 1).equals("A")) {
-					MailSender mailEnviosEdicards = new MailSender(Constants.MAIL_ENVIOS_EDICARDS, title, Constants.MAIL_BODY, file);
+					MailSender mailEnviosEdicards = new MailSender(ConstantsMail.MAIL_ENVIOS_EDICARDS, title, ConstantsMail.MAIL_BODY, file);
 					try {
 						mailEnviosEdicards.send();
 						Debugger.Debug(context, app.getUser().User,"Se ha enviado el albarán " + albaran + " al almacén de envios Edicards", file);
@@ -121,7 +122,7 @@ public class ServiceWorker extends ServiceBase {
 
 				if (isRectificativo) {
 					if (parts.length > 4 && parts[4].startsWith("E") && fileInfo.getName().subSequence(0, 5).equals("REC_A")) {
-						MailSender mailEnviosEdicards = new MailSender(Constants.MAIL_ENVIOS_EDICARDS, title, Constants.MAIL_BODY, file);
+						MailSender mailEnviosEdicards = new MailSender(ConstantsMail.MAIL_ENVIOS_EDICARDS, title, ConstantsMail.MAIL_BODY, file);
 						try {
 							mailEnviosEdicards.send();
 							Debugger.Debug(context, app.getUser().User,"Se ha enviado el albarán " + albaran  + " al almacén de envios Edicards", file);
@@ -132,7 +133,7 @@ public class ServiceWorker extends ServiceBase {
 					}
 				}
 
-				MailSender mail = new MailSender(Constants.MAIL_TO, title, Constants.MAIL_BODY, file);
+				MailSender mail = new MailSender(ConstantsMail.MAIL_TO, title, ConstantsMail.MAIL_BODY, file);
 
 				try {
 					mail.send();
@@ -151,8 +152,8 @@ public class ServiceWorker extends ServiceBase {
 
 		// * * * * * * * * * ENVIAMOS AUTORIZACIONES * * * * * * * * * * * *                                                         
 
-		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
-				+ Constants.FOLDER_AUTORIZACIONES;
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+				+ ConstantsFolders.FOLDER_AUTORIZACIONES;
 
 		List<String> filesAuth = IOUtils.getFilesFromDirectory(directory);
 		for (String file : filesAuth) {
@@ -161,10 +162,10 @@ public class ServiceWorker extends ServiceBase {
 				File fileInfo = new File(file);
 
 				String title = "Autorización ";
-				title = title + (fileInfo.getName().substring(2).replace(".pdf", Constants.EMPTY_STRING));
+				title = title + (fileInfo.getName().substring(2).replace(".pdf", ConstantsTypes.EMPTY_STRING));
 
-				Mail mail = new Mail(Constants.MAIL_HOST, Constants.MAIL_PORT, Constants.MAIL_SPORT, Constants.MAIL_USER,
-						Constants.MAIL_PASSWORD, Constants.MAIL_FROM, title, Constants.MAIL_TO, Constants.MAIL_BODY);
+				Mail mail = new Mail(ConstantsMail.MAIL_HOST, ConstantsMail.MAIL_PORT, ConstantsMail.MAIL_SPORT, ConstantsMail.MAIL_USER,
+						ConstantsMail.MAIL_PASSWORD, ConstantsMail.MAIL_FROM, title, ConstantsMail.MAIL_TO, ConstantsMail.MAIL_BODY);
 
 				mail.addAttachment(file, title + ".pdf");
 
@@ -183,8 +184,8 @@ public class ServiceWorker extends ServiceBase {
 
 		// * * * * * * * * * ENVIAMOS GDPR * * * * * * * * * * * *                                                                   
 
-		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
-				+ Constants.FOLDER_GDPR;
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+				+ ConstantsFolders.FOLDER_GDPR;
 
 		List<String> filesGDPR = IOUtils.getFilesFromDirectory(directory);
 
@@ -195,9 +196,9 @@ public class ServiceWorker extends ServiceBase {
 				File fileInfo = new File(file);
 
 				String title = "Documento GDPR del cliente ";
-				title = title + (fileInfo.getName().replace(".pdf", Constants.EMPTY_STRING));
+				title = title + (fileInfo.getName().replace(".pdf", ConstantsTypes.EMPTY_STRING));
 
-				MailSender mail = new MailSender(Constants.MAIL_TO_GDPR, title, Constants.MAIL_BODY, file);
+				MailSender mail = new MailSender(ConstantsMail.MAIL_TO_GDPR, title, ConstantsMail.MAIL_BODY, file);
 
 				try {
 					mail.send();
@@ -213,8 +214,8 @@ public class ServiceWorker extends ServiceBase {
 
 		// * * * * * * * * * ENVIAMOS LOGBOOK * * * * * * * * * * * *
 
-		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
-				+ Constants.FOLDER_LOGBOOK;
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+				+ ConstantsFolders.FOLDER_LOGBOOK;
 
 		List<String> filesLogBook = IOUtils.getFilesFromDirectory(directory);
 
@@ -224,7 +225,7 @@ public class ServiceWorker extends ServiceBase {
 
 				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 				String title = "Documento Trazabilidad del comercial " + app.getUser().User + " " + "con fecha " + formatter.format(new Date());
-				MailSender mail = new MailSender(Constants.MAIL_TO_LOGBOOK, title, Constants.MAIL_BODY, file);
+				MailSender mail = new MailSender(ConstantsMail.MAIL_TO_LOGBOOK, title, ConstantsMail.MAIL_BODY, file);
 
 				try {
 					mail.send();
@@ -238,8 +239,8 @@ public class ServiceWorker extends ServiceBase {
 
 		// * * * * * * * * * ENVIAMOS INCIDENCIAS * * * * * * * * * * * *
 
-		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
-				+ Constants.FOLDER_INCIDENCIAS;
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+				+ ConstantsFolders.FOLDER_INCIDENCIAS;
 
 		List<String> incidencias = IOUtils.getFilesFromDirectory(directory);
 
@@ -247,7 +248,7 @@ public class ServiceWorker extends ServiceBase {
 
 			try {
 				File fileInfo = new File(file);
-				String title = Constants.EMPTY_STRING;
+				String title = ConstantsTypes.EMPTY_STRING;
 
 				if (fileInfo.getName().subSequence(0, 1).toString().equals("A"))
 					title = "Albarán anulado enviado por " + app.getUser().User;
@@ -270,12 +271,12 @@ public class ServiceWorker extends ServiceBase {
 				MailSender mail;
 
 				if (fileInfo.getName().subSequence(0, 1).toString().equals("I"))
-					mail = new MailSender(Constants.MAIL_ADMINISTRACION_2, title, content, file);
+					mail = new MailSender(ConstantsMail.MAIL_ADMINISTRACION_2, title, content, file);
 				else
-					mail = new MailSender(Constants.MAIL_ADMINISTRACION, title,  content, file);
+					mail = new MailSender(ConstantsMail.MAIL_ADMINISTRACION, title,  content, file);
 
 				if (fileInfo.getName().subSequence(0, 1).toString().equals("E"))
-					mail = new MailSender(Constants.MAIL_FACTURACION, title,  content, file);
+					mail = new MailSender(ConstantsMail.MAIL_FACTURACION, title,  content, file);
 
 				try {
 					mail.send();
@@ -291,18 +292,18 @@ public class ServiceWorker extends ServiceBase {
 
 		// * * * * * * * * * ENVIAMOS ARTICULOS * * * * * * * * * * * *                                                              
 
-		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"                         
-				+ Constants.FOLDER_STOCK;                                                                                            
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"                         
+				+ ConstantsFolders.FOLDER_STOCK;                                                                                            
                                                                                                                                                                                                                                       
 		files = IOUtils.getFilesFromDirectory(directory);
-		String url = Constants.WS_ENVIAR_ARTICULOS;                                                                                  
+		String url = ConstantsEndpoints.WS_ENVIAR_ARTICULOS;
                                                                                                                                      
 		for (String file : files) {                                                                                                  
 			String content = IOUtils.getFileContent(file);                                                                           
                                                                                                                                      
 			RestClient client = new RestClient();                                                                                    
 			ArrayList<NameValuePair> headers = new ArrayList<>();
-			headers.add(new BasicNameValuePair("Authorization",Constants.AUTHORIZATION_HEADER_SERVICES));
+			headers.add(new BasicNameValuePair("Authorization", ConstantsTypes.AUTHORIZATION_HEADER_SERVICES));
 			ArrayList<NameValuePair> params = new ArrayList<>();
 			params.add(new BasicNameValuePair("contingut", content));                                                                
 	                                                                                                                                 
@@ -327,8 +328,8 @@ public class ServiceWorker extends ServiceBase {
 		// * * * * * * * * * ENVIAMOS GASTOS * * * * * * * * * * * *                                                                 
 		                                                                                                                             
 		boolean anyGastos;
-		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"                         
-				+ Constants.FOLDER_GASTOS;                                                                                           
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"                         
+				+ ConstantsFolders.FOLDER_GASTOS;                                                                                           
 
 		files = IOUtils.getFilesFromDirectory(directory);                                                                            
 		anyGastos = (files.size() > 0);                                                                                              
@@ -336,7 +337,7 @@ public class ServiceWorker extends ServiceBase {
 		for (String file : files) {                                                                                                  
 			String content = encodeURIComponent(IOUtils.getFileContent(file));
 			HttpService http = new HttpService();
-			url = Constants.WS_ENVIAR_GASTOS;
+			url = ConstantsEndpoints.WS_ENVIAR_GASTOS;
 			                                                                                                                         
 			try {                                                                                                                    
 				http.CallWithoutResult(url + "?contingut=" + content, credentials);                                                  
@@ -348,8 +349,8 @@ public class ServiceWorker extends ServiceBase {
 
 		// * * * * * * * * * GENERAMOS Y ENVIAMOS INVENTARIO * * * * * * * * * *
 
-		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
-				+ Constants.FOLDER_INVENTARIO;
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+				+ ConstantsFolders.FOLDER_INVENTARIO;
 
 		List<String> inventario = IOUtils.getFilesFromDirectory(directory);
 
@@ -364,10 +365,10 @@ public class ServiceWorker extends ServiceBase {
 					if (!file.contains("Reciclado_")) {
 						File fileInfo = new File(file);
 						String title = "Inventario ";
-						title = title + (fileInfo.getName().replace(".pdf", Constants.EMPTY_STRING));
-						Mail mail = new Mail(Constants.MAIL_HOST, Constants.MAIL_PORT, Constants.MAIL_SPORT,
-								Constants.MAIL_USER, Constants.MAIL_PASSWORD, Constants.MAIL_FROM, title, Constants.MAIL_TO,
-								Constants.MAIL_BODY);
+						title = title + (fileInfo.getName().replace(".pdf", ConstantsTypes.EMPTY_STRING));
+						Mail mail = new Mail(ConstantsMail.MAIL_HOST, ConstantsMail.MAIL_PORT, ConstantsMail.MAIL_SPORT,
+								ConstantsMail.MAIL_USER, ConstantsMail.MAIL_PASSWORD, ConstantsMail.MAIL_FROM, title, ConstantsMail.MAIL_TO,
+								ConstantsMail.MAIL_BODY);
 
 						mail.addAttachment(file, title + ".pdf");
 
@@ -392,9 +393,9 @@ public class ServiceWorker extends ServiceBase {
 				if (file.contains("Reciclado_")) {
 					File fileInfo = new File(file);
 					String title = "Inventario de reciclado ";
-					title = title + (fileInfo.getName().replace(".pdf", Constants.EMPTY_STRING).replace("Reciclado_", Constants.EMPTY_STRING));
+					title = title + (fileInfo.getName().replace(".pdf", ConstantsTypes.EMPTY_STRING).replace("Reciclado_", ConstantsTypes.EMPTY_STRING));
 					MailSender mail;
-					mail = new MailSender(Constants.MAIL_FACTURACION, title, Constants.EMPTY_STRING, file);
+					mail = new MailSender(ConstantsMail.MAIL_FACTURACION, title, ConstantsTypes.EMPTY_STRING, file);
 
 					try {
 						mail.send();
@@ -413,8 +414,8 @@ public class ServiceWorker extends ServiceBase {
 
 		// * * * * * * * * * ENVIAMOS RECUENTO * * * * * * * * * * * *                                                               
 
-		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"
-				+ Constants.FOLDER_RECUENTO;
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+				+ ConstantsFolders.FOLDER_RECUENTO;
 
 		List<String> recuento = IOUtils.getFilesFromDirectory(directory);
 
@@ -422,10 +423,10 @@ public class ServiceWorker extends ServiceBase {
 
 			try {
 				String content = IOUtils.getFileContent(file);
-				url = Constants.WS_ENVIAR_STOCKS;
+				url = ConstantsEndpoints.WS_ENVIAR_STOCKS;
 				RestClient client = new RestClient();
 				ArrayList<NameValuePair> headers = new ArrayList<>();
-				headers.add(new BasicNameValuePair("Authorization",Constants.AUTHORIZATION_HEADER_SERVICES));
+				headers.add(new BasicNameValuePair("Authorization", ConstantsTypes.AUTHORIZATION_HEADER_SERVICES));
 				ArrayList<NameValuePair> params = new ArrayList<>();
 				params.add(new BasicNameValuePair("contingut", content));
 				boolean result = client.Execute(RequestMethod.POST, url, headers, params);
@@ -445,19 +446,19 @@ public class ServiceWorker extends ServiceBase {
 		XmlCreator creator = new XmlCreator(app, app);                                                                               
 		creator.createXmlDailyStock();                                                                                               
 
-		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"                         
-				+ Constants.FOLDER_DAILYSTOCK;                                                                                       
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"                         
+				+ ConstantsFolders.FOLDER_DAILYSTOCK;                                                                                       
                                                                                                                                      
 		List<String> stockDiario = IOUtils.getFilesFromDirectory(directory);                                                         
                                                                                                                                      
 		for (String file : stockDiario) {   
                                                                                                                                      
 			String content = IOUtils.getFileContent(file);
-			url = Constants.WS_ENVIAR_STOCKS;
+			url = ConstantsEndpoints.WS_ENVIAR_STOCKS;
 
 			RestClient client = new RestClient();                                                                                    
 			ArrayList<NameValuePair> headers = new ArrayList<>();
-			headers.add(new BasicNameValuePair("Authorization",Constants.AUTHORIZATION_HEADER_SERVICES));
+			headers.add(new BasicNameValuePair("Authorization", ConstantsTypes.AUTHORIZATION_HEADER_SERVICES));
 			ArrayList<NameValuePair> params = new ArrayList<>();
 			params.add(new BasicNameValuePair("contingut", content));                                                                
 			                                                                                                                         
@@ -476,8 +477,8 @@ public class ServiceWorker extends ServiceBase {
 
 		// * * * * * * * * * ENVIAMOS ALBARANES * * * * * * * * * * * *                                                              
 
-		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"                         
-				+ Constants.FOLDER_ALBARANES;                                                                                        
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"                         
+				+ ConstantsFolders.FOLDER_ALBARANES;                                                                                        
 
 		files = IOUtils.getFilesFromDirectory(directory);                                                                            
                                                                                                                                      
@@ -485,7 +486,7 @@ public class ServiceWorker extends ServiceBase {
 			String content = encodeURIComponent(IOUtils.getFileContent(file));
 
 			HttpService http = new HttpService();
-			url = Constants.WS_ENVIAR_ALBARANES;
+			url = ConstantsEndpoints.WS_ENVIAR_ALBARANES;
 
 			try {                                                                                                                    
 				http.CallWithoutResult(url + "?contingut=" + content, credentials);                                                  
@@ -499,15 +500,15 @@ public class ServiceWorker extends ServiceBase {
 
 		// * * * * * * * * * ENVIAMOS DEPOSITOS * * * * * * * * * * * *                                                              
 
-		directory = Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/"                         
-				+ Constants.FOLDER_DEPOSITOS;                                                                                        
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"                         
+				+ ConstantsFolders.FOLDER_DEPOSITOS;                                                                                        
                                                                                                                                      
 		files = IOUtils.getFilesFromDirectory(directory);                                                                            
                                                                                                                                      
 		for (String file : files) {                                                                                                  
 			String content = encodeURIComponent(IOUtils.getFileContent(file));
 			HttpService http = new HttpService();
-			url = Constants.WS_ENVIAR_DEPOSITOS;
+			url = ConstantsEndpoints.WS_ENVIAR_DEPOSITOS;
 
 			try {                                                                                                                    
 				http.CallWithoutResult(url + "?contingut=" + content, credentials);                                                  
@@ -531,10 +532,8 @@ public class ServiceWorker extends ServiceBase {
 		try {                                                                                                                        
 			// Asignamos las credenciales
                                                                                                                                      
-			WindowsCredentials credentials = new WindowsCredentials();                                                               
-			credentials.User = "Tablet";                                                                                             
-			credentials.Password = "tab2012let";                                                                                     
-                                                                                                                                     
+			WSCredentials credentials = new WSCredentials(ConstantsCredentials.WS_AUTHENTICATION_USER, ConstantsCredentials.WS_AUTHENTICATION_PASSWORD);
+
 			try {
 				app.getDatabaseOperations().openDB(context);
 			} catch (Exception e) {                                                                                                  
@@ -573,7 +572,7 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 			try {                                                                                                                    
 				all = true;
-				String url = compress ? Constants.WS_FPAGO_ZIP : Constants.WS_FPAGO;                                                 
+				String url = compress ? ConstantsEndpoints.WS_FPAGO_ZIP : ConstantsEndpoints.WS_FPAGO;
                                                                                                                                      
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
 						+ "&Tots=" + all, credentials);
@@ -592,7 +591,7 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 				all = (iva.getRecordsCount() == 0);
                                                                                                                                      
-				String url = compress ? Constants.WS_TIPO_IVA_ZIP : Constants.WS_TIPO_IVA;                                           
+				String url = compress ? ConstantsEndpoints.WS_TIPO_IVA_ZIP : ConstantsEndpoints.WS_TIPO_IVA;
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
 						+ "&Tots=" + all, credentials);
                                                                                                                                      
@@ -610,7 +609,7 @@ public class ServiceWorker extends ServiceBase {
 			try {                                                                                                                    
 				all = (articulo.getRecordsCount() == 0);
                                                                                                                                      
-				String url = compress ? Constants.WS_ARTICULO_ZIP : Constants.WS_ARTICULO;                                           
+				String url = compress ? ConstantsEndpoints.WS_ARTICULO_ZIP : ConstantsEndpoints.WS_ARTICULO;
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
 						+ "&Tots=" + all, credentials);
                                                                                                                                      
@@ -661,7 +660,7 @@ public class ServiceWorker extends ServiceBase {
 			try {                                                                                                                    
 				all = true;
                                                                                                                                      
-				String url = Constants.WS_TRASPASO_STOCK;
+				String url = ConstantsEndpoints.WS_TRASPASO_STOCK;
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
 						+ "&Tots=" + all, credentials);
 				
@@ -678,7 +677,7 @@ public class ServiceWorker extends ServiceBase {
 				http = new HttpService();                                                                                            
                                                                                                                                      
 				try {                                                                                                                
-					String url = Constants.WS_VALIDAR_TRASPASO;
+					String url = ConstantsEndpoints.WS_VALIDAR_TRASPASO;
 					http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User,
 							credentials);                                                                                            
 
@@ -695,13 +694,13 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 			// * * * * * * * * * * LLAMADA A CLIENTES * * * * * * * * * *                                                            
 
-			Cliente cliente = Factory.build(Articulo.class, app);
+			Cliente cliente = Factory.build(Cliente.class, app);
 			http = new HttpService();                                                                                                
                                                                                                                                      
 			try {                                                                                                                    
 				all = (cliente.getRecordsCount() == 0 || app.getWorkingArea().UpgradeDataPost);
                                                                                                                                      
-				String url = compress ? Constants.WS_CLIENTES_ZIP : Constants.WS_CLIENTES;                                           
+				String url = compress ? ConstantsEndpoints.WS_CLIENTES_ZIP : ConstantsEndpoints.WS_CLIENTES;
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
 						+ "&Tots=" + all, credentials);
                                                                                                                                      
@@ -718,7 +717,7 @@ public class ServiceWorker extends ServiceBase {
 			try {                                                                                                                    
 				all = (tarifa.getRecordsCount() == 0);
                                                                                                                                      
-				String url = compress ? Constants.WS_TARIFAS_ZIP : Constants.WS_TARIFAS;                                             
+				String url = compress ? ConstantsEndpoints.WS_TARIFAS_ZIP : ConstantsEndpoints.WS_TARIFAS;
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
 						+ "&Tots=" + all, credentials);
                                                                                                                                      
@@ -735,7 +734,7 @@ public class ServiceWorker extends ServiceBase {
 			try {                                                                                                                    
 				all = (pacto.getRecordsCount() == 0);
                                                                                                                                      
-				String url = compress ? Constants.WS_PACTOS_ZIP : Constants.WS_PACTOS;                                               
+				String url = compress ? ConstantsEndpoints.WS_PACTOS_ZIP : ConstantsEndpoints.WS_PACTOS;
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
 						+ "&Tots=" + all, credentials);
                                                                                                                                      
@@ -752,7 +751,7 @@ public class ServiceWorker extends ServiceBase {
 			http = new HttpService();
 			try {                                                                                                                    
 
-				String url = compress ? Constants.WS_DEPOSITOS_ZIP : Constants.WS_TOTAL_DEPOSITOS;                                   
+				String url = compress ? ConstantsEndpoints.WS_DEPOSITOS_ZIP : ConstantsEndpoints.WS_TOTAL_DEPOSITOS;
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
 						+ "&Tots=" + true, credentials);
                                                                                                                                      
@@ -771,20 +770,20 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 				try {
 					deposito.clean();
-					for (long i = 1; i < totalLineasDeposito; i = i + Constants.WS_PAGINACION) {
+					for (long i = 1; i < totalLineasDeposito; i = i + ConstantsEndpoints.WS_PAGINACION) {
 
 						boolean successful = false;                                                                                  
                                                                                                                                      
 						int maxAttempts = 0;                                                                                         
-						while (!successful && maxAttempts < Constants.WS_MAX_INTENTOS) {
+						while (!successful && maxAttempts < ConstantsEndpoints.WS_MAX_INTENTOS) {
 							try {
 
-								String url = compress ? Constants.WS_DEPOSITOS_ZIP : Constants.WS_DEPOSITOS_PAGINACION;
+								String url = compress ? ConstantsEndpoints.WS_DEPOSITOS_ZIP : ConstantsEndpoints.WS_DEPOSITOS_PAGINACION;
 								http = new HttpService();
 								document = http.Call(                                                                                
 										url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User               
 												+ "&Tots=" + all + "&desde=" + i
-												+ "&finsA=" + (i + Constants.WS_PAGINACION - 1),
+												+ "&finsA=" + (i + ConstantsEndpoints.WS_PAGINACION - 1),
 										credentials);                                                                                
                                                                                                                                      
 								parser.parseDepositos(document, context, app, deposito, compress);                                   
@@ -833,59 +832,59 @@ public class ServiceWorker extends ServiceBase {
 	private void createFolders() {                                                                                                   
 		// Creamos las carpetas necesarias en la tarjeta SD                                                                          
                                                                                                                                      
-		File root = new File("/sdcard/" + Constants.FOLDER_ROOT + "/");                                                              
+		File root = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/");                                                              
 		root.mkdirs();                                                                                                               
 		                                                                                                                             
-		File traceFolder = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_TRACE + "/");                        
+		File traceFolder = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_TRACE + "/");                        
 		traceFolder.mkdirs();                                                                                                        
                                                                                                                                      
-		File firmas = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_FIRMAS + "/");                            
+		File firmas = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_FIRMAS + "/");                            
 		firmas.mkdirs();                                                                                                             
                                                                                                                                      
-		File stock = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_STOCK + "/");                              
+		File stock = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_STOCK + "/");                              
 		stock.mkdirs();                                                                                                              
                                                                                                                                      
-		File depositos = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_DEPOSITOS + "/");                      
+		File depositos = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_DEPOSITOS + "/");                      
 		depositos.mkdirs();                                                                                                          
                                                                                                                                      
-		File albaranes = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_ALBARANES + "/");                      
+		File albaranes = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_ALBARANES + "/");                      
 		albaranes.mkdirs();                                                                                                          
                                                                                                                                      
-		File gastos = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_GASTOS + "/");                            
+		File gastos = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_GASTOS + "/");                            
 		gastos.mkdirs();                                                                                                             
                                                                                                                                      
-		File jsonPrint = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_JSON_PRINT + "/");                     
+		File jsonPrint = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_JSON_PRINT + "/");                     
 		jsonPrint.mkdirs();                                                                                                          
                                                                                                                                      
-		File pdf = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_PDF + "/");                                  
+		File pdf = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_PDF + "/");                                  
 		pdf.mkdirs();                                                                                                                
                                                                                                                                      
-		File incidencias = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_INCIDENCIAS + "/");                  
+		File incidencias = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_INCIDENCIAS + "/");                  
 		incidencias.mkdirs();                                                                                                        
                                                                                                                                      
-		File inventario = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_INVENTARIO + "/");                    
+		File inventario = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_INVENTARIO + "/");                    
 		inventario.mkdirs();                                                                                                         
                                                                                                                                      
 		File autorizaciones = new File(                                                                                              
-				"/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_AUTORIZACIONES + "/");                                   
+				"/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_AUTORIZACIONES + "/");                                   
 		autorizaciones.mkdirs();                                                                                                     
                                                                                                                                      
-		File dbBackup = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_DB_BACKUP + "/");                       
+		File dbBackup = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_DB_BACKUP + "/");                       
 		dbBackup.mkdirs();                                                                                                           
                                                                                                                                      
-		File recuento = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_RECUENTO + "/");                        
+		File recuento = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_RECUENTO + "/");                        
 		recuento.mkdirs();                                                                                                           
                                                                                                                                      
-		File stockDiario = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_DAILYSTOCK + "/");                   
+		File stockDiario = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_DAILYSTOCK + "/");                   
 		stockDiario.mkdirs();                                                                                                        
 		                                                                                                                             
-		File gdpr = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_GDPR + "/");                                
+		File gdpr = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_GDPR + "/");                                
 		gdpr.mkdirs();                                                                                                               
 		
-		File services = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_SERVICES + "/");                                
+		File services = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_SERVICES + "/");                                
 		services.mkdirs();
 
-		File logBook = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_LOGBOOK + "/");
+		File logBook = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_LOGBOOK + "/");
 		logBook.mkdirs();
                                                                                                                                      
 	}                                                                                                                                
@@ -909,7 +908,7 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 	private boolean isNumeric(String str) {                                                                                          
                                                                                                                                      
-		if (str.equals(Constants.EMPTY_STRING))                                                                                      
+		if (str.equals(ConstantsTypes.EMPTY_STRING))
 			return false;                                                                                                            
                                                                                                                                      
 		NumberFormat formatter = NumberFormat.getInstance();                                                                         
@@ -929,7 +928,7 @@ public class ServiceWorker extends ServiceBase {
 	private void saveDocumentToFile(String str, String file)  {
 		
 		try {
-			File outDir = new File("/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_SERVICES + "/");
+			File outDir = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_SERVICES + "/");
 	    
 			File outputFile = new File(outDir, file);
 			BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));

@@ -6,24 +6,29 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 
 public class MovimientosAlmacen extends Persistent implements IPersistable {
 
-	public Articulo Articulo = Factory.build(Articulo.class, appConfig);
+	public Articulo Articulo;
 	public int Entradas;
 	public int Salidas;
 	public Date Fecha;
 	public int Tipo; // 1-Entradas, 2-Salidas
 	public int TipoStock; // 1-Stock, 2-Stock Defectuoso
+
+	@Override
+	public void InitializePersistance(AppConfig appConfigParam) {
+		super.InitializePersistance(appConfigParam);
+		this.Articulo = Factory.build(Articulo.class, appConfigParam);
+	}
 	@Override
 	public void save() throws Exception {
 				
@@ -34,7 +39,7 @@ public class MovimientosAlmacen extends Persistent implements IPersistable {
 		values.put("Tipo", this.Tipo);
 		values.put("TipoStock", this.TipoStock);
 		
-		super.getDatabaseOperations().insert(Constants.TABLE_MOVIMIENTOS_ALMACEN, null , values);
+		super.getDatabaseOperations().insert(ConstantsDatabase.TABLE_MOVIMIENTOS_ALMACEN, null , values);
 		
 	}
 	
@@ -42,8 +47,8 @@ public class MovimientosAlmacen extends Persistent implements IPersistable {
 	{
 		LinkedHashMap<String,ArrayList<MovimientosAlmacen>> list = new LinkedHashMap<>();
 		
-		Cursor cursor = super.getDatabaseOperations().getRecordsFromField(Constants.TABLE_MOVIMIENTOS_ALMACEN,
-				Constants.EMPTY_STRING, Constants.EMPTY_STRING, true, 
+		Cursor cursor = super.getDatabaseOperations().getRecordsFromField(ConstantsDatabase.TABLE_MOVIMIENTOS_ALMACEN,
+				ConstantsTypes.EMPTY_STRING, ConstantsTypes.EMPTY_STRING, true,
 				" AND  CAST(strftime('%m', Fecha) AS INTEGER) = " + month + " AND CAST(strftime('%Y', Fecha) AS INTEGER)  = " + year,"IdArticulo"); 
 
 		if (cursor != null)

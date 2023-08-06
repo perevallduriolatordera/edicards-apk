@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsMail;
 import net.ifeu.library.Mail.MailSender;
 
 import java.io.IOException;
@@ -22,7 +22,7 @@ public class Debugger {
 
         Thread thread = new Thread(() -> {
             try  {
-                MailSender mailEnviosMantenimiento = new MailSender(Constants.MAIL_MANTENIMIENTO, "DEBUG edicards " + user, message, file);
+                MailSender mailEnviosMantenimiento = new MailSender(ConstantsMail.MAIL_MANTENIMIENTO, "DEBUG edicards " + user, message, file);
                 try {
                     mailEnviosMantenimiento.send();
                 } catch (MessagingException e) {

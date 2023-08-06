@@ -13,7 +13,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.DataTier.DTODeposito;
 import net.ifeu.edicards.DataTier.Deposito;
@@ -146,10 +145,10 @@ public class Reports extends Fragment {
 				reporting.Agrupado.put(date, newList);
 			}
 
-			if (hist.Tipo == Constants.TIPO_HISTORICO_CLIENTE_NUEVO)
+			if (hist.Tipo == ConstantsTypes.TIPO_HISTORICO_CLIENTE_NUEVO)
 				reporting.totales.Nuevos = reporting.totales.Nuevos + 1;
 
-			if (hist.Tipo == Constants.TIPO_HISTORICO_CLIENTE_BAJA)
+			if (hist.Tipo == ConstantsTypes.TIPO_HISTORICO_CLIENTE_BAJA)
 				reporting.totales.Retirados = reporting.totales.Retirados + 1;
 
 			if (hist.Total != 0)
@@ -157,7 +156,7 @@ public class Reports extends Fragment {
 
 			if (hist.Serie.equals(_appConfig.getUser().SerialInvoiceB)) {
 				if (reporting.totales.InicialSerieB
-						.equals(Constants.EMPTY_STRING))
+						.equals(ConstantsTypes.EMPTY_STRING))
 					if (hist.NumeroAlbaran != null)
 						reporting.totales.InicialSerieB = hist.NumeroAlbaran;
 
@@ -165,7 +164,7 @@ public class Reports extends Fragment {
 					reporting.totales.FinalSerieB = hist.NumeroAlbaran;
 			} else if (hist.Serie.equals(_appConfig.getUser().SerialInvoiceA)) {
 				if (reporting.totales.InicialSerieA
-						.equals(Constants.EMPTY_STRING))
+						.equals(ConstantsTypes.EMPTY_STRING))
 					if (hist.NumeroAlbaran != null)
 						reporting.totales.InicialSerieA = hist.NumeroAlbaran;
 
@@ -174,7 +173,7 @@ public class Reports extends Fragment {
 			}
 
 			for (LineaHistorico linea : hist.Lineas.values()) {
-				if (linea.Tipo == Constants.TIPO_LINEA_HISTORICO_POTENCIADAS) {
+				if (linea.Tipo == ConstantsTypes.TIPO_LINEA_HISTORICO_POTENCIADAS) {
 					if (!reporting.Potenciados
 							.containsKey(linea.Articulo.Descripcion)) {
 						Reporting.Potenciado potenciado = reporting.new Potenciado();
@@ -191,7 +190,7 @@ public class Reports extends Fragment {
 					}
 				}
 
-				if (linea.Tipo == Constants.TIPO_LINEA_HISTORICO_FACTURADAS) {
+				if (linea.Tipo == ConstantsTypes.TIPO_LINEA_HISTORICO_FACTURADAS) {
 					if (!reporting.Vendidos
 							.containsKey(linea.Articulo.Descripcion)) {
 						Reporting.Vendido vendido = reporting.new Vendido();
@@ -208,7 +207,7 @@ public class Reports extends Fragment {
 					}
 				}
 
-				if (linea.Tipo == Constants.TIPO_LINEA_HISTORICO_BAJAS) {
+				if (linea.Tipo == ConstantsTypes.TIPO_LINEA_HISTORICO_BAJAS) {
 					if (!reporting.Retirados
 							.containsKey(linea.Articulo.Descripcion)) {
 						Reporting.Retirado retirado = reporting.new Retirado();
@@ -225,7 +224,7 @@ public class Reports extends Fragment {
 					}
 				}
 
-				if (linea.Tipo == Constants.TIPO_LINEA_HISTORICO_DEFECTUOSAS) {
+				if (linea.Tipo == ConstantsTypes.TIPO_LINEA_HISTORICO_DEFECTUOSAS) {
 					if (!reporting.Defectuosos
 							.containsKey(linea.Articulo.Descripcion)) {
 						Reporting.Defectuoso defectuoso = reporting.new Defectuoso();
@@ -361,7 +360,7 @@ public class Reports extends Fragment {
 
 		int nuevos = 0;
 		int retirados = 0;
-		String fecha = Constants.EMPTY_STRING;
+		String fecha = ConstantsTypes.EMPTY_STRING;
 
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("dd/MM/yyyy");
@@ -369,10 +368,10 @@ public class Reports extends Fragment {
 		for (Historico hist : list) {
 			fecha = formatter.format(hist.Fecha);
 
-			if (hist.Tipo == Constants.TIPO_HISTORICO_CLIENTE_NUEVO)
+			if (hist.Tipo == ConstantsTypes.TIPO_HISTORICO_CLIENTE_NUEVO)
 				nuevos = nuevos + 1;
 
-			if (hist.Tipo == Constants.TIPO_HISTORICO_CLIENTE_BAJA)
+			if (hist.Tipo == ConstantsTypes.TIPO_HISTORICO_CLIENTE_BAJA)
 				retirados = retirados + 1;
 		}
 
@@ -394,13 +393,13 @@ public class Reports extends Fragment {
 
 			int colorText = Color.BLACK;
 
-			if (hist.Tipo == Constants.TIPO_HISTORICO_CLIENTE_EXISTENTE)
+			if (hist.Tipo == ConstantsTypes.TIPO_HISTORICO_CLIENTE_EXISTENTE)
 				colorText = Color.BLUE;
 
-			if (hist.Tipo == Constants.TIPO_HISTORICO_CLIENTE_NUEVO)
+			if (hist.Tipo == ConstantsTypes.TIPO_HISTORICO_CLIENTE_NUEVO)
 				colorText = Color.MAGENTA;
 
-			if (hist.Tipo == Constants.TIPO_HISTORICO_CLIENTE_BAJA)
+			if (hist.Tipo == ConstantsTypes.TIPO_HISTORICO_CLIENTE_BAJA)
 				colorText = Color.RED;
 
 			final LinearLayout layout1 = new LinearLayout(this.getActivity());
@@ -679,14 +678,14 @@ public class Reports extends Fragment {
 		
 		// Generamos la incidencia de anulación de albarán
 		String text = "Se ha anulado el albarán con los siguientes datos: "
-				+ Constants.NEW_LINE
-				+ Constants.NEW_LINE
+				+ ConstantsTypes.NEW_LINE
+				+ ConstantsTypes.NEW_LINE
 				+ "NÚM. ALBARÁN TABLET (RefExt): "
 				+ historico.NumeroAlbaran
-				+ Constants.NEW_LINE
+				+ ConstantsTypes.NEW_LINE
 				+ "CLIENTE: "
 				+ historico.NombrePresentacion
-				+ Constants.NEW_LINE;
+				+ ConstantsTypes.NEW_LINE;
 
 		Incidencia incidencia = new Incidencia(_appConfig
 				.getUser().User, new Date(),
@@ -715,7 +714,7 @@ public class Reports extends Fragment {
 				}
 
 				switch (linea.Tipo) {
-					case Constants.TIPO_LINEA_HISTORICO_FACTURADAS: {
+					case ConstantsTypes.TIPO_LINEA_HISTORICO_FACTURADAS: {
 						int stockInicial = linea.Articulo.Stock;
 						linea.Articulo.Stock = (int) (stockInicial + linea.Unidades);
 
@@ -732,7 +731,7 @@ public class Reports extends Fragment {
 						break;
 					}
 
-					case Constants.TIPO_LINEA_HISTORICO_POTENCIADAS: {
+					case ConstantsTypes.TIPO_LINEA_HISTORICO_POTENCIADAS: {
 						int stockInicial = linea.Articulo.Stock;
 						linea.Articulo.Stock = (int) (stockInicial + linea.Unidades);
 
@@ -750,7 +749,7 @@ public class Reports extends Fragment {
 						break;
 					}
 
-					case Constants.TIPO_LINEA_HISTORICO_BAJAS: {
+					case ConstantsTypes.TIPO_LINEA_HISTORICO_BAJAS: {
 						int stockInicial = linea.Articulo.Stock;
 						linea.Articulo.Stock = (int) (stockInicial - linea.Unidades);
 
@@ -767,7 +766,7 @@ public class Reports extends Fragment {
 						break;
 					}
 
-					case Constants.TIPO_LINEA_HISTORICO_DEFECTUOSAS: {
+					case ConstantsTypes.TIPO_LINEA_HISTORICO_DEFECTUOSAS: {
 						linea.Articulo.StockDefectuoso = (int) (linea.Articulo.StockDefectuoso
 								- linea.Unidades);
 						break;
@@ -799,7 +798,7 @@ public class Reports extends Fragment {
 			for (LineaHistorico historicoLinea : historico.Lineas.values()) {
 				
 				switch (historicoLinea.Tipo) {
-					case Constants.TIPO_LINEA_HISTORICO_UNIDADES_INICIALES: {
+					case ConstantsTypes.TIPO_LINEA_HISTORICO_UNIDADES_INICIALES: {
 						
 						LineaDeposito linea = Factory.build(LineaDeposito.class, _appConfig);
 

@@ -54,7 +54,7 @@
         
         <ImageButton android:layout_height="fill_parent" android:id="@+id/btnCancel"
         android:textColor="#FFF" android:background="#FFF" 
-        android:text="Salit" android:layout_weight=".50" android:src="@drawable/ic_close"
+        android:text="Salir" android:layout_weight=".50" android:src="@drawable/ic_close"
         android:layout_width="0dip" android:onClick="OnCancelClick" />
         
 	 </LinearLayout>

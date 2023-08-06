@@ -15,12 +15,11 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import android.util.Base64;
-import android.util.Log;
 
 public class HttpService {
 
 	private InputStream OpenHttpConnection(String urlString,
-			WindowsCredentials credentials) throws IOException {
+			WSCredentials credentials) throws IOException {
 		InputStream in;
 		int response = -1;
 
@@ -39,7 +38,7 @@ public class HttpService {
 					"Authorization",
 					"Basic "
 							+ Base64.encodeToString(
-									(credentials.User + ":" + credentials.Password)
+									(credentials.getUser() + ":" + credentials.getPassword())
 											.getBytes(), Base64.DEFAULT));
 			httpConn.connect();
 			response = httpConn.getResponseCode();
@@ -88,7 +87,7 @@ public class HttpService {
 	}
 	
 	private InputStream OpenHttpConnection(String urlString, String body,
-            WindowsCredentials credentials) throws IOException {
+            WSCredentials credentials) throws IOException {
 
 		byte[] postData = body.getBytes( StandardCharsets.UTF_8 );
 		int postDataLength = postData.length;
@@ -109,7 +108,7 @@ public class HttpService {
 		"Authorization",
 		"Basic "
 		+ Base64.encodeToString(
-		(credentials.User + ":" + credentials.Password)
+		(credentials.getUser() + ":" + credentials.getPassword())
 		 .getBytes(), Base64.DEFAULT));
 		
 		if (!(conn instanceof HttpURLConnection))  new IOException("Not an HTTP connection");
@@ -139,7 +138,7 @@ public class HttpService {
 		
 		return in;
 	}
-	public Document Call(String url, WindowsCredentials credentials)
+	public Document Call(String url, WSCredentials credentials)
 			throws IOException, ParserConfigurationException, SAXException {
 		InputStream in;
 		// Sample:
@@ -164,7 +163,7 @@ public class HttpService {
 
 	}
 
-	public void CallWithoutResult(String url, WindowsCredentials credentials)
+	public void CallWithoutResult(String url, WSCredentials credentials)
 			throws IOException, ParserConfigurationException, SAXException {
 		
 		// Sample:

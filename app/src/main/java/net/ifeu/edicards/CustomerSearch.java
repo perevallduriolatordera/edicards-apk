@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,10 +12,9 @@ import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Factories.Factory;
-import net.ifeu.edicards.DataTier.LineaDeposito;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +47,7 @@ public class CustomerSearch extends Fragment implements TextWatcher {
     	cliente = Factory.build(Cliente.class, app);
 
         try {
-   			item = cliente.getClientesNameByFilter("", Constants.CUSTOMER_FILTER_NAME, false);
+   			item = cliente.getClientesNameByFilter("", ConstantsTypes.CUSTOMER_FILTER_NAME, false);
    			
    		} catch (Exception e) {
             throw new RuntimeException(e);
@@ -88,7 +86,7 @@ public class CustomerSearch extends Fragment implements TextWatcher {
             ((TextView) getActivity().findViewById(R.id.lblTipoIVACliente)).setText(cliente.Filiacion);
             ((TextView) getActivity().findViewById(R.id.lblDescuento1Cliente)).setText(cliente.DescuentoProntoPago + " %");
             ((TextView) getActivity().findViewById(R.id.lblDescuento2Cliente)).setText(cliente.DescuentoFinanciero + " %");
-            ((TextView) getActivity().findViewById(R.id.lblFormaPagoCliente)).setText(cliente.formaPago.Descripcion);
+            ((TextView) getActivity().findViewById(R.id.lblFormaPagoCliente)).setText(cliente.FormaPago.Descripcion);
 
             myAutoComplete.setText("");
 

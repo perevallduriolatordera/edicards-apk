@@ -1,21 +1,22 @@
 package net.ifeu.edicards;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.ClienteInfo;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Incidencia;
 import net.ifeu.edicards.DataTier.IncidenciaType;
+import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
 import java.util.Date;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
 public class CustomerData extends Activity {
@@ -35,6 +36,12 @@ public class CustomerData extends Activity {
 		params.width = 1200;
 		getWindow().setAttributes(
 				(android.view.WindowManager.LayoutParams) params);
+
+		ButtonColor apply = (ButtonColor) findViewById(R.id.btnGenerateAlbaran);
+		apply.changeAspect(this, R.color.Black, getResources().getDrawable(R.drawable.ic_save));
+
+		ButtonColor cancel = (ButtonColor) findViewById(R.id.btnCancel);
+		cancel.changeAspect(this, R.color.Black, getResources().getDrawable(R.drawable.ic_close));
 
 		try {
 			this.fillFields();
@@ -108,7 +115,7 @@ public class CustomerData extends Activity {
 		
 		
 		_appConfig.getWorkingArea().CurrentDeposito.DatosFiscalesUpdated = this.isUpdated() && 
-				!_appConfig.getWorkingArea().CurrentDeposito.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE);
+				!_appConfig.getWorkingArea().CurrentDeposito.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE);
 		
 		_appConfig.getWorkingArea().CurrentDeposito.CCCUpdated = this.isUpdatedCCC();
 
@@ -153,28 +160,28 @@ public class CustomerData extends Activity {
 			if (!result)
 				return;
 
-			String text = "Datos antiguos: " + Constants.NEW_LINE + Constants.NEW_LINE
-					+ "NÚM. DEPOSITO DIMONI: " + deposito.NumDoc + Constants.NEW_LINE
-					+ "NÚM. DEPOSITO TABLET (RefExt): " + deposito.IdDeposito + Constants.NEW_LINE
-					+ "NIF/CIF: " + deposito.NIFPrevious + Constants.NEW_LINE + "NOMBRE: "
-					+ deposito.NombrePrevious + Constants.NEW_LINE + "RAZÓN: " + deposito.RazonPrevious
-					+ Constants.NEW_LINE + "DIRECCION: " + deposito.DireccionPrevious
-					+ Constants.NEW_LINE + "POBLACION: " + deposito.PoblacionPrevious
-					+ Constants.NEW_LINE + "CODIGO POSTAL: " + deposito.CodigoPostalPrevious
-					+ Constants.NEW_LINE + "PROVINCIA: " + deposito.ProvinciaPrevious
-					+ Constants.NEW_LINE + "TELEFONO 1: " + deposito.Telefono1Previous
-					+ Constants.NEW_LINE + "TELEFONO 2: " + deposito.Telefono2Previous
-					+ Constants.NEW_LINE + "FAX: " + deposito.FaxPrevious + Constants.NEW_LINE + "MAIL: "
-					+ deposito.MailPrevious + Constants.NEW_LINE + Constants.NEW_LINE
-					+ Constants.NEW_LINE + "Han sido modificados por: " + Constants.NEW_LINE
-					+ Constants.NEW_LINE + "NIF/CIF: " + deposito.NIF + Constants.NEW_LINE + "NOMBRE: "
-					+ deposito.Nombre + Constants.NEW_LINE + "RAZÓN: " + deposito.Razon
-					+ Constants.NEW_LINE + "DIRECCION: " + deposito.Direccion1 + Constants.NEW_LINE
-					+ "POBLACION: " + deposito.Poblacion + Constants.NEW_LINE + "CODIGO POSTAL: "
-					+ deposito.CodigoPostal + Constants.NEW_LINE + "PROVINCIA: " + deposito.Provincia
-					+ Constants.NEW_LINE + "TELEFONO 1: " + deposito.Telefono1 + Constants.NEW_LINE
-					+ "TELEFONO 2: " + deposito.Telefono2 + Constants.NEW_LINE + "FAX: " + deposito.Fax
-					+ Constants.NEW_LINE + "MAIL: " + deposito.Mail;
+			String text = "Datos antiguos: " + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE
+					+ "NÚM. DEPOSITO DIMONI: " + deposito.NumDoc + ConstantsTypes.NEW_LINE
+					+ "NÚM. DEPOSITO TABLET (RefExt): " + deposito.IdDeposito + ConstantsTypes.NEW_LINE
+					+ "NIF/CIF: " + deposito.NIFPrevious + ConstantsTypes.NEW_LINE + "NOMBRE: "
+					+ deposito.NombrePrevious + ConstantsTypes.NEW_LINE + "RAZÓN: " + deposito.RazonPrevious
+					+ ConstantsTypes.NEW_LINE + "DIRECCION: " + deposito.DireccionPrevious
+					+ ConstantsTypes.NEW_LINE + "POBLACION: " + deposito.PoblacionPrevious
+					+ ConstantsTypes.NEW_LINE + "CODIGO POSTAL: " + deposito.CodigoPostalPrevious
+					+ ConstantsTypes.NEW_LINE + "PROVINCIA: " + deposito.ProvinciaPrevious
+					+ ConstantsTypes.NEW_LINE + "TELEFONO 1: " + deposito.Telefono1Previous
+					+ ConstantsTypes.NEW_LINE + "TELEFONO 2: " + deposito.Telefono2Previous
+					+ ConstantsTypes.NEW_LINE + "FAX: " + deposito.FaxPrevious + ConstantsTypes.NEW_LINE + "MAIL: "
+					+ deposito.MailPrevious + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE
+					+ ConstantsTypes.NEW_LINE + "Han sido modificados por: " + ConstantsTypes.NEW_LINE
+					+ ConstantsTypes.NEW_LINE + "NIF/CIF: " + deposito.NIF + ConstantsTypes.NEW_LINE + "NOMBRE: "
+					+ deposito.Nombre + ConstantsTypes.NEW_LINE + "RAZÓN: " + deposito.Razon
+					+ ConstantsTypes.NEW_LINE + "DIRECCION: " + deposito.Direccion1 + ConstantsTypes.NEW_LINE
+					+ "POBLACION: " + deposito.Poblacion + ConstantsTypes.NEW_LINE + "CODIGO POSTAL: "
+					+ deposito.CodigoPostal + ConstantsTypes.NEW_LINE + "PROVINCIA: " + deposito.Provincia
+					+ ConstantsTypes.NEW_LINE + "TELEFONO 1: " + deposito.Telefono1 + ConstantsTypes.NEW_LINE
+					+ "TELEFONO 2: " + deposito.Telefono2 + ConstantsTypes.NEW_LINE + "FAX: " + deposito.Fax
+					+ ConstantsTypes.NEW_LINE + "MAIL: " + deposito.Mail;
 
 			Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(),
 					IncidenciaType.DatosFiscales, text);
@@ -192,12 +199,12 @@ public class CustomerData extends Activity {
 			if (!result)
 				return;
 
-			String text = "Datos de la cuenta corriente del cliente: " + Constants.NEW_LINE
-					+ Constants.NEW_LINE + "CODIGO CLIENTE: " + deposito.CodigoCliente
-					+ Constants.NEW_LINE + "NOMBRE DEL CLIENTE: " + deposito.Nombre + Constants.NEW_LINE
-					+ "NUM CUENTA CORRIENTE: " + deposito.ClienteInfo.CCC + Constants.NEW_LINE
-					+ "REPRESENTANTE: " + deposito.ClienteInfo.Representante + Constants.NEW_LINE
-					+ "DNI REPRESENTANTE: " + deposito.ClienteInfo.DniRepresentante + Constants.NEW_LINE;
+			String text = "Datos de la cuenta corriente del cliente: " + ConstantsTypes.NEW_LINE
+					+ ConstantsTypes.NEW_LINE + "CODIGO CLIENTE: " + deposito.CodigoCliente
+					+ ConstantsTypes.NEW_LINE + "NOMBRE DEL CLIENTE: " + deposito.Nombre + ConstantsTypes.NEW_LINE
+					+ "NUM CUENTA CORRIENTE: " + deposito.ClienteInfo.CCC + ConstantsTypes.NEW_LINE
+					+ "REPRESENTANTE: " + deposito.ClienteInfo.Representante + ConstantsTypes.NEW_LINE
+					+ "DNI REPRESENTANTE: " + deposito.ClienteInfo.DniRepresentante + ConstantsTypes.NEW_LINE;
 
 			Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(),
 					IncidenciaType.CuentaCorriente, text);

@@ -1,21 +1,18 @@
 package net.ifeu.edicards.DataTier;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
-import net.ifeu.edicards.DepositManagerExtension;
 import net.ifeu.library.Utils.DateTime.DateTimeUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.UUID;
@@ -24,7 +21,7 @@ public class Historico extends Persistent implements IPersistable {
 
 	public Long IdHistorico;
 	public Date Fecha;
-	public Cliente Cliente = Factory.build(Cliente.class, appConfig);
+	public Cliente Cliente;
 	public LinkedHashMap<String,LineaHistorico> Lineas = new LinkedHashMap<>();
 	public double Total;
 	public double CantidadPagada;
@@ -37,13 +34,16 @@ public class Historico extends Persistent implements IPersistable {
 	public String GUID;
 	public String Serializacion;
 	public boolean ActualizarStock;
-	
+
 	public Historico()
 	{
-		UUID uuid = UUID.randomUUID();
-        GUID = uuid.toString();
+        GUID = UUID.randomUUID().toString();
 	}
-	
+	@Override
+	public void InitializePersistance(AppConfig appConfigParam) {
+		super.InitializePersistance(appConfigParam);
+		this.Cliente = Factory.build(Cliente.class, appConfigParam);
+	}
 
 	@Override
 	public void save() throws Exception {
@@ -67,7 +67,7 @@ public class Historico extends Persistent implements IPersistable {
 		values.put("ActualizarStock", this.ActualizarStock ? 1 : 0);
 	
 		try {
-			this.IdHistorico = super.getDatabaseOperations().insert(Constants.TABLE_HISTORICOS, null , values);
+			this.IdHistorico = super.getDatabaseOperations().insert(ConstantsDatabase.TABLE_HISTORICOS, null , values);
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -99,12 +99,12 @@ public class Historico extends Persistent implements IPersistable {
 		
 		String[] whereArgs = { String.valueOf(this.IdHistorico) }; 
 		
-	    super.getDatabaseOperations().update(Constants.TABLE_HISTORICOS, values, "IdHistorico = ?", whereArgs);
+	    super.getDatabaseOperations().update(ConstantsDatabase.TABLE_HISTORICOS, values, "IdHistorico = ?", whereArgs);
 	}
 	
 	public int getRecordsCount()
 	{
-		return super.getDatabaseOperations().getRecordsCount(Constants.TABLE_HISTORICOS);
+		return super.getDatabaseOperations().getRecordsCount(ConstantsDatabase.TABLE_HISTORICOS);
 	}
 
 	public ArrayList<Historico> getHistoricosBetweenDates(Date fecha1, Date fecha2) throws Exception
@@ -123,7 +123,7 @@ public class Historico extends Persistent implements IPersistable {
 		String dateStart = formatterSQL.format(fecha1);
 		String dateEnd = formatterSQL.format(fecha2);
 
-		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_HISTORICOS + " WHERE substr(fecha,7)||substr(fecha,1,2)||substr(fecha,4,2) " +
+		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + ConstantsDatabase.TABLE_HISTORICOS + " WHERE substr(fecha,7)||substr(fecha,1,2)||substr(fecha,4,2) " +
 				"BETWEEN '" + dateStart + "' AND '" + dateEnd + "' ORDER BY NumeroAlbaran ASC");
 		
 		
@@ -181,7 +181,7 @@ public class Historico extends Persistent implements IPersistable {
 
 		double cantidadPagada;
 		
-		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT ifnull(sum(CantidadPagada),0) as CantidadPagada FROM " + Constants.TABLE_HISTORICOS + " WHERE substr(fecha,7)||substr(fecha,1,2)||substr(fecha,4,2) " +
+		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT ifnull(sum(CantidadPagada),0) as CantidadPagada FROM " + ConstantsDatabase.TABLE_HISTORICOS + " WHERE substr(fecha,7)||substr(fecha,1,2)||substr(fecha,4,2) " +
 				"BETWEEN '" + formatter.format(firstDate) + "' AND '" + formatter.format(today) + "'");
 		
 		
@@ -211,7 +211,7 @@ public class Historico extends Persistent implements IPersistable {
 	private void DeleteAllLines() throws Exception {
 
 		Cursor cursor = super.getDatabaseOperations().executeSentence(
-				"DELETE FROM " + Constants.TABLE_LINEAS_HISTORICO + " WHERE IdHistorico = "
+				"DELETE FROM " + ConstantsDatabase.TABLE_LINEAS_HISTORICO + " WHERE IdHistorico = "
 						+ this.IdHistorico);
 		
 		if (cursor != null)
@@ -224,7 +224,7 @@ public class Historico extends Persistent implements IPersistable {
 		this.DeleteAllLines();
 		
 		Cursor cursor = super.getDatabaseOperations().executeSentence(
-				"DELETE FROM " + Constants.TABLE_HISTORICOS + " WHERE IdHistorico = "
+				"DELETE FROM " + ConstantsDatabase.TABLE_HISTORICOS + " WHERE IdHistorico = "
 						+ this.IdHistorico);
 		
 		if (cursor != null)
@@ -264,12 +264,12 @@ public class Historico extends Persistent implements IPersistable {
 		this.Total = deposito.Totales.TotalBase;
 		this.CantidadPagada = deposito.CantidadPagada;
 
-		if (!deposito.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE) && !deposito.Retirado)
-			this.Tipo = Constants.TIPO_HISTORICO_CLIENTE_EXISTENTE;
-		else if (deposito.CodigoCliente.equals(Constants.NEW_CUSTOMER_CODE))
-			this.Tipo = Constants.TIPO_HISTORICO_CLIENTE_NUEVO;
+		if (!deposito.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE) && !deposito.Retirado)
+			this.Tipo = ConstantsTypes.TIPO_HISTORICO_CLIENTE_EXISTENTE;
+		else if (deposito.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE))
+			this.Tipo = ConstantsTypes.TIPO_HISTORICO_CLIENTE_NUEVO;
 		else if (deposito.Retirado)
-			this.Tipo = Constants.TIPO_HISTORICO_CLIENTE_BAJA;
+			this.Tipo = ConstantsTypes.TIPO_HISTORICO_CLIENTE_BAJA;
 
 		this.ActualizarStock = appConfig.getWorkingArea().CurrentDepositoModalidad != DepositoModalidad.Edicards;
 
@@ -300,7 +300,7 @@ public class Historico extends Persistent implements IPersistable {
 				lineaHistorico.MovimientoStock = linea.UnidadesRepuestas;
 				lineaHistorico.MovimientoStockDefectuosas = 0;
 
-				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_FACTURADAS;
+				lineaHistorico.Tipo = ConstantsTypes.TIPO_LINEA_HISTORICO_FACTURADAS;
 
 			}
 
@@ -309,7 +309,7 @@ public class Historico extends Persistent implements IPersistable {
 				lineaHistorico.MovimientoStock = linea.Articulo.MovimientoStock;
 				lineaHistorico.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas;
 
-				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_POTENCIADAS;
+				lineaHistorico.Tipo = ConstantsTypes.TIPO_LINEA_HISTORICO_POTENCIADAS;
 
 			}
 
@@ -318,7 +318,7 @@ public class Historico extends Persistent implements IPersistable {
 				lineaHistorico.MovimientoStock = 0;
 				lineaHistorico.MovimientoStockDefectuosas = 0;
 
-				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_BAJAS;
+				lineaHistorico.Tipo = ConstantsTypes.TIPO_LINEA_HISTORICO_BAJAS;
 
 			}
 
@@ -328,7 +328,7 @@ public class Historico extends Persistent implements IPersistable {
 
 				// linea.UnidadesFacturadas;
 
-				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_DEFECTUOSAS;
+				lineaHistorico.Tipo = ConstantsTypes.TIPO_LINEA_HISTORICO_DEFECTUOSAS;
 
 			}
 
@@ -338,7 +338,7 @@ public class Historico extends Persistent implements IPersistable {
 				lineaHistorico.MovimientoStock = linea.Articulo.MovimientoStock;
 				lineaHistorico.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas;
 
-				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_STOCK;
+				lineaHistorico.Tipo = ConstantsTypes.TIPO_LINEA_HISTORICO_STOCK;
 
 			}
 
@@ -347,7 +347,7 @@ public class Historico extends Persistent implements IPersistable {
 				lineaHistorico.MovimientoStock = 0;
 				lineaHistorico.MovimientoStockDefectuosas = 0;
 
-				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_FACTURADAS;
+				lineaHistorico.Tipo = ConstantsTypes.TIPO_LINEA_HISTORICO_FACTURADAS;
 
 			}
 
@@ -359,7 +359,7 @@ public class Historico extends Persistent implements IPersistable {
 
 				// linea.UnidadesFacturadas;
 
-				lineaHistorico.Tipo = Constants.TIPO_LINEA_HISTORICO_UNIDADES_INICIALES;
+				lineaHistorico.Tipo = ConstantsTypes.TIPO_LINEA_HISTORICO_UNIDADES_INICIALES;
 
 			}
 

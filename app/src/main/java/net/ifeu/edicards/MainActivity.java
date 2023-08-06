@@ -1,6 +1,5 @@
 package net.ifeu.edicards;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -9,14 +8,13 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.library.Devices.BlueTooth;
 import net.ifeu.library.Devices.Wifi;
@@ -128,18 +126,18 @@ public class MainActivity extends Activity {
 	
 			_appConfig.getWorkingArea().UpgradeDataPost = _appConfig.getMessageBox().ShowWithResult(
 					"Aplicación de gestión comercial edicards",
-					"Aplicación de gestión comercial Edicards " + Constants.NEW_LINE + "Versión: " + version
-							+ Constants.NEW_LINE + "Revisión: " + versionName + Constants.NEW_LINE + Constants.NEW_LINE
+					"Aplicación de gestión comercial Edicards " + ConstantsTypes.NEW_LINE + "Versión: " + version
+							+ ConstantsTypes.NEW_LINE + "Revisión: " + versionName + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE
 							+ "Indique la versión  y la revisión de la aplicación en caso de requerir asistencia técnica"
-							+ Constants.NEW_LINE + Constants.NEW_LINE
+							+ ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE
 							+ "Desea sincronizar los depósitos?. Esta acción puede tardar unos minutos"
-							+ Constants.NEW_LINE + Constants.NEW_LINE
+							+ ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE
 							+ "Si elige sí, se borrarán los depósitos y se crearán de nuevo."
-							+ Constants.NEW_LINE + Constants.NEW_LINE 
+							+ ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE
 			
-							+ "WIFI Activada: " + (_appConfig.getConnectivity().WIFI ? "Si" :"No")  + Constants.NEW_LINE
-							+ "Datos móviles Activados: " + (_appConfig.getConnectivity().DataMobile ? "Si" :"No")  + Constants.NEW_LINE
-							+ "Bluetooth Activado: " + (_appConfig.getConnectivity().Bluetooth ? "Si" :"No")  + Constants.NEW_LINE,
+							+ "WIFI Activada: " + (_appConfig.getConnectivity().WIFI ? "Si" :"No")  + ConstantsTypes.NEW_LINE
+							+ "Datos móviles Activados: " + (_appConfig.getConnectivity().DataMobile ? "Si" :"No")  + ConstantsTypes.NEW_LINE
+							+ "Bluetooth Activado: " + (_appConfig.getConnectivity().Bluetooth ? "Si" :"No")  + ConstantsTypes.NEW_LINE,
 					this, MessageBoxType.Information);
 			
 		} catch (Exception ex) {
@@ -284,14 +282,14 @@ public class MainActivity extends Activity {
 			SharedPreferences preferences = getSharedPreferences("net.ifeu.edicards_preferences",
 					android.content.Context.MODE_PRIVATE);
 	
-			_appConfig.getUser().User = preferences.getString("User", Constants.EMPTY_STRING);
-			_appConfig.getUser().Password = preferences.getString("Password", Constants.EMPTY_STRING);
-			_appConfig.getUser().SerialInvoiceA = preferences.getString("SerialInvoiceA", Constants.EMPTY_STRING);
-			_appConfig.getUser().SerialInvoiceB = preferences.getString("SerialInvoiceB", Constants.EMPTY_STRING);
-			_appConfig.getUser().Company = preferences.getString("Company", Constants.EMPTY_STRING);
-			_appConfig.getUser().Name = preferences.getString("Name", Constants.EMPTY_STRING);
-			_appConfig.getUser().InitSerieA = preferences.getString("SerieA", Constants.EMPTY_STRING);
-			_appConfig.getUser().InitSerieB = preferences.getString("SerieB", Constants.EMPTY_STRING);
+			_appConfig.getUser().User = preferences.getString("User", ConstantsTypes.EMPTY_STRING);
+			_appConfig.getUser().Password = preferences.getString("Password", ConstantsTypes.EMPTY_STRING);
+			_appConfig.getUser().SerialInvoiceA = preferences.getString("SerialInvoiceA", ConstantsTypes.EMPTY_STRING);
+			_appConfig.getUser().SerialInvoiceB = preferences.getString("SerialInvoiceB", ConstantsTypes.EMPTY_STRING);
+			_appConfig.getUser().Company = preferences.getString("Company", ConstantsTypes.EMPTY_STRING);
+			_appConfig.getUser().Name = preferences.getString("Name", ConstantsTypes.EMPTY_STRING);
+			_appConfig.getUser().InitSerieA = preferences.getString("SerieA", ConstantsTypes.EMPTY_STRING);
+			_appConfig.getUser().InitSerieB = preferences.getString("SerieB", ConstantsTypes.EMPTY_STRING);
 		
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);

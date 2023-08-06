@@ -3,7 +3,8 @@ package net.ifeu.edicards.DataTier;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
@@ -11,13 +12,12 @@ import net.ifeu.edicards.DataTier.Persistance.Persistent;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.util.Log;
 
 public class GastosInfo extends Persistent implements IPersistable {
 
 	public long IdGastoInfo;
 	public Date Fecha;
-	public String Comentario = Constants.EMPTY_STRING;
+	public String Comentario = ConstantsTypes.EMPTY_STRING;
 	public Boolean IsNew;
 
 	@SuppressLint("SimpleDateFormat")
@@ -32,7 +32,7 @@ public class GastosInfo extends Persistent implements IPersistable {
 		values.put("Comentario", this.Comentario);
 		
 		try {
-			this.IdGastoInfo = super.getDatabaseOperations().insert(Constants.TABLE_GASTOS_INFO, null , values);
+			this.IdGastoInfo = super.getDatabaseOperations().insert(ConstantsDatabase.TABLE_GASTOS_INFO, null , values);
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -54,17 +54,17 @@ public class GastosInfo extends Persistent implements IPersistable {
 
 		String[] whereArgs = { String.valueOf(this.IdGastoInfo) }; 
 		
-	    super.getDatabaseOperations().update(Constants.TABLE_GASTOS_INFO, values, "IdGastoInfo = ?", whereArgs);
+	    super.getDatabaseOperations().update(ConstantsDatabase.TABLE_GASTOS_INFO, values, "IdGastoInfo = ?", whereArgs);
 	}
 	
 	public int getRecordsCount()
 	{
-		return super.getDatabaseOperations().getRecordsCount(Constants.TABLE_GASTOS_INFO);
+		return super.getDatabaseOperations().getRecordsCount(ConstantsDatabase.TABLE_GASTOS_INFO);
 	}
 	
 	public boolean setGastoInfoById(String idGastoInfo) throws Exception
 	{
-		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(Constants.TABLE_GASTOS_INFO, "IdGastoInfo", idGastoInfo, false);
+		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(ConstantsDatabase.TABLE_GASTOS_INFO, "IdGastoInfo", idGastoInfo, false);
 		
 		if (cursor != null)
 		{
@@ -86,12 +86,12 @@ public class GastosInfo extends Persistent implements IPersistable {
 	public GastosInfo getGastoInfoByFecha(Date fecha) throws Exception
 	{
 		
-		//Cursor cursor = super.getDatabaseOperations().getRecordsFromField(Constants.TABLE_TIPOS_IVA, "Articulo", String.valueOf(articulo.TipoIVA), false, "AND Filiacion = '" + cliente.Filiacion + "'",null);
+		//Cursor cursor = super.getDatabaseOperations().getRecordsFromField(ConstantsDatabase.TABLE_TIPOS_IVA, "Articulo", String.valueOf(articulo.TipoIVA), false, "AND Filiacion = '" + cliente.Filiacion + "'",null);
 		
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("dd/MM/yyyy");
 		
-		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_GASTOS_INFO + " WHERE Fecha='" +
+		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + ConstantsDatabase.TABLE_GASTOS_INFO + " WHERE Fecha='" +
 				formatter.format(fecha) + "'");
 		
 		GastosInfo gastoInfo = Factory.build(GastosInfo.class, appConfig);

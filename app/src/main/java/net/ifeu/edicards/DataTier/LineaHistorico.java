@@ -3,13 +3,13 @@ package net.ifeu.edicards.DataTier;
 import java.util.LinkedHashMap;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 
 public class LineaHistorico extends Persistent implements IPersistable {
@@ -17,13 +17,20 @@ public class LineaHistorico extends Persistent implements IPersistable {
 	public long IdLineaHistorico;
 	public long IdHistorico;
 	public long IdArticulo;
-	public Historico Historico = Factory.build(Historico.class, appConfig);
-	public Articulo Articulo = Factory.build(Articulo.class, appConfig);
+	public Historico Historico;
+	public Articulo Articulo;
 	public int Unidades;
 	public float PVP;
 	public int Tipo; 
 	public int MovimientoStock;
 	public int MovimientoStockDefectuosas;
+
+	@Override
+	public void InitializePersistance(AppConfig appConfigParam) {
+		super.InitializePersistance(appConfigParam);
+		this.Historico = Factory.build(Historico.class, appConfigParam);
+		this.Articulo = Factory.build(Articulo.class, appConfigParam);
+	}
 	@Override
 	public void save() throws Exception {
 		
@@ -37,7 +44,7 @@ public class LineaHistorico extends Persistent implements IPersistable {
 		values.put("PVP", this.PVP);
 		
 		try {
-			this.IdLineaHistorico = super.getDatabaseOperations().insert(Constants.TABLE_LINEAS_HISTORICO, null , values);
+			this.IdLineaHistorico = super.getDatabaseOperations().insert(ConstantsDatabase.TABLE_LINEAS_HISTORICO, null , values);
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -60,12 +67,12 @@ public class LineaHistorico extends Persistent implements IPersistable {
 		
 		String[] whereArgs = { String.valueOf(this.IdLineaHistorico) }; 
 		
-	    super.getDatabaseOperations().update(Constants.TABLE_LINEAS_HISTORICO, values, "IdLineaHistorico = ?", whereArgs);
+	    super.getDatabaseOperations().update(ConstantsDatabase.TABLE_LINEAS_HISTORICO, values, "IdLineaHistorico = ?", whereArgs);
 	}
 	
 	public int getRecordsCount()
 	{
-		return super.getDatabaseOperations().getRecordsCount(Constants.TABLE_LINEAS_HISTORICO);
+		return super.getDatabaseOperations().getRecordsCount(ConstantsDatabase.TABLE_LINEAS_HISTORICO);
 	}
 	
 	
@@ -73,7 +80,7 @@ public class LineaHistorico extends Persistent implements IPersistable {
 	{
 			LinkedHashMap<String,LineaHistorico> list = new LinkedHashMap<>();
 			
-			Cursor cursor = super.getDatabaseOperations().getRecordsFromFieldNumeric(Constants.TABLE_LINEAS_HISTORICO, "IdHistorico", String.valueOf(historico.IdHistorico), Constants.EMPTY_STRING, null);
+			Cursor cursor = super.getDatabaseOperations().getRecordsFromFieldNumeric(ConstantsDatabase.TABLE_LINEAS_HISTORICO, "IdHistorico", String.valueOf(historico.IdHistorico), ConstantsTypes.EMPTY_STRING, null);
 			
 			if (cursor != null)
 			{

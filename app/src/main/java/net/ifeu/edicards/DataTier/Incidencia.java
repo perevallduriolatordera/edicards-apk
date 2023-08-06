@@ -3,7 +3,9 @@ package net.ifeu.edicards.DataTier;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.Constants.ConstantsFolders;
+
 import android.os.Environment;
 
 public class Incidencia {
@@ -24,8 +26,8 @@ public class Incidencia {
 	public void create() throws Exception
 	{	
 		String text;
-		String tipoInc = Constants.EMPTY_STRING;
-		String prefix = Constants.EMPTY_STRING;
+		String tipoInc = ConstantsTypes.EMPTY_STRING;
+		String prefix = ConstantsTypes.EMPTY_STRING;
 		
 		switch (this.Tipo)
 		{
@@ -42,15 +44,15 @@ public class Incidencia {
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm");
 		
-		text = "COMERCIAL: " + this.Usuario + Constants.NEW_LINE +
-				"FECHA - HORA: " + formatter.format(this.Fecha) + Constants.NEW_LINE +
-				"TIPO INCIDENCIA: " + tipoInc + Constants.NEW_LINE +
-				"DESCRIPCIÓN: " + Constants.NEW_LINE + Constants.NEW_LINE + this.Descripcion + Constants.NEW_LINE +
-				Constants.NEW_LINE + Constants.NEW_LINE + 
+		text = "COMERCIAL: " + this.Usuario + ConstantsTypes.NEW_LINE +
+				"FECHA - HORA: " + formatter.format(this.Fecha) + ConstantsTypes.NEW_LINE +
+				"TIPO INCIDENCIA: " + tipoInc + ConstantsTypes.NEW_LINE +
+				"DESCRIPCIÓN: " + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE + this.Descripcion + ConstantsTypes.NEW_LINE +
+				ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE +
 				"Este mensaje se ha generado automáticamente desde el dispositivo móvil.";
 
 		String fileName = Environment.getExternalStorageDirectory().getPath() + "/"
-				+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_INCIDENCIAS + "/" + prefix + "_" + this.getDateTimeFormat() + ".txt";
+				+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_INCIDENCIAS + "/" + prefix + "_" + this.getDateTimeFormat() + ".txt";
 		
 		net.ifeu.library.IO.IOUtils.writeAllText(text, fileName);
 		

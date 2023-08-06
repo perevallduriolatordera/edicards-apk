@@ -4,11 +4,10 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
-import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
@@ -52,7 +51,7 @@ public class Articulo extends Persistent implements IPersistable {
 		values.put("Tipo", this.Tipo);
 		values.put("StockPropio", this.StockPropio ? 1 : 0 );
 		
-		this.IdArticulo = super.getDatabaseOperations().insert(Constants.TABLE_ARTICULOS, null , values);
+		this.IdArticulo = super.getDatabaseOperations().insert(ConstantsDatabase.TABLE_ARTICULOS, null , values);
 		
 	}
 	
@@ -77,24 +76,24 @@ public class Articulo extends Persistent implements IPersistable {
 
 		String[] whereArgs = { String.valueOf(this.IdArticulo) }; 
 		
-	    super.getDatabaseOperations().update(Constants.TABLE_ARTICULOS, values, "IdArticulo = ?", whereArgs);
+	    super.getDatabaseOperations().update(ConstantsDatabase.TABLE_ARTICULOS, values, "IdArticulo = ?", whereArgs);
 	}
 	
 	public int getRecordsCount()
 	{
-		return super.getDatabaseOperations().getRecordsCount(Constants.TABLE_ARTICULOS);
+		return super.getDatabaseOperations().getRecordsCount(ConstantsDatabase.TABLE_ARTICULOS);
 	}
 	
 	public LinkedList<String> getArticulosByFilter(String text,boolean onlyStartsWith)
 	{		
-			 return super.getDatabaseOperations().getStringArrayByField(Constants.TABLE_ARTICULOS, "Descripcion","Descripcion",text,onlyStartsWith, "AND Activo = 1 AND Tipo = '1'","Familia");
+			 return super.getDatabaseOperations().getStringArrayByField(ConstantsDatabase.TABLE_ARTICULOS, "Descripcion","Descripcion",text,onlyStartsWith, "AND Activo = 1 AND Tipo = '1'","Familia");
 	}
 	
 	public LinkedHashMap<String,Articulo> getAllArticulos(int tipo) throws Exception
 	{
 			LinkedHashMap<String,Articulo> list = new LinkedHashMap<>();
 			
-			Cursor cursor = super.getDatabaseOperations().getRecordsFromField(Constants.TABLE_ARTICULOS, Constants.EMPTY_STRING, Constants.EMPTY_STRING, true, "AND Activo = 1 AND Tipo = '" + tipo + "'","Familia");
+			Cursor cursor = super.getDatabaseOperations().getRecordsFromField(ConstantsDatabase.TABLE_ARTICULOS, ConstantsTypes.EMPTY_STRING, ConstantsTypes.EMPTY_STRING, true, "AND Activo = 1 AND Tipo = '" + tipo + "'","Familia");
 			
 			if (cursor != null)
 			{
@@ -141,7 +140,7 @@ public class Articulo extends Persistent implements IPersistable {
 	public boolean setArticuloByName(String name) throws Exception
 	{
 		
-		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(Constants.TABLE_ARTICULOS, "Descripcion", name, true);
+		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(ConstantsDatabase.TABLE_ARTICULOS, "Descripcion", name, true);
 		
 		if (cursor != null)
 		{
@@ -179,7 +178,7 @@ public class Articulo extends Persistent implements IPersistable {
 	
 	public boolean setArticuloById(String IdArticulo) throws Exception
 	{
-		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(Constants.TABLE_ARTICULOS, "IdArticulo", IdArticulo,false);
+		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(ConstantsDatabase.TABLE_ARTICULOS, "IdArticulo", IdArticulo,false);
 		
 		if (cursor != null)
 		{
@@ -211,7 +210,7 @@ public class Articulo extends Persistent implements IPersistable {
 		if (codigoArticulo == null)
 			return false;
 		
-		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(Constants.TABLE_ARTICULOS, "CodigoArticulo", codigoArticulo,true);
+		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(ConstantsDatabase.TABLE_ARTICULOS, "CodigoArticulo", codigoArticulo,true);
 		
 		if (cursor != null)
 		{

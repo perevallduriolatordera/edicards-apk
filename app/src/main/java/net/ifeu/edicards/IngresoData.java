@@ -2,7 +2,6 @@ package net.ifeu.edicards;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,8 +10,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
-import net.ifeu.edicards.DataTier.Cliente;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Incidencia;
 import net.ifeu.edicards.DataTier.IncidenciaType;
@@ -79,19 +77,19 @@ public class IngresoData extends Fragment {
 
 		Date fecha = calendar.getTime();
 		
-		if (entidad.equals(Constants.EMPTY_STRING)) {
+		if (entidad.equals(ConstantsTypes.EMPTY_STRING)) {
 			_appConfig.getMessageBox().Show("Ingreso", "Tiene que informar de la entidad", getActivity(),
 					MessageBoxType.Information);
 			return;
 		}
 		
-		if (referencia.equals(Constants.EMPTY_STRING)) {
+		if (referencia.equals(ConstantsTypes.EMPTY_STRING)) {
 			_appConfig.getMessageBox().Show("Ingreso", "Tiene que informar de la referencia", getActivity(),
 					MessageBoxType.Information);
 			return;
 		}
 		
-		if (cantidad.equals(Constants.EMPTY_STRING)) {
+		if (cantidad.equals(ConstantsTypes.EMPTY_STRING)) {
 			_appConfig.getMessageBox().Show("Ingreso", "Tiene que informar una cantidad", getActivity(),
 					MessageBoxType.Information);
 			return;
@@ -111,13 +109,13 @@ public class IngresoData extends Fragment {
 				MessageBoxType.Information);
 
 				
-		String text = "Se ha efectuado un nuevo ingreso con los siguientes datos: " + Constants.NEW_LINE
-				+ Constants.NEW_LINE + "Comercial: " + this._appConfig.getUser().User + Constants.NEW_LINE + "ENTIDAD: "
-				+ entidad + Constants.NEW_LINE + "FECHA: " + fecha.toString()  
-				+ Constants.NEW_LINE + "CANTIDAD:" + cantidad 
-				+ Constants.NEW_LINE + "REFERENCIA:" + referencia 
-				+ Constants.NEW_LINE + "DESCRIPCION:" + descripcion 
-				+ Constants.NEW_LINE;
+		String text = "Se ha efectuado un nuevo ingreso con los siguientes datos: " + ConstantsTypes.NEW_LINE
+				+ ConstantsTypes.NEW_LINE + "Comercial: " + this._appConfig.getUser().User + ConstantsTypes.NEW_LINE + "ENTIDAD: "
+				+ entidad + ConstantsTypes.NEW_LINE + "FECHA: " + fecha.toString()
+				+ ConstantsTypes.NEW_LINE + "CANTIDAD:" + cantidad
+				+ ConstantsTypes.NEW_LINE + "REFERENCIA:" + referencia
+				+ ConstantsTypes.NEW_LINE + "DESCRIPCION:" + descripcion
+				+ ConstantsTypes.NEW_LINE;
 
 		Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(), IncidenciaType.Ingreso,
 				text);

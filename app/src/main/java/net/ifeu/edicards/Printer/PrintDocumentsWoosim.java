@@ -10,9 +10,10 @@ import java.util.Collections;
 import java.util.List;
 
 import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.R;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.Totales;
@@ -24,7 +25,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
-import android.util.Log;
 
 import com.starmicronics.stario.StarIOPortException;
 import com.woosim.bt.WoosimPrinter;
@@ -47,7 +47,7 @@ public class PrintDocumentsWoosim implements IPrint {
 		ArrayList<String> macAddress = BlueTooth
 				.getBluetoothDevicesMacAddress();
 		boolean result = false;
-		String message = Constants.EMPTY_STRING;
+		String message = ConstantsTypes.EMPTY_STRING;
 
 		for (String mac : macAddress) {
 
@@ -127,7 +127,7 @@ public class PrintDocumentsWoosim implements IPrint {
 
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("dd/MM/yyyy");
-		String pago = (Tipo == Constants.TIPO_DOCUMENTO_DEPOSITO) ? "\n" : "Pago: " + deposito.PagoDescripcion
+		String pago = (Tipo == ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO) ? "\n" : "Pago: " + deposito.PagoDescripcion
 				+ "\n";
 
 		String header = ("Fecha: " + formatter.format(deposito.FechaDeposito)
@@ -156,10 +156,10 @@ public class PrintDocumentsWoosim implements IPrint {
 
 		String total;
 
-		if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN)
+		if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN)
 			total = padLeft("TOTAL", 10);
 		else
-			total = Constants.EMPTY_STRING;
+			total = ConstantsTypes.EMPTY_STRING;
 
 		String line = (padRight("COD.", 10) + padRight("DESCRIPCION", 25)
 				+ padLeft("UNID.", 10) + padLeft("PRECIO.", 10) + total + "\n");
@@ -177,7 +177,7 @@ public class PrintDocumentsWoosim implements IPrint {
 
 		DecimalFormat df = new DecimalFormat("0.00");
 
-		if (tipo == Constants.TIPO_DOCUMENTO_DEPOSITO) {
+		if (tipo == ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO) {
 			try {
 				deposito.CalculateDeposito();
 			} catch (Exception e) {
@@ -399,12 +399,12 @@ public class PrintDocumentsWoosim implements IPrint {
 
 			}
 
-			if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN &&  app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
+			if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN &&  app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
 				_woosim.saveSpool (LANGUAGE, "MERCANCIA PENDIENTE DE ENVIO" + "\n", 0, true);
 				this.Print();
 			}
 
-			if (isTransferPayment && tipo == Constants.TIPO_DOCUMENTO_ALBARAN) {
+			if (isTransferPayment && tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN) {
 				this.AlignCenter();
 
 				String transferInfo ="\nHACER TRANSFERENCIA EN UNO DE LOS SIGUIENTES NUMEROS DE CUENTA:\n"
@@ -436,7 +436,7 @@ public class PrintDocumentsWoosim implements IPrint {
 		Collections
 				.sort(tempList, new LineaDeposito().new ArticuloComparator());
 
-		if (tipo == Constants.TIPO_DOCUMENTO_ALBARAN)
+		if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN)
 			for (LineaDeposito linea : tempList) {
 				if (linea.UnidadesFacturadas > 0) {
 					String desc;
@@ -571,10 +571,10 @@ public class PrintDocumentsWoosim implements IPrint {
 						0, true);
 				this.Print();
 			}
-			this.printHeaderData(deposito, app, Constants.TIPO_DOCUMENTO_ALBARAN);
-			printHeaderFields(Constants.TIPO_DOCUMENTO_ALBARAN);
-			printHeaderDetail(Constants.TIPO_DOCUMENTO_ALBARAN, deposito);
-			printTotals(context, app, Constants.TIPO_DOCUMENTO_ALBARAN, deposito, istransferPayment);
+			this.printHeaderData(deposito, app, ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
+			printHeaderFields(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
+			printHeaderDetail(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN, deposito);
+			printTotals(context, app, ConstantsTypes.TIPO_DOCUMENTO_ALBARAN, deposito, istransferPayment);
 
 			closePage();
 
@@ -600,11 +600,11 @@ public class PrintDocumentsWoosim implements IPrint {
 			String depositoText = ("DEPOSITO: NUM " + app.getUser().User + "/"
 					+ deposito.IdDeposito + "\n");
 			_woosim.saveSpool(LANGUAGE, depositoText, 0, true);
-			this.printHeaderData(deposito, app, Constants.TIPO_DOCUMENTO_DEPOSITO);
-			printHeaderFields(Constants.TIPO_DOCUMENTO_DEPOSITO);
-			printHeaderDetail(Constants.TIPO_DOCUMENTO_DEPOSITO, deposito);
+			this.printHeaderData(deposito, app, ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
+			printHeaderFields(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
+			printHeaderDetail(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO, deposito);
 
-			printTotals(context, app, Constants.TIPO_DOCUMENTO_DEPOSITO, deposito, false);
+			printTotals(context, app, ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO, deposito, false);
 
 			_woosim.saveSpool(LANGUAGE,
 					"\nOPERACION ASEGURADA EN CREDITO Y CAUCION\n\n", 0, false);
@@ -646,9 +646,9 @@ public class PrintDocumentsWoosim implements IPrint {
 		int result = _woosim.printBitmap(Environment
 				.getExternalStorageDirectory().toString()
 				+ "/"
-				+ Constants.FOLDER_ROOT
+				+ ConstantsFolders.FOLDER_ROOT
 				+ "/"
-				+ Constants.FOLDER_FIRMAS
+				+ ConstantsFolders.FOLDER_FIRMAS
 				+ "/"
 				+ "C1_" + _GUID + ".bmp");
 
@@ -679,9 +679,9 @@ public class PrintDocumentsWoosim implements IPrint {
 		int result = _woosim.printBitmap(Environment
 				.getExternalStorageDirectory().toString()
 				+ "/"
-				+ Constants.FOLDER_ROOT
+				+ ConstantsFolders.FOLDER_ROOT
 				+ "/"
-				+ Constants.FOLDER_FIRMAS
+				+ ConstantsFolders.FOLDER_FIRMAS
 				+ "/"
 				+ "V1_" + _GUID + ".bmp");
 
@@ -726,17 +726,17 @@ public class PrintDocumentsWoosim implements IPrint {
 		convertor.convertBitmap(bm, Environment.getExternalStorageDirectory()
 				.toString()
 				+ "/"
-				+ Constants.FOLDER_ROOT
+				+ ConstantsFolders.FOLDER_ROOT
 				+ "/"
-				+ Constants.FOLDER_FIRMAS + "/" + "TMP" + ".bmp", (int)width,
+				+ ConstantsFolders.FOLDER_FIRMAS + "/" + "TMP" + ".bmp", (int)width,
 				(int)height);
 
 		int result = _woosim.printBitmap(Environment
 				.getExternalStorageDirectory().toString()
 				+ "/"
-				+ Constants.FOLDER_ROOT
+				+ ConstantsFolders.FOLDER_ROOT
 				+ "/"
-				+ Constants.FOLDER_FIRMAS
+				+ ConstantsFolders.FOLDER_FIRMAS
 				+ "/"
 				+ "TMP" + ".bmp");
 

@@ -205,29 +205,29 @@
             android:layout_height="70px"
             android:orientation="horizontal" >
 
-            <Button
+            <net.ifeu.library.Controls.ButtonColor
                 android:id="@+id/btnGenerateAlbaran"
                 android:layout_marginLeft="20px"
 		        android:layout_marginRight="20px"
-        		android:layout_width="80px" 
+        		android:layout_width="180px"
 		     	android:layout_marginBottom="20dp"
 		     	android:layout_marginTop="20dp"
 		     	android:layout_height="40px"
 		     	android:background="@drawable/background_button"
-		     	android:textColor="#FFF"
+		     	android:textColor="@color/Black"
                 android:onClick="OnApply"
                 android:text="Aplicar cambios"/>
             
-             <Button
-                android:id="@+id/btnCanceñ"
+             <net.ifeu.library.Controls.ButtonColor
+                android:id="@+id/btnCancel"
                 android:layout_marginLeft="20px"
 		        android:layout_marginRight="20px"
-        		android:layout_width="80px" 
+        		android:layout_width="180px"
 		     	android:layout_marginBottom="20dp"
 		     	android:layout_marginTop="20dp"
 		     	android:layout_height="40px"
 		     	android:background="@drawable/background_button"
-		     	android:textColor="#FFF"
+		     	android:textColor="@color/Black"
                 android:onClick="OnClose"
                 android:text="Cerrar Pantalla"/>
         </LinearLayout>

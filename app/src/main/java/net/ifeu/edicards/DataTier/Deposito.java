@@ -1,12 +1,11 @@
 package net.ifeu.edicards.DataTier;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Totales.Base;
@@ -25,7 +24,7 @@ public class Deposito extends Cliente implements IPersistable {
 	public Long IdDeposito;
 	public Date FechaDeposito;
 	public String Ejercicio;
-	public Cliente Cliente = Factory.build(Cliente.class, appConfig);
+	public Cliente Cliente;
 	public LinkedHashMap<String, LineaDeposito> Lineas = new LinkedHashMap<>();
 	public Totales Totales = new Totales();
 	public Totales TotalesDeposito = new Totales();
@@ -40,15 +39,15 @@ public class Deposito extends Cliente implements IPersistable {
 	public String TipoDeposito;
 	public boolean Retirado;
 	public boolean DatosFiscalesUpdated;
-	public String MotivoRetirado = Constants.EMPTY_STRING;
+	public String MotivoRetirado = ConstantsTypes.EMPTY_STRING;
 	public boolean CCCUpdated;
 
-	public Deposito()
-	{
+	@Override
+	public void InitializePersistance(AppConfig appConfigParam) {
+		super.InitializePersistance(appConfigParam);
 		this.ClienteInfo = Factory.build(ClienteInfo.class, appConfig);
+		this.Cliente = Factory.build(Cliente.class, appConfig);
 	}
-	
-
 	@Override
 	public void save() throws Exception {
 
@@ -90,7 +89,7 @@ public class Deposito extends Cliente implements IPersistable {
 
 		try {
 			this.IdDeposito = super.getDatabaseOperations().insert(
-					Constants.TABLE_DEPOSITOS, null, values);
+					ConstantsDatabase.TABLE_DEPOSITOS, null, values);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -138,19 +137,19 @@ public class Deposito extends Cliente implements IPersistable {
 
 		String[] whereArgs = { String.valueOf(this.IdDeposito) };
 
-		super.getDatabaseOperations().update(Constants.TABLE_DEPOSITOS, values,
+		super.getDatabaseOperations().update(ConstantsDatabase.TABLE_DEPOSITOS, values,
 				"IdDeposito = ?", whereArgs);
 	}
 
 	@Override
 	public int getRecordsCount() {
 		return super.getDatabaseOperations().getRecordsCount(
-				Constants.TABLE_DEPOSITOS);
+				ConstantsDatabase.TABLE_DEPOSITOS);
 	}
 
 	public boolean setDepositoById(String IdDeposito) throws Exception {
 		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(
-				Constants.TABLE_DEPOSITOS, "IdDeposito", IdDeposito, true);
+				ConstantsDatabase.TABLE_DEPOSITOS, "IdDeposito", IdDeposito, true);
 
 		if (cursor != null) {
 
@@ -221,7 +220,7 @@ public class Deposito extends Cliente implements IPersistable {
 	public boolean setFirstDepositoByCliente(String codigoCliente) throws Exception {
 
 		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(
-				Constants.TABLE_DEPOSITOS, "CodigoCliente", codigoCliente, true);
+				ConstantsDatabase.TABLE_DEPOSITOS, "CodigoCliente", codigoCliente, true);
 
 		if (cursor != null) {
 
@@ -299,8 +298,8 @@ public class Deposito extends Cliente implements IPersistable {
 		ArrayList<Deposito> list = new ArrayList<>();
 
 		Cursor cursor = super.getDatabaseOperations()
-				.getRecordsFromFieldNumeric(Constants.TABLE_DEPOSITOS,
-						"IdCliente", idCliente, Constants.EMPTY_STRING, null);
+				.getRecordsFromFieldNumeric(ConstantsDatabase.TABLE_DEPOSITOS,
+						"IdCliente", idCliente, ConstantsTypes.EMPTY_STRING, null);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -392,8 +391,8 @@ public class Deposito extends Cliente implements IPersistable {
 		ArrayList<Deposito> list = new ArrayList<>();
 
 		Cursor cursor = super.getDatabaseOperations()
-				.getRecordsFromField(Constants.TABLE_DEPOSITOS,
-						"CodigoCliente", codigoCliente, true, Constants.EMPTY_STRING, Constants.EMPTY_STRING);
+				.getRecordsFromField(ConstantsDatabase.TABLE_DEPOSITOS,
+						"CodigoCliente", codigoCliente, true, ConstantsTypes.EMPTY_STRING, ConstantsTypes.EMPTY_STRING);
 		
 
 		if (cursor != null) {
@@ -491,8 +490,8 @@ public class Deposito extends Cliente implements IPersistable {
 		String date = formatter.format(new Date());
 		
 		Cursor cursor = super.getDatabaseOperations()
-				.getRecordsFromField(Constants.TABLE_DEPOSITOS,
-						"FechaDeposito", date, true, Constants.EMPTY_STRING, Constants.EMPTY_STRING);
+				.getRecordsFromField(ConstantsDatabase.TABLE_DEPOSITOS,
+						"FechaDeposito", date, true, ConstantsTypes.EMPTY_STRING, ConstantsTypes.EMPTY_STRING);
 
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -780,7 +779,7 @@ public class Deposito extends Cliente implements IPersistable {
 	public void clean() throws Exception {
 		
 		Cursor cursor = super.getDatabaseOperations().executeSentence(
-				"DELETE FROM " + Constants.TABLE_DEPOSITOS);
+				"DELETE FROM " + ConstantsDatabase.TABLE_DEPOSITOS);
 		
 		if (cursor != null)
 			cursor.close();
@@ -790,7 +789,7 @@ public class Deposito extends Cliente implements IPersistable {
 	
 	private void DeleteAllLinesDepositos() throws Exception {
 		Cursor cursor = super.getDatabaseOperations().executeSentence(
-				"DELETE FROM " + Constants.TABLE_LINEAS_DEPOSITO);
+				"DELETE FROM " + ConstantsDatabase.TABLE_LINEAS_DEPOSITO);
 		
 		if (cursor != null)
 			cursor.close();
@@ -798,7 +797,7 @@ public class Deposito extends Cliente implements IPersistable {
 	
 	public void DeleteAllLines() throws Exception {
 		Cursor cursor = super.getDatabaseOperations().executeSentence(
-				"DELETE FROM " + Constants.TABLE_LINEAS_DEPOSITO + " WHERE IdDeposito = "
+				"DELETE FROM " + ConstantsDatabase.TABLE_LINEAS_DEPOSITO + " WHERE IdDeposito = "
 						+ this.IdDeposito);
 		
 		if (cursor != null)
@@ -827,7 +826,7 @@ public class Deposito extends Cliente implements IPersistable {
 		this.Telefono1 = cliente.Telefono1;
 		this.Telefono2 = cliente.Telefono2;
 		this.Web = cliente.Web;
-		this.formaPago = cliente.formaPago;
+		this.FormaPago = cliente.FormaPago;
 		this.Filiacion = cliente.Filiacion;
 		this.ClienteInfo.Cliente = cliente;
 		this.ClienteInfo.CCC = cliente.ClienteInfo.CCC;
@@ -841,7 +840,7 @@ public class Deposito extends Cliente implements IPersistable {
 	public void assingFromDeposito(Deposito deposito) {
 
 		this.Activo = deposito.Activo;
-		this.CodigoCliente = Constants.EMPTY_STRING;
+		this.CodigoCliente = ConstantsTypes.EMPTY_STRING;
 		this.IdCliente = 0;
 		this.FechaDeposito = new Date();
 		this.NIF = deposito.NIF;
@@ -937,7 +936,7 @@ public class Deposito extends Cliente implements IPersistable {
 	}
 
 	public boolean isDepositoConvencional() {
-		return this.TipoDeposito.equals(Constants.TIPO_DEPOSITO_CONVENCIONAL);
+		return this.TipoDeposito.equals(ConstantsTypes.TIPO_DEPOSITO_CONVENCIONAL);
 	}
 
 	public DTODeposito getDTO() {

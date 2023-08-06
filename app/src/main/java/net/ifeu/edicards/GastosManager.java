@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
 import android.text.method.DigitsKeyListener;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,9 +18,8 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Articulo;
-import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Gasto;
 import net.ifeu.edicards.DataTier.GastosInfo;
@@ -211,7 +209,7 @@ public class GastosManager extends Fragment {
 				if (gastosInfo1.IsNew)
 					try {
 
-						if (!gastosInfo1.Comentario.equals(Constants.EMPTY_STRING))
+						if (!gastosInfo1.Comentario.equals(ConstantsTypes.EMPTY_STRING))
 							gastosInfo1.save();
 
 					} catch (Exception e) {
@@ -220,7 +218,7 @@ public class GastosManager extends Fragment {
 				else
 					try {
 
-						if (!gastosInfo1.Comentario.equals(Constants.EMPTY_STRING))
+						if (!gastosInfo1.Comentario.equals(ConstantsTypes.EMPTY_STRING))
 							gastosInfo1.update();
 
 					} catch (Exception e) {
@@ -247,7 +245,7 @@ public class GastosManager extends Fragment {
 					EditText textBox = (EditText) view;
 					double cantidad1;
 
-					if (textBox.getText().toString().equals(Constants.EMPTY_STRING))
+					if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
 						cantidad1 = Double.parseDouble(((EditText) view).getHint().toString());
 					else
 						cantidad1 = Double.parseDouble(((EditText) view).getText().toString());

@@ -3,7 +3,7 @@ package net.ifeu.edicards;
 import java.util.ArrayList;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.Factories.Factory;
@@ -120,7 +120,7 @@ public class SelectDeposit extends Activity {
 							throw new RuntimeException(e2);
 						}
 
-						dep.TipoDeposito = Constants.TIPO_DEPOSITO_CONVENCIONAL;
+						dep.TipoDeposito = ConstantsTypes.TIPO_DEPOSITO_CONVENCIONAL;
 
 						try {
 							_appConfig.getWorkingArea().CurrentDeposito = dep;
@@ -149,7 +149,7 @@ public class SelectDeposit extends Activity {
 					throw new RuntimeException(e2);
 				}
 
-				dep.TipoDeposito = Constants.TIPO_DEPOSITO_CAMPANA;
+				dep.TipoDeposito = ConstantsTypes.TIPO_DEPOSITO_CAMPANA;
 
 				try {
 					_appConfig.getWorkingArea().CurrentDeposito = dep;
@@ -185,7 +185,7 @@ public class SelectDeposit extends Activity {
 								throw new RuntimeException(e2);
 							}
 
-							dep.TipoDeposito = Constants.TIPO_DEPOSITO_CONVENCIONAL;
+							dep.TipoDeposito = ConstantsTypes.TIPO_DEPOSITO_CONVENCIONAL;
 
 							try {
 								_appConfig.getWorkingArea().CurrentDeposito = dep;
@@ -215,7 +215,7 @@ public class SelectDeposit extends Activity {
 						throw new RuntimeException(e2);
 					}
 
-					dep.TipoDeposito = Constants.TIPO_DEPOSITO_CAMPANA;
+					dep.TipoDeposito = ConstantsTypes.TIPO_DEPOSITO_CAMPANA;
 
 					try {
 						_appConfig.getWorkingArea().CurrentDeposito = dep;

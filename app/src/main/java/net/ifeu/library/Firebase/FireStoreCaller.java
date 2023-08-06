@@ -5,7 +5,7 @@ import com.androidnetworking.common.ANRequest;
 import com.androidnetworking.common.ANResponse;
 import com.androidnetworking.common.Priority;
 
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsFirecloud;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,9 +18,9 @@ public class FireStoreCaller {
 
     public String getToken() throws JSONException {
 
-        ANRequest request = AndroidNetworking.post(Constants.FIRECLOUD_URL_TOKEN)
-                .addBodyParameter("email", Constants.FIRECLOUD_EMAIL)
-                .addBodyParameter("password", Constants.FIRECLOUD_PASSWORD)
+        ANRequest request = AndroidNetworking.post(ConstantsFirecloud.FIRECLOUD_URL_TOKEN)
+                .addBodyParameter("email", ConstantsFirecloud.FIRECLOUD_EMAIL)
+                .addBodyParameter("password", ConstantsFirecloud.FIRECLOUD_PASSWORD)
                 .addBodyParameter("returnSecureToken", "true")
                 .setPriority(Priority.MEDIUM)
                 .build();
@@ -39,7 +39,7 @@ public class FireStoreCaller {
         ArticuloStockResponse articuloStockResponse = new ArticuloStockResponse();
 
         Map<String, ArticuloStock> list = new HashMap<>();
-        ANRequest request = AndroidNetworking.get(Constants.FIRECLOUD_URL_DATABASE)
+        ANRequest request = AndroidNetworking.get(ConstantsFirecloud.FIRECLOUD_URL_DATABASE)
                 .addHeaders("Authorization", "Bearer " + idToken)
                 .setPriority(Priority.MEDIUM)
                 .build();
@@ -99,7 +99,7 @@ public class FireStoreCaller {
                 "}" +
                 "}";
 
-        ANRequest request = AndroidNetworking.patch(Constants.FIRECLOUD_URL_BASE + name)
+        ANRequest request = AndroidNetworking.patch(ConstantsFirecloud.FIRECLOUD_URL_BASE + name)
                 .addHeaders("Authorization", "Bearer " + idToken)
                 .addStringBody(body)
                 .setPriority(Priority.MEDIUM)

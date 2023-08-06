@@ -2,9 +2,9 @@ package net.ifeu.edicards.DataTier;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.util.Log;
 
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
@@ -18,11 +18,16 @@ public class Tarifa extends Persistent implements IPersistable {
 	public String CodigoTarifa;
 	public Date FechaIni;
 	public Date FechaFin;
-	public Articulo Articulo = Factory.build(Articulo.class, appConfig);
+	public Articulo Articulo;
 	public double PVP;
 	public double Descuento1;
 	public double Descuento2;
 
+	@Override
+	public void InitializePersistance(AppConfig appConfigParam) {
+		super.InitializePersistance(appConfigParam);
+		this.Articulo = Factory.build(Articulo.class, appConfigParam);
+	}
 	@Override
 	public void save() throws Exception {
 				
@@ -39,7 +44,7 @@ public class Tarifa extends Persistent implements IPersistable {
 		values.put("Descuento2", this.Descuento2);
 		
 		try {
-			this.IdTarifa = super.getDatabaseOperations().insert(Constants.TABLE_TARIFAS, null , values);
+			this.IdTarifa = super.getDatabaseOperations().insert(ConstantsDatabase.TABLE_TARIFAS, null , values);
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -50,13 +55,13 @@ public class Tarifa extends Persistent implements IPersistable {
 	
 	public int getRecordsCount()
 	{
-		return super.getDatabaseOperations().getRecordsCount(Constants.TABLE_TARIFAS);
+		return super.getDatabaseOperations().getRecordsCount(ConstantsDatabase.TABLE_TARIFAS);
 	}
 
 	public boolean setTarifaByClienteArticulo(Cliente cliente, Articulo articulo) throws Exception
 	{
 		
-		Cursor cursor = super.getDatabaseOperations().getRecordsFromField(Constants.TABLE_TARIFAS, "IdArticulo", String.valueOf(articulo.IdArticulo), false, "AND CodigoTarifa = '" + cliente.CodigoTarifa + "'",null);
+		Cursor cursor = super.getDatabaseOperations().getRecordsFromField(ConstantsDatabase.TABLE_TARIFAS, "IdArticulo", String.valueOf(articulo.IdArticulo), false, "AND CodigoTarifa = '" + cliente.CodigoTarifa + "'",null);
 		
 		boolean founded = false;
 		

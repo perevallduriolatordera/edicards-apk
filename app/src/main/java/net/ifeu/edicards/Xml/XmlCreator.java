@@ -12,7 +12,8 @@ import java.util.Date;
 import java.util.HashMap;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.DTODeposito;
 import net.ifeu.edicards.DataTier.DTOLineaDeposito;
@@ -47,11 +48,11 @@ public class XmlCreator {
 		File newxmlfile = new File(Environment.getExternalStorageDirectory()
 				.toString()
 				+ "/"
-				+ Constants.FOLDER_ROOT
+				+ ConstantsFolders.FOLDER_ROOT
 				+ "/"
-				+ Constants.FOLDER_STOCK
+				+ ConstantsFolders.FOLDER_STOCK
 				+ "/"
-				+ Constants.FILE_STOCK
+				+ ConstantsFolders.FILE_STOCK
 				+ "."
 				+ 0);
 		try {
@@ -166,11 +167,11 @@ public class XmlCreator {
 		File newxmlfile = new File(Environment.getExternalStorageDirectory()
 				.toString()
 				+ "/"
-				+ Constants.FOLDER_ROOT
+				+ ConstantsFolders.FOLDER_ROOT
 				+ "/"
-				+ Constants.FOLDER_DAILYSTOCK
+				+ ConstantsFolders.FOLDER_DAILYSTOCK
 				+ "/"
-				+ Constants.FILE_DAILY_STOCK);
+				+ ConstantsFolders.FILE_DAILY_STOCK);
 		try {
 			newxmlfile.createNewFile();
 		} catch (IOException e) {
@@ -245,9 +246,9 @@ public class XmlCreator {
 		File newxmlfile = new File(Environment.getExternalStorageDirectory()
 				.toString()
 				+ "/"
-				+ Constants.FOLDER_ROOT
+				+ ConstantsFolders.FOLDER_ROOT
 				+ "/"
-				+ Constants.FOLDER_GASTOS + "/" + fileName);
+				+ ConstantsFolders.FOLDER_GASTOS + "/" + fileName);
 		try {
 			newxmlfile.createNewFile();
 		} catch (IOException e) {
@@ -328,10 +329,10 @@ public class XmlCreator {
 		int nuevos = 0;
 		int bajas = 0;
 		for (Historico hist : list) {
-			if (hist.Tipo == Constants.TIPO_HISTORICO_CLIENTE_NUEVO)
+			if (hist.Tipo == ConstantsTypes.TIPO_HISTORICO_CLIENTE_NUEVO)
 				nuevos += 1;
 
-			if (hist.Tipo == Constants.TIPO_HISTORICO_CLIENTE_BAJA)
+			if (hist.Tipo == ConstantsTypes.TIPO_HISTORICO_CLIENTE_BAJA)
 				bajas += 1;
 		}
 
@@ -420,9 +421,9 @@ public class XmlCreator {
 		File newxmlfile = new File(Environment.getExternalStorageDirectory()
 				.toString()
 				+ "/"
-				+ Constants.FOLDER_ROOT
+				+ ConstantsFolders.FOLDER_ROOT
 				+ "/"
-				+ Constants.FOLDER_ALBARANES
+				+ ConstantsFolders.FOLDER_ALBARANES
 				+ "/"
 				+ deposito.Serie
 				+ deposito.NumeroAlbaran + ".xml");
@@ -457,10 +458,10 @@ public class XmlCreator {
 		fileos.write("<Serie>".getBytes());
 
 		if (deposito.Serie.equals(_appConfig.getUser().SerialInvoiceA))
-			fileos.write(Constants.SERIE_A_VALUE.getBytes());
+			fileos.write(ConstantsTypes.SERIE_A_VALUE.getBytes());
 		else
 			
-			fileos.write(Constants.SERIE_B_VALUE.getBytes());
+			fileos.write(ConstantsTypes.SERIE_B_VALUE.getBytes());
 
 		fileos.write("</Serie>".getBytes());
 
@@ -477,75 +478,75 @@ public class XmlCreator {
 
 		fileos.write("<Nombre>".getBytes());
 
-		if (deposito.Nombre != Constants.EMPTY_STRING)
+		if (deposito.Nombre != ConstantsTypes.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Nombre).getBytes());
 		fileos.write("</Nombre>".getBytes());
 
 		fileos.write("<NIF>".getBytes());
-		if (deposito.NIF != Constants.EMPTY_STRING)
+		if (deposito.NIF != ConstantsTypes.EMPTY_STRING)
 			fileos.write(deposito.NIF.getBytes());
 		fileos.write("</NIF>".getBytes());
 
 		fileos.write("<Razon>".getBytes());
-		if (deposito.Razon != Constants.EMPTY_STRING)
+		if (deposito.Razon != ConstantsTypes.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Razon).getBytes());
 		fileos.write("</Razon>".getBytes());
 
 		fileos.write("<Direccion1>".getBytes());
-		if (deposito.Direccion1 != Constants.EMPTY_STRING)
+		if (deposito.Direccion1 != ConstantsTypes.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Direccion1).getBytes());
 
 		fileos.write("</Direccion1>".getBytes());
 
 		fileos.write("<Direccion2>".getBytes());
-		if (deposito.Direccion2 != Constants.EMPTY_STRING)
+		if (deposito.Direccion2 != ConstantsTypes.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Direccion2).getBytes());
 
 		fileos.write("</Direccion2>".getBytes());
 
 		fileos.write("<CodigoPostal>".getBytes());
-		if (deposito.CodigoPostal != Constants.EMPTY_STRING)
+		if (deposito.CodigoPostal != ConstantsTypes.EMPTY_STRING)
 			fileos.write(deposito.CodigoPostal.getBytes());
 
 		fileos.write("</CodigoPostal>".getBytes());
 
 		fileos.write("<Poblacion>".getBytes());
-		if (deposito.Poblacion != Constants.EMPTY_STRING)
+		if (deposito.Poblacion != ConstantsTypes.EMPTY_STRING)
 			fileos.write(deposito.Poblacion.getBytes());
 
 		fileos.write("</Poblacion>".getBytes());
 
 		fileos.write("<Provincia>".getBytes());
-		if (deposito.Provincia != Constants.EMPTY_STRING)
-			fileos.write(Constants.EMPTY_STRING.getBytes());
+		if (deposito.Provincia != ConstantsTypes.EMPTY_STRING)
+			fileos.write(ConstantsTypes.EMPTY_STRING.getBytes());
 		fileos.write("</Provincia>".getBytes());
 
 		fileos.write("<Telefono1>".getBytes());
-		if (deposito.Telefono1 != Constants.EMPTY_STRING)
+		if (deposito.Telefono1 != ConstantsTypes.EMPTY_STRING)
 			fileos.write(deposito.Telefono1.getBytes());
 
 		fileos.write("</Telefono1>".getBytes());
 
 		fileos.write("<Telefono2>".getBytes());
-		if (deposito.Telefono2 != Constants.EMPTY_STRING)
+		if (deposito.Telefono2 != ConstantsTypes.EMPTY_STRING)
 			fileos.write(deposito.Telefono2.getBytes());
 
 		fileos.write("</Telefono2>".getBytes());
 
 		fileos.write("<Fax>".getBytes());
-		if (deposito.Fax != Constants.EMPTY_STRING)
+		if (deposito.Fax != ConstantsTypes.EMPTY_STRING)
 			fileos.write(deposito.Fax.getBytes());
 
 		fileos.write("</Fax>".getBytes());
 
 		fileos.write("<Mail>".getBytes());
-		if (deposito.Mail != Constants.EMPTY_STRING)
+		if (deposito.Mail != ConstantsTypes.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Mail).getBytes());
 
 		fileos.write("</Mail>".getBytes());
 
 		fileos.write("<Web>".getBytes());
-		if (deposito.Web != Constants.EMPTY_STRING)
+		if (deposito.Web != ConstantsTypes.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Web).getBytes());
 
 		fileos.write("</Web>".getBytes());
@@ -562,10 +563,10 @@ public class XmlCreator {
 
 		fileos.write("<FormaPago>".getBytes());
 
-		if (deposito.formaPago != null)
-			fileos.write(deposito.formaPago.CodigoFormaPago.getBytes());
+		if (deposito.FormaPago != null)
+			fileos.write(deposito.FormaPago.CodigoFormaPago.getBytes());
 		else
-			fileos.write(Constants.EMPTY_STRING.getBytes());
+			fileos.write(ConstantsTypes.EMPTY_STRING.getBytes());
 		
 		fileos.write("</FormaPago>".getBytes());
 		
@@ -660,9 +661,9 @@ public class XmlCreator {
 		File newxmlfile = new File(Environment.getExternalStorageDirectory()
 				.toString()
 				+ "/"
-				+ Constants.FOLDER_ROOT
+				+ ConstantsFolders.FOLDER_ROOT
 				+ "/"
-				+ Constants.FOLDER_ALBARANES
+				+ ConstantsFolders.FOLDER_ALBARANES
 				+ "/REC_"
 				+ deposito.Serie
 				+ deposito.NumeroAlbaran + ".xml");
@@ -697,10 +698,10 @@ public class XmlCreator {
 		fileos.write("<Serie>".getBytes());
 
 		if (deposito.Serie.equals(_appConfig.getUser().SerialInvoiceA))
-			fileos.write(Constants.SERIE_A_VALUE.getBytes());
+			fileos.write(ConstantsTypes.SERIE_A_VALUE.getBytes());
 		else
 			
-			fileos.write(Constants.SERIE_B_VALUE.getBytes());
+			fileos.write(ConstantsTypes.SERIE_B_VALUE.getBytes());
 
 		fileos.write("</Serie>".getBytes());
 
@@ -717,75 +718,75 @@ public class XmlCreator {
 
 		fileos.write("<Nombre>".getBytes());
 
-		if (deposito.Nombre != Constants.EMPTY_STRING)
+		if (deposito.Nombre != ConstantsTypes.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Nombre).getBytes());
 		fileos.write("</Nombre>".getBytes());
 
 		fileos.write("<NIF>".getBytes());
-		if (deposito.NIF != Constants.EMPTY_STRING)
+		if (deposito.NIF != ConstantsTypes.EMPTY_STRING)
 			fileos.write(deposito.NIF.getBytes());
 		fileos.write("</NIF>".getBytes());
 
 		fileos.write("<Razon>".getBytes());
-		if (deposito.Razon != Constants.EMPTY_STRING)
+		if (deposito.Razon != ConstantsTypes.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Razon).getBytes());
 		fileos.write("</Razon>".getBytes());
 
 		fileos.write("<Direccion1>".getBytes());
-		if (deposito.Direccion1 != Constants.EMPTY_STRING)
+		if (deposito.Direccion1 != ConstantsTypes.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Direccion1).getBytes());
 
 		fileos.write("</Direccion1>".getBytes());
 
 		fileos.write("<Direccion2>".getBytes());
-		if (deposito.Direccion2 != Constants.EMPTY_STRING)
+		if (deposito.Direccion2 != ConstantsTypes.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Direccion2).getBytes());
 
 		fileos.write("</Direccion2>".getBytes());
 
 		fileos.write("<CodigoPostal>".getBytes());
-		if (deposito.CodigoPostal != Constants.EMPTY_STRING)
+		if (deposito.CodigoPostal != ConstantsTypes.EMPTY_STRING)
 			fileos.write(deposito.CodigoPostal.getBytes());
 
 		fileos.write("</CodigoPostal>".getBytes());
 
 		fileos.write("<Poblacion>".getBytes());
-		if (deposito.Poblacion != Constants.EMPTY_STRING)
+		if (deposito.Poblacion != ConstantsTypes.EMPTY_STRING)
 			fileos.write(deposito.Poblacion.getBytes());
 
 		fileos.write("</Poblacion>".getBytes());
 
 		fileos.write("<Provincia>".getBytes());
-		if (deposito.Provincia != Constants.EMPTY_STRING)
-			fileos.write(Constants.EMPTY_STRING.getBytes());
+		if (deposito.Provincia != ConstantsTypes.EMPTY_STRING)
+			fileos.write(ConstantsTypes.EMPTY_STRING.getBytes());
 		fileos.write("</Provincia>".getBytes());
 
 		fileos.write("<Telefono1>".getBytes());
-		if (deposito.Telefono1 != Constants.EMPTY_STRING)
+		if (deposito.Telefono1 != ConstantsTypes.EMPTY_STRING)
 			fileos.write(deposito.Telefono1.getBytes());
 
 		fileos.write("</Telefono1>".getBytes());
 
 		fileos.write("<Telefono2>".getBytes());
-		if (deposito.Telefono2 != Constants.EMPTY_STRING)
+		if (deposito.Telefono2 != ConstantsTypes.EMPTY_STRING)
 			fileos.write(deposito.Telefono2.getBytes());
 
 		fileos.write("</Telefono2>".getBytes());
 
 		fileos.write("<Fax>".getBytes());
-		if (deposito.Fax != Constants.EMPTY_STRING)
+		if (deposito.Fax != ConstantsTypes.EMPTY_STRING)
 			fileos.write(deposito.Fax.getBytes());
 
 		fileos.write("</Fax>".getBytes());
 
 		fileos.write("<Mail>".getBytes());
-		if (deposito.Mail != Constants.EMPTY_STRING)
+		if (deposito.Mail != ConstantsTypes.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Mail).getBytes());
 
 		fileos.write("</Mail>".getBytes());
 
 		fileos.write("<Web>".getBytes());
-		if (deposito.Web != Constants.EMPTY_STRING)
+		if (deposito.Web != ConstantsTypes.EMPTY_STRING)
 			fileos.write(this.getWithCDATA(deposito.Web).getBytes());
 
 		fileos.write("</Web>".getBytes());
@@ -802,7 +803,7 @@ public class XmlCreator {
 
 		fileos.write("<FormaPago>".getBytes());
 
-		fileos.write(Constants.EMPTY_STRING.getBytes());
+		fileos.write(ConstantsTypes.EMPTY_STRING.getBytes());
 		
 		fileos.write("</FormaPago>".getBytes());
 		
@@ -903,9 +904,9 @@ public class XmlCreator {
 		File newxmlfile = new File(Environment.getExternalStorageDirectory()
 				.toString()
 				+ "/"
-				+ Constants.FOLDER_ROOT
+				+ ConstantsFolders.FOLDER_ROOT
 				+ "/"
-				+ Constants.FOLDER_DEPOSITOS
+				+ ConstantsFolders.FOLDER_DEPOSITOS
 				+ "/"
 				+ deposito.IdDeposito + ".xml");
 		try {
@@ -1005,7 +1006,7 @@ public class XmlCreator {
 
 		if (deposito.NumDoc == null) {
 			fileos.write("<NumDoc>".getBytes());
-			fileos.write(Constants.EMPTY_STRING.getBytes());
+			fileos.write(ConstantsTypes.EMPTY_STRING.getBytes());
 			fileos.write("</NumDoc>".getBytes());
 		} else {
 			fileos.write("<NumDoc>".getBytes());
@@ -1015,10 +1016,10 @@ public class XmlCreator {
 
 		fileos.write("<FormaPago>".getBytes());
 
-		if (deposito.formaPago != null)
-			fileos.write(deposito.formaPago.CodigoFormaPago.getBytes());
+		if (deposito.FormaPago != null)
+			fileos.write(deposito.FormaPago.CodigoFormaPago.getBytes());
 		else
-			fileos.write(Constants.EMPTY_STRING.getBytes());
+			fileos.write(ConstantsTypes.EMPTY_STRING.getBytes());
 
 		fileos.write("</FormaPago>".getBytes());
 
@@ -1100,7 +1101,7 @@ public class XmlCreator {
 
 		for (Historico hist : list) {
 			for (LineaHistorico linea : hist.Lineas.values()) {
-				if (linea.Tipo == Constants.TIPO_LINEA_HISTORICO_POTENCIADAS) {
+				if (linea.Tipo == ConstantsTypes.TIPO_LINEA_HISTORICO_POTENCIADAS) {
 					if (!result.containsKey(linea.Articulo.CodigoArticulo)) {
 						Reports report = new Reports();
 						report.Potenciados = linea.Unidades;
@@ -1113,7 +1114,7 @@ public class XmlCreator {
 					}
 				}
 
-				if (linea.Tipo == Constants.TIPO_LINEA_HISTORICO_BAJAS) {
+				if (linea.Tipo == ConstantsTypes.TIPO_LINEA_HISTORICO_BAJAS) {
 					if (!result.containsKey(linea.Articulo.CodigoArticulo)) {
 						Reports report = new Reports();
 						report.Retirados = linea.Unidades;

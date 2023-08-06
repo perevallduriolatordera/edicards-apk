@@ -1,7 +1,4 @@
 package net.ifeu.edicards.DataTier.Factories;
-
-import android.content.Context;
-
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 

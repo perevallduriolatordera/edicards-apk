@@ -10,11 +10,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.text.Editable;
-import android.util.Log;
 import android.view.ContextThemeWrapper;
 
 import net.ifeu.edicards.R;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.library.Controls.TextBoxColor;
 
 public class MessageBox {
@@ -100,7 +99,7 @@ public class MessageBox {
 
 	public String InputBox(String title, String text, Context context)
 	{
-		final TextBoxColor textBox = new TextBoxColor(context, Color.WHITE);
+		final TextBoxColor textBox = new TextBoxColor(context, Color.BLACK);
 		
 		 final Handler handler = new Handler() {
 		        @Override
@@ -124,7 +123,7 @@ public class MessageBox {
 			dialog.dismiss();
 		}).setNegativeButton("Cancelar", (dialog, whichButton) -> {
 
-			_value = Constants.EMPTY_STRING;
+			_value = ConstantsTypes.EMPTY_STRING;
 
 			handler.sendMessage(handler.obtainMessage());
 			dialog.dismiss();

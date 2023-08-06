@@ -3,8 +3,7 @@ package net.ifeu.edicards.DataTier;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
-import net.ifeu.edicards.Constants.Constants;
-import net.ifeu.edicards.DataTier.Factories.Factory;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 
 public class Reporting {
 	
@@ -44,10 +43,10 @@ public class Reporting {
 		public int Nuevos;
 		public int Retirados;
 		public int Visitas;
-		public String InicialSerieA = Constants.EMPTY_STRING;
-		public String FinalSeriaA = Constants.EMPTY_STRING;
-		public String InicialSerieB = Constants.EMPTY_STRING;
-		public String FinalSerieB = Constants.EMPTY_STRING;
+		public String InicialSerieA = ConstantsTypes.EMPTY_STRING;
+		public String FinalSeriaA = ConstantsTypes.EMPTY_STRING;
+		public String InicialSerieB = ConstantsTypes.EMPTY_STRING;
+		public String FinalSerieB = ConstantsTypes.EMPTY_STRING;
 		public double TotalSerieA;
 		public double TotalSerieB;
 		public double CantidadPagadaSerieA;

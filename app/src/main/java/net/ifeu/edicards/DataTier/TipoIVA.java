@@ -4,13 +4,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 
-import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 
 public class TipoIVA extends Persistent implements IPersistable {
@@ -39,7 +38,7 @@ public class TipoIVA extends Persistent implements IPersistable {
 
 		try {
 			this.IdTipoIVA = super.getDatabaseOperations().insert(
-					Constants.TABLE_TIPOS_IVA, null, values);
+					ConstantsDatabase.TABLE_TIPOS_IVA, null, values);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -49,24 +48,24 @@ public class TipoIVA extends Persistent implements IPersistable {
 	@Override
 	public void clean() throws Exception {
 		super.getDatabaseOperations().deleteAllRecords(
-				Constants.TABLE_TIPOS_IVA);
+				ConstantsDatabase.TABLE_TIPOS_IVA);
 	}
 
 	public int getRecordsCount() {
 		return super.getDatabaseOperations().getRecordsCount(
-				Constants.TABLE_TIPOS_IVA);
+				ConstantsDatabase.TABLE_TIPOS_IVA);
 	}
 
 	public boolean setTipoIVAByClienteArticulo(Cliente cliente,
 			Articulo articulo) throws Exception {
 
 		// Cursor cursor =
-		// super.getDatabaseOperations().getRecordsFromField(Constants.TABLE_TIPOS_IVA,
+		// super.getDatabaseOperations().getRecordsFromField(ConstantsDatabase.TABLE_TIPOS_IVA,
 		// "Articulo", String.valueOf(articulo.TipoIVA), false,
 		// "AND Filiacion = '" + cliente.Filiacion + "'",null);
 
 		Cursor cursor = super.getDatabaseOperations().executeSentence(
-				"SELECT * FROM " + Constants.TABLE_TIPOS_IVA
+				"SELECT * FROM " + ConstantsDatabase.TABLE_TIPOS_IVA
 						+ " WHERE Articulo='"
 						+ articulo.TipoIVA
 						+ "' AND Filiacion = '" + cliente.Filiacion + "'");
@@ -146,7 +145,7 @@ public class TipoIVA extends Persistent implements IPersistable {
 		Cursor cursor = super.getDatabaseOperations().executeSentence(
 				"SELECT * FROM TiposIVA WHERE Filiacion = '" + code + "' ORDER BY Fecha DESC");
 		
-		String item = Constants.EMPTY_STRING;
+		String item = ConstantsTypes.EMPTY_STRING;
 		
 		if (cursor != null) {
 			cursor.moveToFirst();

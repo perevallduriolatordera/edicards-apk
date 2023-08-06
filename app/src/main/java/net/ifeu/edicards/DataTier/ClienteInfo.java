@@ -1,12 +1,11 @@
 package net.ifeu.edicards.DataTier;
 
-import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 
 public class ClienteInfo extends Persistent implements IPersistable {
@@ -18,20 +17,20 @@ public class ClienteInfo extends Persistent implements IPersistable {
 	
 	public ClienteInfo()
 	{
-		this.CCC = Constants.EMPTY_STRING;
-		this.Representante = Constants.EMPTY_STRING;
-		this.DniRepresentante = Constants.EMPTY_STRING;
+		this.CCC = ConstantsTypes.EMPTY_STRING;
+		this.Representante = ConstantsTypes.EMPTY_STRING;
+		this.DniRepresentante = ConstantsTypes.EMPTY_STRING;
 	}
 	
 	public void assignCCC(String codigoBanco, String codigoAgencia, String digitoControl, String numeroCuenta, String iban)
 	{
-		if (!codigoBanco.equals(Constants.EMPTY_STRING) && !codigoAgencia.equals(Constants.EMPTY_STRING) &&
-			!digitoControl.equals(Constants.EMPTY_STRING) && !numeroCuenta.equals(Constants.EMPTY_STRING) &&
-			!iban.equals(Constants.EMPTY_STRING))
+		if (!codigoBanco.equals(ConstantsTypes.EMPTY_STRING) && !codigoAgencia.equals(ConstantsTypes.EMPTY_STRING) &&
+			!digitoControl.equals(ConstantsTypes.EMPTY_STRING) && !numeroCuenta.equals(ConstantsTypes.EMPTY_STRING) &&
+			!iban.equals(ConstantsTypes.EMPTY_STRING))
 			
 			this.CCC = iban + "-" + codigoBanco + "-" + codigoAgencia + "-" + digitoControl + "-" + numeroCuenta; 
 		else
-			this.CCC = Constants.EMPTY_STRING;
+			this.CCC = ConstantsTypes.EMPTY_STRING;
 	}
 
 	@Override
@@ -46,7 +45,7 @@ public class ClienteInfo extends Persistent implements IPersistable {
 			
 			
 			try {
-				super.getDatabaseOperations().insert(Constants.TABLE_CLIENTES_INFO, null , values);
+				super.getDatabaseOperations().insert(ConstantsDatabase.TABLE_CLIENTES_INFO, null , values);
 			}
 			catch (Exception e) {
 				throw new RuntimeException(e);
@@ -67,12 +66,12 @@ public class ClienteInfo extends Persistent implements IPersistable {
 		
 		String[] whereArgs = { String.valueOf(this.Cliente.IdCliente) }; 
 		
-	    super.getDatabaseOperations().update(Constants.TABLE_CLIENTES_INFO, values, "IdCliente = ?", whereArgs);
+	    super.getDatabaseOperations().update(ConstantsDatabase.TABLE_CLIENTES_INFO, values, "IdCliente = ?", whereArgs);
 	}	
 	
 	public boolean setClienteInfoByCliente(Cliente cliente) throws Exception
 	{
-		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(Constants.TABLE_CLIENTES_INFO, "IdCliente", String.valueOf(cliente.IdCliente), false);
+		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(ConstantsDatabase.TABLE_CLIENTES_INFO, "IdCliente", String.valueOf(cliente.IdCliente), false);
 		
 		if (cursor != null)
 		{
@@ -95,7 +94,7 @@ public class ClienteInfo extends Persistent implements IPersistable {
 	{
 		
 		boolean result;
-		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(Constants.TABLE_CLIENTES_INFO, "IdCliente", String.valueOf(cliente.IdCliente), false);
+		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(ConstantsDatabase.TABLE_CLIENTES_INFO, "IdCliente", String.valueOf(cliente.IdCliente), false);
 		
 		if (cursor != null)
 		{		

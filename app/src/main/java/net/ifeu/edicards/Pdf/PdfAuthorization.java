@@ -4,7 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Date;
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.DataTier.Deposito;
 import android.content.Context;
 import android.os.Environment;
@@ -90,7 +90,7 @@ public class PdfAuthorization extends pdfBase{
 		_document = new Document();
 
 		_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
-				+ Constants.FOLDER_ROOT + "/" + Constants.FOLDER_AUTORIZACIONES + "/"
+				+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_AUTORIZACIONES + "/"
 				+ "A_" + _app.getUser().User + " " + _deposito.CodigoCliente + "_"
 				+ this.getDateTimeFormatLong() + ".pdf";
 

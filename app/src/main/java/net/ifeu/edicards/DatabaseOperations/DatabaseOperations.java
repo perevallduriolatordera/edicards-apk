@@ -12,12 +12,13 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
+import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.library.Database.DatabaseConnection;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 
 
 public class DatabaseOperations {
@@ -29,7 +30,7 @@ public class DatabaseOperations {
 		_context = context;
 		
 		try {
-			_databaseConnection = new DatabaseConnection(_context,Constants.DATABASE_NAME,Constants.DATABASE_VERSION);
+			_databaseConnection = new DatabaseConnection(_context, ConstantsDatabase.DATABASE_NAME,ConstantsDatabase.DATABASE_VERSION);
 			_databaseConnection.openDB();
 		}
 		catch (Exception e)
@@ -39,18 +40,18 @@ public class DatabaseOperations {
 		
 		// Creem l'estructura de base de dades en el cas de que sigui necessari.
 		
-		if (!existsTable(Constants.TABLE_CLIENTES)) {
+		if (!existsTable(ConstantsDatabase.TABLE_CLIENTES)) {
 			_databaseConnection.closeDB();
 			boolean resultRestore = this.restoreDatabase();
 			if (!resultRestore) {
-				_databaseConnection = new DatabaseConnection(_context,Constants.DATABASE_NAME,Constants.DATABASE_VERSION);
+				_databaseConnection = new DatabaseConnection(_context,ConstantsDatabase.DATABASE_NAME,ConstantsDatabase.DATABASE_VERSION);
 				_databaseConnection.openDB();
 				createDatabaseStructure();
 			} else {
 
 				try {
 
-					_databaseConnection = new DatabaseConnection(_context,Constants.DATABASE_NAME,Constants.DATABASE_VERSION);
+					_databaseConnection = new DatabaseConnection(_context,ConstantsDatabase.DATABASE_NAME,ConstantsDatabase.DATABASE_VERSION);
 					_databaseConnection.openDB();
 					this.createDatabaseStructureIfNecessary();
 				}
@@ -120,8 +121,8 @@ public class DatabaseOperations {
 	}
 
 	public boolean restoreDatabase() {
-		String backupFileName = "/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_DB_BACKUP + "/" +
-				Constants.DATABASE_NAME;
+		String backupFileName = "/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_DB_BACKUP + "/" +
+				ConstantsDatabase.DATABASE_NAME;
 
 		FileInputStream inputStreamNewDB;
 		try {
@@ -130,7 +131,7 @@ public class DatabaseOperations {
 			return false;
 		}
 
-		final File oldDB = _context.getDatabasePath(Constants.DATABASE_NAME);
+		final File oldDB = _context.getDatabasePath(ConstantsDatabase.DATABASE_NAME);
 
 		if (inputStreamNewDB != null) {
 			try {
@@ -146,7 +147,7 @@ public class DatabaseOperations {
 	}
 
 	public void backupDatabase() throws IOException {
-		final File dbFile = _context.getDatabasePath(Constants.DATABASE_NAME);
+		final File dbFile = _context.getDatabasePath(ConstantsDatabase.DATABASE_NAME);
 	    
 	    FileInputStream fis = null;
 		try {
@@ -155,8 +156,8 @@ public class DatabaseOperations {
 			throw new RuntimeException(e);
 		}
 
-	    String outFileName = "/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_DB_BACKUP + "/" +                            
-				Constants.DATABASE_NAME;
+	    String outFileName = "/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_DB_BACKUP + "/" +
+				ConstantsDatabase.DATABASE_NAME;
 	    
 	    final File currentDb = new File(outFileName);
 	    currentDb.delete();
@@ -187,8 +188,8 @@ public class DatabaseOperations {
 	}
 
 	public Date getLastbackupDatabase() throws IOException {
-		String outFileName = "/sdcard/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_DB_BACKUP + "/" +
-				Constants.DATABASE_NAME;
+		String outFileName = "/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_DB_BACKUP + "/" +
+				ConstantsDatabase.DATABASE_NAME;
 
 		final File currentDb = new File(outFileName);
 		if (currentDb.exists())
@@ -240,19 +241,19 @@ public class DatabaseOperations {
 	{
 		Cursor cursor = null;
 		
-		if (field.equals(Constants.EMPTY_STRING) && otherConditions.equals(Constants.EMPTY_STRING))
+		if (field.equals(ConstantsTypes.EMPTY_STRING) && otherConditions.equals(ConstantsTypes.EMPTY_STRING))
 			cursor = _databaseConnection.getDatabase().query(table, new String[] {"*"}, null, null, null,null, orderByField);
-		else if (field.equals(Constants.EMPTY_STRING) && !otherConditions.equals(Constants.EMPTY_STRING))
+		else if (field.equals(ConstantsTypes.EMPTY_STRING) && !otherConditions.equals(ConstantsTypes.EMPTY_STRING))
 			cursor = _databaseConnection.getDatabase().query(table, new String[] {"*"}, "1 = 1 " + otherConditions, null, null, null, orderByField);
 		
 		else
-			if (isText && otherConditions.equals(Constants.EMPTY_STRING))
+			if (isText && otherConditions.equals(ConstantsTypes.EMPTY_STRING))
 				cursor = _databaseConnection.getDatabase().query(table, new String[] {"*"}, field + " = '" + filterText + "'", null, null, null, orderByField );
-			else if (isText && !otherConditions.equals(Constants.EMPTY_STRING))
+			else if (isText && !otherConditions.equals(ConstantsTypes.EMPTY_STRING))
 				cursor = _databaseConnection.getDatabase().query(table, new String[] {"*"}, field + " = '" + filterText + "' " + otherConditions, null, null, null, orderByField);
-			else if (!isText && !otherConditions.equals(Constants.EMPTY_STRING))
+			else if (!isText && !otherConditions.equals(ConstantsTypes.EMPTY_STRING))
 				cursor = _databaseConnection.getDatabase().query(table, new String[] {"*"}, field + " = " + filterText + " " + otherConditions, null, null, null, orderByField);
-			else if (!isText && otherConditions.equals(Constants.EMPTY_STRING))
+			else if (!isText && otherConditions.equals(ConstantsTypes.EMPTY_STRING))
 				cursor = _databaseConnection.getDatabase().query(table, new String[] {"*"}, field + " = " + filterText, null, null, null, orderByField);
 		
 		return cursor;
@@ -262,14 +263,14 @@ public class DatabaseOperations {
 	{
 		Cursor cursor = null;
 		
-		if (field.equals(Constants.EMPTY_STRING) && otherConditions.equals(Constants.EMPTY_STRING))
+		if (field.equals(ConstantsTypes.EMPTY_STRING) && otherConditions.equals(ConstantsTypes.EMPTY_STRING))
 			cursor = _databaseConnection.getDatabase().query(table, new String[] {"*"}, null, null, null, null, orderBy);
-		else if (field.equals(Constants.EMPTY_STRING) && !otherConditions.equals(Constants.EMPTY_STRING))
+		else if (field.equals(ConstantsTypes.EMPTY_STRING) && !otherConditions.equals(ConstantsTypes.EMPTY_STRING))
 			cursor = _databaseConnection.getDatabase().query(table, new String[] {"*"}, "1 = 1 " + otherConditions, null, null, null, orderBy);
 		else
-			if (otherConditions.equals(Constants.EMPTY_STRING))
+			if (otherConditions.equals(ConstantsTypes.EMPTY_STRING))
 				cursor = _databaseConnection.getDatabase().query(table, new String[] {"*"}, field + " = " + filterText, null, null, null, orderBy);
-			else if (!otherConditions.equals(Constants.EMPTY_STRING))
+			else if (!otherConditions.equals(ConstantsTypes.EMPTY_STRING))
 				cursor = _databaseConnection.getDatabase().query(table, new String[] {"*"}, field + " = " + filterText + " " + otherConditions, null, null, null, orderBy);
 		return cursor;
 	}
@@ -278,15 +279,15 @@ public class DatabaseOperations {
 	{
 		Cursor cursor = null;
 		
-		if (text.equals(Constants.EMPTY_STRING))
+		if (text.equals(ConstantsTypes.EMPTY_STRING))
 			cursor = _databaseConnection.getDatabase().query(table, new String[] {fieldShow, fieldFilter}, "1 = 1 " + otherConditions, null, null, null, orderBy);
-		else if (onlyStartsWith && otherConditions.equals(Constants.EMPTY_STRING))
+		else if (onlyStartsWith && otherConditions.equals(ConstantsTypes.EMPTY_STRING))
 			cursor = _databaseConnection.getDatabase().query(table, new String[] {fieldShow, fieldFilter}, fieldFilter + " like '" + text + "% '" + otherConditions, null, null, null, orderBy);
-		else if (!onlyStartsWith && otherConditions.equals(Constants.EMPTY_STRING))
+		else if (!onlyStartsWith && otherConditions.equals(ConstantsTypes.EMPTY_STRING))
 			cursor = _databaseConnection.getDatabase().query(table, new String[] {fieldShow, fieldFilter}, fieldFilter + " like '%" + text + "%' " + otherConditions, null, null, null, orderBy);
-		else if (onlyStartsWith && !otherConditions.equals(Constants.EMPTY_STRING))
+		else if (onlyStartsWith && !otherConditions.equals(ConstantsTypes.EMPTY_STRING))
 			cursor = _databaseConnection.getDatabase().query(table, new String[] {fieldShow, fieldFilter}, fieldFilter + " like '" + text + "%' " + otherConditions, null, null, null, orderBy);
-		else if (!onlyStartsWith && !otherConditions.equals(Constants.EMPTY_STRING))
+		else if (!onlyStartsWith && !otherConditions.equals(ConstantsTypes.EMPTY_STRING))
 			cursor = _databaseConnection.getDatabase().query(table, new String[] {fieldShow, fieldFilter}, fieldFilter + " like '%" + text + "%' " + otherConditions, null, null, null, orderBy);	
 		
 		LinkedList<String> result = new LinkedList<>();
@@ -381,25 +382,25 @@ public class DatabaseOperations {
 	
 	private void createIndexs() {
 		try {
-			createIndex(Constants.INDEX_DEPOSITO_CODIGOCLIENTE, Constants.TABLE_DEPOSITOS, 
+			createIndex(ConstantsDatabase.INDEX_DEPOSITO_CODIGOCLIENTE, ConstantsDatabase.TABLE_DEPOSITOS, 
 					 new ArrayList<>(Arrays.asList("CodigoCliente")));
-			createIndex(Constants.INDEX_DEPOSITO_NUMDOC, Constants.TABLE_DEPOSITOS, 
+			createIndex(ConstantsDatabase.INDEX_DEPOSITO_NUMDOC, ConstantsDatabase.TABLE_DEPOSITOS, 
 					 new ArrayList<>(Arrays.asList("NumDoc")));
-			createIndex(Constants.INDEX_DEPOSITO_IDCLIENTE, Constants.TABLE_DEPOSITOS, 
+			createIndex(ConstantsDatabase.INDEX_DEPOSITO_IDCLIENTE, ConstantsDatabase.TABLE_DEPOSITOS, 
 					 new ArrayList<>(Arrays.asList("IdCliente")));
-			createIndex(Constants.INDEX_DEPOSITO_FECHADEPOSITO, Constants.TABLE_DEPOSITOS, 
+			createIndex(ConstantsDatabase.INDEX_DEPOSITO_FECHADEPOSITO, ConstantsDatabase.TABLE_DEPOSITOS, 
 					 new ArrayList<>(Arrays.asList("FechaDeposito")));
-			createIndex(Constants.INDEX_LINEADEPOSITO_IDDEPOSITO, Constants.TABLE_LINEAS_DEPOSITO, 
+			createIndex(ConstantsDatabase.INDEX_LINEADEPOSITO_IDDEPOSITO, ConstantsDatabase.TABLE_LINEAS_DEPOSITO, 
 					 new ArrayList<>(Arrays.asList("IdDeposito")));
-			createIndex(Constants.INDEX_LINEADEPOSITO_IDDEPOSITO_IDARTICULO, Constants.TABLE_LINEAS_DEPOSITO, 
+			createIndex(ConstantsDatabase.INDEX_LINEADEPOSITO_IDDEPOSITO_IDARTICULO, ConstantsDatabase.TABLE_LINEAS_DEPOSITO, 
 					 new ArrayList<>(Arrays.asList("IdDeposito","IdArticulo")));
-			createIndex(Constants.INDEX_TARIFA_IDARTICULO_CODIGOTARIFA, Constants.TABLE_TARIFAS, 
+			createIndex(ConstantsDatabase.INDEX_TARIFA_IDARTICULO_CODIGOTARIFA, ConstantsDatabase.TABLE_TARIFAS, 
 					 new ArrayList<>(Arrays.asList("IdArticulo","CodigoTarifa")));
-			createIndex(Constants.INDEX_PACTOS_IDARTICULO, Constants.TABLE_PACTOS, 
+			createIndex(ConstantsDatabase.INDEX_PACTOS_IDARTICULO, ConstantsDatabase.TABLE_PACTOS, 
 					 new ArrayList<>(Arrays.asList("IdArticulo")));
-			createIndex(Constants.INDEX_ARTICULOS_ACTIVO_TIPO, Constants.TABLE_ARTICULOS, 
+			createIndex(ConstantsDatabase.INDEX_ARTICULOS_ACTIVO_TIPO, ConstantsDatabase.TABLE_ARTICULOS, 
 					 new ArrayList<>(Arrays.asList("Activo","Tipo")));
-			createIndex(Constants.INDEX_LOGBOOK_FECHA, Constants.TABLE_LOGBOOK,
+			createIndex(ConstantsDatabase.INDEX_LOGBOOK_FECHA, ConstantsDatabase.TABLE_LOGBOOK,
 					new ArrayList<>(Arrays.asList("Fecha")));
 		}
 		catch (Exception e) {
@@ -410,24 +411,24 @@ public class DatabaseOperations {
 	private void dropTables()
 	{
 		try {
-			dropTable(Constants.TABLE_CLIENTES);
-			dropTable(Constants.TABLE_ARTICULOS);
-			dropTable(Constants.TABLE_MOVIMIENTOS_ALMACEN);
-			dropTable(Constants.TABLE_DEPOSITOS);
-			dropTable(Constants.TABLE_LINEAS_DEPOSITO);
-			dropTable(Constants.TABLE_TARIFAS);
-			dropTable(Constants.TABLE_PACTOS);
-			dropTable(Constants.TABLE_TIPOS_IVA); 
-			dropTable(Constants.TABLE_FORMAS_PAGO);
-			dropTable(Constants.TABLE_GASTOS);
-			dropTable(Constants.TABLE_HISTORICOS);
-			dropTable(Constants.TABLE_LINEAS_HISTORICO);
-			dropTable(Constants.TABLE_CONTADORES);
-			dropTable(Constants.TABLE_CLIENTES_INFO);
-			dropTable(Constants.TABLE_GASTOS_INFO);
-			dropTable(Constants.TABLE_INGRESOS);
-			dropTable(Constants.TABLE_GDPR);
-			dropTable(Constants.TABLE_LOGBOOK);
+			dropTable(ConstantsDatabase.TABLE_CLIENTES);
+			dropTable(ConstantsDatabase.TABLE_ARTICULOS);
+			dropTable(ConstantsDatabase.TABLE_MOVIMIENTOS_ALMACEN);
+			dropTable(ConstantsDatabase.TABLE_DEPOSITOS);
+			dropTable(ConstantsDatabase.TABLE_LINEAS_DEPOSITO);
+			dropTable(ConstantsDatabase.TABLE_TARIFAS);
+			dropTable(ConstantsDatabase.TABLE_PACTOS);
+			dropTable(ConstantsDatabase.TABLE_TIPOS_IVA); 
+			dropTable(ConstantsDatabase.TABLE_FORMAS_PAGO);
+			dropTable(ConstantsDatabase.TABLE_GASTOS);
+			dropTable(ConstantsDatabase.TABLE_HISTORICOS);
+			dropTable(ConstantsDatabase.TABLE_LINEAS_HISTORICO);
+			dropTable(ConstantsDatabase.TABLE_CONTADORES);
+			dropTable(ConstantsDatabase.TABLE_CLIENTES_INFO);
+			dropTable(ConstantsDatabase.TABLE_GASTOS_INFO);
+			dropTable(ConstantsDatabase.TABLE_INGRESOS);
+			dropTable(ConstantsDatabase.TABLE_GDPR);
+			dropTable(ConstantsDatabase.TABLE_LOGBOOK);
 			
 		}
 		catch (Exception e) {
@@ -510,7 +511,7 @@ public class DatabaseOperations {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
-				_databaseConnection.getDatabase().execSQL("create table if not exists " + Constants.TABLE_CLIENTES + " ( IdCliente integer primary key autoincrement, "
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_CLIENTES + " ( IdCliente integer primary key autoincrement, "
 														  + "Activo integer, "
 						                                  + "CodigoCliente text not null, "
 						                                  + "NIF text not null, "
@@ -537,12 +538,12 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_CLIENTES + ". Motivo: " + e.getMessage());
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_CLIENTES + ". Motivo: " + e.getMessage());
 			}
 			
 		}
 		else {
-			throw new Exception("Error creando la tabla " + Constants.TABLE_CLIENTES + ". Motivo: La Base de datos no ha podido ser abierta.");
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_CLIENTES + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
 	}
@@ -552,7 +553,7 @@ public class DatabaseOperations {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
-				_databaseConnection.getDatabase().execSQL("create table if not exists " + Constants.TABLE_DEPOSITOS + " ( IdDeposito integer primary key autoincrement, "
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_DEPOSITOS + " ( IdDeposito integer primary key autoincrement, "
 														  + "FechaDeposito date default CURRENT_DATE, "
 														  + "Ejercicio text not null, "
 														  + "IdCliente integer not null, "
@@ -579,12 +580,12 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_DEPOSITOS + ". Motivo: " + e.getMessage());
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_DEPOSITOS + ". Motivo: " + e.getMessage());
 			}
 			
 		}
 		else {
-			throw new Exception("Error creando la tabla " + Constants.TABLE_DEPOSITOS + ". Motivo: La Base de datos no ha podido ser abierta.");
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_DEPOSITOS + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
 	}
@@ -594,7 +595,7 @@ public class DatabaseOperations {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
-				_databaseConnection.getDatabase().execSQL("create table if not exists " + Constants.TABLE_LINEAS_DEPOSITO + " ( IdLineaDeposito integer primary key autoincrement, "
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_LINEAS_DEPOSITO + " ( IdLineaDeposito integer primary key autoincrement, "
 														  + "IdDeposito integer not null, "
 						                                  + "IdArticulo integer not null, "
 						                                  + "UnidadesIniciales integer not null, "
@@ -605,12 +606,12 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_LINEAS_DEPOSITO + ". Motivo: " + e.getMessage());
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_LINEAS_DEPOSITO + ". Motivo: " + e.getMessage());
 			}
 			
 		}
 		else {
-			throw new Exception("Error creando la tabla " + Constants.TABLE_LINEAS_DEPOSITO + ". Motivo: La Base de datos no ha podido ser abierta.");
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_LINEAS_DEPOSITO + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
 	}
@@ -620,7 +621,7 @@ public class DatabaseOperations {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
-				_databaseConnection.getDatabase().execSQL("create table if not exists " + Constants.TABLE_HISTORICOS + " ( IdHistorico integer primary key autoincrement, "
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_HISTORICOS + " ( IdHistorico integer primary key autoincrement, "
 														  + "Fecha date default CURRENT_DATE, "
 														  + "IdCliente integer not null, "
 						                                  + "Serie text, "
@@ -636,12 +637,12 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_HISTORICOS + ". Motivo: " + e.getMessage());
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_HISTORICOS + ". Motivo: " + e.getMessage());
 			}
 			
 		}
 		else {
-			throw new Exception("Error creando la tabla " + Constants.TABLE_HISTORICOS + ". Motivo: La Base de datos no ha podido ser abierta.");
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_HISTORICOS + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
 	}
@@ -651,7 +652,7 @@ public class DatabaseOperations {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
-				_databaseConnection.getDatabase().execSQL("create table if not exists " + Constants.TABLE_LINEAS_HISTORICO + " ( IdLineaHistorico integer primary key autoincrement, "
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_LINEAS_HISTORICO + " ( IdLineaHistorico integer primary key autoincrement, "
 														  + "IdHistorico integer not null, "
 						                                  + "IdArticulo integer not null, "
 						                                  + "Unidades integer not null, "
@@ -661,12 +662,12 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_LINEAS_DEPOSITO + ". Motivo: " + e.getMessage());
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_LINEAS_DEPOSITO + ". Motivo: " + e.getMessage());
 			}
 			
 		}
 		else {
-			throw new Exception("Error creando la tabla " + Constants.TABLE_LINEAS_DEPOSITO + ". Motivo: La Base de datos no ha podido ser abierta.");
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_LINEAS_DEPOSITO + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
 	}
@@ -676,7 +677,7 @@ public class DatabaseOperations {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
-				_databaseConnection.getDatabase().execSQL("create table if not exists " + Constants.TABLE_TARIFAS + " ( IdTarifa integer primary key autoincrement, "
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_TARIFAS + " ( IdTarifa integer primary key autoincrement, "
 														  + "CodigoTarifa text not null, "
 														  + "IdArticulo integer not null, "
 														  + "FechaIni date, "
@@ -687,12 +688,12 @@ public class DatabaseOperations {
 				
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_TARIFAS + ". Motivo: " + e.getMessage());
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_TARIFAS + ". Motivo: " + e.getMessage());
 			}
 			
 		}
 		else {
-			throw new Exception("Error creando la tabla " + Constants.TABLE_TARIFAS + ". Motivo: La Base de datos no ha podido ser abierta.");
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_TARIFAS + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
 	}
@@ -702,7 +703,7 @@ public class DatabaseOperations {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
-				_databaseConnection.getDatabase().execSQL("create table if not exists " + Constants.TABLE_PACTOS + " ( IdPacto integer primary key autoincrement, "
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_PACTOS + " ( IdPacto integer primary key autoincrement, "
 														  + "IdArticulo integer not null, "
 						                                  + "IdCliente integer not null, "
 						                                  + "PVP real, "
@@ -711,12 +712,12 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_PACTOS + ". Motivo: " + e.getMessage());
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_PACTOS + ". Motivo: " + e.getMessage());
 			}
 			
 		}
 		else {
-			throw new Exception("Error creando la tabla " + Constants.TABLE_PACTOS + ". Motivo: La Base de datos no ha podido ser abierta.");
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_PACTOS + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 	}
 	
@@ -725,7 +726,7 @@ public class DatabaseOperations {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
-				_databaseConnection.getDatabase().execSQL("create table if not exists " + Constants.TABLE_ARTICULOS + " ( IdArticulo integer primary key autoincrement, "
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_ARTICULOS + " ( IdArticulo integer primary key autoincrement, "
 						                                  + "CodigoArticulo text not null, "
 						                                  + "Descripcion text not null, "
 						                                  + "PVP real, "
@@ -741,12 +742,12 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_ARTICULOS + ". Motivo: " + e.getMessage());
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_ARTICULOS + ". Motivo: " + e.getMessage());
 			}
 			
 		}
 		else {
-			throw new Exception("Error creando la tabla " + Constants.TABLE_ARTICULOS + ". Motivo: La Base de datos no ha podido ser abierta.");
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_ARTICULOS + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
 	}
@@ -756,7 +757,7 @@ public class DatabaseOperations {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
-				_databaseConnection.getDatabase().execSQL("create table if not exists " + Constants.TABLE_MOVIMIENTOS_ALMACEN + " ( IdMovimiento integer primary key autoincrement, "
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_MOVIMIENTOS_ALMACEN + " ( IdMovimiento integer primary key autoincrement, "
 						                                  + "IdArticulo integer not null, "
 						                                  + "Entradas integer not null, "
 						                                  + "Salidas integer not null, "
@@ -766,12 +767,12 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_MOVIMIENTOS_ALMACEN + ". Motivo: " + e.getMessage());
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_MOVIMIENTOS_ALMACEN + ". Motivo: " + e.getMessage());
 			}
 			
 		}
 		else {
-			throw new Exception("Error creando la tabla " + Constants.TABLE_MOVIMIENTOS_ALMACEN + ". Motivo: La Base de datos no ha podido ser abierta.");
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_MOVIMIENTOS_ALMACEN + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
 	}
@@ -781,7 +782,7 @@ public class DatabaseOperations {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
-				_databaseConnection.getDatabase().execSQL("create table if not exists " + Constants.TABLE_TIPOS_IVA + " ( IdTipoIVA integer primary key autoincrement, "
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_TIPOS_IVA + " ( IdTipoIVA integer primary key autoincrement, "
 						                                  + "Filiacion text not null, "
 						                                  + "Articulo text not null, "
 						                                  + "Fecha date not null, "
@@ -791,12 +792,12 @@ public class DatabaseOperations {
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_TIPOS_IVA + ". Motivo: " + e.getMessage());
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_TIPOS_IVA + ". Motivo: " + e.getMessage());
 			}
 			
 		}
 		else {
-			throw new Exception("Error creando la tabla " + Constants.TABLE_TIPOS_IVA + ". Motivo: La Base de datos no ha podido ser abierta.");
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_TIPOS_IVA + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
 	}
@@ -806,18 +807,18 @@ public class DatabaseOperations {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
-				_databaseConnection.getDatabase().execSQL("create table if not exists " + Constants.TABLE_FORMAS_PAGO + " ( IdFormaPago integer primary key autoincrement, "
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_FORMAS_PAGO + " ( IdFormaPago integer primary key autoincrement, "
 						                                  + "CodigoFormaPago text not null, "
 						                                  + "Descripcion text not null);");
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_FORMAS_PAGO + ". Motivo: " + e.getMessage());
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_FORMAS_PAGO + ". Motivo: " + e.getMessage());
 			}
 			
 		}
 		else {
-			throw new Exception("Error creando la tabla " + Constants.TABLE_FORMAS_PAGO + ". Motivo: La Base de datos no ha podido ser abierta.");
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_FORMAS_PAGO + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
 	}
@@ -827,19 +828,19 @@ public class DatabaseOperations {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
-				_databaseConnection.getDatabase().execSQL("create table if not exists " + Constants.TABLE_GASTOS + " ( IdGasto integer primary key autoincrement, "
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_GASTOS + " ( IdGasto integer primary key autoincrement, "
 														  + "IdArticulo integer not null, "
 														  + "Fecha date, "
 						                                  + "Cantidad real); ");
 				
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_TARIFAS + ". Motivo: " + e.getMessage());
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_TARIFAS + ". Motivo: " + e.getMessage());
 			}
 			
 		}
 		else {
-			throw new Exception("Error creando la tabla " + Constants.TABLE_TARIFAS + ". Motivo: La Base de datos no ha podido ser abierta.");
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_TARIFAS + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
 	}
@@ -849,18 +850,18 @@ public class DatabaseOperations {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
-				_databaseConnection.getDatabase().execSQL("create table if not exists " + Constants.TABLE_CONTADORES + " ( IdContador integer primary key autoincrement, "
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_CONTADORES + " ( IdContador integer primary key autoincrement, "
 														  + "ContadorSerieA integer not null, "
 						                                  + "ContadorSerieB integer not null); ");
 				
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_CONTADORES + ". Motivo: " + e.getMessage());
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_CONTADORES + ". Motivo: " + e.getMessage());
 			}
 			
 		}
 		else {
-			throw new Exception("Error creando la tabla " + Constants.TABLE_CONTADORES + ". Motivo: La Base de datos no ha podido ser abierta.");
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_CONTADORES + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
 	}
@@ -870,7 +871,7 @@ public class DatabaseOperations {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
-				_databaseConnection.getDatabase().execSQL("create table if not exists " + Constants.TABLE_CLIENTES_INFO + " ( IdCliente integer primary key not null , "
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_CLIENTES_INFO + " ( IdCliente integer primary key not null , "
 														  + "Representante text, " 
 														  + "DniRepresentante text, " 
 						                                  + "CCC text); ");
@@ -882,7 +883,7 @@ public class DatabaseOperations {
 			
 		}
 		else {
-			throw new Exception("Error creando la tabla " + Constants.TABLE_CLIENTES_INFO + ". Motivo: La Base de datos no ha podido ser abierta.");
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_CLIENTES_INFO + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
 	}
@@ -892,18 +893,18 @@ public class DatabaseOperations {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
-				_databaseConnection.getDatabase().execSQL("create table if not exists " + Constants.TABLE_GASTOS_INFO + " ( IdGastoInfo integer primary key autoincrement , "
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_GASTOS_INFO + " ( IdGastoInfo integer primary key autoincrement , "
 														  + "Fecha date, " 
 						                                  + "Comentario text); ");
 															
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_GASTOS_INFO + ". Motivo: " + e.getMessage());
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_GASTOS_INFO + ". Motivo: " + e.getMessage());
 			}
 			
 		}
 		else {
-			throw new Exception("Error creando la tabla " + Constants.TABLE_GASTOS_INFO + ". Motivo: La Base de datos no ha podido ser abierta.");
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_GASTOS_INFO + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
 	}
@@ -913,7 +914,7 @@ public class DatabaseOperations {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
-				_databaseConnection.getDatabase().execSQL("create table if not exists " + Constants.TABLE_INGRESOS + " ( IdIngreso integer primary key autoincrement, "
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_INGRESOS + " ( IdIngreso integer primary key autoincrement, "
 														  + "Entidad text not null, "
 														  + "Referencia text not null, "
 														  + "Descripcion text not null, "
@@ -922,12 +923,12 @@ public class DatabaseOperations {
 				
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_INGRESOS + ". Motivo: " + e.getMessage());
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_INGRESOS + ". Motivo: " + e.getMessage());
 			}
 			
 		}
 		else {
-			throw new Exception("Error creando la tabla " + Constants.TABLE_INGRESOS + ". Motivo: La Base de datos no ha podido ser abierta.");
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_INGRESOS + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
 	}
@@ -937,17 +938,17 @@ public class DatabaseOperations {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
-				_databaseConnection.getDatabase().execSQL("create table if not exists " + Constants.TABLE_GDPR + " ( IdGDPR integer primary key autoincrement, "
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_GDPR + " ( IdGDPR integer primary key autoincrement, "
 														  + "CodigoCliente text not null); ");
 				
 			} 
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_GDPR + ". Motivo: " + e.getMessage());
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_GDPR + ". Motivo: " + e.getMessage());
 			}
 			
 		}
 		else {
-			throw new Exception("Error creando la tabla " + Constants.TABLE_GDPR + ". Motivo: La Base de datos no ha podido ser abierta.");
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_GDPR + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
 	}
@@ -957,7 +958,7 @@ public class DatabaseOperations {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
-				_databaseConnection.getDatabase().execSQL("create table if not exists " + Constants.TABLE_LOGBOOK + " ( IdLogBook integer primary key autoincrement, "
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_LOGBOOK + " ( IdLogBook integer primary key autoincrement, "
 						+ "Fecha date default CURRENT_DATE," +
 						  "TipoMovimiento text not null," +
 						  "CodigoCliente text not null," +
@@ -975,12 +976,12 @@ public class DatabaseOperations {
 						  "UnidadesDefectuosasAbono integer); ");
 			}
 			catch (Exception e) {
-				throw new Exception("Error creando la tabla " + Constants.TABLE_LOGBOOK + ". Motivo: " + e.getMessage());
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_LOGBOOK + ". Motivo: " + e.getMessage());
 			}
 
 		}
 		else {
-			throw new Exception("Error creando la tabla " + Constants.TABLE_LOGBOOK + ". Motivo: La Base de datos no ha podido ser abierta.");
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_LOGBOOK + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 
 	}
@@ -989,20 +990,20 @@ public class DatabaseOperations {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
-				_databaseConnection.getDatabase().execSQL("alter table " + Constants.TABLE_LINEAS_HISTORICO + " ADD COLUMN PVP REAL default null ");
+				_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_LINEAS_HISTORICO + " ADD COLUMN PVP REAL default null ");
 			} 
 			catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 
 			try {
-				_databaseConnection.getDatabase().execSQL("alter table " + Constants.TABLE_ARTICULOS + " ADD COLUMN StockPropio integer NOT NULL default 1 ");
+				_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_ARTICULOS + " ADD COLUMN StockPropio integer NOT NULL default 1 ");
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 
 			try {
-				_databaseConnection.getDatabase().execSQL("alter table " + Constants.TABLE_HISTORICOS + " ADD COLUMN ActualizarStock integer NOT NULL default 1 ");
+				_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_HISTORICOS + " ADD COLUMN ActualizarStock integer NOT NULL default 1 ");
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}

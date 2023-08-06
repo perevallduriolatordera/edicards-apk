@@ -19,9 +19,8 @@ import android.widget.LinearLayout.LayoutParams;
 import com.itextpdf.text.DocumentException;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Articulo;
-import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.FormaPago;
@@ -69,7 +68,7 @@ public class DepositManagerExtension {
 			double cantidadPagada = DepositManagerExtension.DataTier.getCantidadPagada(config);
 			double ingresos = getIngresos(config);
 
-			return Constants.MAXIMO_SIN_INGRESAR <= (cantidadPagada - ingresos);
+			return ConstantsTypes.MAXIMO_SIN_INGRESAR <= (cantidadPagada - ingresos);
 		}
 		
 		public static FormaPago getFormaPagoByDescripcion(String descripcion, AppConfig config) throws Exception {
@@ -88,12 +87,12 @@ public class DepositManagerExtension {
 		}
 		
 		public static boolean IsCustomerDataFilled(Deposito deposito) {
-			return !(deposito.NIF.trim().equals(Constants.EMPTY_STRING)
-					|| deposito.Nombre.trim().equals(Constants.EMPTY_STRING)
-					|| deposito.Direccion1.trim().equals(Constants.EMPTY_STRING)
-					|| deposito.Poblacion.trim().equals(Constants.EMPTY_STRING)
-					|| deposito.Provincia.trim().equals(Constants.EMPTY_STRING)
-					|| deposito.CodigoPostal.trim().equals(Constants.EMPTY_STRING));
+			return !(deposito.NIF.trim().equals(ConstantsTypes.EMPTY_STRING)
+					|| deposito.Nombre.trim().equals(ConstantsTypes.EMPTY_STRING)
+					|| deposito.Direccion1.trim().equals(ConstantsTypes.EMPTY_STRING)
+					|| deposito.Poblacion.trim().equals(ConstantsTypes.EMPTY_STRING)
+					|| deposito.Provincia.trim().equals(ConstantsTypes.EMPTY_STRING)
+					|| deposito.CodigoPostal.trim().equals(ConstantsTypes.EMPTY_STRING));
 		}
 		
 		public static boolean IsSerieA(ComboBox combo, AppConfig config) {
@@ -106,7 +105,7 @@ public class DepositManagerExtension {
 			if (position >= 0)
 				return value.substring(0, position);
 			else
-				return Constants.EMPTY_STRING;
+				return ConstantsTypes.EMPTY_STRING;
 		}
 
 		public static boolean isTransferPayment(FormaPago pago) {
@@ -199,7 +198,7 @@ public class DepositManagerExtension {
 				pdf.createDeposito(GUID);
 
 			if (!TextUtils.isEmpty(deposito.NumeroAlbaran))
-				pdf.createAlbaran(GUID, DataTier.isTransferPayment(deposito.formaPago));
+				pdf.createAlbaran(GUID, DataTier.isTransferPayment(deposito.FormaPago));
 		}
 	
 		public static void GenerateAuthorization(String GUID, Deposito deposito, AppConfig config) throws FileNotFoundException, DocumentException {

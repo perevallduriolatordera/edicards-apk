@@ -9,12 +9,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsFolders;
 
 import org.xmlpull.v1.XmlSerializer;
 
 import android.os.Environment;
-import android.util.Log;
 import android.util.Xml;
 
 public class Trace {
@@ -50,7 +49,7 @@ public class Trace {
 			
 		 String fileName = this.Name + "_" + formatterName.format(new Date()) + ".xml";
 		 
-		 File newxmlfile = new File(Environment.getExternalStorageDirectory().toString() + "/" + Constants.FOLDER_ROOT + "/" + Constants.FOLDER_TRACE + "/" + fileName);
+		 File newxmlfile = new File(Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_TRACE + "/" + fileName);
 	        try {
 	            newxmlfile.createNewFile();
 	        }catch(IOException e)

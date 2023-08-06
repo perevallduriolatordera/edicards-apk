@@ -2,9 +2,9 @@ package net.ifeu.edicards.DataTier;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.util.Log;
 
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
@@ -16,11 +16,17 @@ public class Gasto extends Persistent implements IPersistable {
 
 	public long IdGasto;
 	public Date Fecha;
-	public Articulo Articulo = Factory.build(Articulo.class, appConfig);
+	public Articulo Articulo;
 	public double Cantidad; 
 	public boolean IsNew;
 
 	@Override
+	public void InitializePersistance(AppConfig appConfigParam) {
+		super.InitializePersistance(appConfigParam);
+		this.Articulo = Factory.build(Articulo.class, appConfigParam);
+	}
+
+		@Override
 	public void save() throws Exception {
 				
 		SimpleDateFormat formatter;
@@ -32,7 +38,7 @@ public class Gasto extends Persistent implements IPersistable {
 		values.put("Cantidad", this.Cantidad);
 
 		try {
-			this.IdGasto = super.getDatabaseOperations().insert(Constants.TABLE_GASTOS, null , values);
+			this.IdGasto = super.getDatabaseOperations().insert(ConstantsDatabase.TABLE_GASTOS, null , values);
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -55,12 +61,12 @@ public class Gasto extends Persistent implements IPersistable {
 
 		String[] whereArgs = { String.valueOf(this.IdGasto) }; 
 		
-	    super.getDatabaseOperations().update(Constants.TABLE_GASTOS, values, "IdGasto = ?", whereArgs);
+	    super.getDatabaseOperations().update(ConstantsDatabase.TABLE_GASTOS, values, "IdGasto = ?", whereArgs);
 	}
 	
 	public int getRecordsCount()
 	{
-		return super.getDatabaseOperations().getRecordsCount(Constants.TABLE_GASTOS);
+		return super.getDatabaseOperations().getRecordsCount(ConstantsDatabase.TABLE_GASTOS);
 	}
 
 	public boolean setGastoByFechaArticulo(Date fecha, Articulo articuloSearch) throws Exception
@@ -68,7 +74,7 @@ public class Gasto extends Persistent implements IPersistable {
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("dd/MM/yyyy");
 
-		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + Constants.TABLE_GASTOS + " WHERE Fecha='" +
+		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + ConstantsDatabase.TABLE_GASTOS + " WHERE Fecha='" +
 				formatter.format(fecha) + "' AND IdArticulo = " + articuloSearch.IdArticulo);
 		
 		if (cursor != null)

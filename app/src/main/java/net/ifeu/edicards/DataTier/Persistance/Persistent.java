@@ -19,7 +19,6 @@ public abstract class Persistent implements IPersistable {
 	public void InitializePersistance(AppConfig appConfigParam) {
 		appConfig = appConfigParam;
 
-
 		_databaseOperations = appConfig.getDatabaseOperations();
 
 		try {

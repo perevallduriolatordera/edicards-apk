@@ -5,14 +5,12 @@ import java.util.List;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Application.WorkingArea;
-import net.ifeu.edicards.Constants.Constants;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Factories.Factory;
-import net.ifeu.edicards.DataTier.LineaDeposito;
 
 import android.app.ListActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -22,7 +20,7 @@ public class CustomerSearchListDialog extends ListActivity {
 
 	List<String> _customers = new ArrayList<>();
 	AppConfig _appConfig;
-	String _customerSelected = Constants.EMPTY_STRING;
+	String _customerSelected = ConstantsTypes.EMPTY_STRING;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -78,7 +76,7 @@ public class CustomerSearchListDialog extends ListActivity {
 		if (position >= 0)
 			return value.substring(0, position);
 		else
-			return Constants.EMPTY_STRING;
+			return ConstantsTypes.EMPTY_STRING;
 	}
 
 	private String getClienteName(String value) {
@@ -89,7 +87,7 @@ public class CustomerSearchListDialog extends ListActivity {
 			int position2 = newValue.indexOf(" --- ");
 			return newValue.substring(0, position2);
 		} else
-			return Constants.EMPTY_STRING;
+			return ConstantsTypes.EMPTY_STRING;
 	}
 
 	public void onClick(View view) throws Exception {
@@ -106,7 +104,7 @@ public class CustomerSearchListDialog extends ListActivity {
 
 			// Asignamos el cliente a la workingArea
 
-			if (!_customerSelected.equals(Constants.EMPTY_STRING)) {
+			if (!_customerSelected.equals(ConstantsTypes.EMPTY_STRING)) {
 				AppConfig app = (AppConfig) this.getApplicationContext();
 				WorkingArea workingArea = app.getWorkingArea();
 

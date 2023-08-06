@@ -36,16 +36,16 @@ public class Totals extends Activity {
         params.height = LayoutParams.FILL_PARENT;
         params.width  = 1000;
         getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
-        
-    	ButtonColor button = this.addButton(this, Color.WHITE, "Cerrar pantalla", 14, 150, null);
-    	button.setOnClickListener(arg0 -> finish());
-    	
-		_mainLayout.addView(button);
-    	
+
 		fillBases();
 		fillTotals();
-		
-    }
+
+		ButtonColor button = this.addCloseButton(Color.WHITE, "Cerrar pantalla", 14, 150);
+		button.setOnClickListener(arg0 -> finish());
+
+		_mainLayout.addView(button);
+
+	}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -69,21 +69,9 @@ public class Totals extends Activity {
 		layout.addView(this.addCounter("Total IVA", dec.format(totales.TotalIVA) + " €  ", Color.BLUE, false));
 		layout.addView(this.addCounter("Total Recargo", dec.format(totales.TotalRecargo) + " €  ", Color.BLUE, false));
 		layout.addView(this.addCounter("Total Albarán", dec.format(totales.Total) + " €  ", Color.BLUE, false));
-    	
-    	ButtonColor button = this.addButton(this, Color.WHITE, "Cerrar pantalla", 14, 150, null);
-    	button.setOnClickListener(new OnClickListener() {
 
-			@Override
-			public void onClick(View arg0) {
-
-				finish();				
-			}
-		});
-
-    	
 		_mainLayout.addView(layout);
-    	
- 
+
     }
     
     private void fillBases()
@@ -156,15 +144,18 @@ public class Totals extends Activity {
     	
 	}
     
-	public ButtonColor addButton(Context context, int color, String text, int size, int width, LayoutParams params) {
-		ButtonColor button = new ButtonColor(context, color);
+	public ButtonColor addCloseButton(int color, String text, int size, int width) {
+		ButtonColor button = new ButtonColor(this, color, getResources().getDrawable(R.drawable.ic_close));
 
 		button.setText(text);
 		button.setTextSize(size);
 		button.setWidth(width);
-		button.setTextColor(Color.WHITE);
-		if (params!= null) button.setLayoutParams(params);
-		
+		button.setTextColor(Color.BLACK);
+
+		LayoutParams customParams = new LayoutParams(width, 40);
+		customParams.setMargins(0, 30, 0 , 30);
+		button.setLayoutParams(customParams);
+
 		return button;
 	}
 
