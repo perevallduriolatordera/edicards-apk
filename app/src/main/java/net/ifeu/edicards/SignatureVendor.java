@@ -9,7 +9,6 @@ import android.view.View;
 public class SignatureVendor extends Activity {
 
 	private Bundle _bundle;
-	private SignatureView _signature;
 	AppConfig _app;
 	Boolean _isSaved = false;
 
@@ -27,9 +26,9 @@ public class SignatureVendor extends Activity {
 	public void OnClick(View v) {
 		// final SignatureView signature = (SignatureView)
 		// this.findViewById(R.id.signatureView);
-		_signature = (SignatureView) this.findViewById(R.id.signatureView);
-		_signature.save(2, _app.getWorkingArea().CurrentHistorico.GUID);
-		_signature.saveBitmap1Color(2, _app.getWorkingArea().CurrentHistorico.GUID);
+		SignatureView signature = (SignatureView) this.findViewById(R.id.signatureView);
+		signature.save(2, _app.getWorkingArea().CurrentHistorico.GUID);
+		signature.saveBitmap1Color(2, _app.getWorkingArea().CurrentHistorico.GUID);
 		_isSaved = true;
 
 		finish();

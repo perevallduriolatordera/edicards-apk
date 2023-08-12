@@ -1,6 +1,5 @@
 package net.ifeu.edicards;
 
-import android.annotation.SuppressLint;
 import android.app.ActionBar.LayoutParams;
 import android.content.Context;
 import android.graphics.Color;
@@ -237,8 +236,8 @@ public class GastosManager extends Fragment {
 			int FIELDS_WIDTH = 200;
 			cantidad.setWidth(FIELDS_WIDTH);
 	    	cantidad.setKeyListener(DigitsKeyListener.getInstance(false,true));
-	    	InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-	    	imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+
+			InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 	    	imm.showSoftInput(cantidad, InputMethodManager.SHOW_IMPLICIT);
 	    	cantidad.setLayoutParams(params);
 	    	cantidad.setTag(gasto);

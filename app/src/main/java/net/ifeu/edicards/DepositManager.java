@@ -1994,9 +1994,9 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
+				break;
 			}
 
-			break;
 			case "EventCustomerNew": {
 
 				try {
@@ -2013,9 +2013,12 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 					throw new RuntimeException(e);
 				}
 				_appConfig.getWorkingArea().CurrentCliente = (Cliente) payload;
+				break;
 			}
+
 			case "EventCustomerCancelled": {
 				_appConfig.getMediator().notify(ConstantsEvents.EVENT_DEPOSIT_CLOSED, null);
+				break;
 			}
 		}
 	}

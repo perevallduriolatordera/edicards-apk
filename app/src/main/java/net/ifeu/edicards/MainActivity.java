@@ -23,8 +23,6 @@ import net.ifeu.library.Utils.Inactivate;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
 public class MainActivity extends Activity {
-
-	private static final String tag = "MainActivity";
 	private AppConfig _appConfig;
 	private ServiceWorker _serviceWorker;
 
@@ -87,7 +85,7 @@ public class MainActivity extends Activity {
 
 	public void ShowAppVersion() {
 
-		PackageInfo pInfo = null;
+		PackageInfo pInfo;
 		try {
 			pInfo = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_META_DATA);
 		} catch (PackageManager.NameNotFoundException e) {

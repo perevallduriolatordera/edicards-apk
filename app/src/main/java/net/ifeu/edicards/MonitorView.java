@@ -247,7 +247,7 @@ public class MonitorView extends Fragment {
 		layout2.addView(this.createLabel("contador tipo B" , String.valueOf(contador.ContadorSerieB), false));
 
 		// Fecha de última modificación
-		Date lastModified = null;
+		Date lastModified;
 		try {
 			lastModified = this._appConfig.getDatabaseOperations().getLastbackupDatabase();
 		} catch (IOException e) {

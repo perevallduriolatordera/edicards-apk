@@ -28,13 +28,11 @@ import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.Ingresos;
 import net.ifeu.edicards.Pdf.PdfAuthorization;
 import net.ifeu.edicards.Pdf.PdfCreator;
-import net.ifeu.edicards.Printer.PrintManager;
 import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.ComboBox;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
-import net.ifeu.library.Devices.BlueTooth;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -71,7 +69,7 @@ public class DepositManagerExtension {
 			return ConstantsTypes.MAXIMO_SIN_INGRESAR <= (cantidadPagada - ingresos);
 		}
 		
-		public static FormaPago getFormaPagoByDescripcion(String descripcion, AppConfig config) throws Exception {
+		public static FormaPago getFormaPagoByDescripcion(String descripcion, AppConfig config) {
 			
 			HashMap<String, FormaPago> itemsPago;
 	
@@ -152,40 +150,7 @@ public class DepositManagerExtension {
 		
 		
 	}
-	
-	// ********************************** DEVICES *************************************
-	
-	static class Devices {
-		public static boolean PrinterStatus(boolean showMessages, AppConfig config, Context context) {
-			boolean isOKBluetooth = true;
-			boolean isOKPrinter = false;
-			PrintManager printManager = new PrintManager();
-	
-			try {
-				if (!BlueTooth.IsEnabled()) {
-					isOKBluetooth = BlueTooth.ActivateBlueTooth();
-				}
-	
-				if (isOKBluetooth) {
-	
-					for (int i = 1; i < 3; i++) {
-	
-						if (!isOKPrinter) {
-							isOKPrinter = isOKBluetooth && printManager.getStatus(context, config, showMessages);
-						}
-					}
-				}
-	
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			} finally {
-				printManager.Release();
-			}
-	
-			return isOKBluetooth && isOKPrinter;
-		}
-	}
-	
+
 	// ********************************** DOCUMENTS ***********************************
 	
 	static class Documents {
@@ -522,18 +487,6 @@ public class DepositManagerExtension {
 			edit.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
 
 			return edit;
-		}
-
-		
-		public static ButtonColor addButton(Context context, int color, String text, int size, int width, LayoutParams params) {
-			ButtonColor button = new ButtonColor(context, color);
-
-			button.setText(text);
-			button.setTextSize(size);
-			button.setWidth(width);
-			button.setLayoutParams(params);
-			
-			return button;
 		}
 
 		public static ButtonColor addButton(Context context, int color, String text, int size, int width, LayoutParams params, Drawable drawable) {
