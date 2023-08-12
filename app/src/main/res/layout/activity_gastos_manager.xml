@@ -1,12 +1,14 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/gastosManagerLayout"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+	android:orientation="vertical"
     android:background="@color/Edicards"> >
     
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         	  android:id="@+id/calendarMainLinearLayout" 
               android:layout_width="fill_parent" 
-              android:layout_height="215px" 
+              android:layout_height="wrap_content"
               android:layout_marginTop="5dp" 
               android:background="@color/DarkBlue"
               android:orientation="horizontal" >
@@ -15,29 +17,28 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         	  android:id="@+id/headerMainLinearLayout" 
               android:layout_width="fill_parent" 
-              android:layout_height="30px" 
-              android:layout_marginTop="220dp" 
+              android:layout_height="wrap_content"
               android:background="@color/DarkBlue"
               android:orientation="horizontal" >
               
         <TextView
         	android:text="Código"
         	android:layout_width="150px" 
-    		android:layout_height="fill_parent"
+    		android:layout_height="wrap_content"
     		android:textSize="16dp"
     		android:layout_marginLeft="30dp"/>
         
         <TextView
         	android:text="Artículo"
         	android:layout_width="300px" 
-    		android:layout_height="fill_parent"
+    		android:layout_height="wrap_content"
     		android:textSize="16dp"
     		android:layout_marginLeft="40dp"/>
         
         <TextView
         	android:text="Cantidad"
         	android:layout_width="185px" 
-    		android:layout_height="fill_parent"
+    		android:layout_height="wrap_content"
     		android:textSize="16dp"
     		android:layout_marginLeft="100dp"/>
         
@@ -46,8 +47,7 @@
  
   <LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical"
                android:layout_width="fill_parent" 
-               android:layout_height="fill_parent"
-               android:layout_marginTop="275dp" >
+               android:layout_height="fill_parent">
     
     
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -68,4 +68,4 @@
 </LinearLayout>
 
  
-</RelativeLayout>
+</LinearLayout>

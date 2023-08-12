@@ -1,5 +1,6 @@
 package net.ifeu.edicards;
 
+import android.annotation.SuppressLint;
 import android.app.ActionBar.LayoutParams;
 import android.content.Context;
 import android.graphics.Color;
@@ -34,19 +35,21 @@ import java.util.LinkedHashMap;
 
 public class GastosManager extends Fragment {
 
-		private AppConfig _appConfig ;
-		private LinkedHashMap<String,Articulo> _articulos;
-		private DatePicker _datePic;
-		private Calendar _calendar;
-		private EditText _editTextComment;
+	private AppConfig _appConfig ;
+	private LinkedHashMap<String,Articulo> _articulos;
+	private DatePicker _datePic;
+	private Calendar _calendar;
+	private EditText _editTextComment;
+
+	private boolean _isRendered = false;
+	private LinearLayout _mainLayout;
 
 	public void onCreate(Bundle savedInstanceState) {
-			
 	        super.onCreate(savedInstanceState);
+			_appConfig = (AppConfig) getActivity().getApplicationContext();
 	       _calendar = Calendar.getInstance();
 	       _datePic = new DatePicker(this.getActivity().getApplicationContext());
 	       _editTextComment = new EditText(this.getActivity().getApplicationContext());
-	       
 	    }
 		
 		@Override
@@ -57,50 +60,53 @@ public class GastosManager extends Fragment {
 	    
 	    @Override
 	    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState){
-	    	return inflater.inflate(R.layout.activity_gastos_manager, container,false);
+
+			if (!_isRendered)
+	    		return inflater.inflate(R.layout.activity_gastos_manager, container,false);
+			else
+				return _mainLayout;
 	    }
-	    
-	    private void addArticles() throws Exception
-	    {
-	    
-	    	for (Articulo articulo : _articulos.values())
-	    			addLine(articulo);
-	  		  	        
-  	        if (_articulos.size() == 0)
-  	        	_appConfig.getMessageBox().Show("Control de gastos", "No se han encontrado artículos. Sincronice datos con el servidor", getActivity(), MessageBoxType.Information);
-  		
-	    }
-	    
+
 	    @Override
 	    public void onActivityCreated(Bundle savedInstanceState)
 	    {
 	    	super.onActivityCreated(savedInstanceState);
-	    	
-	    	addCalendar();
-	    	//Inicialitzem l'objecte AppConfig
 
-	        _appConfig = (AppConfig) getActivity().getApplicationContext();
-	        
+			if (!_isRendered)
+	    		addCalendar();
+
 	        try {
 				_articulos = _appConfig.getCache().getAllGastos();
 			} catch (Exception e1) {
 				throw new RuntimeException(e1);
 			}
-	        
-	        
+
 	        try {
-				addArticles();
+				if (!_isRendered) addArticles();
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
+
+			_isRendered = true;
+			_mainLayout = (LinearLayout) this.getActivity().findViewById(R.id.gastosManagerLayout);
 		
 	    }
 
+		private void addArticles() throws Exception
+		{
+			for (Articulo articulo : _articulos.values()) {
+				addLine(articulo);
+			}
+
+			if (_articulos.size() == 0)
+				_appConfig.getMessageBox().Show("Control de gastos", "No se han encontrado artículos. Sincronice datos con el servidor", getActivity(), MessageBoxType.Information);
+
+		}
+
 	    private void addCalendar()
 	    {	
-	    	LinearLayout mainLinearLayout = (LinearLayout) getActivity().findViewById(R.id.calendarMainLinearLayout);
-	    	//mainLinearLayout.removeAllViews();
-	    	
+	    	LinearLayout calendarLayout = (LinearLayout) getActivity().findViewById(R.id.calendarMainLinearLayout);
+
 	    	android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
 	    	
 	    	_datePic.init(_calendar.get(Calendar.YEAR), _calendar
@@ -121,8 +127,8 @@ public class GastosManager extends Fragment {
 	    	layout.addView(_datePic);
 	    	layout.addView(_editTextComment);
 	    	
-	    	mainLinearLayout.addView(layout);
-	    	
+	    	calendarLayout.addView(layout);
+
 	    }
 	    
 	    private final DatePicker.OnDateChangedListener dateSetListener = new DatePicker.OnDateChangedListener() {
@@ -146,10 +152,9 @@ public class GastosManager extends Fragment {
 	    
 	    private void addLine(Articulo articulo) throws Exception
 	    {
-	    	
 	    	articulo.Activo = true; 
 	    	
-	    	LinearLayout mainLinearLayout = (LinearLayout) getActivity().findViewById(R.id.mainLinearLayout);
+	    	LinearLayout articleLayout = (LinearLayout) getActivity().findViewById(R.id.mainLinearLayout);
 	    	
 	    	android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
 	    	
@@ -160,7 +165,6 @@ public class GastosManager extends Fragment {
 			layout.setOrientation(LinearLayout.HORIZONTAL);
 			layout.setPadding(20, 20, 20, 20);
 
-	    	
 	    	LabelColor codigoArticulo = new LabelColor(getActivity(),Color.BLACK);
 	    	codigoArticulo.setText(articulo.CodigoArticulo);
 			int TEXT_SIZE = 24;
@@ -279,10 +283,8 @@ public class GastosManager extends Fragment {
 	    	layout.addView(articuloDescripcion);
 	    	layout.addView(cantidad);
 	    	
-	    	mainLinearLayout.addView(layout);
-	    	
-	    	//getActivity().Ç(layout, layoutParams);
-	    	
+	    	articleLayout.addView(layout);
+
 	    }
 	    
 	    private Calendar setWeekStart(Calendar calendar) {

@@ -13,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.ConstantsEvents;
 import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.Excel.LogBookCreator;
@@ -425,7 +426,6 @@ public class MonitorView extends Fragment {
 				that.fillDataMonitor(_appConfig.getWorkingArea().Monitor);
 
 				if (that.SyncResult) {
-					_appConfig.getCache().invalidate();
 					_appConfig.getMessageBox().Show("Sincronización",
 							"El proceso de sincronizacón ha finalizado CORRECTAMENTE. Revise los indicadores para comprobar si se ha realizado correctamente",
 							getActivity(), MessageBoxType.Information);
@@ -435,6 +435,9 @@ public class MonitorView extends Fragment {
 							getActivity(), MessageBoxType.Information);
 
 				}
+
+				_appConfig.getCache().invalidate();
+				_appConfig.getMediator().notify(ConstantsEvents.EVENT_STOCK_CHANGED, null);
 
 			}
 			catch (InterruptedException e) {

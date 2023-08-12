@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,14 +14,11 @@ import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 
 import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.ConstantsEvents;
 import net.ifeu.library.Mediator.IMediator;
 
-import java.util.HashMap;
-import java.util.Map;
+public class MainMenuFragments extends Fragment implements OnTabChangeListener, IMediator {
 
-public class MainMenuFragments extends Fragment implements OnTabChangeListener {
-
-	private static final String TAG = "FragmentTabs";
 	public static final String TAB_DIETAS = "dietas";
 	public static final String TAB_DIETAS_CAPTION = "Gestión de dietas";
 	public static final String TAB_INFORMES = "informes";
@@ -47,16 +43,15 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 	private int _currentTab;
 	private AppConfig _appConfig;
 
-	private Fragment _currentFragment;
-
-	final private Map<String, Fragment> _fragments = new HashMap<>();
-
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 							 Bundle savedInstanceState) {
 		_root = inflater.inflate(R.layout.activity_main_menu_fragments, null);
 		_tabHost = (TabHost) _root.findViewById(android.R.id.tabhost);
+		this._appConfig = (AppConfig) this.getActivity().getApplicationContext();
+
 		setupTabs();
+		assignToMediator(this, false);
 		return _root;
 	}
 
@@ -64,8 +59,6 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		setRetainInstance(true);
-
-		this._appConfig = (AppConfig) this.getActivity().getApplicationContext();
 
 		_tabHost.setOnTabChangedListener(this);
 		_tabHost.setCurrentTab(_currentTab);
@@ -131,6 +124,7 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 		if (TAB_STOCK.equals(tabId)) {
 			updateTab(tabId, StockManager.class);
 			_currentTab = 5;
+
 			return;
 		}
 		if (TAB_DEPOSITOS.equals(tabId)) {
@@ -138,8 +132,7 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 			try {
 				updateTab(tabId, DepositManager.class);
 				_currentTab = 6;
-				if (_fragments.containsKey(TAB_DEPOSITOS))
-					assignToMediator((IMediator) _fragments.get(TAB_DEPOSITOS));
+
 				return;
 			} catch (Exception e) {
 				throw new RuntimeException(e);
@@ -163,48 +156,59 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener {
 
 	}
 
-	private void updateTab(String tabId, Class fragmentType) {
+	private void updateTab(String tabId, Class fragmentType, boolean ...forceRecreated) {
 
 		if (fragmentType == null) {
 			getActivity().finish();
 			System.exit(0);
 		}
 
-		boolean isCached = _fragments.containsKey(tabId);
-
-		if (isCached)
-			_currentFragment = _fragments.get(tabId);
-		try {
-			_currentFragment = (Fragment) fragmentType.newInstance();
-			_fragments.put(tabId, _currentFragment);
-
-		} catch (java.lang.InstantiationException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		}
-
 		FragmentManager fragmentManager = getFragmentManager();
 
-		if (fragmentManager.findFragmentByTag(tabId) == null) {
+		Fragment fragment = fragmentManager.findFragmentByTag(tabId);
 
-			if (_currentFragment != null)
-				fragmentManager.beginTransaction().remove(_currentFragment).commit();
-
-			fragmentManager
-					.beginTransaction()
-					.replace(R.id.fragment_placeholder, _currentFragment)
-					.setTransition(
-							FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
-
+		if (forceRecreated.length > 0 && forceRecreated[0] && fragment != null) {
+			FragmentTransaction trans = fragmentManager.beginTransaction();
+			trans.remove(fragment);
+			trans.commit();
 		}
+
+		if (fragment == null) {
+
+			try {
+				fragment = (Fragment) fragmentType.newInstance();
+
+			} catch (java.lang.InstantiationException e) {
+				throw new RuntimeException(e);
+			} catch (IllegalAccessException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+
+		fragmentManager
+				.beginTransaction()
+				.replace(R.id.fragment_placeholder, fragment, tabId)
+				.addToBackStack(null)
+				.setTransition(
+						FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
+
+		if (fragment instanceof IMediator)
+			assignToMediator((IMediator) fragment, forceRecreated.length > 0 && forceRecreated[0]);
 
 		System.gc();
 
 	}
 
-	private void assignToMediator(IMediator mediator) {
-		_appConfig.getMediator().addReceiver(mediator);
+	private void assignToMediator(IMediator mediator, boolean force) {
+		_appConfig.getMediator().addReceiver(mediator, force);
 	}
 
+	@Override
+	public void notify(String event, Object payload) {
+		if (event == ConstantsEvents.EVENT_DEPOSIT_CLOSED) {
+			onTabChanged(TAB_STOCK);
+		}
+
+	}
 }

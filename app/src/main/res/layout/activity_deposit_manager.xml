@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/depositManagerLayout"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="#FFF"
@@ -156,7 +157,7 @@
             android:clickable="true" >
 
             <LinearLayout
-                android:id="@+id/mainLinearLayoutDepositManager"
+                android:id="@+id/mainLinearLayoutArticles"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:animateLayoutChanges="false"

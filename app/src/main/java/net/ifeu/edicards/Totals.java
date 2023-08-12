@@ -153,7 +153,7 @@ public class Totals extends Activity {
 		button.setTextColor(Color.BLACK);
 
 		LayoutParams customParams = new LayoutParams(width, 40);
-		customParams.setMargins(0, 30, 0 , 30);
+		customParams.setMargins(0, 60, 0 , 30);
 		button.setLayoutParams(customParams);
 
 		return button;

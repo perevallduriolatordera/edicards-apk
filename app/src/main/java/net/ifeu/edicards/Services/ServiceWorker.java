@@ -634,8 +634,12 @@ public class ServiceWorker extends ServiceBase {
 						Articulo articuloUpdate = Factory.build(Articulo.class, app);
 						articuloUpdate.setArticuloById(String.valueOf(art.IdArticulo));
 						art.StockPropio = stock.articulos.get(art.CodigoArticulo).stock;
-						articuloUpdate.StockPropio = art.StockPropio;
-						articuloUpdate.update();
+
+						if (articuloUpdate.StockPropio != art.StockPropio) {
+							articuloUpdate.StockPropio = art.StockPropio;
+							articuloUpdate.update();
+						}
+
 					} else {
 						ArticuloStock articuloStock = new ArticuloStock();
 						articuloStock.idArticulo = art.CodigoArticulo;

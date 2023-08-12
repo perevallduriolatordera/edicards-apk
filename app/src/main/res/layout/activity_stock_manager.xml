@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/mainLayoutStockManager"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
 	android:orientation="vertical"
@@ -86,7 +87,7 @@
     android:layout_height="fill_parent">
     
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        	  android:id="@+id/mainLinearLayout" 
+        	  android:id="@+id/articleLinearLayout"
               android:layout_width="fill_parent" 
               android:layout_height="300px"
               android:orientation="vertical" >

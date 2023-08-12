@@ -554,6 +554,8 @@ public class DepositManagerExtension {
 			button.setTextSize(size);
 			button.setWidth(width);
 			button.setLayoutParams(params);
+			button.setHeight(25);
+
 			button.setTag(tag);
 			
 			return button;

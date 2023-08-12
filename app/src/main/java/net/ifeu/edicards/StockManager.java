@@ -3,6 +3,7 @@ package net.ifeu.edicards;
 import java.util.HashMap;
 
 import android.app.ActionBar.LayoutParams;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -21,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.ConstantsEvents;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Deposito;
@@ -33,9 +35,10 @@ import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
 import net.ifeu.library.LogBook.LogBook;
+import net.ifeu.library.Mediator.IMediator;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
-public class StockManager extends Fragment {
+public class StockManager extends Fragment implements IMediator {
 
 	private AppConfig _appConfig;
 	private HashMap<String, Articulo> _articulos;
@@ -46,26 +49,37 @@ public class StockManager extends Fragment {
 	
 	private boolean _isManagerPasswordMode;
 
+	private boolean _isRendered = false;
+	private LinearLayout _mainLayout;
+	
+	Activity _activity;
+
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		this._isManagerPasswordMode = false;
+		this._activity = getActivity();
+		_appConfig = (AppConfig) _activity.getApplicationContext();
+
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
-		return inflater.inflate(R.layout.activity_stock_manager, container,
-				false);
+		if (!_isRendered)
+			return inflater.inflate(R.layout.activity_stock_manager, container,
+					false);
+		else
+			return _mainLayout;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		
-		this._isManagerPasswordMode = false;
-		_appConfig = (AppConfig) getActivity().getApplicationContext();
-		this.FillForm(true);
 
+		if (!_isRendered)
+			this.createSotckView(true);
 	}
 
 	@Override
@@ -73,12 +87,10 @@ public class StockManager extends Fragment {
 		super.onDestroy();
 	}
 
-	private void FillForm(boolean addHeader) {
-		
-		LinearLayout mainLinearLayout = (LinearLayout) getActivity()
-				.findViewById(R.id.mainLinearLayout);
-		
-		mainLinearLayout.removeAllViews();
+	private void createSotckView(boolean addHeader) {
+
+		((LinearLayout) _activity
+				.findViewById(R.id.articleLinearLayout)).removeAllViews();
 
 		try {
 			_articulos = _appConfig.getCache().getAllArticulos();
@@ -94,7 +106,7 @@ public class StockManager extends Fragment {
 					.getMessageBox()
 					.Show("Control de almacén",
 							"No se han encontrado artículos. Sincronice datos con el servidor",
-							getActivity(), MessageBoxType.Information);
+							_activity, MessageBoxType.Information);
 		} else {
 			for (Articulo articulo : _articulos.values())
 				try {
@@ -108,8 +120,11 @@ public class StockManager extends Fragment {
 						.getMessageBox()
 						.Show("Control de almacén",
 								"No se han encontrado artículos. Sincronice datos con el servidor",
-								getActivity(), MessageBoxType.Information);
+								_activity, MessageBoxType.Information);
 		}
+
+		_isRendered = true;
+		_mainLayout = (LinearLayout) this._activity.findViewById(R.id.mainLayoutStockManager);
 	}
 	
 	private void SendRecuento() {
@@ -118,9 +133,7 @@ public class StockManager extends Fragment {
 		try {
 			this.sendData();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			//_appConfig.getErrorTrace().Send(_appConfig.getUser().User,
-			//		e);
+			throw new RuntimeException(e);
 		}
 		
 	}
@@ -164,7 +177,7 @@ public class StockManager extends Fragment {
 	
 	private void CreateXmlRecuento()  {
 		
-		XmlCreator xml = new XmlCreator(_appConfig, getActivity());
+		XmlCreator xml = new XmlCreator(_appConfig, _activity);
 		
 		try {
 			xml.createXmlRecuento();	
@@ -178,7 +191,7 @@ public class StockManager extends Fragment {
 	private void sendData()  {
 
 		final ProgressDialog progressDialog;
-		progressDialog = ProgressDialog.show(this.getActivity(),
+		progressDialog = ProgressDialog.show(this._activity,
 				"Enviando Datos a Central", "Enviando...Espere unos instantes",
 				true);
 
@@ -194,8 +207,6 @@ public class StockManager extends Fragment {
 
 				} catch (Exception e) {
 
-					//_appConfig.getErrorTrace().Send(_appConfig.getUser().User,
-					//		e);
 				}
 
 				progressDialog.dismiss();
@@ -207,13 +218,13 @@ public class StockManager extends Fragment {
 	
 	private void addHeader() {
 		
-		LinearLayout mainHeaderButtonsLinearLayout = (LinearLayout) getActivity()
+		LinearLayout mainHeaderButtonsLinearLayout = (LinearLayout) _activity
 				.findViewById(R.id.headerButtonsLinearLayout);
 		
 		android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		
-		ButtonColor recuento = new ButtonColor(getActivity(), Color.BLUE,
+		ButtonColor recuento = new ButtonColor(_activity, Color.BLUE,
 				getResources().getDrawable(R.drawable.ic_send));
 
 		recuento.setText("Enviar recuento");
@@ -238,7 +249,7 @@ public class StockManager extends Fragment {
 							_appConfig.getMessageBox().Show(
 									"Atención",
 									"No se puede enviar el recuento de almacén, ya que ya se han producido operaciones durante el día de hoy! "
-											, getActivity(),
+											, _activity,
 									MessageBoxType.Error);
 						} else {
 							that.SendRecuento();
@@ -247,13 +258,13 @@ public class StockManager extends Fragment {
 							.getMessageBox()
 							.Show("Control de almacén",
 									"El recuento de almacén se ha enviado correctamente",
-									getActivity(), MessageBoxType.Error);
+									_activity, MessageBoxType.Error);
 
-							that.FillForm(false);
+							that.createSotckView(false);
 						}
 
 					} else {
-						String password = _appConfig.getMessageBox().InputBox("Recuento de artículo", "introduzca la contraseña", getActivity());
+						String password = _appConfig.getMessageBox().InputBox("Recuento de artículo", "introduzca la contraseña", _activity);
 
 						if (password.equals(ConstantsTypes.MANAGER_PASSWORD)) {
 
@@ -265,7 +276,7 @@ public class StockManager extends Fragment {
 								_appConfig.getMessageBox().Show(
 										"Atención",
 										"No se puede enviar el recuento de almacén, ya que ya se han producido operaciones durante el día de hoy! "
-												, getActivity(),
+												, _activity,
 										MessageBoxType.Error);
 							} else {
 								that.SendRecuento();
@@ -274,9 +285,9 @@ public class StockManager extends Fragment {
 								.getMessageBox()
 								.Show("Control de almacén",
 										"El recuento de almacén se ha enviado correctamente",
-										getActivity(), MessageBoxType.Error);
+										_activity, MessageBoxType.Error);
 
-								that.FillForm(false);
+								that.createSotckView(false);
 
 							}
 						} else {
@@ -284,7 +295,7 @@ public class StockManager extends Fragment {
 							.getMessageBox()
 							.Show("Control de almacén",
 									"La clave indicada no es correcta",
-									getActivity(), MessageBoxType.Error);
+									_activity, MessageBoxType.Error);
 						}
 
 					}
@@ -299,7 +310,7 @@ public class StockManager extends Fragment {
 			}
 		});
 		
-		ButtonColor inicializar = new ButtonColor(getActivity(), Color.RED,
+		ButtonColor inicializar = new ButtonColor(_activity, Color.RED,
 				getResources().getDrawable(R.drawable.ic_restart));
 
 		inicializar.setText("Inicializar Stock");
@@ -312,7 +323,7 @@ public class StockManager extends Fragment {
 
 			try {
 
-				String password = _appConfig.getMessageBox().InputBox("Recuento de artículo", "introduzca la contraseña", getActivity());
+				String password = _appConfig.getMessageBox().InputBox("Recuento de artículo", "introduzca la contraseña", _activity);
 
 				if (password.equals(ConstantsTypes.MANAGER_PASSWORD)) {
 					that.initializeStock(false);
@@ -320,15 +331,15 @@ public class StockManager extends Fragment {
 					.getMessageBox()
 					.Show("Control de almacén",
 							"La inicialización de stock se ha realizado correctamente",
-							getActivity(), MessageBoxType.Information);
+							_activity, MessageBoxType.Information);
 
-					that.FillForm(false);
+					that.createSotckView(false);
 				} else {
 					_appConfig
 					.getMessageBox()
 					.Show("Control de almacén",
 							"La clave introducida no es correcta",
-							getActivity(), MessageBoxType.Information);
+							_activity, MessageBoxType.Information);
 				}
 
 			} catch (Exception e) {
@@ -336,7 +347,7 @@ public class StockManager extends Fragment {
 			}
 		});
 		
-		ButtonColor reciclado = new ButtonColor(getActivity(), Color.MAGENTA,
+		ButtonColor reciclado = new ButtonColor(_activity, Color.MAGENTA,
 				getResources().getDrawable(R.drawable.ic_recycled));
 
 		reciclado.setText("Reciclado");
@@ -349,7 +360,7 @@ public class StockManager extends Fragment {
 
 			try {
 
-				boolean result = _appConfig.getMessageBox().ShowWithResult("Recuento de reciclado", "Está seguro que quiere reinicializar el stock", getActivity(), MessageBoxType.Information);
+				boolean result = _appConfig.getMessageBox().ShowWithResult("Recuento de reciclado", "Está seguro que quiere reinicializar el stock", _activity, MessageBoxType.Information);
 
 				if (result) {
 
@@ -359,19 +370,19 @@ public class StockManager extends Fragment {
 						that.initializeStock(true);
 						that.sendData();
 
-						that.FillForm(false);
+						that.createSotckView(false);
 						_appConfig
 						.getMessageBox()
 						.Show("Recuento de reciclado",
 								"La inicialización de stock reciclado se ha realizado correctamente",
-								getActivity(), MessageBoxType.Information);
+								_activity, MessageBoxType.Information);
 					} else {
 						that.initializeStock(true);
 						_appConfig
 						.getMessageBox()
 						.Show("Recuento de reciclado",
 								"Se ha producido un error al generar La inicialización de stock reciclado",
-								getActivity(), MessageBoxType.Information);
+								_activity, MessageBoxType.Information);
 					}
 
 				}
@@ -382,7 +393,7 @@ public class StockManager extends Fragment {
 			}
 		});
 
-		TextView space = new TextView(getActivity());
+		TextView space = new TextView(_activity);
 		space.setWidth(30);
 		space.setLayoutParams(params);
 		
@@ -398,20 +409,20 @@ public class StockManager extends Fragment {
 		
 		articulo.Activo = true;
 
-		LinearLayout mainLinearLayout = (LinearLayout) getActivity()
-				.findViewById(R.id.mainLinearLayout);
+		LinearLayout articleLayout = (LinearLayout) _activity
+				.findViewById(R.id.articleLinearLayout);
 
 		android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		
-		LinearLayout layout = new LinearLayout(this.getActivity());
+		LinearLayout layout = new LinearLayout(this._activity);
 		
     	layout.setBackgroundResource(R.drawable.card_background);
     	layout.setLayoutParams(params);
 		layout.setOrientation(LinearLayout.HORIZONTAL);
 		layout.setPadding(20, 20, 20, 20);
 
-		LabelColor codigoArticulo = new LabelColor(getActivity(), Color.BLACK);
+		LabelColor codigoArticulo = new LabelColor(_activity, Color.BLACK);
 		codigoArticulo.setText(articulo.CodigoArticulo);
 		int TEXT_SIZE = 16;
 		codigoArticulo.setTextSize(TEXT_SIZE);
@@ -419,7 +430,7 @@ public class StockManager extends Fragment {
 		codigoArticulo.setWidth(CODE_WIDTH);
 		codigoArticulo.setLayoutParams(params);
 
-		LabelColor articuloDescripcion = new LabelColor(getActivity(),
+		LabelColor articuloDescripcion = new LabelColor(_activity,
 				Color.BLACK, true);
 		articuloDescripcion.setTag(articulo);
 		articuloDescripcion.setText(articulo.Descripcion);
@@ -432,7 +443,7 @@ public class StockManager extends Fragment {
 
 		articuloDescripcion.setOnClickListener(v -> StartArticuloDialog((Articulo) ((LabelColor) v).getTag()));
 
-		LabelColor unidadesIniciales = new LabelColor(getActivity(),
+		LabelColor unidadesIniciales = new LabelColor(_activity,
 				Color.argb(255, 100, 100, 50), true, Gravity.RIGHT);
 		unidadesIniciales.setText(String.valueOf(articulo.Stock));
 		unidadesIniciales.setTag(articulo);
@@ -442,7 +453,7 @@ public class StockManager extends Fragment {
 		unidadesIniciales.setLayoutParams(params);
 		layout.setTag(unidadesIniciales);
 
-		TextBoxColor unidadesEntradas = new TextBoxColor(getActivity(),
+		TextBoxColor unidadesEntradas = new TextBoxColor(_activity,
 				Color.argb(255, 100, 100, 50), Gravity.RIGHT);
 		unidadesEntradas.setInputType(InputType.TYPE_CLASS_NUMBER);
 		unidadesEntradas.setHint(String.valueOf(articulo.Entradas));
@@ -451,7 +462,7 @@ public class StockManager extends Fragment {
 		unidadesEntradas.setWidth(FIELDS_WIDTH);
 		unidadesEntradas.setLayoutParams(params);
 
-		TextBoxColor unidadesSalidas = new TextBoxColor(getActivity(),
+		TextBoxColor unidadesSalidas = new TextBoxColor(_activity,
 				Color.argb(255, 100, 100, 50), Gravity.RIGHT);
 		unidadesSalidas.setInputType(InputType.TYPE_CLASS_NUMBER);
 		unidadesSalidas.setHint(String.valueOf(articulo.Salidas));
@@ -460,15 +471,15 @@ public class StockManager extends Fragment {
 		unidadesSalidas.setWidth(FIELDS_WIDTH);
 		unidadesSalidas.setLayoutParams(params);
 
-		TextView space = new TextView(getActivity());
+		TextView space = new TextView(_activity);
 		space.setWidth(30);
 		space.setLayoutParams(params);
 		
-		TextView space2 = new TextView(getActivity());
+		TextView space2 = new TextView(_activity);
 		space2.setWidth(30);
 		space2.setLayoutParams(params);
 
-		LabelColor unidadesInicialesDefectuoso = new LabelColor(getActivity(),
+		LabelColor unidadesInicialesDefectuoso = new LabelColor(_activity,
 				Color.RED, true, Gravity.RIGHT);
 		unidadesInicialesDefectuoso
 				.setRawInputType(InputType.TYPE_CLASS_NUMBER);
@@ -482,7 +493,7 @@ public class StockManager extends Fragment {
 		layout.setTag(unidadesInicialesDefectuoso);
 
 		TextBoxColor unidadesEntradasDefectuoso = new TextBoxColor(
-				getActivity(), Color.RED, Gravity.RIGHT);
+				_activity, Color.RED, Gravity.RIGHT);
 		unidadesEntradasDefectuoso.setInputType(InputType.TYPE_CLASS_NUMBER);
 		unidadesEntradasDefectuoso.setHint(String.valueOf(articulo.Entradas));
 		unidadesEntradasDefectuoso.setTag(articulo);
@@ -492,7 +503,7 @@ public class StockManager extends Fragment {
 		unidadesEntradasDefectuoso.setLayoutParams(params);
 
 		TextBoxColor unidadesSalidasDefectuoso = new TextBoxColor(
-				getActivity(), Color.RED, Gravity.RIGHT);
+				_activity, Color.RED, Gravity.RIGHT);
 		unidadesSalidasDefectuoso.setInputType(InputType.TYPE_CLASS_NUMBER);
 		unidadesSalidasDefectuoso.setHint(String.valueOf(articulo.Salidas));
 		unidadesSalidasDefectuoso.setTag(articulo);
@@ -501,7 +512,7 @@ public class StockManager extends Fragment {
 		unidadesSalidasDefectuoso.setTextColor(Color.RED);
 		unidadesSalidasDefectuoso.setLayoutParams(params);
 
-		ButtonColor regularizacion = new ButtonColor(getActivity(),
+		ButtonColor regularizacion = new ButtonColor(_activity,
 				Color.DKGRAY);
 
 		regularizacion.setText("Inventario");
@@ -522,7 +533,7 @@ public class StockManager extends Fragment {
 			}
 		});
 
-		ButtonColor intercambio = new ButtonColor(getActivity(), Color.BLUE);
+		ButtonColor intercambio = new ButtonColor(_activity, Color.BLUE);
 
 		intercambio.setText("Camión");
 		intercambio.setTextSize(TEXT_SIZE_BUTTON);
@@ -543,7 +554,7 @@ public class StockManager extends Fragment {
 		});
 
 		final TextBoxColor unidadesRecuento = new TextBoxColor(
-				getActivity(), Color.BLACK, Gravity.RIGHT);
+				_activity, Color.BLACK, Gravity.RIGHT);
 		unidadesRecuento.setInputType(InputType.TYPE_CLASS_NUMBER);
 		unidadesRecuento.setHint(String.valueOf(articulo.Stock));
 		unidadesRecuento.setTag(articulo);
@@ -564,7 +575,7 @@ public class StockManager extends Fragment {
 						_appConfig.getMessageBox().Show(
 								"Atención",
 								"No se puede hacer recuento de almacén, ya que ya se han producido operaciones durante el día de hoy! "
-										, getActivity(),
+										, _activity,
 								MessageBoxType.Error);
 
 						EditText textBox = (EditText) view;
@@ -580,7 +591,7 @@ public class StockManager extends Fragment {
 
 							_lastTextBox = (TextBoxColor) view;
 							EditText textBox = (EditText) view;
-							int unidades = Integer.parseInt(textBox.getText().toString());
+							int unidades = Integer.parseInt(textBox.getText().toString() != "" ? textBox.getText().toString() : "0");
 
 							((Articulo) unidadesRecuento.getTag()).Stock = unidades;
 							logBookWriter.setData("ASIGNACION DE ALMACÉN", ConstantsTypes.EMPTY_STRING,
@@ -591,7 +602,7 @@ public class StockManager extends Fragment {
 
 						} else {
 
-							String password = _appConfig.getMessageBox().InputBox("Recuento de artículo", "introduzca la contraseña", getActivity());
+							String password = _appConfig.getMessageBox().InputBox("Recuento de artículo", "introduzca la contraseña", _activity);
 
 							if (password.equals(ConstantsTypes.MANAGER_PASSWORD)) {
 
@@ -599,7 +610,7 @@ public class StockManager extends Fragment {
 								_lastTextBox = (TextBoxColor) view;
 								EditText textBox = (EditText) view;
 
-								int unidades = Integer.parseInt(textBox.getText().toString());
+								int unidades = Integer.parseInt(textBox.getText().toString() != "" ? textBox.getText().toString(): "0");
 								((Articulo) unidadesRecuento.getTag()).Stock = unidades;
 
 								logBookWriter.setData("ASIGNACION DE ALMACÉN", ConstantsTypes.EMPTY_STRING,
@@ -612,7 +623,7 @@ public class StockManager extends Fragment {
 								_appConfig.getMessageBox().Show(
 										"Error",
 										"La clave introducida no es correcta",
-										_appConfig,
+										that.getContext(),
 										MessageBoxType.Error);
 
 								_lastTextBox.setText("0");
@@ -648,29 +659,23 @@ public class StockManager extends Fragment {
 		layout.addView(codigoArticulo);
 		layout.addView(articuloDescripcion);
 		layout.addView(unidadesIniciales);
-		//layout.addView(unidadesEntradas);
-		//layout.addView(unidadesSalidas);
 		layout.addView(space);
 		layout.addView(unidadesInicialesDefectuoso);
-		//layout.addView(unidadesEntradasDefectuoso);
-		//layout.addView(unidadesSalidasDefectuoso);
-		//layout.addView(regularizacion);
-		//layout.addView(intercambio);
 		layout.addView(space2);
 		layout.addView(unidadesRecuento);
 		layout.addView(imageView);
 		
-		mainLinearLayout.addView(layout);
+		articleLayout.addView(layout);
 
 	}
 
 	private void StartArticuloDialog(Articulo articulo) {
 
-		//_appConfig = (AppConfig) getActivity().getApplicationContext();
+		//_appConfig = (AppConfig) _activity.getApplicationContext();
 
 		_appConfig.getWorkingArea().CurrentArticulo = articulo;
 
-		Intent intent = new Intent(this.getActivity(), ArticleDialog.class);
+		Intent intent = new Intent(this._activity, ArticleDialog.class);
 
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
@@ -700,7 +705,7 @@ public class StockManager extends Fragment {
 			_appConfig.getMessageBox().Show(
 					"Error",
 					"Cuidado! El stock es negativo en el articulo "
-							+ swap.Articulo.Descripcion, getActivity(),
+							+ swap.Articulo.Descripcion, _activity,
 					MessageBoxType.Error);
 
 		int stockInicial = swap.Articulo.Stock;
@@ -771,7 +776,7 @@ public class StockManager extends Fragment {
 			_appConfig.getMessageBox().Show(
 					"Error",
 					"Cuidado! El stock de material defectuoso es negativo en el articulo  "
-							+ swap.Articulo.Descripcion, getActivity(),
+							+ swap.Articulo.Descripcion, _activity,
 					MessageBoxType.Error);
 
 		swap.Articulo.StockDefectuoso = swap.Articulo.StockDefectuoso
@@ -810,6 +815,14 @@ public class StockManager extends Fragment {
 			throw new RuntimeException(e);
 		}
 
+	}
+
+	@Override
+	public void notify(String event, Object payload) {
+
+		if (event == ConstantsEvents.EVENT_STOCK_CHANGED) {
+			_isRendered = false;
+		}
 	}
 
 	private static class SwapStorage {

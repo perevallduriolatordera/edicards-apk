@@ -60,6 +60,12 @@ public class IngresoData extends Fragment {
 		super.onActivityCreated(savedInstanceState);
 	}
 
+	public void RefreshView() {
+		((EditText) getActivity().findViewById(R.id.lblEntidad)).setText(ConstantsTypes.EMPTY_STRING);
+		((EditText) getActivity().findViewById(R.id.lblCantidad)).setText(ConstantsTypes.EMPTY_STRING);
+		((EditText) getActivity().findViewById(R.id.lblReferencia)).setText(ConstantsTypes.EMPTY_STRING);
+		((EditText) getActivity().findViewById(R.id.lblObservaciones)).setText(ConstantsTypes.EMPTY_STRING);
+	}
 	public void OnSaveIngreso() throws Exception {
 
 		String entidad = ((EditText) getActivity().findViewById(R.id.lblEntidad)).getText().toString();
@@ -120,6 +126,8 @@ public class IngresoData extends Fragment {
 		Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(), IncidenciaType.Ingreso,
 				text);
 		incidencia.create();
+
+		this.RefreshView();
 
 	}
 

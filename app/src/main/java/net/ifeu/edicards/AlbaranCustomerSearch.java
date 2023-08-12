@@ -125,7 +125,7 @@ public class AlbaranCustomerSearch extends Activity {
 
 		if (_appConfig.getWorkingArea().CurrentCliente != null) {
 			finish();
-			_appConfig.getMediator().notify(ConstantsEvents.EVENT_CUSTOMER_SELECTED, null);
+			_appConfig.getMediator().notify(ConstantsEvents.EVENT_CUSTOMER_SELECTED, _appConfig.getWorkingArea().CurrentCliente);
 		} else {
 			_appConfig.getMessageBox().Show("Atención",
 					"No se han encontrado resultados",

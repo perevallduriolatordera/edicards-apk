@@ -1,5 +1,7 @@
 package net.ifeu.edicards.Application;
 
+import android.widget.LinearLayout;
+
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Deposito;
@@ -15,17 +17,22 @@ public class WorkingArea {
 	public Articulo CurrentArticulo;
 	public Deposito CurrentDeposito;
 	public Reporting CurrentReporting;
-	public boolean CancelSearchDeposit;
 	public Historico CurrentHistorico;
 	public boolean UpgradeDataPost;
 	public TransferMode TransferMode;
-	public Deposito InitialDeposito;
 	public ServiceMonitor Monitor;
 	public DepositoModalidad CurrentDepositoModalidad;
-	
+
 	public WorkingArea()
 	{
 		this.TransferMode = net.ifeu.edicards.DataTier.TransferMode.None;
+	}
+
+	public void invalidateDepositData() {
+		this.CurrentHistorico = null;
+		this.CurrentDeposito = null;
+		this.CurrentCliente = null;
+		this.CurrentArticulo = null;
 	}
 	
 }

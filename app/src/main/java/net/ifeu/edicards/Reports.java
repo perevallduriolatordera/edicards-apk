@@ -18,7 +18,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -53,10 +52,22 @@ public class Reports extends Fragment {
 	private Calendar _calendar1;
 	private Calendar _calendar2;
 
+	private boolean _isRendered = false;
+	private LinearLayout _mainLayout;
+
+
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		_appConfig = (AppConfig) this.getActivity().getApplicationContext();
+	}
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.activity_reports, container, false);
+
+		if (!_isRendered)
+			return inflater.inflate(R.layout.activity_reports, container, false);
+		else
+			return _mainLayout;
 	}
 
 	@Override
@@ -74,56 +85,31 @@ public class Reports extends Fragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		_calendar1 = Calendar.getInstance();
-		_calendar2 = Calendar.getInstance();
+		if (!_isRendered) {
+			_calendar1 = Calendar.getInstance();
+			_calendar2 = Calendar.getInstance();
 
-		final Button acceptButton = (Button) this.getActivity().findViewById(
-				R.id.btnAccept);
-
-		final Reports that = this;
-
-		acceptButton.setOnClickListener(v -> {
-
-			try {
-
-				if (Inactivate.inactivateIfNecessary()) {
-					that.getActivity().finish();
-					System.exit(0);
-				}
-
-				getHistoricos();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		});
-
+			FillButtonsHeader();
+		}
 	}
 
-	private void FillWindow() throws Exception {
-		
-		_appConfig = (AppConfig) this.getActivity().getApplicationContext();
+	private void CreateReportLayout() throws Exception {
 
 		Historico historico = Factory.build(Historico.class, _appConfig);
 		ArrayList<Historico> list = historico.getHistoricosBetweenDates(
 				_calendar1.getTime(), _calendar2.getTime());
 
-		if (list.size() > 0) {
-			LinearLayout mainLinearLayout = (LinearLayout) this.getActivity()
-					.findViewById(R.id.mainLinearLayoutDepositManager);
-			mainLinearLayout.removeAllViews();
-			FillFooter();
-		} else {
+		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity()
+				.findViewById(R.id.mainLinearLayoutArticles);
+		mainLinearLayout.removeAllViews();
+
+		if (list.size() == 0) {
+
 			_appConfig.getMessageBox().Show("Informes",
 					"No se han encontrado resultados", getActivity(),
 					MessageBoxType.Information);
 
-			LinearLayout footerLinearLayout = (LinearLayout) this.getActivity()
-					.findViewById(R.id.footerMainLinearLayout);
-			footerLinearLayout.removeAllViews();
-
-			LinearLayout mainLinearLayout = (LinearLayout) this.getActivity()
-					.findViewById(R.id.mainLinearLayoutDepositManager);
-			mainLinearLayout.removeAllViews();
+			_appConfig.getWorkingArea().CurrentReporting = null;
 
 			return;
 		}
@@ -277,10 +263,10 @@ public class Reports extends Fragment {
 	}
 	
 	private LinearLayout addInfo(String text, int color) {
-		
+
 		LinearLayout layout = new LinearLayout(this.getActivity());
 		layout.setOrientation(LinearLayout.HORIZONTAL);
-		
+
     	android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.MATCH_PARENT);
     	
 		RelativeLayout card = new RelativeLayout(this.getActivity());
@@ -345,10 +331,10 @@ public class Reports extends Fragment {
     	
 	}
 
-	private void addLine(final ArrayList<Historico> list) throws Exception {
+	private void addLine(final ArrayList<Historico> list) {
 
 		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity()
-				.findViewById(R.id.mainLinearLayoutDepositManager);
+				.findViewById(R.id.mainLinearLayoutArticles);
 
 		android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -466,9 +452,9 @@ public class Reports extends Fragment {
 			layout2.addView(total);
 
 			color = Color.BLACK;
-			ButtonColor reImpresion = new ButtonColor(this.getActivity(), color);
+			ButtonColor reImpresion = new ButtonColor(this.getActivity(), color, getResources().getDrawable(R.drawable.ic_send));
 			reImpresion.setTextSize(TEXT_SIZE_BUTTON);
-			reImpresion.setText("Reimpresión");
+			reImpresion.setText("Reimprimir");
 			reImpresion.setWidth(120);
 
 			reImpresion.setLayoutParams(params);
@@ -599,7 +585,7 @@ public class Reports extends Fragment {
 			layout2.addView(reImpresion);
 
 			color = Color.RED;
-			ButtonColor anular = new ButtonColor(this.getActivity(), color);
+			ButtonColor anular = new ButtonColor(this.getActivity(), color, getResources().getDrawable(R.drawable.ic_recycled));
 			anular.setTextSize(TEXT_SIZE_BUTTON);
 			anular.setText("Anular");
 			anular.setWidth(160);
@@ -894,14 +880,11 @@ public class Reports extends Fragment {
 	}
 
 	
-	private void FillFooter() {
+	private void FillButtonsHeader() {
 
-		_appConfig = (AppConfig) this.getActivity().getApplicationContext();
+		Reports that = this;
+		int BUTTONS_WIDTH = 140;
 
-		final LinearLayout layout = new LinearLayout(this.getActivity());
-		layout.removeAllViews();
-
-		layout.setOrientation(LinearLayout.HORIZONTAL);
 		android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		
@@ -909,30 +892,55 @@ public class Reports extends Fragment {
 
 		// Nuevo Layout
 
-		final LinearLayout layout2 = new LinearLayout(this.getActivity());
-		layout2.setOrientation(LinearLayout.HORIZONTAL);
+		final LinearLayout layout = new LinearLayout(this.getActivity());
+		layout.setOrientation(LinearLayout.HORIZONTAL);
+
+		// Botón Ver
+
+		ButtonColor ver = new ButtonColor(getActivity(), Color.BLUE, getResources().getDrawable(R.drawable.ic_view_all));
+
+		ver.setText("Ver");
+		ver.setTextSize(TEXT_SIZE_BUTTON);
+		ver.setWidth(BUTTONS_WIDTH);
+
+		ver.setLayoutParams(params);
+
+		ver.setOnClickListener(v -> {
+
+			try {
+
+				if (Inactivate.inactivateIfNecessary()) {
+					that.getActivity().finish();
+					System.exit(0);
+				}
+
+				getHistoricos();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+
 
 		// Botón Potenciados
-		ButtonColor potenciados = new ButtonColor(getActivity(), Color.BLUE);
+		ButtonColor potenciados = new ButtonColor(getActivity(), Color.BLUE, getResources().getDrawable(R.drawable.ic_potenciados));
 
 		potenciados.setText("Potenciados");
 		potenciados.setTextSize(TEXT_SIZE_BUTTON);
-		int BUTTONS_WIDTH = 140;
 		potenciados.setWidth(BUTTONS_WIDTH);
-
 		potenciados.setLayoutParams(params);
 
 		potenciados.setOnClickListener(arg0 -> {
 			
 			try {
-				StartPotenciadosDialog();
+				if (_appConfig.getWorkingArea().CurrentReporting != null)
+					StartPotenciadosDialog();
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 		});
 
 		// Botón Retirados
-		ButtonColor retirados = new ButtonColor(getActivity(), Color.MAGENTA);
+		ButtonColor retirados = new ButtonColor(getActivity(), Color.MAGENTA, getResources().getDrawable(R.drawable.ic_retirados));
 
 		retirados.setText("Retirados");
 		retirados.setTextSize(TEXT_SIZE_BUTTON);
@@ -941,17 +949,17 @@ public class Reports extends Fragment {
 		retirados.setLayoutParams(params);
 
 		retirados.setOnClickListener(arg0 -> {
-			
 
 			try {
-				StartRetiradosDialog();
+				if (_appConfig.getWorkingArea().CurrentReporting != null)
+					StartRetiradosDialog();
 			} catch (Exception e) {
-throw new RuntimeException(e);		
+				throw new RuntimeException(e);
 			}
 		});
 
 		// Botón Piezas
-		ButtonColor piezas = new ButtonColor(getActivity(), Color.GRAY);
+		ButtonColor piezas = new ButtonColor(getActivity(), Color.GRAY, getResources().getDrawable(R.drawable.ic_piezas));
 
 		piezas.setText("Piezas");
 		piezas.setTextSize(TEXT_SIZE_BUTTON);
@@ -960,12 +968,12 @@ throw new RuntimeException(e);
 		piezas.setLayoutParams(params);
 
 		piezas.setOnClickListener(arg0 -> {
-			
-			StartPiezasDialog();
+			if (_appConfig.getWorkingArea().CurrentReporting != null)
+				StartPiezasDialog();
 		});
 
 		// Botón Totales
-		ButtonColor totales = new ButtonColor(getActivity(), Color.RED);
+		ButtonColor totales = new ButtonColor(getActivity(), Color.RED, getResources().getDrawable(R.drawable.ic_totals));
 
 		totales.setText("Totales");
 		totales.setTextSize(TEXT_SIZE_BUTTON);
@@ -974,23 +982,24 @@ throw new RuntimeException(e);
 		totales.setLayoutParams(params);
 
 		totales.setOnClickListener(arg0 -> {
-			
-			StartTotalesDialog();
+			if (_appConfig.getWorkingArea().CurrentReporting != null)
+				StartTotalesDialog();
 		});
 
-		
-		layout2.addView(potenciados);
-		layout2.addView(retirados);
-		layout2.addView(piezas);
-		layout2.addView(totales);
+		layout.addView(ver);
+		layout.addView(potenciados);
+		layout.addView(retirados);
+		layout.addView(piezas);
+		layout.addView(totales);
 
 		LinearLayout footerLinearLayout = (LinearLayout) this.getActivity()
-				.findViewById(R.id.footerMainLinearLayout);
+				.findViewById(R.id.headerReportButtonsLinearLayout);
 		footerLinearLayout.removeAllViews();
 		footerLinearLayout.setOrientation(LinearLayout.VERTICAL);
 		footerLinearLayout.addView(layout);
-		footerLinearLayout.addView(layout2);
 
+		_isRendered = true;
+		_mainLayout = (LinearLayout) getActivity().findViewById(R.id.reportsManagerLayout);
 	}
 
 	private void StartPotenciadosDialog() {
@@ -1040,12 +1049,9 @@ throw new RuntimeException(e);
 			_calendar2.set(picker2.getYear(), picker2.getMonth(),
 					picker2.getDayOfMonth());
 
-			FillWindow();
+			CreateReportLayout();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			_appConfig.getMessageBox().Show("Atención",
-					_appConfig.getStackTrace(e),
-					getActivity(), MessageBoxType.Error);		
+			throw new RuntimeException(e);
 		}
 	}
 

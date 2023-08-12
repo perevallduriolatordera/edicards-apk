@@ -207,6 +207,7 @@ public class MainActivity extends Activity {
 		final Context context = _appConfig;
 		
 		try {
+
 			this._serviceWorker.RunImport(context, false);
 
 		} catch (Exception e) {
