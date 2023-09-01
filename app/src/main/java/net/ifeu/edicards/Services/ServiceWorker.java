@@ -23,6 +23,7 @@ import net.ifeu.edicards.Excel.LogBookCreator;
 import net.ifeu.edicards.Pdf.PdfInventory;
 import net.ifeu.edicards.Services.RestClient.RequestMethod;
 import net.ifeu.edicards.Xml.XmlCreator;
+import net.ifeu.library.Csv.CsvCreator;
 import net.ifeu.library.Debugger.Debugger;
 import net.ifeu.library.Firebase.ArticuloStock;
 import net.ifeu.library.Firebase.ArticuloStockResponse;
@@ -517,6 +518,22 @@ public class ServiceWorker extends ServiceBase {
 			} catch (Exception e) {                                                                                                  
 			}
 		}
+
+		// * * * * * * * * * ENVIAMOS SEMÁFORO STOCK NTV * * * * * * * * * * * *
+
+		String file = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+				+ ConstantsFolders.FOLDER_STOCK_NTV + "/" + ConstantsFolders.FILE_STOCK_NTV;
+
+		CsvCreator csvCreator = new CsvCreator(file, "IdArticulo", "Semaforo");
+
+		LinkedHashMap<String, Articulo> articulos = app.getCache().getAllArticulos();
+
+		for (Articulo articuloInCatalgo : articulos.values()) {
+			csvCreator.addLine(articuloInCatalgo.CodigoArticulo, articuloInCatalgo.StockPropio);
+		}
+
+		csvCreator.flush();
+
 	}                                                                                                                                
                                                                                                                                      
 	public boolean RunImport(Context context, boolean compress) {
@@ -890,6 +907,9 @@ public class ServiceWorker extends ServiceBase {
 
 		File logBook = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_LOGBOOK + "/");
 		logBook.mkdirs();
+
+		File ntv = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_STOCK_NTV + "/");
+		ntv.mkdirs();
                                                                                                                                      
 	}                                                                                                                                
                                                                                                                                      

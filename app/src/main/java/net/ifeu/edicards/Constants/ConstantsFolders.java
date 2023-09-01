@@ -20,7 +20,11 @@ public class ConstantsFolders {
     public static final String FOLDER_GDPR = "GDPR";
     public static final String FOLDER_SERVICES = "Servicios";
     public static final String FOLDER_LOGBOOK = "LogBook";
+
+    public static final String FOLDER_STOCK_NTV = "NTV";
     public static final String FILE_STOCK = "Stock.xml";
     public static final String FILE_DAILY_STOCK =  "StockDiario.xml";
+
+    public static final String FILE_STOCK_NTV = "SemaforoArticulos.csv";
 
 }
