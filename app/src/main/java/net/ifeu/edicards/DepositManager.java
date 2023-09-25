@@ -42,7 +42,6 @@ import net.ifeu.edicards.Printer.PrintManager;
 import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.ComboBox;
-import net.ifeu.library.Controls.IComboBoxChangeEvent;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
 import net.ifeu.library.LogBook.LogBook;
@@ -61,7 +60,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class DepositManager extends Fragment implements IComboBoxChangeEvent, IMediator {
+public class DepositManager extends Fragment implements  IMediator {
 
 	private Deposito _deposito;
 	private Cliente _cliente;
@@ -147,32 +146,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		}
 	}
 
-	public void callback (String id, String text) {
-		
-		try {
-			
-			if (id == "PAGADO") {
-
-				if (((CharSequence) text).toString().trim().equalsIgnoreCase("CONTADO")) {
-					this._checkPagado.setChecked(true);
-					_deposito.Pagado = true;
-				}
-				else
-				{
-					this._checkPagado.setChecked(false);
-					_deposito.Pagado = false;
-				}
-			}
-			else if (id == "SERIE") {
-				this.refreshTotals();
-			}
-		}
-		catch (Exception ex) {
-			throw new RuntimeException(ex);
-
-		}
-	}
-
 	private void createHeaderControls() throws Exception {
 
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -193,6 +166,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		
 		TipoIVA iva = Factory.build(TipoIVA.class, _appConfig);
 		_comboFiliacion = DepositManagerExtension.UI.addCombo(_appConfig, 350, params, iva.getFiliaciones(), iva.getFiliacionByCode(_deposito.Cliente.Filiacion));
+
 		
 		// //Copias
 		
@@ -241,6 +215,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		
 		descuento1.setOnFocusChangeListener((view, hasFocus) -> {
 			if (!hasFocus) {
+
 				_lastTextBox = (TextBoxColor) view;
 
 				EditText textBox = (EditText) view;
@@ -258,7 +233,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 					_deposito.DescuentoComercial = descuento11;
 				}
-
 
 			} else {
 				_lastTextBox = (TextBoxColor) view;
@@ -341,26 +315,47 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		topLinearLayout2.removeAllViews();
 		topLinearLayout3.removeAllViews();
 
-		topLinearLayout.addView(labelPago);
-		topLinearLayout.addView(_comboPago);
-		topLinearLayout.addView(_checkPagado);
-		topLinearLayout.addView(labelCantidadPagada);
-		topLinearLayout.addView(_textBoxCantidadPagada);
-		topLinearLayout2.addView(labelFiliacion);
-		topLinearLayout2.addView(_comboFiliacion);
-		topLinearLayout2.addView(labelCopias);
-		topLinearLayout2.addView(_comboCopias);
-		topLinearLayout2.addView(labelSeries);
-		topLinearLayout2.addView(_comboSerie);
-		topLinearLayout3.addView(labelDescuento1);
-		topLinearLayout3.addView(descuento1);
-		topLinearLayout3.addView(labelDescuento2);
-		topLinearLayout3.addView(descuento2);
+		DepositManagerExtension.UI.addViewsToLayout(topLinearLayout, labelPago, _comboPago, _checkPagado,
+		labelCantidadPagada, _textBoxCantidadPagada);
 
-		_comboPago.addObserver("PAGADO", this);
-		_comboSerie.addObserver("SERIE", this);
+		DepositManagerExtension.UI.addViewsToLayout(topLinearLayout2, labelFiliacion, _comboFiliacion, labelCopias,
+				_comboCopias, labelSeries, _comboSerie);
+
+		DepositManagerExtension.UI.addViewsToLayout(topLinearLayout3, labelDescuento1, labelDescuento2, descuento2);
+
+
+		this.addComboObservers();
 		
 	}
+
+	private void addComboObservers() {
+		_comboPago.addObserver("PAGADO", (String id, String text)-> {
+			if (((CharSequence) text).toString().trim().equalsIgnoreCase("CONTADO")) {
+				this._checkPagado.setChecked(true);
+				_deposito.Pagado = true;
+			}
+			else
+			{
+				this._checkPagado.setChecked(false);
+				_deposito.Pagado = false;
+			}
+		});
+		_comboSerie.addObserver("SERIE", (String id, String text) -> {
+			try {
+				this.refreshTotals();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+		_comboFiliacion.addObserver("FILIACION", (String id, String text) -> {
+			try {
+				this.refreshTotals();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+	}
+
 
 	private void createHeaderButtons() {
 
@@ -495,13 +490,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 			}
 		});
 
-		layout.addView(datos);
-		layout.addView(totales);
-		layout.addView(albaran);
-		layout.addView(nuevo);
-		layout.addView(searchArticulos);
-		layout.addView(buttonSearchArticulos);
-		
+		DepositManagerExtension.UI.addViewsToLayout(layout, datos, totales, albaran, nuevo, searchArticulos, buttonSearchArticulos);
+
 		LinearLayout footerLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerButtonsLinearLayout);
 		footerLinearLayout.removeAllViews();
 		footerLinearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -518,8 +508,14 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		Cliente cliente = _appConfig.getWorkingArea().CurrentCliente;
 		_cliente = _appConfig.getWorkingArea().CurrentCliente;
 
-		TextView label = (TextView) getActivity().findViewById(R.id.lblCliente);
-		label.setText(cliente.Nombre + " - " + cliente.NIF);
+		TextView labelCliente = (TextView) getActivity().findViewById(R.id.lblCliente);
+		labelCliente.setText(cliente.Nombre + " - " + cliente.NIF);
+
+		TextView labelBaseFactura = (TextView) getActivity().findViewById(R.id.lblBase);
+		labelBaseFactura.setText("0 €");
+
+		TextView labelTotalFactura = (TextView) getActivity().findViewById(R.id.lblTotalFactura);
+		labelTotalFactura.setText("0 €");
 
 		try {
 
@@ -1180,7 +1176,6 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 			unidadesDevueltas.setOnFocusChangeListener((view, hasFocus) -> {
 				if (!hasFocus) {
-
 					_lastTextBox = (TextBoxColor) view;
 					TextBoxColor textBox = (TextBoxColor) view;
 					int unidadesDevueltas1;
@@ -1212,6 +1207,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 					}
 				} else {
 					((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
+					((TextBoxColor) view).setHint(ConstantsTypes.EMPTY_STRING);
 					_lastTextBox = (TextBoxColor) view;
 				}
 
@@ -1263,6 +1259,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 					}
 				} else {
 					((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
+					((TextBoxColor) view).setHint(ConstantsTypes.EMPTY_STRING);
 					_lastTextBox = (TextBoxColor) view;
 				}
 
@@ -1299,6 +1296,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 					}
 				} else {
 					((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
+					((TextBoxColor) view).setHint(ConstantsTypes.EMPTY_STRING);
 					_lastTextBox = (TextBoxColor) view;
 				}
 
@@ -1361,6 +1359,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 				} else {
 					((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
+					((TextBoxColor) view).setHint(ConstantsTypes.EMPTY_STRING);
 					_lastTextBox = (TextBoxColor) view;
 				}
 
@@ -1397,6 +1396,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 				} else {
 					((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
+					((TextBoxColor) view).setHint(ConstantsTypes.EMPTY_STRING);
 					_lastTextBox = (TextBoxColor) view;
 				}
 
@@ -1431,6 +1431,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 					}
 				} else {
 					((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
+					((TextBoxColor) view).setHint(ConstantsTypes.EMPTY_STRING);
 					_lastTextBox = (TextBoxColor) view;
 				}
 
@@ -1458,7 +1459,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 			modoAbono.setTag(lineaDeposito);
 			if (_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards)
-				modoAbono.setEnabled(false);
+				modoAbono.setVisibility(View.INVISIBLE);
 
 			modoAbono.setOnClickListener(arg0 -> {
 
@@ -1473,17 +1474,10 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 
 			if (createHeaderLayout) {
-				_headerLayout.addView(codigoArticulo);
-				_headerLayout.addView(articuloDescripcion);
-				_headerLayout.addView(unidadesInicialesFijas);
-				_headerLayout.addView(unidadesDevueltas);
-				_headerLayout.addView(unidadesDefectuosas);
-				_headerLayout.addView(pvp);
-				_headerLayout.addView(unidadesFacturadas);
-				_headerLayout.addView(unidadesRepuestas);
-				_headerLayout.addView(pvpAnterior);
-				_headerLayout.addView(totalLinea);
-				_headerLayout.addView(modoAbono);
+
+				DepositManagerExtension.UI.addViewsToLayout(_headerLayout, codigoArticulo, articuloDescripcion,
+						unidadesInicialesFijas, unidadesDevueltas, unidadesDefectuosas, pvp, unidadesFacturadas,
+						unidadesRepuestas, pvpAnterior, totalLinea, modoAbono);
 			}
 			mainLinearLayout.addView(_headerLayout);
 			_textBoxColorRequestFocus = unidadesDefectuosas;
@@ -1630,6 +1624,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 			} else {
 				((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
+				((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
 				_lastTextBox = (TextBoxColor) view;
 			}
 
@@ -1665,6 +1660,7 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 					throw new RuntimeException(e);
 				}
 			} else {
+				((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
 				((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
 				_lastTextBox = (TextBoxColor) view;
 			}
@@ -1703,16 +1699,9 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 
 		if (createHeaderLayout) {
 
-			_headerAbonoLayout.addView(codigoArticulo);
-			_headerAbonoLayout.addView(articuloDescripcion);
-			_headerAbonoLayout.addView(labelCantidadAbono);
-			_headerAbonoLayout.addView(unidadesAbono);
-			_headerAbonoLayout.addView(labelDefectuosasAbono);
-			_headerAbonoLayout.addView(defectuosasAbono);
-			_headerAbonoLayout.addView(labelPVPAbono);
-			_headerAbonoLayout.addView(pvpAbono);
-			_headerAbonoLayout.addView(totalAbono);
-			_headerAbonoLayout.addView(modoVenta);
+			DepositManagerExtension.UI.addViewsToLayout(_headerAbonoLayout, codigoArticulo, articuloDescripcion,
+					labelCantidadAbono, unidadesAbono, labelDefectuosasAbono, defectuosasAbono, labelPVPAbono,
+					pvpAbono, totalAbono, modoVenta);
 		}
 
 		mainLinearLayout.addView(_headerAbonoLayout);
@@ -1732,36 +1721,28 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		mainLinearLayout.removeAllViews();
 		
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		
-		mainLinearLayout.addView(DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"Código".toUpperCase(), TEXT_SIZE, 8, params));
-		
-		mainLinearLayout.addView(DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"Artículo".toUpperCase(), TEXT_SIZE, 12, params));
-		
-		mainLinearLayout.addView(DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				"Dep. Inicial".toUpperCase(), TEXT_SIZE, 13, params));
-		
-		mainLinearLayout.addView(DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				"Contadas".toUpperCase(), TEXT_SIZE, 13, params));
-		
-		mainLinearLayout.addView(DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				"Reciclado".toUpperCase(), TEXT_SIZE, 13, params));
-		
-		mainLinearLayout.addView(DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				"PVP Fact.".toUpperCase(), TEXT_SIZE, 13, params));
-		
-		mainLinearLayout.addView(DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				"Facturadas".toUpperCase(), TEXT_SIZE, 13, params));
-		
-		mainLinearLayout.addView(DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				"Repuestas".toUpperCase(), TEXT_SIZE, 13, params));
-		
-		mainLinearLayout.addView(DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				"PVP Post.".toUpperCase(), TEXT_SIZE, 13, params));
-		
-		mainLinearLayout.addView(DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				"Total".toUpperCase(), TEXT_SIZE, 13, params));
+
+		DepositManagerExtension.UI.addViewsToLayout(mainLinearLayout,
+				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
+						"Código".toUpperCase(), TEXT_SIZE, 8, params),
+				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
+						"Artículo".toUpperCase(), TEXT_SIZE, 12, params),
+				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+						"Dep. Inicial".toUpperCase(), TEXT_SIZE, 13, params),
+				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+						"Contadas".toUpperCase(), TEXT_SIZE, 13, params),
+				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+						"Reciclado".toUpperCase(), TEXT_SIZE, 13, params),
+				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+						"Pvp".toUpperCase(), TEXT_SIZE, 13, params),
+				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+						"Facturadas".toUpperCase(), TEXT_SIZE, 13, params),
+				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+						"Repuestas".toUpperCase(), TEXT_SIZE, 13, params),
+				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+								"PVP Post.".toUpperCase(), TEXT_SIZE, 13, params),
+				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+								"Total".toUpperCase(), TEXT_SIZE, 13, params));
 
 	}
 
@@ -1815,16 +1796,8 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 		LabelColor totalLinea = DepositManagerExtension.UI.addLabelByText(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				DepositManagerExtension.Format.CurrencyFormat(0), TEXT_SIZE, 13, params, true, lineaDeposito);
 
-		layout.addView(codigoArticulo);
-		layout.addView(articuloDescripcion);
-		layout.addView(unidadesInicialesFijas);
-		layout.addView(unidadesDevueltas);
-		layout.addView(unidadesDefectuosas);
-		layout.addView(pvp);
-		layout.addView(unidadesFacturadas);
-		layout.addView(unidadesRepuestas);
-		layout.addView(pvpAnterior);
-		layout.addView(totalLinea);
+		DepositManagerExtension.UI.addViewsToLayout(layout, codigoArticulo, articuloDescripcion, unidadesInicialesFijas, unidadesDevueltas,
+				unidadesDefectuosas, pvp, unidadesFacturadas, unidadesRepuestas, pvpAnterior, totalLinea);
 
 		ImageView imageView = new ImageView(this._appConfig);
 		LinearLayout.LayoutParams imageViewParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -2007,7 +1980,9 @@ public class DepositManager extends Fragment implements IComboBoxChangeEvent, IM
 					boolean resultDepositoModalidad = _dialogDepositoModalidad.Show("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", DepositManager.this.getContext(), MessageBoxType.Information);
 					this._appConfig.getWorkingArea().CurrentDepositoModalidad = resultDepositoModalidad ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
 					TextView labelTipoEntrega = (TextView) getActivity().findViewById(R.id.lblTipoEntrega);
-					labelTipoEntrega.setText(_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
+
+					if (labelTipoEntrega != null)
+						labelTipoEntrega.setText(_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
 
 				} catch (Exception e) {
 					throw new RuntimeException(e);

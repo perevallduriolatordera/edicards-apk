@@ -62,7 +62,7 @@ public class ComboBox extends LinearLayout {
             _text.setText("");
 
            for (Map.Entry<String, IComboBoxChangeEvent> item : that._observers.entrySet()) {
-             item.getValue().callback(item.getKey(), _label.getText().toString());
+             item.getValue().onChange(item.getKey(), _label.getText().toString());
         }
             //for (IComboBoxChangeEvent observer : that._observers) {
            //	 observer.callback(_label.getText().toString());

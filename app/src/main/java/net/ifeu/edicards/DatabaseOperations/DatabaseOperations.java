@@ -986,31 +986,34 @@ public class DatabaseOperations {
 
 	}
 	
-	private void alterStructure() throws Exception {
+	private void alterStructure()  {
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
 				_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_LINEAS_HISTORICO + " ADD COLUMN PVP REAL default null ");
 			} 
 			catch (Exception e) {
-				throw new RuntimeException(e);
+				if (!e.getMessage().startsWith("duplicate column name"))
+					throw new RuntimeException(e);
 			}
 
 			try {
 				_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_ARTICULOS + " ADD COLUMN StockPropio integer NOT NULL default 1 ");
 			} catch (Exception e) {
-				throw new RuntimeException(e);
+				if (!e.getMessage().startsWith("duplicate column name"))
+					throw new RuntimeException(e);
 			}
 
 			try {
 				_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_HISTORICOS + " ADD COLUMN ActualizarStock integer NOT NULL default 1 ");
 			} catch (Exception e) {
-				throw new RuntimeException(e);
+				if (!e.getMessage().startsWith("duplicate column name"))
+					throw new RuntimeException(e);
 			}
 			
 		}
 		else {
-			throw new Exception("Error añadiendo columnas. Motivo: La Base de datos no ha podido ser abierta.");
+			throw new RuntimeException("Error añadiendo columnas. Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
 	}

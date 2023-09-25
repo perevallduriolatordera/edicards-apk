@@ -172,7 +172,7 @@ public class MainActivity extends Activity {
 				@Override
 				public void run() {
 					try {
-						getData();	
+						getData();
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
@@ -203,11 +203,9 @@ public class MainActivity extends Activity {
 	private void getData() {
 		
 		final Context context = _appConfig;
-		
+
 		try {
-
 			this._serviceWorker.RunImport(context, false);
-
 		} catch (Exception e) {
 			throw new RuntimeException(e);		}
 	}

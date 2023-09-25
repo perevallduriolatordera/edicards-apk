@@ -14,6 +14,7 @@ import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 
 import com.itextpdf.text.DocumentException;
@@ -512,6 +513,12 @@ public class DepositManagerExtension {
 			button.setTag(tag);
 			
 			return button;
+		}
+
+		public static void addViewsToLayout(LinearLayout layout, View ...views) {
+			for (View view : views) {
+				layout.addView(view);
+			}
 		}
 	}
 }
