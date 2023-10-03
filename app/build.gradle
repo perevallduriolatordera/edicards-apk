@@ -61,6 +61,7 @@ dependencies {
 
     implementation 'org.apache.poi:poi-ooxml:3.10-FINAL'
     implementation 'org.apache.poi:poi-scratchpad:3.10-FINAL'
+    implementation 'org.apache.commons:commons-text:1.9'
     compile "org.apache.commons:commons-csv:1.5"
 
     //implementation 'androidx.multidex:multidex:2.0.1'

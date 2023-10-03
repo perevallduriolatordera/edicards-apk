@@ -49,6 +49,8 @@ import net.ifeu.library.Mediator.IMediator;
 import net.ifeu.library.Utils.MessageBox.AdvancedMessageBox;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
+import org.apache.commons.lang3.math.NumberUtils;
+
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -1181,9 +1183,9 @@ public class DepositManager extends Fragment implements  IMediator {
 					int unidadesDevueltas1;
 
 					if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-						unidadesDevueltas1 = Integer.parseInt(textBox.getHint().toString());
+						unidadesDevueltas1 = NumberUtils.toInt(textBox.getHint().toString(), 0);
 					else
-						unidadesDevueltas1 = Integer.parseInt(textBox.getText().toString());
+						unidadesDevueltas1 = NumberUtils.toInt(textBox.getText().toString(), 0);
 
 					LineaDeposito lineaDeposito1 = (LineaDeposito) view.getTag();
 					if ((unidadesDevueltas1) > lineaDeposito1.UnidadesInicialesFijas) {
@@ -1231,9 +1233,9 @@ public class DepositManager extends Fragment implements  IMediator {
 					int unidadesDefectuosas1;
 
 					if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-						unidadesDefectuosas1 = Integer.parseInt(((EditText) view).getHint().toString());
+						unidadesDefectuosas1 = NumberUtils.toInt(((EditText) view).getHint().toString(), 0);
 					else
-						unidadesDefectuosas1 = Integer.parseInt(((EditText) view).getText().toString());
+						unidadesDefectuosas1 = NumberUtils.toInt(((EditText) view).getText().toString(), 0);
 
 					LineaDeposito lineaDeposito12 = (LineaDeposito) view.getTag();
 
@@ -1281,9 +1283,9 @@ public class DepositManager extends Fragment implements  IMediator {
 					float pvp1;
 
 					if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-						pvp1 = Float.parseFloat(textBox.getHint().toString());
+						pvp1 = NumberUtils.toFloat(textBox.getHint().toString(), 0);
 					else {
-						pvp1 = Float.parseFloat(textBox.getText().toString());
+						pvp1 = NumberUtils.toFloat(textBox.getText().toString(), 0);
 						((LineaDeposito) view.getTag()).PVPAnterior = pvp1;
 					}
 
@@ -1318,9 +1320,9 @@ public class DepositManager extends Fragment implements  IMediator {
 					int unidadesFacturadas1;
 
 					if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-						unidadesFacturadas1 = Integer.parseInt(((EditText) view).getHint().toString());
+						unidadesFacturadas1 = NumberUtils.toInt(((EditText) view).getHint().toString(), 0);
 					else
-						unidadesFacturadas1 = Integer.parseInt(((EditText) view).getText().toString());
+						unidadesFacturadas1 = NumberUtils.toInt(((EditText) view).getText().toString(), 0);
 
 					LineaDeposito lineaDeposito14 = (LineaDeposito) view.getTag();
 
@@ -1380,9 +1382,9 @@ public class DepositManager extends Fragment implements  IMediator {
 					int unidadesRepuestas1;
 
 					if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-						unidadesRepuestas1 = Integer.parseInt(((EditText) view).getHint().toString());
+						unidadesRepuestas1 = NumberUtils.toInt(((EditText) view).getHint().toString(), 0);
 					else
-						unidadesRepuestas1 = Integer.parseInt(((EditText) view).getText().toString());
+						unidadesRepuestas1 = NumberUtils.toInt(((EditText) view).getText().toString(), 0);
 
 					LineaDeposito lineaDeposito15 = (LineaDeposito) view.getTag();
 
@@ -1418,9 +1420,9 @@ public class DepositManager extends Fragment implements  IMediator {
 					float pvpAnterior1;
 
 					if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-						pvpAnterior1 = Float.parseFloat(textBox.getHint().toString());
+						pvpAnterior1 = NumberUtils.toFloat(textBox.getHint().toString(), 0);
 					else
-						pvpAnterior1 = Float.parseFloat(textBox.getText().toString());
+						pvpAnterior1 = NumberUtils.toFloat(textBox.getText().toString(), 0);
 
 					((LineaDeposito) view.getTag()).PVPAnterior = pvpAnterior1;
 					LineaDeposito lineaDeposito16 = (LineaDeposito) view.getTag();
@@ -1538,9 +1540,9 @@ public class DepositManager extends Fragment implements  IMediator {
 				LineaDeposito lineaDeposito1 = (LineaDeposito) view.getTag();
 
 				if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-					unidadesAbono1 = Integer.parseInt(((EditText) view).getHint().toString());
+					unidadesAbono1 = NumberUtils.toInt(((EditText) view).getHint().toString(), 0);
 				else
-					unidadesAbono1 = Integer.parseInt(((EditText) view).getText().toString());
+					unidadesAbono1 = NumberUtils.toInt(((EditText) view).getText().toString(), 0);
 
 				int defectuosas = lineaDeposito1.DefectuosasAbono;
 
@@ -1596,9 +1598,9 @@ public class DepositManager extends Fragment implements  IMediator {
 				int defectuosas;
 
 				if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-					defectuosas = Integer.parseInt(((EditText) view).getHint().toString());
+					defectuosas = NumberUtils.toInt(((EditText) view).getHint().toString(),0);
 				else
-					defectuosas = Integer.parseInt(((EditText) view).getText().toString());
+					defectuosas = NumberUtils.toInt(((EditText) view).getText().toString(),0);
 
 				((LineaDeposito) view.getTag()).DefectuosasAbono = defectuosas;
 
@@ -1648,9 +1650,9 @@ public class DepositManager extends Fragment implements  IMediator {
 				float pvpAbono1;
 
 				if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-					pvpAbono1 = Float.parseFloat(textBox.getHint().toString());
+					pvpAbono1 = NumberUtils.toFloat(textBox.getHint().toString(), 0);
 				else
-					pvpAbono1 = Float.parseFloat(textBox.getText().toString());
+					pvpAbono1 = NumberUtils.toFloat(textBox.getText().toString(), 0);
 
 				((LineaDeposito) view.getTag()).PVPAbono = pvpAbono1;
 				LineaDeposito lineaDeposito13 = (LineaDeposito) view.getTag();
