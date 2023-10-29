@@ -186,12 +186,13 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener, 
 		}
 
 
+
 		fragmentManager
 				.beginTransaction()
 				.replace(R.id.fragment_placeholder, fragment, tabId)
 				.addToBackStack(null)
 				.setTransition(
-						FragmentTransaction.TRANSIT_FRAGMENT_FADE).commit();
+						FragmentTransaction.TRANSIT_FRAGMENT_FADE).commitAllowingStateLoss();
 
 		if (fragment instanceof IMediator)
 			assignToMediator((IMediator) fragment, forceRecreated.length > 0 && forceRecreated[0]);

@@ -323,7 +323,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		DepositManagerExtension.UI.addViewsToLayout(topLinearLayout2, labelFiliacion, _comboFiliacion, labelCopias,
 				_comboCopias, labelSeries, _comboSerie);
 
-		DepositManagerExtension.UI.addViewsToLayout(topLinearLayout3, labelDescuento1, labelDescuento2, descuento2);
+		DepositManagerExtension.UI.addViewsToLayout(topLinearLayout3, labelDescuento1, descuento1, labelDescuento2, descuento2);
 
 
 		this.addComboObservers();

@@ -5,6 +5,7 @@ import android.os.Environment;
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.DataTier.Factories.Factory;
+import net.ifeu.library.Csv.CsvCreator;
 import net.ifeu.library.LogBook.LogBook;
 
 import org.apache.poi.hssf.util.HSSFColor;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 public class LogBookCreator {
@@ -39,8 +41,15 @@ public class LogBookCreator {
         LogBook logBook = Factory.build(LogBook.class, _app);
         ArrayList<LogBook> trace = logBook.getLogBookLastPeriod(today);
 
-        if (this.createExcel(trace))
+        if (this.createExcel(trace)) {
             logBook.purge(today);
+        } else {
+            if (this.createCSV(trace)) {
+                logBook.purge(today);
+            } else {
+                throw new RuntimeException("Ha sido imposible generar el fichero de trazabilidad de stock");
+            }
+        }
     }
 
     private boolean createExcel(ArrayList<LogBook> list) {
@@ -65,9 +74,60 @@ public class LogBookCreator {
 
             this.saveExcelFile(workbook);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            result = false;
         }
         return  result;
+    }
+
+    private boolean createCSV(ArrayList<LogBook> list) {
+
+        if (list.size() == 0) return false;
+
+        boolean result = true;
+
+        try {
+
+            SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyyHHmmss");
+            String csvFilePath = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+                    + ConstantsFolders.FOLDER_LOGBOOK + "/Stock_" + _app.getUser().User + "_" + formatter.format(new Date()) + ".csv";
+
+            CsvCreator csvCreator = new CsvCreator(csvFilePath, getCsvHeaders());
+
+            for (LogBook logBook : list) {
+                csvCreator.addLine(logBook.idLogBook, logBook.Fecha, logBook.CodigoCliente, logBook.NombreCliente,
+                        logBook.CodigoArticulo, logBook.NombreArticulo, logBook.TipoMovimiento, logBook.UnidadesIniciales,
+                        logBook.UnidadesRepuestas, logBook.UnidadesDevueltas, logBook.UnidadesFacturadas,
+                        logBook.UnidadesAbono, logBook.StockInicial, logBook.StockFinal);
+            }
+
+            csvCreator.flush();
+        } catch (Exception e) {
+            result = false;
+        }
+        return  result;
+    }
+
+    private String[] getCsvHeaders() {
+        List<String> headers = new ArrayList<>();
+        headers.add("Identificador");
+        headers.add("Fecha");
+        headers.add("Codigo Cliente");
+        headers.add("Nombre Cliente");
+        headers.add("Código Artículo");
+        headers.add("Nombre Articulo");
+        headers.add("Tipo Movimiento");
+        headers.add("Depósito inicial");
+        headers.add("Depósito Final");
+        headers.add("Unidades Contadas");
+        headers.add("Unidades Facturadas");
+        headers.add("Unidades Abonadas");
+        headers.add("Unidades Stock Inicial");
+        headers.add("Unidades Stock Final");
+
+        String[] array = new String[headers.size()];
+
+        return headers.toArray(array);
+
     }
 
     private void setCellHeaderStyle(Workbook wb, Cell cell) {

@@ -19,6 +19,7 @@ public class CsvCreator {
             FileWriter file = new FileWriter(path);
             BufferedWriter writer = new BufferedWriter(file);
             csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withDelimiter(';'));
+            csvPrinter.printRecord(headers);
 
         } catch (IOException e) {
             throw new RuntimeException(e);

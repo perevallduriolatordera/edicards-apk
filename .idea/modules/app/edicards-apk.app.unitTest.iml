@@ -22,7 +22,6 @@
     <content url="file://$MODULE_DIR$/../../../app/src/testDebug" />
     <orderEntry type="jdk" jdkName="Android API 19 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="edicards-apk.app.main" scope="TEST" />
     <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/activation.jar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/additionnal.jar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/commons-logging-1.2.jar" level="project" />
