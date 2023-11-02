@@ -6,6 +6,8 @@ import java.util.Hashtable;
 
 import android.app.Application;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.util.Log;
 
 import com.androidnetworking.AndroidNetworking;
 
@@ -14,6 +16,7 @@ import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.User;
 import net.ifeu.edicards.DatabaseOperations.DatabaseOperations;
 import net.ifeu.library.Connectivity.Connectivity;
+import net.ifeu.library.Debugger.Debugger;
 import net.ifeu.library.Mediator.MediatorFragments;
 import net.ifeu.library.UCE.UCEHandler;
 import net.ifeu.library.Utils.MessageBox.MessageBox;
@@ -95,15 +98,30 @@ public class AppConfig extends Application {
 
 	@Override
 	public void onCreate() {
-		super.onCreate();
-		
-		//Initialize UCE Handler library
-        new UCEHandler.Builder(getApplicationContext())
-                .setTrackActivitiesEnabled(true)
-                .addCommaSeparatedEmailAddresses("valldu@hotmail.com")
-                .build();
 
-		AndroidNetworking.initialize(getApplicationContext());
+		try {
+			super.onCreate();
+
+			//Initialize UCE Handler library
+			new UCEHandler.Builder(getApplicationContext())
+					.setTrackActivitiesEnabled(true)
+					.addCommaSeparatedEmailAddresses("valldu@hotmail.com")
+					.build();
+
+			AndroidNetworking.initialize(getApplicationContext());
+
+		} catch (Exception ex) {
+			Log.e("App Edicards", "Error: " + ex.getMessage());
+			try {
+				StringWriter sw = new StringWriter();
+				PrintWriter pw = new PrintWriter(sw);
+				ex.printStackTrace(pw);
+
+				Debugger.Crash(this, "", "Error: " + sw, null);
+			} catch (PackageManager.NameNotFoundException e) {
+				throw new RuntimeException(e);
+			}
+		}
 
 	}
 	

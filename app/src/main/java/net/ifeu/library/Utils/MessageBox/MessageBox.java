@@ -3,8 +3,6 @@ package net.ifeu.library.Utils.MessageBox;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,8 +10,8 @@ import android.os.Message;
 import android.text.Editable;
 import android.view.ContextThemeWrapper;
 
-import net.ifeu.edicards.R;
 import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.R;
 import net.ifeu.library.Controls.TextBoxColor;
 
 public class MessageBox {
@@ -66,20 +64,17 @@ public class MessageBox {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(context, R.style.AppTheme));
         alertDialog.setTitle(title);
         alertDialog.setMessage(text);
-        alertDialog.setPositiveButton("Sí", new OnClickListener() {
-        		
-        public void onClick(DialogInterface dialog, int arg1) {
+        alertDialog.setPositiveButton("Sí", (dialog, arg1) -> {
             setResult(true);
             handler.sendMessage(handler.obtainMessage());
             dialog.dismiss();
-        }});
+        });
 
-        alertDialog.setNegativeButton("No", new OnClickListener() {
-            public void onClick(DialogInterface dialog, int arg1) {
-                setResult(false);
-                handler.sendMessage(handler.obtainMessage());
-                dialog.dismiss();
-        }});
+        alertDialog.setNegativeButton("No", (dialog, arg1) -> {
+			setResult(false);
+			handler.sendMessage(handler.obtainMessage());
+			dialog.dismiss();
+	});
         
         alertDialog.setCancelable(false);
         

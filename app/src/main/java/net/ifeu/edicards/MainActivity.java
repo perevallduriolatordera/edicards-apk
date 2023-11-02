@@ -36,7 +36,7 @@ public class MainActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState)  {
 		
 		try {
-			
+
 			 super.onCreate(savedInstanceState);
 
 			 _appConfig = (AppConfig) this.getApplicationContext();
@@ -78,7 +78,8 @@ public class MainActivity extends Activity {
 
 		}
 		catch (Exception ex) {
-			throw new RuntimeException(ex);
+			//_appConfig.getMessageBox().Show("Error app Edicards", "Se ha producido un error al inicializar la aplicación. Motivo: " + ex.getMessage(), _appConfig, MessageBoxType.Error );
+			throw new RuntimeException(ex.getMessage());
 		}
 
 	}

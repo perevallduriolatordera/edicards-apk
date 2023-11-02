@@ -37,4 +37,24 @@ public class Debugger {
 
         thread.start();
     }
+
+    public static void Crash(Context context, String user, String message, String file) throws PackageManager.NameNotFoundException {
+
+        Thread thread = new Thread(() -> {
+            try  {
+                MailSender mailEnviosMantenimiento = new MailSender(ConstantsMail.MAIL_MANTENIMIENTO, "CRASH app init edicards " + user, message, file);
+                try {
+                    mailEnviosMantenimiento.send();
+                } catch (MessagingException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        thread.start();
+    }
 }
