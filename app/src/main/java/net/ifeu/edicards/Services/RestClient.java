@@ -36,25 +36,25 @@ public class RestClient
 	        case GET:
 	        {
 	            // add parameters
-	            String combinedParams = "";
+	            StringBuilder combinedParams = new StringBuilder();
 	            if (params!=null)
 	            {
-	                combinedParams += "?";
+	                combinedParams.append("?");
 	                for (NameValuePair p : params)
 	                {
 	                    String paramString = p.getName() + "=" + URLEncoder.encode(p.getValue(),"UTF-8");
 	                    if (combinedParams.length() > 1)
-	                        combinedParams += "&" + paramString;
+	                        combinedParams.append("&").append(paramString);
 	                    else
-	                        combinedParams += paramString;
+	                        combinedParams.append(paramString);
 	                }
 	            }
 	            HttpGet request = new HttpGet(url + combinedParams);
 	            // add headers
 	            if (headers!=null)
 	            {
-	                headers=addCommonHeaderField(headers);
-	                for (NameValuePair h : headers)
+					addCommonHeaderField(headers);
+					for (NameValuePair h : headers)
 	                    request.addHeader(h.getName(), h.getValue());
 	            }
 	            return executeRequest(request);
@@ -65,8 +65,8 @@ public class RestClient
 	            // add headers
 	            if (headers!=null)
 	            {
-	                headers=addCommonHeaderField(headers);
-	                for (NameValuePair h : headers)
+					addCommonHeaderField(headers);
+					for (NameValuePair h : headers)
 	                    request.addHeader(h.getName(), h.getValue());
 	            }
 	            if (params!=null)
@@ -118,7 +118,7 @@ public class RestClient
 	    {
 	        while ((line = reader.readLine()) != null)
 	        {
-	            sb.append(line + "\n");
+	            sb.append(line).append("\n");
 	        }
 	        is.close();
 	    }

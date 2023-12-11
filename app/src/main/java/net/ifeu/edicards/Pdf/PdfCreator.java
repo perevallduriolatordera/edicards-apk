@@ -1,6 +1,5 @@
 package net.ifeu.edicards.Pdf;
 
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 
@@ -11,18 +10,15 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.Constants.ConstantsFolders;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.Totales;
 import net.ifeu.library.Debugger.Debugger;
+
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,13 +26,14 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-public class PdfCreator extends pdfBase{
+
+public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 
 	Deposito _deposito;
 
-	public PdfCreator(Deposito deposito, Context context, AppConfig app) {
+	public PdfCreator(Deposito deposito, AppConfig app) {
 
-		super(context, app);
+		super(app);
 		_deposito = deposito;
 		
 	}
@@ -47,27 +44,6 @@ public class PdfCreator extends pdfBase{
 				"---------------------------------------------------------------------"
 						+ "--------------------------------------- \n",
 				_fontNormal));
-	}
-
-	private void printHeader() throws DocumentException {
-
-		this.addLogo();
-		String text;
-		text = "\nGRUP EDICIONES ESTER JAEN SL\n"
-				+ "NIF: B-61806808\n"
-				+ "Ediciones Ester Jaen S.L.  Pol. Ind Pla de la Bruguera\n"
-				+ "C/Solsones, 68  08211\n"
-				+ "Castellar del Valles  (Spain)\n"
-				+ "Telfs: 902007753  937143823    Tel. Internacional +34 937143823\n"
-				+ "Fax.902007754\n"
-				+ "e-mail: edicards@edicards.com    Web: www.edicards.com\n\n";
-
-		Paragraph paragraph = new Paragraph(text, _fontNormal);
-		paragraph.setAlignment(Element.ALIGN_CENTER);
-
-		_document.add(paragraph);
-		this.insertSeparators();
-
 	}
 
 	private void printHeaderData(int Tipo) throws DocumentException {
@@ -109,8 +85,8 @@ public class PdfCreator extends pdfBase{
 		this.insertSeparators();
 	}
 
-	private void printTotals(int tipo, boolean isTransferPayment) throws DocumentException,
-			MalformedURLException, IOException {
+
+	private void printTotals(int tipo, boolean isTransferPayment) throws DocumentException {
 		DecimalFormat df = new DecimalFormat("0.00");
 
 		if (tipo == ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO) {
@@ -187,7 +163,7 @@ public class PdfCreator extends pdfBase{
 				_document.add(new Paragraph(impuestos + "\n", _fontBold));
 			}
 
-			String total = ConstantsTypes.EMPTY_STRING;
+			String total;
 			
 			if (_deposito.Serie.equals(_app.getUser().SerialInvoiceA)) {
 					total = padLeft(" ", 43)
@@ -254,7 +230,7 @@ public class PdfCreator extends pdfBase{
 								+ df.format(_deposito.CantidadPagada)
 								+ " Euros EN CONCEPTO DEL PAGO DEL ALBARAN "
 								+ _app.getUser().User + "/"
-								+ String.valueOf(_deposito.NumeroAlbaran)
+								+ _deposito.NumeroAlbaran
 								+ "\n\n";
 
 						_document.add(new Paragraph(pagadoText, _fontNormal));
@@ -266,7 +242,7 @@ public class PdfCreator extends pdfBase{
 									+ " Euros EN CONCEPTO DEL PAGO DEL ALBARAN "
 									+ _app.getUser().User
 									+ "/"
-									+ String.valueOf(_deposito.NumeroAlbaran)
+									+ _deposito.NumeroAlbaran
 									+ "\n";
 
 							_document.add(new Paragraph(pendienteText,
@@ -308,8 +284,7 @@ public class PdfCreator extends pdfBase{
 			}
 
 			if (isTransferPayment && tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN) {
-				String transferText = ConstantsTypes.EMPTY_STRING;
-				transferText = "\nHACER TRANSFERENCIA EN UNO DE LOS SIGUIENTES NUMEROS DE CUENTA:\n"
+				String transferText = "\nHACER TRANSFERENCIA EN UNO DE LOS SIGUIENTES NUMEROS DE CUENTA:\n"
 						+ "\n"
 						+ "BANCO SABADELL\n"
 						+ "ES48 0081 0470 0500 0104 3307\n\n"
@@ -323,7 +298,6 @@ public class PdfCreator extends pdfBase{
 
 				_document.add(paragraph);
 
-				transferText = ConstantsTypes.EMPTY_STRING;
 				transferText = "Poner en el concepto: " + _deposito.Nombre + " y num de albaran " + _app.getUser().User + "/" + _deposito.NumeroAlbaran + "\n\n";
 
 				paragraph = new Paragraph(transferText, _fontBold);
@@ -337,11 +311,8 @@ public class PdfCreator extends pdfBase{
 	private void printHeaderDetail(int tipo) throws DocumentException {
 
 		DecimalFormat df = new DecimalFormat("0.00");
-		List<LineaDeposito> tempList = new ArrayList<LineaDeposito>();
 
-		for (LineaDeposito linea : _deposito.Lineas.values()) {
-			tempList.add(linea);
-		}
+		List<LineaDeposito> tempList = new ArrayList<>(_deposito.Lineas.values());
 
 		Collections
 				.sort(tempList, new LineaDeposito().new ArticuloComparator());
@@ -425,6 +396,8 @@ public class PdfCreator extends pdfBase{
 		}
 	}
 
+
+
 	@Override
 	protected void closePage() throws DocumentException {
 
@@ -441,7 +414,7 @@ public class PdfCreator extends pdfBase{
 	{
 		try {
 
-			Debugger.Debug(_context, _app.getUser().User,"Generando albarán " + _deposito.NumeroAlbaran, null);
+			Debugger.Debug(_app, _app.getUser().User,"Generando albarán " + _deposito.NumeroAlbaran, null);
 			_GUID = guid;
 
 			_document = new Document();
@@ -453,7 +426,7 @@ public class PdfCreator extends pdfBase{
 					+ "_" + this.getDateTimeFormat() + "_" + tipoEnvio + ".pdf";
 
 			_document.addTitle(_app.getUser().User + "_" + _deposito.NumeroAlbaran
-					+ "_" + String.valueOf(new Date(0)));
+					+ "_" + new Date(0));
 
 			PdfWriter.getInstance(_document, new FileOutputStream(_pdfName));
 			_document.open();
@@ -464,18 +437,18 @@ public class PdfCreator extends pdfBase{
 			if (_deposito.Serie.equals(_app.getUser().SerialInvoiceB)) {
 				String presupuestoText = "PRESUPUESTO: NUM "
 						+ _app.getUser().User + "/"
-						+ String.valueOf(_deposito.NumeroAlbaran) + "\n";
+						+ _deposito.NumeroAlbaran + "\n";
 
 				_document.add(new Paragraph(presupuestoText, _fontBold));
 			} else if (!_deposito.Pagado) {
 				String albaranText = "ALBARAN: NUM " + _app.getUser().User
-						+ "/" + String.valueOf(_deposito.NumeroAlbaran) + "\n";
+						+ "/" + _deposito.NumeroAlbaran + "\n";
 
 				_document.add(new Paragraph(albaranText, _fontBold));
 			} else {
 				String albaranText = "ALBARAN ENTREGA: NUM "
 						+ _app.getUser().User + "/"
-						+ String.valueOf(_deposito.NumeroAlbaran) + "\n";
+						+ _deposito.NumeroAlbaran + "\n";
 
 				_document.add(new Paragraph(albaranText, _fontBold));
 			}
@@ -492,7 +465,7 @@ public class PdfCreator extends pdfBase{
 		} finally {
 			{
 				try {
-					Debugger.Debug(_context, _app.getUser().User,"Se ha generado el albarán " + _deposito.NumeroAlbaran, _pdfName);
+					Debugger.Debug(_app, _app.getUser().User,"Se ha generado el albarán " + _deposito.NumeroAlbaran, _pdfName);
 				} catch (PackageManager.NameNotFoundException e) {
 					throw new RuntimeException(e);
 				}
@@ -517,7 +490,7 @@ public class PdfCreator extends pdfBase{
 					+ this.getDateTimeFormat() + "_" + tipoEnvio + ".pdf";
 
 			_document.addTitle(_app.getUser().User + "_" + _deposito.IdDeposito
-					+ "_" + String.valueOf(new Date(0)));
+					+ "_" + new Date(0));
 
 			_writer = PdfWriter.getInstance(_document, new FileOutputStream(
 					_pdfName));
@@ -527,7 +500,7 @@ public class PdfCreator extends pdfBase{
 			printHeader();
 
 			String depositoNum = "DEPOSITO: NUM " + _app.getUser().User + "/"
-					+ String.valueOf(_deposito.IdDeposito) + "\n";
+					+ _deposito.IdDeposito + "\n";
 
 			_document.add(new Paragraph(depositoNum, _fontBold));
 
@@ -544,23 +517,6 @@ public class PdfCreator extends pdfBase{
 			sendMailToMantenimiento(e, _app.getUser().User, _deposito.NumDoc, "depósito");
 			return false;
 
-		}
-
-		return true;
-	}
-
-	private boolean sendMailToMantenimiento(Exception e, String user, String id, String tipo) {
-
-		try {
-			StringWriter sw = new StringWriter();
-			PrintWriter pw = new PrintWriter(sw);
-			e.printStackTrace(pw);
-
-			String title = "Error generando pdf del " + tipo + " num " + id + " del comercial " + user + ":";
-			Debugger.Debug(_context, _app.getUser().User, title + "\n\n" + sw.toString(), null);
-
-		} catch (Exception exc) {
-			return false;
 		}
 
 		return true;

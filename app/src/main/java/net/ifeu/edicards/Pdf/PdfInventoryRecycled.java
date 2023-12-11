@@ -1,10 +1,7 @@
 package net.ifeu.edicards.Pdf;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.LinkedHashMap;
+import android.annotation.SuppressLint;
+import android.os.Environment;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -12,21 +9,24 @@ import com.itextpdf.text.Element;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.os.Environment;
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.DataTier.Articulo;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.LinkedHashMap;
+
 public class PdfInventoryRecycled extends pdfBase {
 
-	public PdfInventoryRecycled(Context context, AppConfig app) {
-		super(context, app);
+	public PdfInventoryRecycled(AppConfig app) {
+		super(app);
 	}
 
 	@SuppressLint("SimpleDateFormat")
-	private void printHeader() throws DocumentException {
+	protected void printHeader() throws DocumentException {
 
 		this.addLogo();
 

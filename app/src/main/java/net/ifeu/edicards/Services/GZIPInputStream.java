@@ -100,7 +100,7 @@ public class GZIPInputStream extends InflaterInputStream {
             }
             int length = getShort(header, 0);
             while (length > 0) {
-                int max = length > buf.length ? buf.length : length;
+                int max = Math.min(length, buf.length);
                 int result = in.read(buf, 0, max);
                 if (result == -1) {
                     throw new EOFException();
@@ -162,13 +162,9 @@ public class GZIPInputStream extends InflaterInputStream {
      */
     @Override
     public int read(byte[] buffer, int off, int nbytes) throws IOException {
-        
-    	final boolean closed = false;
+
         final boolean eof = false;
-        
-		if (closed) {
-            throw new IOException("Stream is closed");
-        }
+
         if (eos) {
             return -1;
         }
@@ -202,7 +198,7 @@ public class GZIPInputStream extends InflaterInputStream {
         int size = inf.getRemaining();
         final int trailerSize = 8; // crc (4 bytes) + total out (4 bytes)
         byte[] b = new byte[trailerSize];
-        int copySize = (size > trailerSize) ? trailerSize : size;
+        int copySize = Math.min(size, trailerSize);
 
         System.arraycopy(buf, len - size, b, 0, copySize);
         readFully(b, copySize, trailerSize - copySize);

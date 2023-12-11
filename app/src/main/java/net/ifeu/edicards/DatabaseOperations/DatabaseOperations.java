@@ -1010,6 +1010,13 @@ public class DatabaseOperations {
 				if (!e.getMessage().startsWith("duplicate column name"))
 					throw new RuntimeException(e);
 			}
+
+			try {
+				_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_ARTICULOS + " ADD COLUMN EAN text  ");
+			} catch (Exception e) {
+				if (!e.getMessage().startsWith("duplicate column name"))
+					throw new RuntimeException(e);
+			}
 			
 		}
 		else {

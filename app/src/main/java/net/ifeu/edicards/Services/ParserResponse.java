@@ -92,8 +92,7 @@ public class ParserResponse extends ParserBase {
 
 	}
 
-	public void parseFormasPago(Document document,
-			AppConfig app, FormaPago formaPago, boolean compress)
+	public void parseFormasPago(Document document, FormaPago formaPago, boolean compress)
 	{
 		try {
 
@@ -137,7 +136,7 @@ public class ParserResponse extends ParserBase {
 
 	}
 
-	public void parsePactos(Document document, Context context, AppConfig app,
+	public void parsePactos(Document document, AppConfig app,
 			Pactos pacto, boolean compress) // throws
 											// ParserConfigurationException,
 											// DOMException, SAXException,
@@ -198,7 +197,7 @@ public class ParserResponse extends ParserBase {
 	}
 
 	public void parseTiposIva(Document document,
-			AppConfig app, TipoIVA iva, boolean compress) throws DOMException,
+			TipoIVA iva, boolean compress) throws DOMException,
 			IOException, ParserConfigurationException, SAXException // throws
 																	// ParserConfigurationException,
 																	// DOMException,
@@ -243,7 +242,7 @@ public class ParserResponse extends ParserBase {
 
 				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
-				iva.Fecha = (Date) formatter
+				iva.Fecha = formatter
 						.parse(transformWsDate(getCharacterDataFromElement(fechaValue)));
 
 				iva.save();
@@ -254,7 +253,7 @@ public class ParserResponse extends ParserBase {
 		}
 	}
 
-	public void parseTarifas(Document document, Context context, AppConfig app,
+	public void parseTarifas(Document document, AppConfig app,
 			Tarifa tarifa, boolean compress) throws DOMException, IOException,
 			ParserConfigurationException, SAXException // throws
 														// ParserConfigurationException,
@@ -294,9 +293,9 @@ public class ParserResponse extends ParserBase {
 				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
 				tarifa.CodigoTarifa = getCharacterDataFromElement(codigoTarifaValue);
-				tarifa.FechaIni = (Date) formatter
+				tarifa.FechaIni = formatter
 						.parse(transformWsDate(getCharacterDataFromElement(fechaInicioValue)));
-				tarifa.FechaFin = (Date) formatter
+				tarifa.FechaFin = formatter
 						.parse(transformWsDate(getCharacterDataFromElement(fechaFinValue)));
 
 				Articulo articulo = Factory.build(Articulo.class, app);
@@ -318,7 +317,7 @@ public class ParserResponse extends ParserBase {
 		}
 	}
 
-	public void parseArticulos(Document document, Context context,
+	public void parseArticulos(Document document,
 			AppConfig app, Articulo articulo, boolean compress)
 			throws Exception
 	{
@@ -383,6 +382,7 @@ public class ParserResponse extends ParserBase {
 				NodeList iva = element.getElementsByTagName("Iva");
 				NodeList pvp = element.getElementsByTagName("Pvp_01");
 				NodeList dte = element.getElementsByTagName("Dte01");
+				NodeList ean = element.getElementsByTagName("EAN");
 				//NodeList stock = element.getElementsByTagName("Stock");
 
 				Element codigoValue = (Element) codigo.item(0);
@@ -397,6 +397,7 @@ public class ParserResponse extends ParserBase {
 				Element ivaValue = (Element) iva.item(0);
 				Element pvpValue = (Element) pvp.item(0);
 				Element dteValue = (Element) dte.item(0);
+				Element eanValue = (Element) ean.item(0);
 
 				if (articulo
 						.setArticuloByCodigo(getCharacterDataFromElement(codigoValue))) {
@@ -404,7 +405,7 @@ public class ParserResponse extends ParserBase {
 					articulo.CodigoArticulo = getCharacterDataFromElement(codigoValue);
 					articulo.Descripcion = getCharacterDataFromElement(descripcionValue);
 					articulo.Activo = getCharacterDataFromElement(activoValue)
-							.equals("1") ? true : false;
+							.equals("1");
 					articulo.Tipo = Integer
 							.parseInt(getCharacterDataFromElement(ventaValue));
 					articulo.Familia = getCharacterDataFromElement(codigoFamiliaValue);
@@ -414,6 +415,7 @@ public class ParserResponse extends ParserBase {
 							.parseDouble(getCharacterDataFromElement(pvpValue));
 					articulo.Descuento1 = Double
 							.parseDouble(getCharacterDataFromElement(dteValue));
+					articulo.EAN = getCharacterDataFromElement(eanValue);
 					
 					//Double stockDouble = new Double(getCharacterDataFromElement(stockValue));
 					//articulo.Entradas = stockDouble.intValue();
@@ -437,9 +439,9 @@ public class ParserResponse extends ParserBase {
 							.parseDouble(getCharacterDataFromElement(pvpValue));
 					articulo.Descuento1 = Double
 							.parseDouble(getCharacterDataFromElement(dteValue));
+					articulo.EAN = getCharacterDataFromElement(eanValue);
 
-					articulo.Entradas = 0;
-					articulo.Stock = 0; 
+					articulo.Stock = 0;
 					articulo.Entradas = 0;
 					articulo.StockDefectuoso = 0;
 
@@ -453,7 +455,7 @@ public class ParserResponse extends ParserBase {
 
 	}
 	
-	public boolean  ParserTraspasoAlmacen(Document document, Context context,
+	public boolean  ParserTraspasoAlmacen(Document document,
 			AppConfig app, Articulo articulo, boolean compress)
 			throws Exception
 	{
@@ -483,7 +485,7 @@ public class ParserResponse extends ParserBase {
 				if (articulo
 						.setArticuloByCodigo(getCharacterDataFromElement(codigoValue))) {
 
-					Double stockDouble = new Double(getCharacterDataFromElement(unidadesValue));
+					Double stockDouble = Double.parseDouble(getCharacterDataFromElement(unidadesValue));
 					articulo.Entradas = stockDouble.intValue();
 					int stockInicial = articulo.Stock;
 					articulo.Stock = stockInicial + articulo.Entradas;
@@ -510,7 +512,7 @@ public class ParserResponse extends ParserBase {
 
 	}
 	
-	public boolean  UndoTraspasoAlmacen(Context context,AppConfig app)
+	public boolean  UndoTraspasoAlmacen(AppConfig app)
 			throws Exception // throws ParserConfigurationException,
 								// DOMException, SAXException, IOException
 	{
@@ -520,13 +522,12 @@ public class ParserResponse extends ParserBase {
 		try {
 
 			for (String key : app.getTraspasoAlmacen().keySet()) {
-				String codigoValue = key;
-				
-				if (articulo
-						.setArticuloByCodigo(codigoValue)) {
 
-					Double stockDouble = new Double(app.getTraspasoAlmacen().get(codigoValue));
-					articulo.Entradas = stockDouble.intValue();
+				if (articulo
+						.setArticuloByCodigo(key)) {
+
+					double stockDouble = Double.parseDouble(key);
+					articulo.Entradas = (int) stockDouble;
 					int stockInicial = articulo.Stock;
 					articulo.Stock = stockInicial - articulo.Entradas;
 
@@ -552,7 +553,7 @@ public class ParserResponse extends ParserBase {
 	}
 
 
-	public void parseClientes(Document document, Context context,
+	public void parseClientes(Document document,
 			AppConfig app, Cliente cliente, boolean compress) throws Exception {
 		// Añadimos el cliente "Nuevo Cliente"
 
@@ -771,8 +772,8 @@ public class ParserResponse extends ParserBase {
 	}
 
 	@SuppressLint("ShowToast")
-	public void parseDepositos(Document document, Context context,
-			AppConfig app, Deposito deposito, boolean compress) throws Exception
+	public void parseDepositos(Document document,
+			AppConfig app, boolean compress) throws Exception
 	{
 		
 		Document doc = getDocument(document, compress);
@@ -784,7 +785,7 @@ public class ParserResponse extends ParserBase {
 		Articulo articulo = Factory.build(Articulo.class, app);
 
 		LinkedHashMap<String, Articulo> articulos = articulo.getAllArticulos(1);
-		LinkedHashMap<String, Deposito> cacheDepositos = new LinkedHashMap<String, Deposito>();
+		LinkedHashMap<String, Deposito> cacheDepositos = new LinkedHashMap<>();
 		
 		try {
 			doc.getDocumentElement().normalize();
@@ -875,8 +876,7 @@ public class ParserResponse extends ParserBase {
 		}
 	}
 
-	public Long parseTotalDepositos(Document document, Context context,
-			AppConfig app) throws IllegalArgumentException,
+	public Long parseTotalDepositos(Document document) throws IllegalArgumentException,
 			IllegalStateException, IOException, DOMException,
 			ParserConfigurationException, SAXException {
 

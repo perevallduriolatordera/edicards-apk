@@ -1,6 +1,7 @@
 package net.ifeu.edicards;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
@@ -364,7 +365,7 @@ public class StockManager extends Fragment implements IMediator {
 
 				if (result) {
 
-					PdfInventoryRecycled pdf = new PdfInventoryRecycled(_appConfig, _appConfig);
+					PdfInventoryRecycled pdf = new PdfInventoryRecycled(_appConfig);
 					if (pdf.createInventory()) {
 
 						that.initializeStock(true);
@@ -591,7 +592,7 @@ public class StockManager extends Fragment implements IMediator {
 
 							_lastTextBox = (TextBoxColor) view;
 							EditText textBox = (EditText) view;
-							int unidades = Integer.parseInt(textBox.getText().toString() != "" ? textBox.getText().toString() : "0");
+							int unidades = Integer.parseInt(!Objects.equals(textBox.getText().toString(), "") ? textBox.getText().toString() : "0");
 
 							((Articulo) unidadesRecuento.getTag()).Stock = unidades;
 							logBookWriter.setData("ASIGNACION DE ALMACÉN", ConstantsTypes.EMPTY_STRING,
@@ -610,7 +611,7 @@ public class StockManager extends Fragment implements IMediator {
 								_lastTextBox = (TextBoxColor) view;
 								EditText textBox = (EditText) view;
 
-								int unidades = Integer.parseInt(textBox.getText().toString() != "" ? textBox.getText().toString(): "0");
+								int unidades = Integer.parseInt(!Objects.equals(textBox.getText().toString(), "") ? textBox.getText().toString(): "0");
 								((Articulo) unidadesRecuento.getTag()).Stock = unidades;
 
 								logBookWriter.setData("ASIGNACION DE ALMACÉN", ConstantsTypes.EMPTY_STRING,
@@ -820,7 +821,7 @@ public class StockManager extends Fragment implements IMediator {
 	@Override
 	public void notify(String event, Object payload) {
 
-		if (event == ConstantsEvents.EVENT_STOCK_CHANGED) {
+		if (Objects.equals(event, ConstantsEvents.EVENT_STOCK_CHANGED)) {
 			_isRendered = false;
 		}
 	}

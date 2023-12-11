@@ -38,7 +38,7 @@
     <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/StarIOPort3.1.jar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/woosimprinter_bt.jar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.apache.commons:commons-csv:1.5" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-annotations:24.2.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-annotations:25.3.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.google.code.gson:gson:2.8.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.okhttp3:okhttp:3.6.0" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.squareup.okio:okio:1.11.0" level="project" />
@@ -53,12 +53,15 @@
     <orderEntry type="library" scope="TEST" name="Gradle: xml-apis:xml-apis:1.0.b2" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.apache.commons:commons-text:1.9" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.apache.commons:commons-lang3:3.11" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-v4:24.2.1@aar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-fragment:24.2.1@aar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-media-compat:24.2.1@aar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-core-utils:24.2.1@aar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-core-ui:24.2.1@aar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-compat:24.2.1@aar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.google.zxing:core:3.4.1" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: commons-net:commons-net:3.5" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.journeyapps:zxing-android-embedded:3.6.0@aar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-v4:25.3.1@aar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-fragment:25.3.1@aar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-media-compat:25.3.1@aar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-core-utils:25.3.1@aar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-core-ui:25.3.1@aar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-compat:25.3.1@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.amitshekhar.android:android-networking:1.0.0@aar" level="project" />
   </component>
   <component name="TestModuleProperties" production-module="edicards-apk.app.main" />

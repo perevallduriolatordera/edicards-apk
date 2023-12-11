@@ -288,6 +288,9 @@ public class DepositManager extends Fragment implements  IMediator {
 		});
 		
 		_checkPagado.setOnCheckedChangeListener((buttonView, isChecked) -> {
+
+			if (_deposito == null) return;
+
 			_deposito.Pagado = isChecked;
 
 			if (isChecked)
@@ -387,7 +390,7 @@ public class DepositManager extends Fragment implements  IMediator {
 					_textBoxColorRequestFocus.requestFocus();
 
 				try {
-					DepositManagerExtension.Dialogs.StartCustomerDataDialog((Fragment) that);
+					DepositManagerExtension.Dialogs.StartCustomerDataDialog(that);
 				} catch (Exception e) {
 						throw new RuntimeException(e);
 				}
@@ -410,7 +413,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				else
 					_deposito.Serie = _appConfig.getUser().SerialInvoiceB;
 
-				DepositManagerExtension.Dialogs.StartTotalesDialog((Fragment) that);
+				DepositManagerExtension.Dialogs.StartTotalesDialog(that);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -442,7 +445,7 @@ public class DepositManager extends Fragment implements  IMediator {
 					if (!result) {
 						return;
 					} else {
-						DepositManagerExtension.Dialogs.StartCustomerDataDialog( (Fragment) that);
+						DepositManagerExtension.Dialogs.StartCustomerDataDialog(that);
 					}
 				}
 
@@ -527,7 +530,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			try {
 
-				ArrayList<Deposito> depositos = (ArrayList<Deposito>) deposito
+				ArrayList<Deposito> depositos = deposito
 						.getDepositosByCodigoCliente(String.valueOf(cliente.CodigoCliente));
 
 				if (_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
@@ -937,7 +940,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 				if (!_deposito.Cliente.hasGDPRSigned()) {
 
-					PdfGDPR gdpr = new PdfGDPR(this._deposito.Cliente, GUID, this._appConfig, this._appConfig);
+					PdfGDPR gdpr = new PdfGDPR(this._deposito.Cliente, GUID, this._appConfig);
 					if (gdpr.createGDPR())
 						_deposito.Cliente.setGDPRSigned();
 					else
@@ -963,7 +966,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		resetDepositData();
 	}
 
-	private void SaveHistorico() throws Exception {
+	private void SaveHistorico() {
 
 		_deposito.PagoDescripcion = _comboPago.getText();
 		_deposito.Filiacion = DepositManagerExtension.DataTier.getFiliacionCode(_comboFiliacion.getText());
@@ -1075,7 +1078,6 @@ public class DepositManager extends Fragment implements  IMediator {
 
 					}
 					result = false;
-					cancel = false;
 					if (_deposito.isAlbaran()) {
 						do {
 							try {
@@ -1161,7 +1163,7 @@ public class DepositManager extends Fragment implements  IMediator {
 			articuloDescripcion.setText(lineaDeposito.Articulo.Descripcion.trim());
 			articuloDescripcion.setTag(lineaDeposito.Articulo);
 
-			articuloDescripcion.setOnClickListener(v -> DepositManagerExtension.Dialogs.StartArticuloDialog((Articulo) ((LabelColor) v).getTag(), (Fragment) that));
+			articuloDescripcion.setOnClickListener(v -> DepositManagerExtension.Dialogs.StartArticuloDialog((Articulo) v.getTag(), that));
 
 			LabelColor unidadesInicialesFijas = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 					String.valueOf(lineaDeposito.UnidadesInicialesFijas), TEXT_SIZE, 13, params, true, lineaDeposito)
@@ -1290,9 +1292,9 @@ public class DepositManager extends Fragment implements  IMediator {
 					}
 
 					((LineaDeposito) view.getTag()).PVP = pvp1;
-					LineaDeposito lineaDeposito13 = (LineaDeposito) view.getTag();
+					LineaDeposito lineaDepositoPVP = (LineaDeposito) view.getTag();
 					try {
-						refreshLayout(lineaDeposito13, layoutGrid, false);
+						refreshLayout(lineaDepositoPVP, layoutGrid, false);
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
@@ -1490,7 +1492,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 	}
 
-	private void addLineHeaderAbono(LineaDeposito lineaDeposito,  final LinearLayout layoutGrid) throws Exception {
+	private void addLineHeaderAbono(LineaDeposito lineaDeposito,  final LinearLayout layoutGrid) {
 
 		final DepositManager that = this;
 
@@ -1519,7 +1521,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		articuloDescripcion.setText((lineaDeposito.Articulo.Descripcion.trim()));
 		articuloDescripcion.setTag(lineaDeposito.Articulo);
 
-		articuloDescripcion.setOnClickListener(v -> DepositManagerExtension.Dialogs.StartArticuloDialog((Articulo) ((LabelColor) v).getTag(), (Fragment) that));
+		articuloDescripcion.setOnClickListener(v -> DepositManagerExtension.Dialogs.StartArticuloDialog((Articulo) v.getTag(), that));
 
 		LabelColor labelCantidadAbono = createHeaderLayout ?  DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				"Cantidad", TEXT_SIZE, 100, params, true)

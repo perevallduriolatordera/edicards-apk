@@ -1,20 +1,6 @@
 package net.ifeu.edicards.Pdf;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.ConstantsTypes;
-import net.ifeu.edicards.Constants.ConstantsFolders;
-import net.ifeu.edicards.DataTier.Articulo;
-import net.ifeu.edicards.DataTier.Factories.Factory;
-import net.ifeu.edicards.DataTier.MovimientosAlmacen;
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.os.Environment;
 
 import com.itextpdf.text.Document;
@@ -23,14 +9,28 @@ import com.itextpdf.text.Element;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 
+import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.ConstantsFolders;
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.DataTier.Articulo;
+import net.ifeu.edicards.DataTier.Factories.Factory;
+import net.ifeu.edicards.DataTier.MovimientosAlmacen;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+
 public class PdfInventory extends pdfBase {
 
-	public PdfInventory(Context context, AppConfig app) {
-		super(context, app);
+	public PdfInventory(AppConfig app) {
+		super(app);
 	}
 
 	@SuppressLint("SimpleDateFormat")
-	private void printHeader() throws DocumentException {
+	protected void printHeader() throws DocumentException {
 
 		this.addLogo();
 
@@ -79,7 +79,7 @@ public class PdfInventory extends pdfBase {
 		MovimientosAlmacen movimientos = Factory.build(MovimientosAlmacen.class, _app);
 
 		Date now = new Date();
-		LinkedHashMap<String,ArrayList<MovimientosAlmacen>> movs = new LinkedHashMap<>();
+		LinkedHashMap<String,ArrayList<MovimientosAlmacen>> movs;
 		
 		try {
 			 
@@ -109,30 +109,24 @@ public class PdfInventory extends pdfBase {
 				{
 					ArrayList<MovimientosAlmacen> array = movs.get(art.CodigoArticulo);
 					
-					String movsText = ConstantsTypes.EMPTY_STRING;
-					
-					for(Iterator<MovimientosAlmacen> iterator = array.iterator(); iterator.hasNext();) 
-					{
-						MovimientosAlmacen movArticulo = (MovimientosAlmacen) iterator.next();
-						
-						if (movArticulo.Entradas != 0 || movArticulo.Salidas != 0)
-						{
+					StringBuilder movsText = new StringBuilder(ConstantsTypes.EMPTY_STRING);
+
+					for (MovimientosAlmacen movArticulo : array) {
+						if (movArticulo.Entradas != 0 || movArticulo.Salidas != 0) {
 							String auxText = this.getDateTimeFormat(movArticulo.Fecha)
-								  + (movArticulo.Tipo == 1 ? " Inventario: " : " Camión: ")
-								  + (movArticulo.Entradas != 0 ? movArticulo.Entradas + " unidades entradas " : ConstantsTypes.EMPTY_STRING)
-								  + (movArticulo.Salidas != 0 ? movArticulo.Salidas + " unidades sacadas " : ConstantsTypes.EMPTY_STRING)
-								  + (movArticulo.TipoStock == 1 ? " de unidades en buen estado " : " de unidades de reciclaje ")
-								  + "\n";
-						
-						
-						
-							movsText = movsText + padRight(ConstantsTypes.EMPTY_STRING,
-								15)
-								+ padRight(auxText, 60);
-								
-						}					
+									+ (movArticulo.Tipo == 1 ? " Inventario: " : " Camión: ")
+									+ (movArticulo.Entradas != 0 ? movArticulo.Entradas + " unidades entradas " : ConstantsTypes.EMPTY_STRING)
+									+ (movArticulo.Salidas != 0 ? movArticulo.Salidas + " unidades sacadas " : ConstantsTypes.EMPTY_STRING)
+									+ (movArticulo.TipoStock == 1 ? " de unidades en buen estado " : " de unidades de reciclaje ")
+									+ "\n";
+
+
+							movsText.append(padRight(ConstantsTypes.EMPTY_STRING,
+									15)).append(padRight(auxText, 60));
+
+						}
 					}
-					_document.add(new Paragraph(movsText, _fontNormal));
+					_document.add(new Paragraph(movsText.toString(), _fontNormal));
 					_document.add(new Paragraph(ConstantsTypes.EMPTY_STRING, _fontBold));
 				}
 			} catch (Exception e) {

@@ -27,6 +27,8 @@ import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.FormaPago;
 import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.Ingresos;
+import net.ifeu.edicards.Pdf.IPdfDocumentGenerator;
+import net.ifeu.edicards.Pdf.PdfAlmacenCreator;
 import net.ifeu.edicards.Pdf.PdfAuthorization;
 import net.ifeu.edicards.Pdf.PdfCreator;
 import net.ifeu.edicards.Services.ServiceWorker;
@@ -158,19 +160,24 @@ public class DepositManagerExtension {
 		public static void GeneratePdf(String GUID, Deposito deposito, AppConfig config) throws IOException, DocumentException {
 			// Generamos los archivos pdf
 	
-			PdfCreator pdf = new PdfCreator(deposito, config, config);
+			IPdfDocumentGenerator pdf = new PdfCreator(deposito, config);
+			IPdfDocumentGenerator pdfAlmacen = new PdfAlmacenCreator(deposito,config);
 	
-			if (deposito.isDeposito()) // && _deposito.isDepositoUpdated())
+			if (deposito.isDeposito()) { // && _deposito.isDepositoUpdated())
 				pdf.createDeposito(GUID);
+				pdfAlmacen.createDeposito(GUID);
+			}
 
-			if (!TextUtils.isEmpty(deposito.NumeroAlbaran))
+			if (!TextUtils.isEmpty(deposito.NumeroAlbaran)) {
 				pdf.createAlbaran(GUID, DataTier.isTransferPayment(deposito.FormaPago));
+			}
+
 		}
 	
 		public static void GenerateAuthorization(String GUID, Deposito deposito, AppConfig config) throws FileNotFoundException, DocumentException {
 			// Generamos los archivos pdf de autorización de Cuenta Corriente
 	
-			PdfAuthorization pdf = new PdfAuthorization(deposito, GUID, config, config);
+			PdfAuthorization pdf = new PdfAuthorization(deposito, GUID, config);
 	
 			if (deposito.CCCUpdated)
 				pdf.createAuthorization();

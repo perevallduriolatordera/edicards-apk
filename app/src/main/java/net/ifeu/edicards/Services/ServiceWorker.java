@@ -5,21 +5,25 @@ import android.content.Context;
 import android.os.Environment;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.Constants.ConstantsCredentials;
 import net.ifeu.edicards.Constants.ConstantsEndpoints;
+import net.ifeu.edicards.Constants.ConstantsFTP;
 import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.Constants.ConstantsMail;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.FormaPago;
+import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.Pactos;
 import net.ifeu.edicards.DataTier.Tarifa;
 import net.ifeu.edicards.DataTier.TipoIVA;
 import net.ifeu.edicards.Excel.LogBookCreator;
+import net.ifeu.edicards.Pdf.IPdfDocumentGenerator;
+import net.ifeu.edicards.Pdf.PdfAlmacenCreator;
 import net.ifeu.edicards.Pdf.PdfInventory;
 import net.ifeu.edicards.Services.RestClient.RequestMethod;
 import net.ifeu.edicards.Xml.XmlCreator;
@@ -28,11 +32,13 @@ import net.ifeu.library.Debugger.Debugger;
 import net.ifeu.library.Firebase.ArticuloStock;
 import net.ifeu.library.Firebase.ArticuloStockResponse;
 import net.ifeu.library.Firebase.FireStoreCaller;
+import net.ifeu.library.Ftp.FTPUploader;
 import net.ifeu.library.IO.IOUtils;
 import net.ifeu.library.LogBook.LogBook;
 import net.ifeu.library.Mail.Mail;
 import net.ifeu.library.Mail.MailSender;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.w3c.dom.Document;
@@ -78,7 +84,34 @@ public class ServiceWorker extends ServiceBase {
 		String directory;
 		List<String> files;
 
-		// * * * * * * * * * ENVIAMOS PDF * * * * * * * * * * * *
+        // * * * * * * * * * ENVIAMOS SEMÁFORO STOCK NTV * * * * * * * * * * * *
+
+        String ntvFile = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+                + ConstantsFolders.FOLDER_STOCK_NTV + "/" + ConstantsFolders.FILE_STOCK_NTV;
+
+        CsvCreator csvCreator = new CsvCreator(ntvFile, "IdArticulo", "Semaforo");
+
+        LinkedHashMap<String, Articulo> articulos = app.getCache().getAllArticulos();
+
+        for (Articulo articuloInCatalgo : articulos.values()) {
+            csvCreator.addLine(articuloInCatalgo.CodigoArticulo, articuloInCatalgo.StockPropio);
+        }
+
+        csvCreator.flush();
+
+        String server = ConstantsFTP.FTP_SERVER;
+        int port = ConstantsFTP.FTP_PORT;
+        String username = ConstantsFTP.FTP_USERNAME;
+        String password = ConstantsFTP.FTP_PASSWORD;
+        String remoteDirectory = ConstantsFTP.FTP_REMOTE_DIRECTORY;
+        String localFilePath = ntvFile;
+
+        // Pendent d'activació compte ftp
+        FTPUploader ftpUploader = new FTPUploader();
+        ftpUploader.uploadFile(server, port, username, password, remoteDirectory, localFilePath);
+
+
+        // * * * * * * * * * ENVIAMOS PDF * * * * * * * * * * * *
 
 		directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
 				+ ConstantsFolders.FOLDER_PDF;
@@ -110,7 +143,7 @@ public class ServiceWorker extends ServiceBase {
 				title = title + " generado a fecha " + sdf.format(fileInfo.lastModified());
 
 				String[] parts = file.split("_");
-				if (parts.length > 3 && parts[3].startsWith("E") && fileInfo.getName().subSequence(0, 1).equals("A")) {
+				if (parts.length > 3 && parts[3].startsWith("E") && fileInfo.getName().subSequence(0, 4).equals("AALM")) {
 					MailSender mailEnviosEdicards = new MailSender(ConstantsMail.MAIL_ENVIOS_EDICARDS, title, ConstantsMail.MAIL_BODY, file);
 					try {
 						mailEnviosEdicards.send();
@@ -137,7 +170,9 @@ public class ServiceWorker extends ServiceBase {
 				MailSender mail = new MailSender(ConstantsMail.MAIL_TO, title, ConstantsMail.MAIL_BODY, file);
 
 				try {
-					mail.send();
+					if (!fileInfo.getName().subSequence(0, 4).equals("AALM"))
+						mail.send();
+
 					IOUtils.deleteFile(file);
 					Debugger.Debug(context, app.getUser().User,"Se ha enviado el albarán " + albaran + " a la cuenta de gmail de Edicards", file);
 				} catch (Exception e) {
@@ -317,9 +352,7 @@ public class ServiceWorker extends ServiceBase {
 					IOUtils.deleteFile(file);                                                                                 
 					this.Monitor().ArticulosSend++;
 				}                                                                                                                    
-				else {                                                                                                               
-					continue;                        
-				}                                                                                                                    
+
 			} catch (Exception e) {
 				continue;                                                              
 			}                                                                                                                        
@@ -356,7 +389,7 @@ public class ServiceWorker extends ServiceBase {
 		List<String> inventario = IOUtils.getFilesFromDirectory(directory);
 
 		if (anyGastos) {
-			PdfInventory inventory = new PdfInventory(context, app);
+			PdfInventory inventory = new PdfInventory(app);
 			inventory.createInventory();
 
 			for (String file : inventario) {
@@ -518,25 +551,32 @@ public class ServiceWorker extends ServiceBase {
 			} catch (Exception e) {                                                                                                  
 			}
 		}
-
-		// * * * * * * * * * ENVIAMOS SEMÁFORO STOCK NTV * * * * * * * * * * * *
-
-		String file = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
-				+ ConstantsFolders.FOLDER_STOCK_NTV + "/" + ConstantsFolders.FILE_STOCK_NTV;
-
-		CsvCreator csvCreator = new CsvCreator(file, "IdArticulo", "Semaforo");
-
-		LinkedHashMap<String, Articulo> articulos = app.getCache().getAllArticulos();
-
-		for (Articulo articuloInCatalgo : articulos.values()) {
-			csvCreator.addLine(articuloInCatalgo.CodigoArticulo, articuloInCatalgo.StockPropio);
-		}
-
-		csvCreator.flush();
-
 	}                                                                                                                                
                                                                                                                                      
 	public boolean RunImport(Context context, boolean compress) {
+
+		/*AppConfig app1 = (AppConfig) context;
+		Deposito deposito1 = Factory.build(Deposito.class, app1);
+		try {
+			ArrayList<Deposito> depositos1 = deposito1
+					.getDepositosByCodigoCliente("20488");
+
+			Deposito d = depositos1.get(0);
+			int i = 0;
+			for (LineaDeposito l : d.Lineas.values()) {
+						l.UnidadesRepuestas = 100;
+			}
+
+			IPdfDocumentGenerator pdf = new PdfAlmacenCreator(d, app1);
+			pdf.createDeposito("121212");
+
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+
+		if (true == true) return true;*/
 
 		AppConfig app;                                                                                                               
 		app = (AppConfig) context;                                                                                                   
@@ -594,7 +634,7 @@ public class ServiceWorker extends ServiceBase {
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
 						+ "&Tots=" + all, credentials);
 
-				parser.parseFormasPago(document, app, formaPago, compress);
+				parser.parseFormasPago(document, formaPago, compress);
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                     				
 			}                                                                                                                        
@@ -612,7 +652,7 @@ public class ServiceWorker extends ServiceBase {
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
 						+ "&Tots=" + all, credentials);
                                                                                                                                      
-				parser.parseTiposIva(document, app, iva, compress);
+				parser.parseTiposIva(document, iva, compress);
                                                                                                                                      
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                                                                                         
@@ -630,7 +670,7 @@ public class ServiceWorker extends ServiceBase {
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
 						+ "&Tots=" + all, credentials);
                                                                                                                                      
-				parser.parseArticulos(document, context, app, articulo, compress);                                                   
+				parser.parseArticulos(document, app, articulo, compress);
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                                                                                         
 			}                                                                                                                        
@@ -686,7 +726,7 @@ public class ServiceWorker extends ServiceBase {
 						+ "&Tots=" + all, credentials);
 				
 				this.saveDocumentToFile(this.DocumentToString(document), "TraspasoStock.xml");
-				resultTraspaso = parser.ParserTraspasoAlmacen(document, context, app, articulo, compress);                           
+				resultTraspaso = parser.ParserTraspasoAlmacen(document, app, articulo, compress);
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                      
 				resultTraspaso = false;                                                                                              
@@ -703,11 +743,11 @@ public class ServiceWorker extends ServiceBase {
 							credentials);                                                                                            
 
 				} catch (Exception e) {                                                                                              
-					parser.UndoTraspasoAlmacen(context, app);                                                                        
+					parser.UndoTraspasoAlmacen(app);
 					result = false;                                                                                                  
 				}	                                                                                                                 
 			} else {
-				parser.UndoTraspasoAlmacen(context, app);                                                                        
+				parser.UndoTraspasoAlmacen(app);
 				result = false;
 			}
 			                                                                                                                         
@@ -725,7 +765,7 @@ public class ServiceWorker extends ServiceBase {
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
 						+ "&Tots=" + all, credentials);
                                                                                                                                      
-				parser.parseClientes(document, context, app, cliente, compress);                                                     
+				parser.parseClientes(document, app, cliente, compress);
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                      
 			}                                                                                                                        
@@ -742,7 +782,7 @@ public class ServiceWorker extends ServiceBase {
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
 						+ "&Tots=" + all, credentials);
                                                                                                                                      
-				parser.parseTarifas(document, context, app, tarifa, compress);                                                       
+				parser.parseTarifas(document, app, tarifa, compress);
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                      
 			}                                                                                                                        
@@ -759,7 +799,7 @@ public class ServiceWorker extends ServiceBase {
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
 						+ "&Tots=" + all, credentials);
                                                                                                                                      
-				parser.parsePactos(document, context, app, pacto, compress);                                                         
+				parser.parsePactos(document, app, pacto, compress);
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                      
 			}                                                                                                                        
@@ -776,7 +816,7 @@ public class ServiceWorker extends ServiceBase {
 				document = http.Call(url + "?empresa=" + app.getUser().Company + "&comercial=" + app.getUser().User                  
 						+ "&Tots=" + true, credentials);
                                                                                                                                      
-				totalLineasDeposito = parser.parseTotalDepositos(document, context, app);                                            
+				totalLineasDeposito = parser.parseTotalDepositos(document);
                                                                                                                                      
 			} catch (Exception e) {                                                                                                  
 				result = false;                                                                                                      
@@ -807,7 +847,7 @@ public class ServiceWorker extends ServiceBase {
 												+ "&finsA=" + (i + ConstantsEndpoints.WS_PAGINACION - 1),
 										credentials);                                                                                
                                                                                                                                      
-								parser.parseDepositos(document, context, app, deposito, compress);                                   
+								parser.parseDepositos(document, app, compress);
 								successful = true;                                                                                   
 								maxAttempts++;                                                                                       
 								                                                                                                     
@@ -910,9 +950,13 @@ public class ServiceWorker extends ServiceBase {
 
 		File ntv = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_STOCK_NTV + "/");
 		ntv.mkdirs();
+
+		File ean = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_EAN + "/");
+		ean.mkdirs();
                                                                                                                                      
 	}                                                                                                                                
-                                                                                                                                     
+
+
 	private String encodeURIComponent(String s) {                                                                                    
 		String result;
                                                                                                                                      

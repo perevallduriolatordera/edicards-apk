@@ -21,7 +21,7 @@ public class HttpService {
 	private InputStream OpenHttpConnection(String urlString,
 			WSCredentials credentials) throws IOException {
 		InputStream in;
-		int response = -1;
+		int response;
 
 		URL url = new URL(urlString);
 		URLConnection conn = url.openConnection();
@@ -58,7 +58,7 @@ public class HttpService {
 
 	private InputStream OpenHttpConnection(String urlString) throws IOException {
 		InputStream in;
-		int response = -1;
+		int response;
 
 		URL url = new URL(urlString);
 		URLConnection conn = url.openConnection();
@@ -93,7 +93,7 @@ public class HttpService {
 		int postDataLength = postData.length;
 		
 		InputStream in;
-		int response = -1;
+		int response;
 		
 		URL url = new URL(urlString);
 		URLConnection conn = url.openConnection();

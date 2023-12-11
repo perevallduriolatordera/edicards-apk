@@ -35,6 +35,7 @@ import net.ifeu.edicards.DataTier.IncidenciaType;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.LineaHistorico;
 import net.ifeu.edicards.DataTier.Reporting;
+import net.ifeu.edicards.Pdf.IPdfDocumentGenerator;
 import net.ifeu.edicards.Pdf.PdfDTOCreator;
 import net.ifeu.edicards.Printer.PrintManager;
 import net.ifeu.edicards.Services.ServiceWorker;
@@ -122,7 +123,7 @@ public class Reports extends Fragment {
 
 			String date = formatter.format(hist.Fecha);
 			if (reporting.Agrupado.containsKey(date)) {
-				ArrayList<Historico> oldList = (ArrayList<Historico>) reporting.Agrupado
+				ArrayList<Historico> oldList = reporting.Agrupado
 						.get(date);
 				oldList.add(hist);
 			} else {
@@ -339,7 +340,7 @@ public class Reports extends Fragment {
 		android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
-		((MarginLayoutParams) params).setMargins(0, 0, 0, 10);
+		params.setMargins(0, 0, 0, 10);
 
 		final LinearLayout layout = new LinearLayout(this.getActivity());
 		layout.setOrientation(LinearLayout.VERTICAL);
@@ -554,7 +555,6 @@ public class Reports extends Fragment {
 
 					}
 					result = false;
-					cancel = false;
 
 					if (dto.isAlbaran()) {
 						do {
@@ -702,7 +702,7 @@ public class Reports extends Fragment {
 				switch (linea.Tipo) {
 					case ConstantsTypes.TIPO_LINEA_HISTORICO_FACTURADAS: {
 						int stockInicial = linea.Articulo.Stock;
-						linea.Articulo.Stock = (int) (stockInicial + linea.Unidades);
+						linea.Articulo.Stock = stockInicial + linea.Unidades;
 
 						if (stockInicial != linea.Articulo.Stock) {
 
@@ -719,7 +719,7 @@ public class Reports extends Fragment {
 
 					case ConstantsTypes.TIPO_LINEA_HISTORICO_POTENCIADAS: {
 						int stockInicial = linea.Articulo.Stock;
-						linea.Articulo.Stock = (int) (stockInicial + linea.Unidades);
+						linea.Articulo.Stock = stockInicial + linea.Unidades;
 
 						if (stockInicial != linea.Articulo.Stock) {
 
@@ -737,7 +737,7 @@ public class Reports extends Fragment {
 
 					case ConstantsTypes.TIPO_LINEA_HISTORICO_BAJAS: {
 						int stockInicial = linea.Articulo.Stock;
-						linea.Articulo.Stock = (int) (stockInicial - linea.Unidades);
+						linea.Articulo.Stock = stockInicial - linea.Unidades;
 
 						if (stockInicial != linea.Articulo.Stock) {
 
@@ -753,8 +753,8 @@ public class Reports extends Fragment {
 					}
 
 					case ConstantsTypes.TIPO_LINEA_HISTORICO_DEFECTUOSAS: {
-						linea.Articulo.StockDefectuoso = (int) (linea.Articulo.StockDefectuoso
-								- linea.Unidades);
+						linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso
+								- linea.Unidades;
 						break;
 					}
 
@@ -791,10 +791,10 @@ public class Reports extends Fragment {
 						linea.Articulo = historicoLinea.Articulo;
 						linea.Deposito = deposito;
 						
-						linea.UnidadesIniciales = (int) historicoLinea.Unidades;
+						linea.UnidadesIniciales = historicoLinea.Unidades;
 						linea.UnidadesInicialesFijas = linea.UnidadesIniciales;
 	
-						linea.PVP = (double) historicoLinea.PVP;
+						linea.PVP = historicoLinea.PVP;
 						//linea.PVPAnterior = linea.getPVP(_cliente, articuloInCatalgo);
 						linea.PVPAnterior = linea.PVP;
 						linea.PVPInicial = linea.PVPAnterior;
@@ -838,8 +838,8 @@ public class Reports extends Fragment {
 		
 		XmlCreator creator = new XmlCreator(_appConfig, _appConfig);
 		creator.createXmlAlbaran(deposito, historico.NumeroAlbaran);
-		PdfDTOCreator pdf = new PdfDTOCreator(deposito, _appConfig, _appConfig);
 
+		IPdfDocumentGenerator pdf = new PdfDTOCreator(deposito, _appConfig);
 		pdf.createAlbaran(historico.GUID, !historico.ActualizarStock);
 		
 		try {

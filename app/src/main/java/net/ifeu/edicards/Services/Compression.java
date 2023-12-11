@@ -7,11 +7,10 @@ import java.io.IOException;
 public class Compression {
 
 	public static byte[] decompress(byte[] zipContent) throws IOException {
-		byte[] compressed = zipContent;
-		if (compressed.length > 4) {
+		if (zipContent.length > 4) {
 			GZIPInputStream gzipInputStream = new GZIPInputStream(
-					new ByteArrayInputStream(compressed, 4,
-							compressed.length - 4));
+					new ByteArrayInputStream(zipContent, 4,
+							zipContent.length - 4));
 
 			ByteArrayOutputStream output = new ByteArrayOutputStream();
 			for (int value = 0; value != -1;) {

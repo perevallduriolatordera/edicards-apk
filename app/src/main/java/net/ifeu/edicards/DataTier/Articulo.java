@@ -33,6 +33,8 @@ public class Articulo extends Persistent implements IPersistable {
 	public int MovimientoStockDefectuosas;
 	public boolean StockPropio;
 
+	public String EAN;
+
 	@Override
 	public void save() throws Exception {
 		
@@ -50,6 +52,7 @@ public class Articulo extends Persistent implements IPersistable {
 		values.put("StockDefectuoso",this.StockDefectuoso);
 		values.put("Tipo", this.Tipo);
 		values.put("StockPropio", this.StockPropio ? 1 : 0 );
+		values.put("EAN", this.EAN);
 		
 		this.IdArticulo = super.getDatabaseOperations().insert(ConstantsDatabase.TABLE_ARTICULOS, null , values);
 		
@@ -73,6 +76,7 @@ public class Articulo extends Persistent implements IPersistable {
 		values.put("StockDefectuoso", this.StockDefectuoso);
 		values.put("Tipo", this.Tipo);
 		values.put("StockPropio", this.StockPropio ? 1 : 0);
+		values.put("EAN", this.EAN);
 
 		String[] whereArgs = { String.valueOf(this.IdArticulo) }; 
 		
@@ -120,6 +124,7 @@ public class Articulo extends Persistent implements IPersistable {
 							articulo.Tipo=cursor.getInt(cursor.getColumnIndex("Tipo"));
 							articulo.TipoIVA = cursor.getString(cursor.getColumnIndex("TipoIVA"));
 							articulo.StockPropio = cursor.getInt(cursor.getColumnIndex("StockPropio")) == 1;
+							articulo.EAN = cursor.getString(cursor.getColumnIndex("EAN"));
 
 							list.put(articulo.CodigoArticulo.trim(),articulo);
 						}
@@ -161,8 +166,10 @@ public class Articulo extends Persistent implements IPersistable {
 				this.Tipo = Integer.parseInt(cursor.getString(cursor.getColumnIndex("Tipo")));
 				this.TipoIVA = cursor.getString(cursor.getColumnIndex("TipoIVA"));
 				this.StockPropio = cursor.getInt(cursor.getColumnIndex("StockPropio")) == 1;
-			
-			    cursor.close();
+				this.EAN = cursor.getString(cursor.getColumnIndex("EAN"));
+
+
+				cursor.close();
 			    
 				return true; 
 			}
@@ -197,8 +204,9 @@ public class Articulo extends Persistent implements IPersistable {
 			this.Tipo = Integer.parseInt(cursor.getString(cursor.getColumnIndex("Tipo")));
 			this.TipoIVA = cursor.getString(cursor.getColumnIndex("TipoIVA"));
 			this.StockPropio = cursor.getInt(cursor.getColumnIndex("StockPropio")) == 1;
-			
-		    cursor.close();
+			this.EAN = cursor.getString(cursor.getColumnIndex("EAN"));
+
+			cursor.close();
 			return true;
 		}
 		
@@ -229,8 +237,9 @@ public class Articulo extends Persistent implements IPersistable {
 			this.Tipo = Integer.parseInt(cursor.getString(cursor.getColumnIndex("Tipo")));
 			this.TipoIVA = cursor.getString(cursor.getColumnIndex("TipoIVA"));
 			this.StockPropio = cursor.getInt(cursor.getColumnIndex("StockPropio")) == 1;
-			
-		    cursor.close();
+			this.EAN = cursor.getString(cursor.getColumnIndex("EAN"));
+
+			cursor.close();
 			return true;
 		}
 		

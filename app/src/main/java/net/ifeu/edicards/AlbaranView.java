@@ -31,7 +31,7 @@ public class AlbaranView extends Activity {
         android.view.WindowManager.LayoutParams params = getWindow().getAttributes(); 
         params.height = LayoutParams.FILL_PARENT;
         params.width  = 1000;
-        getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+        getWindow().setAttributes(params);
         
         try {
 			fillAlbaran();

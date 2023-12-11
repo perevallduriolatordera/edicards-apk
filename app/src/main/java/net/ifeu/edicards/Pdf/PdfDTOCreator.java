@@ -1,5 +1,19 @@
 package net.ifeu.edicards.Pdf;
 
+import android.os.Environment;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
+
+import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.ConstantsFolders;
+import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.DataTier.DTODeposito;
+import net.ifeu.edicards.DataTier.DTOLineaDeposito;
+import net.ifeu.edicards.DataTier.Totales;
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.DecimalFormat;
@@ -8,27 +22,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
 
-import android.content.Context;
-import android.os.Environment;
-import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.ConstantsTypes;
-import net.ifeu.edicards.Constants.ConstantsFolders;
-import net.ifeu.edicards.DataTier.DTODeposito;
-import net.ifeu.edicards.DataTier.DTOLineaDeposito;
-import net.ifeu.edicards.DataTier.Totales;
-
-public class PdfDTOCreator extends pdfBase {
+public class PdfDTOCreator extends pdfBase implements IPdfDocumentGenerator {
 
 	DTODeposito _deposito;
 
-	public PdfDTOCreator(DTODeposito deposito, Context context, AppConfig app) {
-		super(context, app);
+	public PdfDTOCreator(DTODeposito deposito, AppConfig app) {
+		super(app);
 		_deposito = deposito;
 	}	
 
@@ -38,26 +38,6 @@ public class PdfDTOCreator extends pdfBase {
 				"---------------------------------------------------------------------"
 						+ "--------------------------------------- \n",
 				_fontNormal));
-	}
-
-	private void printHeader() throws DocumentException {
-
-		this.addLogo();
-		String text;
-
-		text = "\nGRUP EDICIONES ESTER JAEN SL\n"
-				+ "NIF: B-61806808\n"
-				+ "Ediciones Ester Jaen S.L.  Pol. Ind Pla de la Bruguera\n"
-				+ "C/Solsones, 68  08211\n"
-				+ "Castellar del Valles  (Spain)\n"
-				+ "Telfs: 902007753  937143823    Tel. Internacional +34 937143823\n"
-				+ "Fax.902007754\n"
-				+ "e-mail: edicards@edicards.com    Web: www.edicards.com\n\n";
-
-		Paragraph paragraph = new Paragraph(text, _fontNormal);
-		paragraph.setAlignment(Element.ALIGN_CENTER);
-		_document.add(paragraph);
-		this.insertSeparators();
 	}
 
 	private void printHeaderData(int Tipo) throws DocumentException {
@@ -176,7 +156,7 @@ public class PdfDTOCreator extends pdfBase {
 
 			}
 
-			String total = ConstantsTypes.EMPTY_STRING;
+			String total;
 			
 			if (_deposito.Serie.equals(_app.getUser().SerialInvoiceA)) {
 					total = padLeft(" ", 43)
@@ -295,10 +275,8 @@ public class PdfDTOCreator extends pdfBase {
 	private void printHeaderDetail(int tipo) throws DocumentException {
 
 		DecimalFormat df = new DecimalFormat("0.00");
-		List<DTOLineaDeposito> tempList = new ArrayList<DTOLineaDeposito>();
-		for (DTOLineaDeposito linea : _deposito.Lineas.values()) {
-			tempList.add(linea);
-		}
+
+		List<DTOLineaDeposito> tempList = new ArrayList<>(_deposito.Lineas.values());
 
 		Collections
 				.sort(tempList, new DTOLineaDeposito().new ArticuloComparator());
@@ -392,8 +370,7 @@ public class PdfDTOCreator extends pdfBase {
 
 	}
 
-	public boolean createAlbaran(String guid, boolean envioEdicards) throws FileNotFoundException,
-			DocumentException {
+	public boolean createAlbaran(String guid, boolean envioEdicards) {
 
 		_GUID = guid;
 		_document = new Document();
@@ -404,9 +381,13 @@ public class PdfDTOCreator extends pdfBase {
 				+ "_" + this.getDateTimeFormat() + "_" + (envioEdicards ? "E" : "F") + ".pdf";
 
 		_document.addTitle(_app.getUser().User + "_" + _deposito.NumeroAlbaran
-				+ "_" + String.valueOf(new Date(0)));
+				+ "_" + new Date(0));
 
-		PdfWriter.getInstance(_document, new FileOutputStream(_pdfName));
+		try {
+			PdfWriter.getInstance(_document, new FileOutputStream(_pdfName));
+		} catch (DocumentException | FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
 		_document.open();
 
 		try {
@@ -416,18 +397,18 @@ public class PdfDTOCreator extends pdfBase {
 			if (_deposito.Serie.equals(_app.getUser().SerialInvoiceB)) {
 				String presupuestoText = "PRESUPUESTO: NUM "
 						+ _app.getUser().User + "/"
-						+ String.valueOf(_deposito.NumeroAlbaran) + "\n";
+						+ _deposito.NumeroAlbaran + "\n";
 
 				_document.add(new Paragraph(presupuestoText, _fontBold));
 			} else if (!_deposito.Pagado) {
 				String albaranText = "ALBARAN: NUM " + _app.getUser().User
-						+ "/" + String.valueOf(_deposito.NumeroAlbaran) + "\n";
+						+ "/" + _deposito.NumeroAlbaran + "\n";
 
 				_document.add(new Paragraph(albaranText, _fontBold));
 			} else {
 				String albaranText = "ALBARAN ENTREGA: NUM "
 						+ _app.getUser().User + "/"
-						+ String.valueOf(_deposito.NumeroAlbaran) + "\n";
+						+ _deposito.NumeroAlbaran + "\n";
 
 				_document.add(new Paragraph(albaranText, _fontBold));
 			}
@@ -445,8 +426,7 @@ public class PdfDTOCreator extends pdfBase {
 		return true;
 	}
 
-	public boolean createDeposito(String guid) throws FileNotFoundException,
-			DocumentException {
+	public boolean createDeposito(String guid) {
 
 		_GUID = guid;
 
@@ -458,17 +438,21 @@ public class PdfDTOCreator extends pdfBase {
 				+ this.getDateTimeFormat() + ".pdf";
 
 		_document.addTitle(_app.getUser().User + "_" + _deposito.IdDeposito
-				+ "_" + String.valueOf(new Date(0)));
+				+ "_" + new Date(0));
 
-		_writer = PdfWriter.getInstance(_document, new FileOutputStream(
-				_pdfName));
+		try {
+			_writer = PdfWriter.getInstance(_document, new FileOutputStream(
+					_pdfName));
+		} catch (DocumentException | FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
 		_document.open();
 
 		try {
 
 			printHeader();
 			String depositoNum = "DEPOSITO: NUM " + _app.getUser().User + "/"
-					+ String.valueOf(_deposito.IdDeposito) + "\n";
+					+ _deposito.IdDeposito + "\n";
 
 			_document.add(new Paragraph(depositoNum, _fontBold));
 			this.printHeaderData(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);

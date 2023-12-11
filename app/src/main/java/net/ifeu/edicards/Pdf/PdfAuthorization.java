@@ -1,32 +1,34 @@
 package net.ifeu.edicards.Pdf;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.util.Date;
-import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.ConstantsFolders;
-import net.ifeu.edicards.DataTier.Deposito;
-import android.content.Context;
 import android.os.Environment;
+
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 
+import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.ConstantsFolders;
+import net.ifeu.edicards.DataTier.Deposito;
+
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.util.Date;
+
 public class PdfAuthorization extends pdfBase{
 
 	Deposito _deposito;
 	
-	public PdfAuthorization(Deposito deposito, String GUID, Context context, AppConfig app) {
+	public PdfAuthorization(Deposito deposito, String GUID, AppConfig app) {
 
-		super (context, app);
+		super (app);
 		_deposito = deposito;
 		_GUID = GUID;
 		
 	}
 
-	private void printHeader() throws DocumentException, FileNotFoundException {
+	protected void printHeader() throws DocumentException {
 
 		this.addLogo();
 

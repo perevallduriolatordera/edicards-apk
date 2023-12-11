@@ -1,7 +1,6 @@
 package net.ifeu.edicards.Pdf;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -10,6 +9,7 @@ import android.os.Environment;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Paragraph;
@@ -18,6 +18,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.R;
+import net.ifeu.library.Debugger.Debugger;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -26,6 +27,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -33,7 +36,6 @@ public class pdfBase {
 	protected Document _document;
 	protected PdfWriter _writer;
 	protected String _pdfName;
-	protected Context _context;
 	protected AppConfig _app;
 	protected String _GUID;
 	
@@ -44,14 +46,52 @@ public class pdfBase {
 	
 	protected static final int BUFFER_IO_SIZE = 8000;
 
-	public pdfBase (Context context, AppConfig appConfig) {
-		this._context = context;
+	public pdfBase (AppConfig appConfig) {
 		this._app = appConfig;
 	}
-	
+
+	protected void printHeader() throws DocumentException {
+
+		this.addLogo();
+		String text;
+		text = "\nGRUP EDICIONES ESTER JAEN SL\n"
+				+ "NIF: B-61806808\n"
+				+ "Ediciones Ester Jaen S.L.  Pol. Ind Pla de la Bruguera\n"
+				+ "C/Solsones, 68  08211\n"
+				+ "Castellar del Valles  (Spain)\n"
+				+ "Telfs: 902007753  937143823    Tel. Internacional +34 937143823\n"
+				+ "Fax.902007754\n"
+				+ "e-mail: edicards@edicards.com    Web: www.edicards.com\n\n";
+
+		Paragraph paragraph = new Paragraph(text, _fontNormal);
+		paragraph.setAlignment(Element.ALIGN_CENTER);
+
+		_document.add(paragraph);
+		this.insertSeparators();
+
+	}
+
+	protected boolean sendMailToMantenimiento(Exception e, String user, String id, String tipo) {
+
+		try {
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			e.printStackTrace(pw);
+
+			String title = "Error generando pdf del " + tipo + " num " + id + " del comercial " + user + ":";
+			Debugger.Debug(_app, _app.getUser().User, title + "\n\n" + sw, null);
+
+		} catch (Exception exc) {
+			return false;
+		}
+
+		return true;
+	}
+
+
 	protected void addLogo() {
 
-		Drawable myImage = _context.getResources().getDrawable(
+		Drawable myImage = _app.getResources().getDrawable(
 				R.drawable.edicardsprint);
 
 		Bitmap bitmap = ((BitmapDrawable) myImage).getBitmap();
@@ -148,8 +188,7 @@ public class pdfBase {
 
 	protected void insertSeparators() throws DocumentException {
 		_document.add(new Paragraph(
-				"_____________________________________________________________________"
-			  + "_____________________________________________________ \n",
+				"\n",
 				_fontNormal));
 	}
 	
@@ -191,10 +230,9 @@ public class pdfBase {
 			copy(bis, bos);
 			bos.flush();
 			
-			Bitmap bitmap = BitmapFactory.decodeByteArray(baos.toByteArray(), 0,
+			return BitmapFactory.decodeByteArray(baos.toByteArray(), 0,
 					baos.size());
-			
-			return bitmap;
+
 		} catch (IOException e) {
 			return null;
 		}

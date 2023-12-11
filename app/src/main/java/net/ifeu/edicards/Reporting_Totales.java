@@ -31,7 +31,7 @@ public class Reporting_Totales extends Activity {
         android.view.WindowManager.LayoutParams params = getWindow().getAttributes(); 
         params.height = LayoutParams.FILL_PARENT;
         params.width  = 900;
-        getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+        getWindow().setAttributes(params);
         
         
         fillTotales();

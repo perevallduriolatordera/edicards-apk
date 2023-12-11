@@ -14,7 +14,7 @@ public class Upgrade_App extends Activity {
 		android.view.WindowManager.LayoutParams params = getWindow().getAttributes(); 
         params.height = 700;
         params.width  = 600;
-        getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+        getWindow().setAttributes(params);
 	}
 
 	@Override

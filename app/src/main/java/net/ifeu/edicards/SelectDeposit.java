@@ -29,7 +29,7 @@ public class SelectDeposit extends Activity {
 		params.height = 400;
 		params.width = android.app.ActionBar.LayoutParams.WRAP_CONTENT;
 		getWindow().setAttributes(
-				(android.view.WindowManager.LayoutParams) params);
+				params);
 		
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
 				WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
@@ -63,7 +63,7 @@ public class SelectDeposit extends Activity {
 		final Cliente cliente = _appConfig.getWorkingArea().CurrentCliente;
 		Deposito deposito = Factory.build(Deposito.class, _appConfig);
 
-		ArrayList<Deposito> depositosList = (ArrayList<Deposito>) deposito
+		ArrayList<Deposito> depositosList = deposito
 				.getDepositosByCliente(String.valueOf(cliente.IdCliente));
 
 		final LinearLayout layout2 = new LinearLayout(this);
