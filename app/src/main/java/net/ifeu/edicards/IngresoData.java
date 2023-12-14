@@ -15,6 +15,7 @@ import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Incidencia;
 import net.ifeu.edicards.DataTier.IncidenciaType;
 import net.ifeu.edicards.DataTier.Ingresos;
+import net.ifeu.edicards.Pdf.incident.IncidentPdfCreator;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
 import java.util.Calendar;
@@ -125,7 +126,7 @@ public class IngresoData extends Fragment {
 
 		Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(), IncidenciaType.Ingreso,
 				text);
-		incidencia.create();
+		incidencia.create(new IncidentPdfCreator(_appConfig));
 
 		this.RefreshView();
 

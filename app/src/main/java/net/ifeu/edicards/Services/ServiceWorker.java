@@ -17,14 +17,11 @@ import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.FormaPago;
-import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.Pactos;
 import net.ifeu.edicards.DataTier.Tarifa;
 import net.ifeu.edicards.DataTier.TipoIVA;
 import net.ifeu.edicards.Excel.LogBookCreator;
-import net.ifeu.edicards.Pdf.IPdfDocumentGenerator;
-import net.ifeu.edicards.Pdf.PdfAlmacenCreator;
-import net.ifeu.edicards.Pdf.PdfInventory;
+import net.ifeu.edicards.Pdf.inventory.PdfInventory;
 import net.ifeu.edicards.Services.RestClient.RequestMethod;
 import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Csv.CsvCreator;
@@ -38,7 +35,6 @@ import net.ifeu.library.LogBook.LogBook;
 import net.ifeu.library.Mail.Mail;
 import net.ifeu.library.Mail.MailSender;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.w3c.dom.Document;
@@ -555,29 +551,6 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 	public boolean RunImport(Context context, boolean compress) {
 
-		/*AppConfig app1 = (AppConfig) context;
-		Deposito deposito1 = Factory.build(Deposito.class, app1);
-		try {
-			ArrayList<Deposito> depositos1 = deposito1
-					.getDepositosByCodigoCliente("20488");
-
-			Deposito d = depositos1.get(0);
-			int i = 0;
-			for (LineaDeposito l : d.Lineas.values()) {
-						l.UnidadesRepuestas = 100;
-			}
-
-			IPdfDocumentGenerator pdf = new PdfAlmacenCreator(d, app1);
-			pdf.createDeposito("121212");
-
-
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
-
-		if (true == true) return true;*/
-
 		AppConfig app;                                                                                                               
 		app = (AppConfig) context;                                                                                                   
 		boolean result = true;
@@ -953,6 +926,9 @@ public class ServiceWorker extends ServiceBase {
 
 		File ean = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_EAN + "/");
 		ean.mkdirs();
+
+		File dni = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_CUSTOMER_DOCUMENT + "/");
+		dni.mkdirs();
                                                                                                                                      
 	}                                                                                                                                
 

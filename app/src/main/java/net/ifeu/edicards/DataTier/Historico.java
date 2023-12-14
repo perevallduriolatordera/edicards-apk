@@ -238,10 +238,8 @@ public class Historico extends Persistent implements IPersistable {
 		String date2Formatted = date2.substring(6,10) + date2.substring(0,2) + date2.substring(3,5);
 		String dateValueFormatted = dateValue.substring(6,10) + dateValue.substring(0,2) + dateValue.substring(3,5);
 
-		boolean result = (dateValueFormatted.compareTo(date1Formatted) > 0 || dateValueFormatted.compareTo(date1Formatted) == 0) 
+		return (dateValueFormatted.compareTo(date1Formatted) > 0 || dateValueFormatted.compareTo(date1Formatted) == 0)
 				&& (dateValueFormatted.compareTo(date2Formatted) < 0 || dateValueFormatted.compareTo(date2Formatted) == 0);
-
-		return result;
 	}
 
 	public void saveChangesToHistorico(Deposito deposito) {
@@ -295,82 +293,68 @@ public class Historico extends Persistent implements IPersistable {
 			lineaHistorico.Articulo = linea.Articulo;
 
 			if (linea.UnidadesFacturadas > 0) {
-
-				lineaHistorico.Unidades = linea.UnidadesFacturadas;
-				lineaHistorico.MovimientoStock = linea.UnidadesRepuestas;
-				lineaHistorico.MovimientoStockDefectuosas = 0;
-
-				lineaHistorico.Tipo = ConstantsTypes.TIPO_LINEA_HISTORICO_FACTURADAS;
+				saveLineaHistorico(linea, linea.UnidadesFacturadas, linea.UnidadesRepuestas,
+						0, ConstantsTypes.TIPO_LINEA_HISTORICO_FACTURADAS, 0);
 
 			}
 
 			if (linea.UnidadesInicialesFijas == 0 && linea.UnidadesRepuestas > 0) {
-				lineaHistorico.Unidades = linea.UnidadesRepuestas;
-				lineaHistorico.MovimientoStock = linea.Articulo.MovimientoStock;
-				lineaHistorico.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas;
-
-				lineaHistorico.Tipo = ConstantsTypes.TIPO_LINEA_HISTORICO_POTENCIADAS;
-
+				saveLineaHistorico(linea, linea.UnidadesRepuestas, linea.Articulo.MovimientoStock,
+						linea.Articulo.MovimientoStockDefectuosas, ConstantsTypes.TIPO_LINEA_HISTORICO_POTENCIADAS, 0);
 			}
 
 			if (!linea.IsNew && linea.UnidadesRepuestas == 0) {
-				lineaHistorico.Unidades = linea.UnidadesInicialesFijas; //
-				lineaHistorico.MovimientoStock = 0;
-				lineaHistorico.MovimientoStockDefectuosas = 0;
-
-				lineaHistorico.Tipo = ConstantsTypes.TIPO_LINEA_HISTORICO_BAJAS;
-
+				saveLineaHistorico(linea, linea.UnidadesInicialesFijas, 0,
+						0, ConstantsTypes.TIPO_LINEA_HISTORICO_BAJAS, 0);
 			}
 
 			if (linea.UnidadesDefectuosas > 0) {
-				lineaHistorico.MovimientoStock = 0;
-				lineaHistorico.MovimientoStockDefectuosas = 0;
-
-				// linea.UnidadesFacturadas;
-
-				lineaHistorico.Tipo = ConstantsTypes.TIPO_LINEA_HISTORICO_DEFECTUOSAS;
-
+				saveLineaHistorico(linea, 0,0,0,
+						ConstantsTypes.TIPO_LINEA_HISTORICO_DEFECTUOSAS, 0);
 			}
 
 			if (linea.Articulo.MovimientoStock != 0 || linea.Articulo.MovimientoStockDefectuosas != 0) {
 
-				lineaHistorico.Unidades = 0;
-				lineaHistorico.MovimientoStock = linea.Articulo.MovimientoStock;
-				lineaHistorico.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas;
-
-				lineaHistorico.Tipo = ConstantsTypes.TIPO_LINEA_HISTORICO_STOCK;
-
+				saveLineaHistorico(linea, 0, linea.Articulo.MovimientoStock,
+						linea.Articulo.MovimientoStockDefectuosas, ConstantsTypes.TIPO_LINEA_HISTORICO_STOCK, 0);
 			}
 
 			if (linea.UnidadesAbono > 0) {
-				lineaHistorico.Unidades = linea.UnidadesAbono * -1;
-				lineaHistorico.MovimientoStock = 0;
-				lineaHistorico.MovimientoStockDefectuosas = 0;
 
-				lineaHistorico.Tipo = ConstantsTypes.TIPO_LINEA_HISTORICO_FACTURADAS;
-
+				saveLineaHistorico(linea, linea.UnidadesAbono * -1, 0,
+						0, ConstantsTypes.TIPO_LINEA_HISTORICO_FACTURADAS, 0);
 			}
 
 			if (linea.UnidadesInicialesFijas > 0) {
-				lineaHistorico.Unidades = linea.UnidadesInicialesFijas;
-				lineaHistorico.PVP = (float) linea.PVP;
-				lineaHistorico.MovimientoStock =
-						lineaHistorico.MovimientoStockDefectuosas = 0;
 
-				// linea.UnidadesFacturadas;
-
-				lineaHistorico.Tipo = ConstantsTypes.TIPO_LINEA_HISTORICO_UNIDADES_INICIALES;
-
-			}
-
-			try {
-				lineaHistorico.save();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+				saveLineaHistorico(linea, linea.UnidadesInicialesFijas, 0,
+						0, ConstantsTypes.TIPO_LINEA_HISTORICO_UNIDADES_INICIALES, (float) linea.PVP);
 			}
 
 		}
 
 	}
+
+	private void saveLineaHistorico(LineaDeposito linea, int unidades, int movimientoStock,
+									int movimientoStockDefectouso, int tipo, float pvp) {
+
+		LineaHistorico lineaHistorico = Factory.build(LineaHistorico.class, appConfig);
+		lineaHistorico.Historico = this;
+		lineaHistorico.Articulo = linea.Articulo;
+
+		lineaHistorico.Unidades = unidades;
+		lineaHistorico.MovimientoStock = movimientoStock;
+		lineaHistorico.MovimientoStockDefectuosas = movimientoStockDefectouso;
+		lineaHistorico.PVP = pvp;
+
+		lineaHistorico.Tipo = tipo;
+		try {
+			lineaHistorico.save();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 				
 }
+
+

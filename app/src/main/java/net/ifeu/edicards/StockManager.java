@@ -29,7 +29,7 @@ import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.MovimientosAlmacen;
-import net.ifeu.edicards.Pdf.PdfInventoryRecycled;
+import net.ifeu.edicards.Pdf.inventory.PdfInventoryRecycled;
 import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Controls.ButtonColor;

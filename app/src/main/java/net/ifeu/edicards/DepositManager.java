@@ -36,8 +36,10 @@ import net.ifeu.edicards.DataTier.Incidencia;
 import net.ifeu.edicards.DataTier.IncidenciaType;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.TipoIVA;
+import net.ifeu.edicards.DataTier.TransactionMetadata;
 import net.ifeu.edicards.DataTier.TransferMode;
-import net.ifeu.edicards.Pdf.PdfGDPR;
+import net.ifeu.edicards.Pdf.gdpr.PdfGDPR;
+import net.ifeu.edicards.Pdf.incident.IncidentPdfCreator;
 import net.ifeu.edicards.Printer.PrintManager;
 import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Controls.ButtonColor;
@@ -589,6 +591,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 				_appConfig.getWorkingArea().CurrentDeposito = _deposito;
 				_appConfig.getWorkingArea().CurrentDeposito.DatosFiscalesUpdated = false;
+				_appConfig.getWorkingArea().CurrentTransactionMetadata = new TransactionMetadata();
 
 			} catch (Exception e1) {
 				throw new RuntimeException(e1);
@@ -735,7 +738,14 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(), IncidenciaType.ClienteNuevo,
 					text);
-			incidencia.create();
+
+			incidencia.Attachments.put("ANVERSO",
+					_appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerFrontDocument);
+
+			incidencia.Attachments.put("REVERSO",
+					_appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerBackDocument);
+
+			incidencia.create(new IncidentPdfCreator(_appConfig));
 
 		}
 
@@ -889,7 +899,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				
 				Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(),
 						IncidenciaType.BajaCliente, text);
-				incidencia.create();
+				incidencia.create(new IncidentPdfCreator(_appConfig));
 				 
 				XmlCreator creator = new XmlCreator(_appConfig, _appConfig);
 				creator.createXmlDeposito(_deposito);

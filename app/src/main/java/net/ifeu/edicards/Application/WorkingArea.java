@@ -8,6 +8,7 @@ import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.Reporting;
+import net.ifeu.edicards.DataTier.TransactionMetadata;
 import net.ifeu.edicards.DataTier.TransferMode;
 import net.ifeu.edicards.Services.ServiceMonitor;
 
@@ -23,6 +24,8 @@ public class WorkingArea {
 	public ServiceMonitor Monitor;
 	public DepositoModalidad CurrentDepositoModalidad;
 
+	public TransactionMetadata CurrentTransactionMetadata;
+
 	public WorkingArea()
 	{
 		this.TransferMode = net.ifeu.edicards.DataTier.TransferMode.None;
@@ -33,6 +36,7 @@ public class WorkingArea {
 		this.CurrentDeposito = null;
 		this.CurrentCliente = null;
 		this.CurrentArticulo = null;
+		this.CurrentTransactionMetadata = null;
 	}
 	
 }

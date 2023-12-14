@@ -214,6 +214,12 @@ public class pdfBase {
 		return format.format(new Date());
 	
 	}
+
+	protected String getDateTimeFormatForFilename() {
+		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy_hhmmss");
+		return format.format(new Date());
+
+	}
 	
 	protected String getDateTimeFormat(Date fecha) {
 		SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");

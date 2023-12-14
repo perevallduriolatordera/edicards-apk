@@ -9,6 +9,7 @@ import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
+import net.ifeu.edicards.Pdf.incident.IncidentPdfCreator;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -475,7 +476,7 @@ public class Cliente extends Persistent implements IPersistable {
 
 			Incidencia incidencia = new Incidencia(appConfig.getUser().User, new Date(), IncidenciaType.Filiacion,
 					text);
-			incidencia.create();
+			incidencia.create(new IncidentPdfCreator(appConfig));
 		}
 	}
 

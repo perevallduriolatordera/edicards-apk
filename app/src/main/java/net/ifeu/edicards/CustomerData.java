@@ -1,26 +1,41 @@
 package net.ifeu.edicards;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+
 import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.ClienteInfo;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Incidencia;
 import net.ifeu.edicards.DataTier.IncidenciaType;
+import net.ifeu.edicards.Pdf.incident.IncidentPdfCreator;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class CustomerData extends Activity {
 
-	AppConfig _appConfig;
+	private AppConfig _appConfig;
+	private static final int REQUEST_IMAGE_CAPTURE = 1;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -36,11 +51,28 @@ public class CustomerData extends Activity {
 		getWindow().setAttributes(
 				(android.view.WindowManager.LayoutParams) params);
 
-		ButtonColor apply = (ButtonColor) findViewById(R.id.btnGenerateAlbaran);
+		ButtonColor apply = (ButtonColor) findViewById(R.id.btnApplyChanges);
 		apply.changeAspect(this, R.color.Black, getResources().getDrawable(R.drawable.ic_save));
 
-		ButtonColor cancel = (ButtonColor) findViewById(R.id.btnCancel);
+		ButtonColor cancel = (ButtonColor) findViewById(R.id.btnDiscardChanges);
 		cancel.changeAspect(this, R.color.Black, getResources().getDrawable(R.drawable.ic_close));
+
+		ButtonColor frontPhoto = (ButtonColor) findViewById(R.id.btnFrontPhoto);
+		frontPhoto.changeAspect(this, R.color.Black, getResources().getDrawable(R.drawable.ic_camera));
+
+		ButtonColor backPhoto = (ButtonColor) findViewById(R.id.btnbBackPhoto);
+		backPhoto.changeAspect(this, R.color.Black, getResources().getDrawable(R.drawable.ic_camera));
+
+		frontPhoto.setVisibility(_appConfig.getWorkingArea().CurrentDeposito.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE) ? VISIBLE : GONE);
+		backPhoto.setVisibility(frontPhoto.getVisibility());
+
+		frontPhoto.setOnClickListener( (View v)-> {
+			this.dispatchTakePictureIntent(true);
+		});
+
+		backPhoto.setOnClickListener( (View v)-> {
+			this.dispatchTakePictureIntent(false);
+		});
 
 		try {
 			this.fillFields();
@@ -184,7 +216,7 @@ public class CustomerData extends Activity {
 
 			Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(),
 					IncidenciaType.DatosFiscales, text);
-			incidencia.create();
+			incidencia.create(new IncidentPdfCreator(_appConfig));
 
 		}
 
@@ -207,7 +239,7 @@ public class CustomerData extends Activity {
 
 			Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(),
 					IncidenciaType.CuentaCorriente, text);
-			incidencia.create();
+			incidencia.create(new IncidentPdfCreator(_appConfig));
 
 		}
 		
@@ -257,6 +289,49 @@ public class CustomerData extends Activity {
 				return true;
 		return false;
 	}
+
+	private void dispatchTakePictureIntent(boolean isFrontDocument) {
+		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+			File photoFile = null;
+			try {
+				photoFile = createImageFile(isFrontDocument);
+			} catch (IOException ex) {
+				throw new RuntimeException(ex);
+			}
+			if (photoFile != null) {
+				Uri photoURI = Uri.fromFile(photoFile);
+				takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+				startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+			}
+		}
+	}
+
+	private File createImageFile(boolean isFrontDocument) throws IOException {
+		String imageFileName = (isFrontDocument ? "F" : "B") + "_" + _appConfig.getWorkingArea().CurrentTransactionMetadata.GUID;
+		File storageDir = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_CUSTOMER_DOCUMENT + "/");
+		File image = File.createTempFile(imageFileName, ".jpg", storageDir);
+
+		if (isFrontDocument)
+			_appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerFrontDocument = image.getAbsolutePath();
+		else
+			_appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerBackDocument = image.getAbsolutePath();
+
+		return image;
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+			// The photo was taken and saved successfully
+
+			// Display the photo
+			//ImageView imageView = findViewById(R.id.imageView);
+			//imageView.setImageURI(Uri.parse(currentPhotoPath));
+		}
+	}
+
 
 }
 

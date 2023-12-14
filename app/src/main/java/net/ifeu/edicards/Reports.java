@@ -17,7 +17,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -35,8 +34,9 @@ import net.ifeu.edicards.DataTier.IncidenciaType;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.LineaHistorico;
 import net.ifeu.edicards.DataTier.Reporting;
-import net.ifeu.edicards.Pdf.IPdfDocumentGenerator;
-import net.ifeu.edicards.Pdf.PdfDTOCreator;
+import net.ifeu.edicards.Pdf.document.IPdfDocumentGenerator;
+import net.ifeu.edicards.Pdf.document.PdfDTOCreator;
+import net.ifeu.edicards.Pdf.incident.IncidentPdfCreator;
 import net.ifeu.edicards.Printer.PrintManager;
 import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.edicards.Xml.XmlCreator;
@@ -676,7 +676,7 @@ public class Reports extends Fragment {
 		Incidencia incidencia = new Incidencia(_appConfig
 				.getUser().User, new Date(),
 				historico.ActualizarStock ? IncidenciaType.AlbaranAnulado : IncidenciaType.AlbaranAnuladoDesdeEdicards, text);
-		incidencia.create();
+		incidencia.create(new IncidentPdfCreator(_appConfig));
 
 	}
 	

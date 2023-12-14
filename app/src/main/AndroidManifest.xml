@@ -9,6 +9,9 @@
         android:minSdkVersion="16"
         android:targetSdkVersion="19" />-->
 
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
     <application
         android:name=".Application.AppConfig"
         android:icon="@drawable/ic_launcher"
@@ -219,5 +222,6 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-de
+    <uses-permission android:name="android.permission.CAMERA" />
+
 </manifest>

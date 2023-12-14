@@ -13,6 +13,7 @@ import com.androidnetworking.AndroidNetworking;
 
 import net.ifeu.edicards.Cache.CacheData;
 import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.DataTier.TransactionMetadata;
 import net.ifeu.edicards.DataTier.User;
 import net.ifeu.edicards.DatabaseOperations.DatabaseOperations;
 import net.ifeu.library.Connectivity.Connectivity;
@@ -94,7 +95,6 @@ public class AppConfig extends Application {
 	public MediatorFragments getMediator() {
 		return _mediator;
 	}
-	
 
 	@Override
 	public void onCreate() {
