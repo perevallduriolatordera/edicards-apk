@@ -69,30 +69,23 @@ public class DepositManager extends Fragment implements  IMediator {
 	private Deposito _deposito;
 	private Cliente _cliente;
 	private AppConfig _appConfig;
-
 	private boolean _abonoMode = false;
-
 	private ComboBox _comboPago;
 	private ComboBox _comboCopias;
 	private ComboBox _comboSerie;
 	private ComboBox _comboFiliacion;
 	private TextBoxColor _textBoxCantidadPagada;
 	private CheckBox _checkPagado;
-
 	private TextBoxColor _textBoxColorRequestFocus;
 	private TextBoxColor _lastTextBox;
 	private LinearLayout _lastSelectedLayout;
-
 	private final LinkedList<String> _articles = new LinkedList<>();
 	private AdvancedMessageBox _dialogDepositoModalidad;
-
 	private LinearLayout _headerLayout;
 	private LinearLayout _headerAbonoLayout;
-
 	private final int TEXT_SIZE = 14;
 	private boolean _isRendered = false;
 	private LinearLayout _mainLayout;
-
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		_appConfig = (AppConfig) this.getActivity().getApplicationContext();
@@ -100,10 +93,9 @@ public class DepositManager extends Fragment implements  IMediator {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		if (!_isRendered)
-			return inflater.inflate(R.layout.activity_deposit_manager, container, false);
-		else
-			return _mainLayout;
+		return !_isRendered ?
+				inflater.inflate(R.layout.activity_deposit_manager, container, false)
+				: _mainLayout;
 	}
 
 	@Override
@@ -171,7 +163,6 @@ public class DepositManager extends Fragment implements  IMediator {
 		TipoIVA iva = Factory.build(TipoIVA.class, _appConfig);
 		_comboFiliacion = DepositManagerExtension.UI.addCombo(_appConfig, 350, params, iva.getFiliaciones(), iva.getFiliacionByCode(_deposito.Cliente.Filiacion));
 
-		
 		// //Copias
 		
 		LabelColor labelCopias = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
@@ -330,9 +321,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		DepositManagerExtension.UI.addViewsToLayout(topLinearLayout3, labelDescuento1, descuento1, labelDescuento2, descuento2);
 
-
 		this.addComboObservers();
-		
 	}
 
 	private void addComboObservers() {
@@ -362,7 +351,6 @@ public class DepositManager extends Fragment implements  IMediator {
 			}
 		});
 	}
-
 
 	private void createHeaderButtons() {
 
@@ -397,10 +385,10 @@ public class DepositManager extends Fragment implements  IMediator {
 						throw new RuntimeException(e);
 				}
 
-
 		});
 		
 		// Botón Totales
+
 		ButtonColor totales = DepositManagerExtension.UI.addButton(getActivity(), Color.WHITE, "Resumen",
 				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params, getResources().getDrawable(R.drawable.ic_totals));
 
@@ -440,15 +428,19 @@ public class DepositManager extends Fragment implements  IMediator {
 
 					return;
 				}
+
+				if (_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE) &&
+				!DepositManagerExtension.DataTier.isCustomerAttachedFilled(_appConfig)) {
+					_appConfig.getMessageBox().Show("Cierre de operación", "Tiene que añadir las imágenes del DNI del nuevo cliente", arg0.getContext(), MessageBoxType.Information);
+					DepositManagerExtension.Dialogs.StartCustomerDataDialog(that);
+				}
+
 				if (!DepositManagerExtension.DataTier.IsCustomerDataFilled(that._deposito)) {
 					boolean result = _appConfig.getMessageBox().ShowWithResult("Cierre de operación",
 							"El cliente NO está correctamente rellenado. Desea editarlo?", arg0.getContext(),
 							MessageBoxType.Information);
-					if (!result) {
-						return;
-					} else {
-						DepositManagerExtension.Dialogs.StartCustomerDataDialog(that);
-					}
+					if (!result) return;
+					else DepositManagerExtension.Dialogs.StartCustomerDataDialog(that);
 				}
 
 				GenerateAlbaran();
@@ -506,7 +498,6 @@ public class DepositManager extends Fragment implements  IMediator {
 		footerLinearLayout.addView(layout);
 
 	}
-
 	private void CreateDepositView() throws Exception {
 
 		if (this.RestriccionIngresos()) return;
@@ -701,9 +692,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				//linea.PVPAnterior = linea.getPVP(_cliente, articuloInCatalgo);
 				linea.PVPAnterior = linea.PVP;
 				linea.PVPInicial = linea.PVPAnterior;
-
 				linea.Descuento1 = 0; // linea.getDte(_cliente,
-
 				linea.IsNew = true;
 
 				_deposito.Lineas.put(String.valueOf(linea.Articulo.CodigoArticulo), linea);
@@ -746,7 +735,6 @@ public class DepositManager extends Fragment implements  IMediator {
 					_appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerBackDocument);
 
 			incidencia.create(new IncidentPdfCreator(_appConfig));
-
 		}
 
 		this.SaveHistorico();
@@ -836,7 +824,6 @@ public class DepositManager extends Fragment implements  IMediator {
 				// Introducimos el motivo de la baja del depósito
 
 				String motivo;
-				
 				do {
 					motivo = _appConfig.getMessageBox().InputBox("Cierre de operación",
 							"Introduzca el motivo de la baja", getActivity());	
@@ -845,7 +832,6 @@ public class DepositManager extends Fragment implements  IMediator {
 				_deposito.MotivoRetirado = motivo;
 
 				Map<String, LineaDeposito> processed =new HashMap<>();
-
 				for (LineaDeposito linea : _deposito.Lineas.values()) {
 					
 					if (linea.UnidadesDevueltas > 0) {
@@ -968,9 +954,7 @@ public class DepositManager extends Fragment implements  IMediator {
 						this.getActivity(), MessageBoxType.Information);
 				return;
 			}
-
 		}
-
 		this.printDeposito(GUID);
 		closeOperation();
 		resetDepositData();
@@ -1117,7 +1101,6 @@ public class DepositManager extends Fragment implements  IMediator {
 			}
 		}
 	}
-
 	private void closeOperation() {
 
 		try {
@@ -1139,9 +1122,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}
-
 	}
-
 	private void addLineHeader(LineaDeposito lineaDeposito, final LinearLayout layoutGrid) {
 
 		final DepositManager that = this;
@@ -1151,14 +1132,13 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
-		boolean createHeaderLayout = _headerLayout == null;
+		boolean createHeaderLayout = (_headerLayout == null) || (_headerLayout.getChildCount() == 0);
 		int color = Color.WHITE;
 
 		if (createHeaderLayout) {
 			_headerLayout = new LinearLayout(_appConfig);
 			_headerLayout.setOrientation(LinearLayout.HORIZONTAL);
 		}
-
 
 		try {
 			LabelColor codigoArticulo = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
@@ -1324,7 +1304,6 @@ public class DepositManager extends Fragment implements  IMediator {
 			unidadesFacturadas.setWidth(100);
 			unidadesFacturadas.setTag(lineaDeposito);
 
-
 			unidadesFacturadas.setOnFocusChangeListener((view, hasFocus) -> {
 				if (!hasFocus) {
 					_lastTextBox = (TextBoxColor) view;
@@ -1353,15 +1332,12 @@ public class DepositManager extends Fragment implements  IMediator {
 					} else {
 						if (unidadesFacturadas1 > 0 && (unidadesFacturadas1 != (lineaDeposito14.UnidadesInicialesFijas
 								- lineaDeposito14.UnidadesDevueltas))) {
-
 							directa = true;
-
 						}
 
 						lineaDeposito14.IsVentaDirecta = directa;
 						if (lineaDeposito14.IsVentaDirecta) {
 							((LineaDeposito) view.getTag()).UnidadesFacturadas = unidadesFacturadas1;
-
 						}
 
 						try {
@@ -1486,7 +1462,6 @@ public class DepositManager extends Fragment implements  IMediator {
 				}
 			});
 
-
 			if (createHeaderLayout) {
 
 				DepositManagerExtension.UI.addViewsToLayout(_headerLayout, codigoArticulo, articuloDescripcion,
@@ -1499,7 +1474,6 @@ public class DepositManager extends Fragment implements  IMediator {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-
 	}
 
 	private void addLineHeaderAbono(LineaDeposito lineaDeposito,  final LinearLayout layoutGrid) {
@@ -1641,7 +1615,6 @@ public class DepositManager extends Fragment implements  IMediator {
 				((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
 				_lastTextBox = (TextBoxColor) view;
 			}
-
 			that.closeKeyboard((EditText) view);
 		});
 		
@@ -1678,7 +1651,6 @@ public class DepositManager extends Fragment implements  IMediator {
 				((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
 				_lastTextBox = (TextBoxColor) view;
 			}
-
 			that.closeKeyboard((EditText) view);
 		});
 
@@ -1699,7 +1671,6 @@ public class DepositManager extends Fragment implements  IMediator {
 				: (ButtonColor) _headerAbonoLayout.getChildAt(9);
 
 		modoVenta.setTag(lineaDeposito);
-
 		modoVenta.setOnClickListener(arg0 -> {
 
 			_abonoMode = false;
@@ -1857,7 +1828,6 @@ public class DepositManager extends Fragment implements  IMediator {
 			});
 
 		return layout;
-
 	}
 
 	private void refreshLayout(LineaDeposito linea, LinearLayout layoutGrid,  boolean redraw)
@@ -1923,7 +1893,6 @@ public class DepositManager extends Fragment implements  IMediator {
 			((LabelColor) _headerAbonoLayout.getChildAt(8)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(linea.TotalAbono)));
 		}
 	}
-
 	private void refreshTotals() throws Exception {
 		if (_deposito != null) {
 
@@ -1944,7 +1913,6 @@ public class DepositManager extends Fragment implements  IMediator {
 			((TextView) getActivity().findViewById(R.id.lblTipoEntrega)).setText(ConstantsTypes.EMPTY_STRING);
 		}
 	}
-
 	private void resetDepositData() {
 		_abonoMode = false;
 		_appConfig.getWorkingArea().CurrentCliente = null;
@@ -1952,19 +1920,16 @@ public class DepositManager extends Fragment implements  IMediator {
 		_headerLayout = null;
 		_headerAbonoLayout = null;
 	}
-
 	private void closeKeyboard(EditText editText) {
 		InputMethodManager imm = (InputMethodManager) this.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
 	}
-
 	@Override
 	public void notify(String event, Object payload) {
 
 		switch (event) {
 			case "EventCustomerSelected": {
 				try {
-
 					_appConfig.getWorkingArea().CurrentCliente = (Cliente) payload;
 					try {
 						this.CreateDepositView();
@@ -2011,7 +1976,6 @@ public class DepositManager extends Fragment implements  IMediator {
 			}
 		}
 	}
-
 	private boolean RestriccionIngresos() {
 		try {
 			if (DepositManagerExtension.DataTier.RestriccionIngresos(this._appConfig)) {

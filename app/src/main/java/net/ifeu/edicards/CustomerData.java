@@ -242,8 +242,13 @@ public class CustomerData extends Activity {
 			incidencia.create(new IncidentPdfCreator(_appConfig));
 
 		}
-		
-		finish();
+
+		//if (_appConfig.getWorkingArea().CurrentDeposito.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE) &&
+		//		!DepositManagerExtension.DataTier.isCustomerAttachedFilled(_appConfig)) {
+		//	_appConfig.getMessageBox().Show("Guardar datos de cliente nuevo", "Tiene que añadir las imágenes del DNI del nuevo cliente", _appConfig, MessageBoxType.Information);
+		//} else {
+			finish();
+		//}
 	}
 	
 	private boolean isUpdated()
@@ -293,7 +298,7 @@ public class CustomerData extends Activity {
 	private void dispatchTakePictureIntent(boolean isFrontDocument) {
 		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-			File photoFile = null;
+			File photoFile;
 			try {
 				photoFile = createImageFile(isFrontDocument);
 			} catch (IOException ex) {

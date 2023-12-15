@@ -37,6 +37,8 @@ import net.ifeu.library.Controls.ComboBox;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -94,6 +96,11 @@ public class DepositManagerExtension {
 					|| deposito.Poblacion.trim().equals(ConstantsTypes.EMPTY_STRING)
 					|| deposito.Provincia.trim().equals(ConstantsTypes.EMPTY_STRING)
 					|| deposito.CodigoPostal.trim().equals(ConstantsTypes.EMPTY_STRING));
+		}
+
+		public static boolean isCustomerAttachedFilled(AppConfig appConfig) {
+			return !StringUtils.isEmpty(appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerFrontDocument)
+					&& !StringUtils.isEmpty(appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerBackDocument);
 		}
 		
 		public static boolean IsSerieA(ComboBox combo, AppConfig config) {
@@ -213,60 +220,41 @@ public class DepositManagerExtension {
 	static class Dialogs {
 	
 		public static void StartArticuloDialog(Articulo articulo, Fragment fragment) {
-	
 			AppConfig config = (AppConfig) fragment.getActivity().getApplicationContext();
-	
 			config.getWorkingArea().CurrentArticulo = articulo;
-	
 			Intent intent = new Intent(fragment.getActivity(), ArticleDialog.class);
-	
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	
 			fragment.startActivityForResult(intent, 1);
 		}
 	
 		public static void StartTotalesDialog( Fragment fragment) {
-	
 			Intent intent = new Intent(fragment.getActivity(), Totals.class);
-	
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	
 			fragment.startActivityForResult(intent, 1);
 		}
 	
 		public static void StartCustomerDataDialog(Fragment fragment) {
 			Intent intent = new Intent(fragment.getActivity(), CustomerData.class);
-	
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	
 			fragment.startActivityForResult(intent, 1);
-	
 		}
 	
 		public static void StartSignatureCustomerDialog(Fragment fragment) {
 			Intent intent = new Intent(fragment.getActivity(), SignatureCustomer.class);
-	
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	
 			fragment.startActivityForResult(intent, 1);
-	
 		}
 	
 		public static void StartSignatureVendorDialog(Fragment fragment) {
 			Intent intent = new Intent(fragment.getActivity(), SignatureVendor.class);
-	
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	
 			fragment.startActivityForResult(intent, 1);
 		}
 		
 		public static void StartCustomerSearchDialog(Fragment fragment) {
 			Intent intent = new Intent(fragment.getActivity(), AlbaranCustomerSearch.class);
-	
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	
 			fragment.startActivityForResult(intent, 1);
-	
 		}
 	}
 	

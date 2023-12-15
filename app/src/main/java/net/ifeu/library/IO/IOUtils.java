@@ -1,5 +1,8 @@
 package net.ifeu.library.IO;
 
+import android.os.Environment;
+
+import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 
 import java.io.BufferedReader;
@@ -63,6 +66,14 @@ public class IOUtils {
 		 
 		return file.delete();
 		
+	}
+
+	public static void deleteFilesFromDirectory(String path) {
+
+		List<String> documents = IOUtils.getFilesFromDirectory(path);
+		for (String file : documents) {
+			IOUtils.deleteFile(file);
+		}
 	}
 
 	public static boolean writeAllText(String text, String file)

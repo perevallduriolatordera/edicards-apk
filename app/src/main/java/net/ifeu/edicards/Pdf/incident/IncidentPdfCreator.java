@@ -32,7 +32,7 @@ public class IncidentPdfCreator extends pdfBase implements Incidencia.IIncidenci
     }
 
     @Override
-    public void create(Incidencia incidencia){
+    public void create(Incidencia incidencia) {
 
         _document = new Document();
 
@@ -40,16 +40,39 @@ public class IncidentPdfCreator extends pdfBase implements Incidencia.IIncidenci
         String tipoInc = ConstantsTypes.EMPTY_STRING;
         String prefix = ConstantsTypes.EMPTY_STRING;
 
-        switch (incidencia.Tipo)
-        {
-            case ClienteNuevo: tipoInc = "Cliente Nuevo"; prefix = "N"; break;
-            case BajaCliente: tipoInc = " Baja de cliente"; prefix = "B"; break;
-            case DatosFiscales: tipoInc = "Datos fiscales modificados"; prefix = "D"; break;
-            case AlbaranAnulado: tipoInc = "Albarán anulado"; prefix = "A"; break;
-            case AlbaranAnuladoDesdeEdicards: tipoInc = "Albarán anulado"; prefix = "E"; break;
-            case CuentaCorriente: tipoInc = "Cuenta Corriente modificada"; prefix = "C"; break;
-            case Filiacion: tipoInc = "Filiación de Cliente modificada"; prefix = "F"; break;
-            case Ingreso: tipoInc = "Ingreso realizado por comercial"; prefix = "I"; break;
+        switch (incidencia.Tipo) {
+            case ClienteNuevo:
+                tipoInc = "Cliente Nuevo";
+                prefix = "N";
+                break;
+            case BajaCliente:
+                tipoInc = " Baja de cliente";
+                prefix = "B";
+                break;
+            case DatosFiscales:
+                tipoInc = "Datos fiscales modificados";
+                prefix = "D";
+                break;
+            case AlbaranAnulado:
+                tipoInc = "Albarán anulado";
+                prefix = "A";
+                break;
+            case AlbaranAnuladoDesdeEdicards:
+                tipoInc = "Albarán anulado";
+                prefix = "E";
+                break;
+            case CuentaCorriente:
+                tipoInc = "Cuenta Corriente modificada";
+                prefix = "C";
+                break;
+            case Filiacion:
+                tipoInc = "Filiación de Cliente modificada";
+                prefix = "F";
+                break;
+            case Ingreso:
+                tipoInc = "Ingreso realizado por comercial";
+                prefix = "I";
+                break;
         }
 
         SimpleDateFormat formatter;
@@ -78,8 +101,8 @@ public class IncidentPdfCreator extends pdfBase implements Incidencia.IIncidenci
             paragraph.setAlignment(Element.ALIGN_LEFT);
             _document.add(paragraph);
 
-            String attachments = "\n\n\nADJUNTOS\n\n\n";
-            Paragraph paragraphAttachments = new Paragraph(attachments, this._fontUnderline);
+            String attachments = "\nADJUNTOS\n";
+            Paragraph paragraphAttachments = new Paragraph(attachments, this._fontBoldExtra);
             paragraphAttachments.setAlignment(Element.ALIGN_LEFT);
 
             _document.add(paragraphAttachments);
@@ -89,8 +112,8 @@ public class IncidentPdfCreator extends pdfBase implements Incidencia.IIncidenci
                 try {
                     if (!StringUtils.isEmpty(set.getValue())) {
 
-                        String metadataText = "\n\n\n" + set.getKey() + "\n\n\n";
-                        Paragraph paragraphItem = new Paragraph(metadataText, this._fontBoldExtra);
+                        String metadataText = "\n\n" + set.getKey() + "\n\n";
+                        Paragraph paragraphItem = new Paragraph(metadataText, this._fontBold);
                         paragraphItem.setAlignment(Element.ALIGN_LEFT);
                         _document.add(paragraphItem);
 
@@ -103,7 +126,6 @@ public class IncidentPdfCreator extends pdfBase implements Incidencia.IIncidenci
 
                 if (image != null) {
                     _document.add(image);
-                    //IOUtils.deleteFile(set.getValue());
                 }
             }
 
@@ -118,6 +140,12 @@ public class IncidentPdfCreator extends pdfBase implements Incidencia.IIncidenci
         } catch (DocumentException e) {
             throw new RuntimeException(e);
         }
+
+        // ESBORREM ELS FITXERS TEMPORALS DELS ADJUNTS
+        for (Map.Entry<String, String> set : incidencia.Attachments.entrySet()) {
+            IOUtils.deleteFile(set.getValue());
+        }
+
     }
 
 }

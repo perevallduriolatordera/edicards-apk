@@ -42,9 +42,6 @@ import java.util.Date;
 import java.util.List;
 
 public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
-
-    private static int SMALL_FONT_SIZE = 7;
-    private static int BIG_FONT_SIZE = 9;
     Deposito _deposito;
 
     public PdfAlmacenCreator(Deposito deposito, AppConfig appConfig) {
@@ -88,23 +85,23 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
         table.setWidths(columnWidths);
 
         PdfPCell cell = new PdfPCell();
-        cell.addElement(getParagraph("PREPARADO", BIG_FONT_SIZE, true));
+        cell.addElement(getParagraph("PREPARADO", _fontBold));
         table.addCell(cell);
 
         cell = new PdfPCell();
-        cell.addElement(getParagraph("CÓDIGO", BIG_FONT_SIZE, true));
+        cell.addElement(getParagraph("CÓDIGO", _fontBold));
         table.addCell(cell);
 
         cell = new PdfPCell();
-        cell.addElement(getParagraph("ARTÍCULO", BIG_FONT_SIZE, true));
+        cell.addElement(getParagraph("ARTÍCULO", _fontBold));
         table.addCell(cell);
 
         cell = new PdfPCell();
-        cell.addElement(getParagraph("UNIDADES", BIG_FONT_SIZE, true));;
+        cell.addElement(getParagraph("UNIDADES", _fontBold));
         table.addCell(cell);
 
         cell = new PdfPCell();
-        cell.addElement(getParagraph("EAN", BIG_FONT_SIZE, true));;
+        cell.addElement(getParagraph("EAN", _fontBold));
         table.addCell(cell);
 
         _document.add(table);
@@ -129,7 +126,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
             table.setWidths(columnWidths);
 
             PdfPCell cell = new PdfPCell();
-            cell.addElement(getParagraph("PEDIDO PREPARADO POR\n\n\n\n\n\n\n\n", SMALL_FONT_SIZE, false));
+            cell.addElement(getParagraph("PEDIDO PREPARADO POR\n\n\n\n\n\n\n\n", _fontBold));
             table.addCell(cell);
 
             cell = new PdfPCell();
@@ -137,7 +134,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
             table.addCell(cell);
 
             cell = new PdfPCell();
-            cell.addElement(getParagraph("FIRMA PREPARACIÓN\n\n\n\n\n\n\n\n", SMALL_FONT_SIZE, false));
+            cell.addElement(getParagraph("FIRMA PREPARACIÓN\n\n\n\n\n\n\n\n", _fontBold));
             table.addCell(cell);
 
             cell = new PdfPCell();
@@ -177,15 +174,15 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
                 table.addCell(cell);
 
                 cell = new PdfPCell();
-                cell.addElement(getParagraph(linea.Articulo.CodigoArticulo, SMALL_FONT_SIZE, false));
+                cell.addElement(getParagraph(linea.Articulo.CodigoArticulo, _fontNormal));
                 table.addCell(cell);
 
                 cell = new PdfPCell();
-                cell.addElement(getParagraph(linea.Articulo.Descripcion, SMALL_FONT_SIZE, false));
+                cell.addElement(getParagraph(linea.Articulo.Descripcion, _fontNormal));
                 table.addCell(cell);
 
                 cell = new PdfPCell();
-                cell.addElement(getParagraph(String.valueOf(linea.UnidadesRepuestas), SMALL_FONT_SIZE, false));
+                cell.addElement(getParagraph(String.valueOf(linea.UnidadesRepuestas), _fontNormal));
                 table.addCell(cell);
 
                 cell = new PdfPCell();
@@ -196,16 +193,16 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
                         createBitmap(barcode);
                         if (!StringUtils.isEmpty(barcode)) {
                             image = Image.getInstance(getBarcodeFileName(barcode));
-                            image.scaleToFit(image.getWidth() / 5, image.getHeight() / 5);
+                            image.scaleToFit(image.getWidth() / 3, image.getHeight() / 3);
                         }
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
 
                     if (image != null) {
-                        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+                        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
                         cell.addElement(image);
-                        cell.addElement(getParagraph(linea.Articulo.EAN, BIG_FONT_SIZE, true));
+                        cell.addElement(getParagraph(linea.Articulo.EAN, _fontBold));
                     }
                 }
 
@@ -216,8 +213,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
         }
     }
 
-    private Paragraph getParagraph(String content, float fontSize, boolean bold) {
-        Font font = new Font(Font.FontFamily.TIMES_ROMAN, fontSize, bold ? Font.BOLD : Font.NORMAL, BaseColor.BLACK);
+    private Paragraph getParagraph(String content, Font font) {
         Chunk chunk = new Chunk(content, font);
         Paragraph paragraph = new Paragraph(chunk);
         paragraph.setAlignment(Paragraph.ALIGN_CENTER);

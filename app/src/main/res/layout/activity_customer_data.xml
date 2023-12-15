@@ -231,31 +231,6 @@
                 android:onClick="OnClose"
                 android:text="Cerrar Pantalla"/>
 
-            <net.ifeu.library.Controls.ButtonColor
-                android:id="@+id/btnFrontPhoto"
-                android:layout_marginLeft="20px"
-                android:layout_marginRight="20px"
-                android:layout_width="180px"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_height="40px"
-                android:background="@drawable/background_button"
-                android:textColor="@color/Black"
-                android:onClick="OnClose"
-                android:text="Tomar foto Anverso"/>
-
-            <net.ifeu.library.Controls.ButtonColor
-                android:id="@+id/btnbBackPhoto"
-                android:layout_marginLeft="20px"
-                android:layout_marginRight="20px"
-                android:layout_width="180px"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_height="40px"
-                android:background="@drawable/background_button"
-                android:textColor="@color/Black"
-                android:onClick="OnClose"
-                android:text="Tomar foto Reverso"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -453,6 +428,38 @@
                 android:text=""
                 android:textSize="@dimen/text_small"
                 android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="70px"
+            android:orientation="horizontal" >
+
+            <net.ifeu.library.Controls.ButtonColor
+                android:id="@+id/btnFrontPhoto"
+                android:layout_marginLeft="20px"
+                android:layout_marginRight="20px"
+                android:layout_width="180px"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_height="40px"
+                android:background="@drawable/background_button"
+                android:textColor="@color/Black"
+                android:onClick="OnClose"
+                android:text="Tomar foto Anverso"/>
+
+            <net.ifeu.library.Controls.ButtonColor
+                android:id="@+id/btnbBackPhoto"
+                android:layout_marginLeft="20px"
+                android:layout_marginRight="20px"
+                android:layout_width="180px"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_height="40px"
+                android:background="@drawable/background_button"
+                android:textColor="@color/Black"
+                android:onClick="OnClose"
+                android:text="Tomar foto Reverso"/>
         </LinearLayout>
 
 </LinearLayout>        

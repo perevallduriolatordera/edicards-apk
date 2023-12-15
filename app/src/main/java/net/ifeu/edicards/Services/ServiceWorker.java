@@ -80,7 +80,14 @@ public class ServiceWorker extends ServiceBase {
 		String directory;
 		List<String> files;
 
-        // * * * * * * * * * ENVIAMOS SEMÁFORO STOCK NTV * * * * * * * * * * * *
+		// * * * * * * * * * ESBORREM FITXERS TEMPORALS PER ALLIBERAR ESPAI DE DISC * * * * * * * * * * * *
+
+		IOUtils.deleteFilesFromDirectory(Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+				+ ConstantsFolders.FOLDER_CUSTOMER_DOCUMENT);
+		IOUtils.deleteFilesFromDirectory(Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+				+ ConstantsFolders.FOLDER_FIRMAS);
+
+		// * * * * * * * * * ENVIAMOS SEMÁFORO STOCK NTV * * * * * * * * * * * *
 
         String ntvFile = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
                 + ConstantsFolders.FOLDER_STOCK_NTV + "/" + ConstantsFolders.FILE_STOCK_NTV;
@@ -272,7 +279,7 @@ public class ServiceWorker extends ServiceBase {
 		// * * * * * * * * * ENVIAMOS INCIDENCIAS * * * * * * * * * * * *
 
 		directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
-				+ ConstantsFolders.FOLDER_INCIDENCIAS;
+			+ ConstantsFolders.FOLDER_INCIDENCIAS;
 
 		List<String> incidencias = IOUtils.getFilesFromDirectory(directory);
 
