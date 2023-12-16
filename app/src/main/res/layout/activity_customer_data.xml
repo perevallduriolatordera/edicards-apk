@@ -436,7 +436,7 @@
             android:orientation="horizontal" >
 
             <net.ifeu.library.Controls.ButtonColor
-                android:id="@+id/btnFrontPhoto"
+                android:id="@+id/btnDocumentPhoto"
                 android:layout_marginLeft="20px"
                 android:layout_marginRight="20px"
                 android:layout_width="180px"
@@ -445,21 +445,8 @@
                 android:layout_height="40px"
                 android:background="@drawable/background_button"
                 android:textColor="@color/Black"
-                android:onClick="OnClose"
-                android:text="Tomar foto Anverso"/>
+                android:text="Tomar fotos DNI"/>
 
-            <net.ifeu.library.Controls.ButtonColor
-                android:id="@+id/btnbBackPhoto"
-                android:layout_marginLeft="20px"
-                android:layout_marginRight="20px"
-                android:layout_width="180px"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_height="40px"
-                android:background="@drawable/background_button"
-                android:textColor="@color/Black"
-                android:onClick="OnClose"
-                android:text="Tomar foto Reverso"/>
         </LinearLayout>
 
 </LinearLayout>        

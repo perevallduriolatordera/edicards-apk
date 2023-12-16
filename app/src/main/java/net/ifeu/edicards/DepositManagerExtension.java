@@ -26,11 +26,14 @@ import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.FormaPago;
 import net.ifeu.edicards.DataTier.Historico;
+import net.ifeu.edicards.DataTier.Incidencia;
+import net.ifeu.edicards.DataTier.IncidenciaType;
 import net.ifeu.edicards.DataTier.Ingresos;
 import net.ifeu.edicards.Pdf.document.IPdfDocumentGenerator;
 import net.ifeu.edicards.Pdf.document.PdfAlmacenCreator;
 import net.ifeu.edicards.Pdf.authorization.PdfAuthorization;
 import net.ifeu.edicards.Pdf.document.PdfCreator;
+import net.ifeu.edicards.Pdf.incident.IncidentPdfCreator;
 import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.ComboBox;
@@ -255,6 +258,65 @@ public class DepositManagerExtension {
 			Intent intent = new Intent(fragment.getActivity(), AlbaranCustomerSearch.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			fragment.startActivityForResult(intent, 1);
+		}
+
+		public static void StartAttachmentsDialog(Activity activity) {
+			Intent intent = new Intent(activity, AttachmentsDialog.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			activity.startActivityForResult(intent, 1);
+		}
+	}
+
+	// ********************************** INCIDENCIAS ****************************
+
+	static class Incidencias{
+
+		public static void createIncidenciaBajaCliente(AppConfig appConfig, Deposito deposito) {
+			String text = "Se ha dado de baja el deposito con los siguientes datos: " + ConstantsTypes.NEW_LINE
+					+ ConstantsTypes.NEW_LINE + "NUM. DEPOSITO DIMONI: " + deposito.NumDoc
+					+ ConstantsTypes.NEW_LINE + "NÚM. DEPOSITO TABLET (RefExt): " + deposito.IdDeposito
+					+ ConstantsTypes.NEW_LINE + "NIF/CIF:" + deposito.NIF + ConstantsTypes.NEW_LINE + "NOMBRE: "
+					+ deposito.Nombre + ConstantsTypes.NEW_LINE + "RAZON: " + deposito.Razon
+					+ ConstantsTypes.NEW_LINE + "MOTIVO DE LA BAJA: " + deposito.MotivoRetirado
+					+ ConstantsTypes.NEW_LINE;
+
+
+			Incidencia incidencia = new Incidencia(appConfig.getUser().User, new Date(),
+					IncidenciaType.BajaCliente, text);
+			try {
+				incidencia.create(new IncidentPdfCreator(appConfig));
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		public static void createIncidenciaNuevoCliente(AppConfig appConfig, Deposito deposito) {
+			String text = "Se ha creado un nuevo cliente con los siguientes datos: " + ConstantsTypes.NEW_LINE
+					+ ConstantsTypes.NEW_LINE + "NIF/CIF: " + deposito.NIF +
+					  ConstantsTypes.NEW_LINE + "NOMBRE: " + deposito.Nombre +
+					  ConstantsTypes.NEW_LINE + "RAZON: " + deposito.Razon +
+					  ConstantsTypes.NEW_LINE + "DIRECCIÓN:" + deposito.Direccion1 +
+					  ConstantsTypes.NEW_LINE + "CP:" + deposito.CodigoPostal +
+					  ConstantsTypes.NEW_LINE + "POBLACIÓN:" + deposito.Poblacion +
+					  ConstantsTypes.NEW_LINE + "TELEFONO:" + deposito.Telefono1 +
+					  ConstantsTypes.NEW_LINE + "MAIL:" + deposito.Mail +
+					  ConstantsTypes.NEW_LINE + "NÚMERO DE CUENTA:" + deposito.ClienteInfo.CCC +
+					  ConstantsTypes.NEW_LINE;
+
+			Incidencia incidencia = new Incidencia(appConfig.getUser().User, new Date(), IncidenciaType.ClienteNuevo,
+					text);
+
+			incidencia.Attachments.put("ANVERSO",
+					appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerFrontDocument);
+
+			incidencia.Attachments.put("REVERSO",
+					appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerBackDocument);
+
+			try {
+				incidencia.create(new IncidentPdfCreator(appConfig));
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 	

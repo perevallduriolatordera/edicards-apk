@@ -1,8 +1,5 @@
 package net.ifeu.library.IO;
 
-import android.os.Environment;
-
-import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 
 import java.io.BufferedReader;
@@ -21,27 +18,25 @@ public class IOUtils {
 		  List<String> list = new ArrayList<>();
 		  String files;
 		  File folder = new File(path);
-		  File[] listOfFiles = folder.listFiles(); 
-		 
-		  for (int i = 0; i < listOfFiles.length; i++) 
-		  {
-		 
-		   if (listOfFiles[i].isFile()) 
-		   {
-		   files = listOfFiles[i].getName();
-		       if (files.endsWith(".xml") 
-		    		   || files.endsWith(".XML")
-		    		   || files.endsWith(".pdf")
-		    		   || files.endsWith(".PDF")
-		    	   	   || files.endsWith(".1")
-		    	       || files.endsWith(".2")
-		    	       || files.endsWith(".txt")
-		    	       || files.endsWith(".TXT"));
-		       {
-		    	   list.add(path + "/" + files);
-		        }
-		     }
-		  }
+		  File[] listOfFiles = folder.listFiles();
+
+		for (File listOfFile : listOfFiles) {
+
+			if (listOfFile.isFile()) {
+				files = listOfFile.getName();
+				if (files.endsWith(".xml")
+						|| files.endsWith(".XML")
+						|| files.endsWith(".pdf")
+						|| files.endsWith(".PDF")
+						|| files.endsWith(".1")
+						|| files.endsWith(".2")
+						|| files.endsWith(".txt")
+						|| files.endsWith(".TXT"))
+				{
+					list.add(path + "/" + files);
+				}
+			}
+		}
 		  
 		  return list;
 	}
@@ -50,14 +45,14 @@ public class IOUtils {
 	{
 		BufferedReader reader = new BufferedReader( new FileReader (file));
 	    String line;
-	    String finalString = ConstantsTypes.EMPTY_STRING;
+	    StringBuilder finalString = new StringBuilder(ConstantsTypes.EMPTY_STRING);
 	    
 	    while( ( line = reader.readLine() ) != null ) {
-	    	finalString = finalString + line;
+	    	finalString.append(line);
 	    }
 
 	    reader.close();
-	    return finalString;
+	    return finalString.toString();
 	}
 	
 	public static boolean deleteFile(String path)

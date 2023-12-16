@@ -84,8 +84,8 @@ public class ServiceWorker extends ServiceBase {
 
 		IOUtils.deleteFilesFromDirectory(Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
 				+ ConstantsFolders.FOLDER_CUSTOMER_DOCUMENT);
-		IOUtils.deleteFilesFromDirectory(Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
-				+ ConstantsFolders.FOLDER_FIRMAS);
+		//IOUtils.deleteFilesFromDirectory(Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+		//		+ ConstantsFolders.FOLDER_FIRMAS);
 
 		// * * * * * * * * * ENVIAMOS SEMÁFORO STOCK NTV * * * * * * * * * * * *
 

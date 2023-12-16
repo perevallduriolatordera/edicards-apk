@@ -57,21 +57,12 @@ public class CustomerData extends Activity {
 		ButtonColor cancel = (ButtonColor) findViewById(R.id.btnDiscardChanges);
 		cancel.changeAspect(this, R.color.Black, getResources().getDrawable(R.drawable.ic_close));
 
-		ButtonColor frontPhoto = (ButtonColor) findViewById(R.id.btnFrontPhoto);
-		frontPhoto.changeAspect(this, R.color.Black, getResources().getDrawable(R.drawable.ic_camera));
+		ButtonColor takePhotos = (ButtonColor) findViewById(R.id.btnDocumentPhoto);
+		takePhotos.changeAspect(this, R.color.Black, getResources().getDrawable(R.drawable.ic_camera));
+		takePhotos.setVisibility(_appConfig.getWorkingArea().CurrentDeposito.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE) ? VISIBLE : GONE);
 
-		ButtonColor backPhoto = (ButtonColor) findViewById(R.id.btnbBackPhoto);
-		backPhoto.changeAspect(this, R.color.Black, getResources().getDrawable(R.drawable.ic_camera));
-
-		frontPhoto.setVisibility(_appConfig.getWorkingArea().CurrentDeposito.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE) ? VISIBLE : GONE);
-		backPhoto.setVisibility(frontPhoto.getVisibility());
-
-		frontPhoto.setOnClickListener( (View v)-> {
-			this.dispatchTakePictureIntent(true);
-		});
-
-		backPhoto.setOnClickListener( (View v)-> {
-			this.dispatchTakePictureIntent(false);
+		takePhotos.setOnClickListener( (View v)-> {
+			this.showAttachmentsDialog();
 		});
 
 		try {
@@ -242,13 +233,7 @@ public class CustomerData extends Activity {
 			incidencia.create(new IncidentPdfCreator(_appConfig));
 
 		}
-
-		//if (_appConfig.getWorkingArea().CurrentDeposito.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE) &&
-		//		!DepositManagerExtension.DataTier.isCustomerAttachedFilled(_appConfig)) {
-		//	_appConfig.getMessageBox().Show("Guardar datos de cliente nuevo", "Tiene que añadir las imágenes del DNI del nuevo cliente", _appConfig, MessageBoxType.Information);
-		//} else {
-			finish();
-		//}
+		finish();
 	}
 	
 	private boolean isUpdated()
@@ -295,49 +280,9 @@ public class CustomerData extends Activity {
 		return false;
 	}
 
-	private void dispatchTakePictureIntent(boolean isFrontDocument) {
-		Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-			File photoFile;
-			try {
-				photoFile = createImageFile(isFrontDocument);
-			} catch (IOException ex) {
-				throw new RuntimeException(ex);
-			}
-			if (photoFile != null) {
-				Uri photoURI = Uri.fromFile(photoFile);
-				takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-				startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-			}
-		}
+	private void showAttachmentsDialog() {
+		DepositManagerExtension.Dialogs.StartAttachmentsDialog(this);
 	}
-
-	private File createImageFile(boolean isFrontDocument) throws IOException {
-		String imageFileName = (isFrontDocument ? "F" : "B") + "_" + _appConfig.getWorkingArea().CurrentTransactionMetadata.GUID;
-		File storageDir = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_CUSTOMER_DOCUMENT + "/");
-		File image = File.createTempFile(imageFileName, ".jpg", storageDir);
-
-		if (isFrontDocument)
-			_appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerFrontDocument = image.getAbsolutePath();
-		else
-			_appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerBackDocument = image.getAbsolutePath();
-
-		return image;
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-			// The photo was taken and saved successfully
-
-			// Display the photo
-			//ImageView imageView = findViewById(R.id.imageView);
-			//imageView.setImageURI(Uri.parse(currentPhotoPath));
-		}
-	}
-
-
 }
 
 

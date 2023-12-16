@@ -429,10 +429,13 @@ public class DepositManager extends Fragment implements  IMediator {
 					return;
 				}
 
-				if (_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE) &&
-				!DepositManagerExtension.DataTier.isCustomerAttachedFilled(_appConfig)) {
-					_appConfig.getMessageBox().Show("Cierre de operación", "Tiene que añadir las imágenes del DNI del nuevo cliente", arg0.getContext(), MessageBoxType.Information);
-					DepositManagerExtension.Dialogs.StartCustomerDataDialog(that);
+				if(_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE) &&
+						!DepositManagerExtension.DataTier.isCustomerAttachedFilled(_appConfig)) {
+					_appConfig.getMessageBox().Show("Advertencia",
+							"Tiene que tomar fotos del DNI del cliente nuevo. Tome las fotos desde la ventana 'Cliente' y vuelva a cerrar la operación",
+							this.getActivity(), MessageBoxType.Information);
+
+					return;
 				}
 
 				if (!DepositManagerExtension.DataTier.IsCustomerDataFilled(that._deposito)) {
@@ -720,21 +723,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			// Generamos la incidencia de nuevo cliente
 
-			String text = "Se ha creado un nuevo cliente con los siguientes datos: " + ConstantsTypes.NEW_LINE
-					+ ConstantsTypes.NEW_LINE + "NIF/CIF: " + _deposito.NIF + ConstantsTypes.NEW_LINE + "NOMBRE: "
-					+ _deposito.Nombre + ConstantsTypes.NEW_LINE + "RAZON: " + _deposito.Razon
-					+ ConstantsTypes.NEW_LINE;
-
-			Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(), IncidenciaType.ClienteNuevo,
-					text);
-
-			incidencia.Attachments.put("ANVERSO",
-					_appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerFrontDocument);
-
-			incidencia.Attachments.put("REVERSO",
-					_appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerBackDocument);
-
-			incidencia.create(new IncidentPdfCreator(_appConfig));
+			DepositManagerExtension.Incidencias.createIncidenciaNuevoCliente(_appConfig, _deposito);
 		}
 
 		this.SaveHistorico();
@@ -874,19 +863,8 @@ public class DepositManager extends Fragment implements  IMediator {
 
 				// Generamos la incidencia de baja de cliente
 
-				String text = "Se ha dado de baja el deposito con los siguientes datos: " + ConstantsTypes.NEW_LINE
-						+ ConstantsTypes.NEW_LINE + "NUM. DEPOSITO DIMONI: " + _deposito.NumDoc
-						+ ConstantsTypes.NEW_LINE + "NÚM. DEPOSITO TABLET (RefExt): " + _deposito.IdDeposito
-						+ ConstantsTypes.NEW_LINE + "NIF/CIF: " + _deposito.NIF + ConstantsTypes.NEW_LINE + "NOMBRE: "
-						+ _deposito.Nombre + ConstantsTypes.NEW_LINE + "RAZON: " + _deposito.Razon
-						+ ConstantsTypes.NEW_LINE + "MOTIVO DE LA BAJA: " + _deposito.MotivoRetirado
-						+ ConstantsTypes.NEW_LINE;
+				DepositManagerExtension.Incidencias.createIncidenciaBajaCliente(_appConfig, _deposito);
 
-				
-				Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(),
-						IncidenciaType.BajaCliente, text);
-				incidencia.create(new IncidentPdfCreator(_appConfig));
-				 
 				XmlCreator creator = new XmlCreator(_appConfig, _appConfig);
 				creator.createXmlDeposito(_deposito);
 			}

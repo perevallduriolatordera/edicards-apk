@@ -3,7 +3,7 @@
     package="net.ifeu.edicards"
     android:versionCode="4"
     android:exported="true"
-    android:versionName="4.0.6 (02 Noviembre 2023)" >
+    android:versionName="4.1.1 (18 Diciembre 2023)" >
 
     <!--<uses-sdk
         android:minSdkVersion="16"
@@ -204,6 +204,12 @@
             android:label="@string/title_activity_deposit_view"
             android:theme="@android:style/Theme.Dialog" >
         </activity>
+        <activity
+            android:name=".AttachmentsDialog"
+            android:label="Adjuntos"
+            android:theme="@android:style/Theme.Dialog" >
+        </activity>
+
         <activity
             android:name=".AlbaranView"
             android:label="@string/title_activity_albaran_view"

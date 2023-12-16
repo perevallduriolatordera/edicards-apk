@@ -187,7 +187,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
 
                 cell = new PdfPCell();
 
-                for (String barcode : getBarcodeList(linea.Articulo.EAN + "," + linea.Articulo.EAN)) {
+                for (String barcode : getBarcodeList(linea.Articulo.EAN)) {
                     Image image = null;
                     try {
                         createBitmap(barcode);
