@@ -82,6 +82,9 @@ public class DepositManager extends Fragment implements  IMediator {
 	private final int TEXT_SIZE = 14;
 	private boolean _isRendered = false;
 	private LinearLayout _mainLayout;
+
+	private boolean _isOperationClosed;
+
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		_appConfig = (AppConfig) this.getActivity().getApplicationContext();
@@ -450,11 +453,13 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		ButtonColor nuevo = DepositManagerExtension.UI.addButton(getActivity(), Color.MAGENTA, "Nuevo depósito",
 				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params, getResources().getDrawable(R.drawable.ic_new));
-		
+
+		nuevo.setTag("NUEVO");
 		nuevo.setOnClickListener(arg0 -> {
 
 			try {
 				_appConfig.getWorkingArea().TransferMode = TransferMode.None;
+				_isOperationClosed = false;
 				resetDepositData();
 				onStart();
 
@@ -497,10 +502,17 @@ public class DepositManager extends Fragment implements  IMediator {
 		footerLinearLayout.addView(layout);
 
 	}
+
+	private void prepareScreenRegions(boolean visible) {
+		this.showHeader(visible);
+		this.showArticlesGrid(visible);
+		this.showButtonBar(visible);
+	}
+
 	private void CreateDepositView() throws Exception {
 
 		if (this.RestriccionIngresos()) return;
-		this.showHeader();
+		this.prepareScreenRegions(true);
 
 		Cliente cliente = _appConfig.getWorkingArea().CurrentCliente;
 		_cliente = _appConfig.getWorkingArea().CurrentCliente;
@@ -933,10 +945,6 @@ public class DepositManager extends Fragment implements  IMediator {
 		closeOperation();
 		resetDepositData();
 
-		//_appConfig.getMessageBox().Show("Cierre de operación", "La operación se ha cerrado correctamente.",
-		//		this.getActivity(), MessageBoxType.Information);
-
-		this.onStart();
 	}
 
 	private void SaveHistorico() {
@@ -1084,7 +1092,12 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		try {
 
+			if (_isOperationClosed) return;
+
 			DepositManagerExtension.Documents.sendData(this.getActivity(), this._appConfig);
+
+			_appConfig.getMessageBox().Show("Cierre de operación", "La operación se ha cerrado correctamente.",
+					this.getActivity(), MessageBoxType.Information);
 
 			if (_appConfig.getWorkingArea().TransferMode.equals(TransferMode.New))
 				_appConfig.getWorkingArea().TransferMode = TransferMode.None;
@@ -1094,11 +1107,15 @@ public class DepositManager extends Fragment implements  IMediator {
 			_appConfig.getCache().invalidate();
 			_appConfig.getMediator().notify(ConstantsEvents.EVENT_STOCK_CHANGED, null);
 			_appConfig.getMediator().notify(ConstantsEvents.EVENT_DEPOSIT_CLOSED, null);
+			this.prepareScreenRegions(false);
 
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
+		} finally {
+			_isOperationClosed = true;
 		}
 	}
+
 	private void addLineHeader(LineaDeposito lineaDeposito, final LinearLayout layoutGrid) {
 
 		final DepositManager that = this;
@@ -1670,8 +1687,28 @@ public class DepositManager extends Fragment implements  IMediator {
 
 	}
 
-	private void showHeader() {
-		(this.getActivity().findViewById(R.id.headerMainLinearLayout)).setVisibility(View.VISIBLE);
+	private void showHeader(boolean visible) {
+		(this.getActivity().findViewById(R.id.headerMainLinearLayout)).setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+	}
+
+	private void showArticlesGrid(boolean visible) {
+		(this.getActivity().findViewById(R.id.linearLayoutArticles)).setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+	}
+
+	private void showButtonBar(boolean visible) {
+		LinearLayout linearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerButtonsLinearLayout);
+		LinearLayout subLinearLayout = (LinearLayout) linearLayout.getChildAt(0);
+
+		if (subLinearLayout == null) return;
+
+		for (int i = 0; i < subLinearLayout.getChildCount(); i++) {
+			View view = subLinearLayout.getChildAt(i);
+
+			if (view.getTag() == null)
+				view.setVisibility(visible ? View.VISIBLE : View.GONE);
+			else
+				view.setVisibility(view.getTag().equals("NUEVO") ? View.VISIBLE : (visible ? View.VISIBLE : View.GONE));
+		}
 	}
 
 	private void createHeaderLabels() {
