@@ -64,14 +64,14 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="50px"
             android:layout_marginRight="50px"
-            android:text="Datos mobiles SI" />
+            android:text="Datos móviles SI" />
 
         <TextView android:id="@+id/lblBuletooth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="50px"
             android:layout_marginRight="50px"
-            android:text="sdfgsdfgdsfg" />
+            android:text="Bluetooth" />
 
     <!--<LinearLayout
               android:layout_width="fill_parent" 

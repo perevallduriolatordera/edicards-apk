@@ -25,7 +25,7 @@ public class IngresoData extends Fragment {
 
 	AppConfig _appConfig;
 
-	public void onCreate(Bundle savedInstanceState) {
+	public void onDCreate(Bundle savedInstanceState) {
 
 		super.onCreate(savedInstanceState);
 

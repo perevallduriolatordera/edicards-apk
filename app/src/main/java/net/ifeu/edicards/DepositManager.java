@@ -32,14 +32,11 @@ import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Historico;
-import net.ifeu.edicards.DataTier.Incidencia;
-import net.ifeu.edicards.DataTier.IncidenciaType;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.TipoIVA;
 import net.ifeu.edicards.DataTier.TransactionMetadata;
 import net.ifeu.edicards.DataTier.TransferMode;
 import net.ifeu.edicards.Pdf.gdpr.PdfGDPR;
-import net.ifeu.edicards.Pdf.incident.IncidentPdfCreator;
 import net.ifeu.edicards.Printer.PrintManager;
 import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Controls.ButtonColor;
@@ -57,7 +54,6 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -936,6 +932,11 @@ public class DepositManager extends Fragment implements  IMediator {
 		this.printDeposito(GUID);
 		closeOperation();
 		resetDepositData();
+
+		//_appConfig.getMessageBox().Show("Cierre de operación", "La operación se ha cerrado correctamente.",
+		//		this.getActivity(), MessageBoxType.Information);
+
+		this.onStart();
 	}
 
 	private void SaveHistorico() {
@@ -1082,9 +1083,6 @@ public class DepositManager extends Fragment implements  IMediator {
 	private void closeOperation() {
 
 		try {
-
-			_appConfig.getMessageBox().Show("Cierre de operación", "La operación se ha cerrado correctamente.",
-					this.getActivity(), MessageBoxType.Information);
 
 			DepositManagerExtension.Documents.sendData(this.getActivity(), this._appConfig);
 

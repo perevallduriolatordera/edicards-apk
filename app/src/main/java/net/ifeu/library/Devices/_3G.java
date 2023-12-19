@@ -14,10 +14,15 @@ public class _3G {
 		
 	    ConnectivityManager connectivityManager = (ConnectivityManager) context
 	            .getSystemService(Context.CONNECTIVITY_SERVICE);
-	      
-	    return !(connectivityManager.getNetworkInfo(
-	            ConnectivityManager.TYPE_MOBILE).getState() == NetworkInfo.State.CONNECTED || connectivityManager
-	            .getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState() == NetworkInfo.State.CONNECTED);
+
+		NetworkInfo mobileNetworkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+
+		if (mobileNetworkInfo != null) {
+			return mobileNetworkInfo.isConnected();
+		}
+
+		return false;
 	}
 	
 	public static void Activate3G(AppConfig config, boolean enable) throws IllegalArgumentException {

@@ -160,7 +160,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
 
         for (LineaDeposito linea : tempList) {
 
-            if (linea.UnidadesRepuestas > 0) {
+            if (linea.UnidadesFacturadas > 0) {
 
                 PdfPTable table = new PdfPTable(5);
                 table.setWidthPercentage(100); // 100% of the available width
@@ -182,7 +182,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
                 table.addCell(cell);
 
                 cell = new PdfPCell();
-                cell.addElement(getParagraph(String.valueOf(linea.UnidadesRepuestas), _fontNormal));
+                cell.addElement(getParagraph(String.valueOf(linea.UnidadesFacturadas), _fontNormal));
                 table.addCell(cell);
 
                 cell = new PdfPCell();
@@ -248,6 +248,39 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
 
     }
 
+    private void printNumeroAlbaran() {
+        if (_deposito.Serie.equals(_app.getUser().SerialInvoiceB)) {
+            String presupuestoText = "PRESUPUESTO: NUM "
+                    + _app.getUser().User + "/"
+                    + _deposito.NumeroAlbaran + "\n";
+
+            try {
+                _document.add(new Paragraph(presupuestoText, _fontBold));
+            } catch (DocumentException e) {
+                throw new RuntimeException(e);
+            }
+        } else if (!_deposito.Pagado) {
+            String albaranText = "ALBARAN: NUM " + _app.getUser().User
+                    + "/" + _deposito.NumeroAlbaran + "\n";
+
+            try {
+                _document.add(new Paragraph(albaranText, _fontBold));
+            } catch (DocumentException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            String albaranText = "ALBARAN ENTREGA: NUM "
+                    + _app.getUser().User + "/"
+                    + _deposito.NumeroAlbaran + "\n";
+
+            try {
+                _document.add(new Paragraph(albaranText, _fontBold));
+            } catch (DocumentException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     @Override
     public boolean createDeposito(String guid) {
 
@@ -271,12 +304,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
             _document.open();
 
             printHeader();
-
-            String depositoNum = "DEPOSITO: NUM " + _app.getUser().User + "/"
-                    + _deposito.IdDeposito + "\n";
-
-            _document.add(new Paragraph(depositoNum, _fontBold));
-
+            printNumeroAlbaran();
             printHeaderDataAlmacen();
             printHeaderFieldsAlmacen();
             printHeaderDetailAlmacen();

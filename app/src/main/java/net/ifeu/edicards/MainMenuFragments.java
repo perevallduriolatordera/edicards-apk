@@ -208,7 +208,7 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener, 
 	@Override
 	public void notify(String event, Object payload) {
 		if (event == ConstantsEvents.EVENT_DEPOSIT_CLOSED) {
-			onTabChanged(TAB_STOCK);
+			onTabChanged(TAB_DEPOSITOS);
 		}
 
 	}

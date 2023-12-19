@@ -23,6 +23,7 @@ import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Deposito;
+import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.FormaPago;
 import net.ifeu.edicards.DataTier.Historico;
@@ -175,13 +176,15 @@ public class DepositManagerExtension {
 	
 			if (deposito.isDeposito()) { // && _deposito.isDepositoUpdated())
 				pdf.createDeposito(GUID);
-				pdfAlmacen.createDeposito(GUID);
 			}
 
 			if (!TextUtils.isEmpty(deposito.NumeroAlbaran)) {
 				pdf.createAlbaran(GUID, DataTier.isTransferPayment(deposito.FormaPago));
-			}
 
+				if (config.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
+					pdfAlmacen.createDeposito(GUID);
+				}
+			}
 		}
 	
 		public static void GenerateAuthorization(String GUID, Deposito deposito, AppConfig config) throws FileNotFoundException, DocumentException {
