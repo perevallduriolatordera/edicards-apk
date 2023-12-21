@@ -9,5 +9,6 @@ public enum IncidenciaType {
 	AlbaranAnuladoDesdeEdicards,
 	CuentaCorriente,
 	Filiacion,
-	Ingreso
+	Ingreso,
+	ErrorDocumento
 }

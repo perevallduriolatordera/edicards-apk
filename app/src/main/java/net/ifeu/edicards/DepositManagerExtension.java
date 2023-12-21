@@ -175,14 +175,17 @@ public class DepositManagerExtension {
 			IPdfDocumentGenerator pdfAlmacen = new PdfAlmacenCreator(deposito,config);
 	
 			if (deposito.isDeposito()) { // && _deposito.isDepositoUpdated())
-				pdf.createDeposito(GUID);
+				boolean result = pdf.createDeposito(GUID);
+				if (!result) Incidencias.createErrorPdfDocument(config, deposito);
 			}
 
 			if (!TextUtils.isEmpty(deposito.NumeroAlbaran)) {
-				pdf.createAlbaran(GUID, DataTier.isTransferPayment(deposito.FormaPago));
+				boolean result = pdf.createAlbaran(GUID, DataTier.isTransferPayment(deposito.FormaPago));
+				if (!result) Incidencias.createErrorPdfDocument(config, deposito);
 
 				if (config.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
-					pdfAlmacen.createDeposito(GUID);
+					boolean resultAlmacen = pdfAlmacen.createAlbaran(GUID, DataTier.isTransferPayment(deposito.FormaPago));
+					if (!resultAlmacen) Incidencias.createErrorPdfDocument(config, deposito);
 				}
 			}
 		}
@@ -315,6 +318,26 @@ public class DepositManagerExtension {
 			incidencia.Attachments.put("REVERSO",
 					appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerBackDocument);
 
+			try {
+				incidencia.create(new IncidentPdfCreator(appConfig));
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		public static void createErrorPdfDocument(AppConfig appConfig, Deposito deposito) {
+			String text = "Se ha producido un error generando el documento pdf con los siguientes datos: " + ConstantsTypes.NEW_LINE
+					+ ConstantsTypes.NEW_LINE + "NUM. DEPOSITO DIMONI: " + deposito.NumDoc
+					+ ConstantsTypes.NEW_LINE + "NÚM. DEPOSITO TABLET (RefExt): " + deposito.IdDeposito
+					+ ConstantsTypes.NEW_LINE + "NUM. ALBARÁN: " +
+					(StringUtils.isEmpty(deposito.NumeroAlbaran) ? "" : deposito.NumeroAlbaran)
+					+ ConstantsTypes.NEW_LINE + "NIF/CIF:" + deposito.NIF + ConstantsTypes.NEW_LINE + "NOMBRE: "
+					+ deposito.Nombre + ConstantsTypes.NEW_LINE + "RAZON: " + deposito.Razon
+					+ ConstantsTypes.NEW_LINE;
+
+
+			Incidencia incidencia = new Incidencia(appConfig.getUser().User, new Date(),
+					IncidenciaType.ErrorDocumento, text);
 			try {
 				incidencia.create(new IncidentPdfCreator(appConfig));
 			} catch (Exception e) {

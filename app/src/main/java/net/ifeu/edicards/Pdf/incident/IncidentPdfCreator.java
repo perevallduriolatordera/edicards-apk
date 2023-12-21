@@ -73,6 +73,11 @@ public class IncidentPdfCreator extends pdfBase implements Incidencia.IIncidenci
                 tipoInc = "Ingreso realizado por comercial";
                 prefix = "I";
                 break;
+            case ErrorDocumento:
+                tipoInc = "Error de generación de documento pdf";
+                prefix = "P";
+                break;
+
         }
 
         SimpleDateFormat formatter;

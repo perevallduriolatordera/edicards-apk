@@ -51,7 +51,48 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
 
     @Override
     public boolean createAlbaran(String guid, boolean isTransferPayment) {
-        return false;
+
+        try {
+
+            Debugger.Debug(_app, _app.getUser().User,"Generando albarán " + _deposito.NumeroAlbaran, null);
+            _GUID = guid;
+
+            _document = new Document();
+            String tipoEnvio = "E";
+
+            _pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
+                    + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_PDF + "/"
+                    + "AALM_" + _app.getUser().User + " " + _deposito.IdDeposito
+                    + "_" + this.getDateTimeFormat() + "_" + tipoEnvio + ".pdf";
+
+            _document.addTitle(_app.getUser().User + "_" + _deposito.IdDeposito
+                    + "_" + new Date(0));
+
+            PdfWriter.getInstance(_document, new FileOutputStream(_pdfName));
+            _document.open();
+
+            printHeader();
+            printNumeroAlbaran();
+            printHeaderDataAlmacen();
+            printHeaderFieldsAlmacen();
+            printHeaderDetailAlmacen();
+            printSignatureBoxesAlmacen();
+            closePage();
+
+        } catch (Exception e) {
+            sendMailToMantenimiento(e, _app.getUser().User, _deposito.NumeroAlbaran, "albarán");
+            return false;
+        } finally {
+            {
+                try {
+                    Debugger.Debug(_app, _app.getUser().User,"Se ha generado el albarán " + _deposito.NumeroAlbaran, _pdfName);
+                } catch (PackageManager.NameNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+        return true;
     }
 
     private void printHeaderDataAlmacen() throws DocumentException {
@@ -283,48 +324,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
 
     @Override
     public boolean createDeposito(String guid) {
-
-        try {
-
-            Debugger.Debug(_app, _app.getUser().User,"Generando albarán " + _deposito.NumeroAlbaran, null);
-            _GUID = guid;
-
-            _document = new Document();
-            String tipoEnvio = "E";
-
-            _pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
-                    + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_PDF + "/"
-                    + "AALM_" + _app.getUser().User + " " + _deposito.IdDeposito
-                    + "_" + this.getDateTimeFormat() + "_" + tipoEnvio + ".pdf";
-
-            _document.addTitle(_app.getUser().User + "_" + _deposito.IdDeposito
-                    + "_" + new Date(0));
-
-            PdfWriter.getInstance(_document, new FileOutputStream(_pdfName));
-            _document.open();
-
-            printHeader();
-            printNumeroAlbaran();
-            printHeaderDataAlmacen();
-            printHeaderFieldsAlmacen();
-            printHeaderDetailAlmacen();
-            printSignatureBoxesAlmacen();
-            closePage();
-
-        } catch (Exception e) {
-            sendMailToMantenimiento(e, _app.getUser().User, _deposito.NumeroAlbaran, "albarán");
-            return false;
-        } finally {
-            {
-                try {
-                    Debugger.Debug(_app, _app.getUser().User,"Se ha generado el albarán " + _deposito.NumeroAlbaran, _pdfName);
-                } catch (PackageManager.NameNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-
-        return true;
+        return false;
     }
 
     static class RectangleEvent implements PdfPCellEvent {
