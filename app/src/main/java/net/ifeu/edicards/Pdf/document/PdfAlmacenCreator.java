@@ -62,7 +62,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
 
             _pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
                     + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_PDF + "/"
-                    + "AALM_" + _app.getUser().User + " " + _deposito.IdDeposito
+                    + "AALM_" + _app.getUser().User + " " + _deposito.NumeroAlbaran
                     + "_" + this.getDateTimeFormat() + "_" + tipoEnvio + ".pdf";
 
             _document.addTitle(_app.getUser().User + "_" + _deposito.IdDeposito
