@@ -83,8 +83,6 @@ public class DepositManager extends Fragment implements  IMediator {
 	private boolean _isRendered = false;
 	private LinearLayout _mainLayout;
 
-	private boolean _isOperationClosed;
-
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		_appConfig = (AppConfig) this.getActivity().getApplicationContext();
@@ -181,8 +179,6 @@ public class DepositManager extends Fragment implements  IMediator {
 		series.add(_appConfig.getUser().SerialInvoiceB);
 
 		_comboSerie = DepositManagerExtension.UI.addCombo(_appConfig, 150, params, series, _appConfig.getUser().SerialInvoiceA);
-
-		_deposito.Serie = _appConfig.getUser().SerialInvoiceA;
 
 		// //Pagado
 
@@ -324,6 +320,7 @@ public class DepositManager extends Fragment implements  IMediator {
 	}
 
 	private void addComboObservers() {
+
 		_comboPago.addObserver("PAGADO", (String id, String text)-> {
 			if (((CharSequence) text).toString().trim().equalsIgnoreCase("CONTADO")) {
 				this._checkPagado.setChecked(true);
@@ -337,6 +334,15 @@ public class DepositManager extends Fragment implements  IMediator {
 		});
 		_comboSerie.addObserver("SERIE", (String id, String text) -> {
 			try {
+
+				if (DepositManagerExtension.DataTier.IsSerieA(this._comboSerie, this._appConfig)) {
+					_deposito.Serie = _appConfig.getUser().SerialInvoiceA;
+					_appConfig.getWorkingArea().CurrentDeposito.Serie = _appConfig.getUser().SerialInvoiceA;
+				} else {
+					_deposito.Serie = _appConfig.getUser().SerialInvoiceB;
+					_appConfig.getWorkingArea().CurrentDeposito.Serie = _appConfig.getUser().SerialInvoiceB;
+				}
+
 				this.refreshTotals();
 			} catch (Exception e) {
 				throw new RuntimeException(e);
@@ -397,11 +403,6 @@ public class DepositManager extends Fragment implements  IMediator {
 				_textBoxColorRequestFocus.requestFocus();
 
 			try {
-				if (DepositManagerExtension.DataTier.IsSerieA(that._comboSerie, that._appConfig))
-					_deposito.Serie = _appConfig.getUser().SerialInvoiceA;
-				else
-					_deposito.Serie = _appConfig.getUser().SerialInvoiceB;
-
 				DepositManagerExtension.Dialogs.StartTotalesDialog(that);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
@@ -459,7 +460,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			try {
 				_appConfig.getWorkingArea().TransferMode = TransferMode.None;
-				_isOperationClosed = false;
+				//_isOperationClosed = false;
 				resetDepositData();
 				onStart();
 
@@ -591,6 +592,7 @@ public class DepositManager extends Fragment implements  IMediator {
 					this.addPotentialArticles();
 				}
 
+				_deposito.Serie = _appConfig.getUser().SerialInvoiceA;
 				_appConfig.getWorkingArea().CurrentDeposito = _deposito;
 				_appConfig.getWorkingArea().CurrentDeposito.DatosFiscalesUpdated = false;
 				_appConfig.getWorkingArea().CurrentTransactionMetadata = new TransactionMetadata();
@@ -750,14 +752,6 @@ public class DepositManager extends Fragment implements  IMediator {
 	private void GenerateAlbaran() throws Exception {
 
 		String GUID = "";
-
-		if (DepositManagerExtension.DataTier.IsSerieA(this._comboSerie, this._appConfig)) {
-			_deposito.Serie = _appConfig.getUser().SerialInvoiceA;
-			_appConfig.getWorkingArea().CurrentDeposito.Serie = _appConfig.getUser().SerialInvoiceA;
-		} else {
-			_deposito.Serie = _appConfig.getUser().SerialInvoiceB;
-			_appConfig.getWorkingArea().CurrentDeposito.Serie = _appConfig.getUser().SerialInvoiceB;
-		}
 
 		double cantidadPagada;
 		String cantidadPagadaText = _textBoxCantidadPagada.getText().toString();
@@ -955,11 +949,6 @@ public class DepositManager extends Fragment implements  IMediator {
 		_deposito.FormaPago = DepositManagerExtension.DataTier.getFormaPagoByDescripcion(_comboPago.getText(), this._appConfig);
 
 		if (_deposito.isAlbaran()) {
-			if (DepositManagerExtension.DataTier.IsSerieA(this._comboSerie, this._appConfig))
-				_deposito.Serie = _appConfig.getUser().SerialInvoiceA;
-			else
-				_deposito.Serie = _appConfig.getUser().SerialInvoiceB;
-
 			Contador contador = Factory.build(Contador.class, _appConfig);
 			_deposito.NumeroAlbaran = contador.updateContador(_deposito, _appConfig.getUser());
 		}
@@ -988,14 +977,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			boolean resultImp = _appConfig.getMessageBox().ShowWithResult("Impresión de documentos",
 					"Desea iniciar la impresión ?", this.getActivity(), MessageBoxType.Information);
-			if (!resultImp) {
-				try {
-					closeOperation();
-				} catch (Exception e) {
-					return;
-				}
-				return;
-			}
+			if (!resultImp) return;
 
 			int copias = Integer.parseInt(_comboCopias.getText());
 
@@ -1047,12 +1029,6 @@ public class DepositManager extends Fragment implements  IMediator {
 						} while (cancel);
 
 						if (!result) {
-							try {
-								closeOperation();
-							} catch (Exception e) {
-								printManager.Release();
-								return;
-							}
 							printManager.Release();
 							return;
 						}
@@ -1074,12 +1050,6 @@ public class DepositManager extends Fragment implements  IMediator {
 					}
 
 					if (!result) {
-						try {
-							closeOperation();
-						} catch (Exception e) {
-							printManager.Release();
-							return;
-						}
 						printManager.Release();
 						return;
 					}
@@ -1091,8 +1061,6 @@ public class DepositManager extends Fragment implements  IMediator {
 	private void closeOperation() {
 
 		try {
-
-			if (_isOperationClosed) return;
 
 			DepositManagerExtension.Documents.sendData(this.getActivity(), this._appConfig);
 
@@ -1111,8 +1079,6 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
-		} finally {
-			_isOperationClosed = true;
 		}
 	}
 
@@ -1912,13 +1878,13 @@ public class DepositManager extends Fragment implements  IMediator {
 			_deposito.Cliente.Filiacion = DepositManagerExtension.DataTier.getFiliacionCode(_comboFiliacion.getText()).trim();
 			_deposito.Calculate();
 
+			((TextView) getActivity().findViewById(R.id.lblBase)).setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.TotalBase) + " €");
 			if (DepositManagerExtension.DataTier.IsSerieA(this._comboSerie, this._appConfig)) {
-				((TextView) getActivity().findViewById(R.id.lblBase)).setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.TotalBase) + " €");
 				((TextView) getActivity().findViewById(R.id.lblTotalFactura)).setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.Total) + " €");
 			} else {
-				((TextView) getActivity().findViewById(R.id.lblBase)).setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.TotalBase) + " €");
 				((TextView) getActivity().findViewById(R.id.lblTotalFactura)).setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.TotalBase) + " €");
 			}
+
 			((TextView) getActivity().findViewById(R.id.lblTipoEntrega)).setText(_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
 		} else {
 			((TextView) getActivity().findViewById(R.id.lblBase)).setText(ConstantsTypes.EMPTY_STRING);

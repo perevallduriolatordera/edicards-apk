@@ -15,30 +15,32 @@ public class IOUtils {
 
 	public static List<String> getFilesFromDirectory(String path)
 	{
-		  List<String> list = new ArrayList<>();
-		  String files;
-		  File folder = new File(path);
-		  File[] listOfFiles = folder.listFiles();
+		    List<String> list = new ArrayList<>();
+		    String files;
+		    File folder = new File(path);
+		    File[] listOfFiles = folder.listFiles();
 
-		for (File listOfFile : listOfFiles) {
+			for (File listOfFile : listOfFiles) {
 
-			if (listOfFile.isFile()) {
-				files = listOfFile.getName();
-				if (files.endsWith(".xml")
-						|| files.endsWith(".XML")
-						|| files.endsWith(".pdf")
-						|| files.endsWith(".PDF")
-						|| files.endsWith(".1")
-						|| files.endsWith(".2")
-						|| files.endsWith(".txt")
-						|| files.endsWith(".TXT"))
-				{
-					list.add(path + "/" + files);
+				if (listOfFile.isFile()) {
+					files = listOfFile.getName();
+					if (files.endsWith(".xml")
+							|| files.endsWith(".XML")
+							|| files.endsWith(".pdf")
+							|| files.endsWith(".PDF")
+							|| files.endsWith(".1")
+							|| files.endsWith(".2")
+							|| files.endsWith(".txt")
+							|| files.endsWith(".TXT")
+							|| files.endsWith(".JPG")
+							|| files.endsWith(".jpg"))
+					{
+						list.add(path + "/" + files);
+					}
 				}
 			}
-		}
-		  
-		  return list;
+
+			  return list;
 	}
 	
 	public static String getFileContent(String file) throws IOException

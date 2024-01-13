@@ -213,99 +213,99 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 							+ "\n";
 
 					_document.add(new Paragraph(reqEqvText, _fontBold));
+				}
 
-					String formaPagoText = "\nForma de pago: "
-							+ _deposito.PagoDescripcion + "\n";
+				String formaPagoText = "\nForma de pago: "
+						+ _deposito.PagoDescripcion + "\n";
 
-					_document.add(new Paragraph(formaPagoText, _fontBold));
+				_document.add(new Paragraph(formaPagoText, _fontBold));
 
-					if (_deposito.Pagado) {
+				if (_deposito.Pagado) {
 
-						_document.add(new Paragraph(
-								"Conforme   firma cliente:\n", _fontNormal));
+					_document.add(new Paragraph(
+							"Conforme   firma cliente:\n", _fontNormal));
 
-						_document.add(new Paragraph("\n"));
+					_document.add(new Paragraph("\n"));
 
-						String pagadoText = "HE RECIBIDO DE "
-								+ _deposito.Cliente.Nombre + " LA CANTIDAD DE "
-								+ df.format(_deposito.CantidadPagada)
+					String pagadoText = "HE RECIBIDO DE "
+							+ _deposito.Cliente.Nombre + " LA CANTIDAD DE "
+							+ df.format(_deposito.CantidadPagada)
+							+ " Euros EN CONCEPTO DEL PAGO DEL ALBARAN "
+							+ _app.getUser().User + "/"
+							+ _deposito.NumeroAlbaran
+							+ "\n\n";
+
+					_document.add(new Paragraph(pagadoText, _fontNormal));
+
+					if (_deposito.CantidadPagada < _deposito.Totales.Total) {
+						String pendienteText = "QUEDA PENDIENTE DE PAGO LA CANTIDAD DE "
+								+ df.format(_deposito.Totales.Total
+										- _deposito.CantidadPagada)
 								+ " Euros EN CONCEPTO DEL PAGO DEL ALBARAN "
-								+ _app.getUser().User + "/"
+								+ _app.getUser().User
+								+ "/"
 								+ _deposito.NumeroAlbaran
-								+ "\n\n";
+								+ "\n";
 
-						_document.add(new Paragraph(pagadoText, _fontNormal));
-
-						if (_deposito.CantidadPagada < _deposito.Totales.Total) {
-							String pendienteText = "QUEDA PENDIENTE DE PAGO LA CANTIDAD DE "
-									+ df.format(_deposito.Totales.Total
-											- _deposito.CantidadPagada)
-									+ " Euros EN CONCEPTO DEL PAGO DEL ALBARAN "
-									+ _app.getUser().User
-									+ "/"
-									+ _deposito.NumeroAlbaran
-									+ "\n";
-
-							_document.add(new Paragraph(pendienteText,
-									_fontNormal));
-						}
-
-						_document.add(new Paragraph("\n"));
-						_document.add(new Paragraph("\n"));
-						String firmaVendedorText = "FIRMA VENDEDOR: "
-								+ _app.getUser().Name + "\n";
-						_document.add(new Paragraph(firmaVendedorText,
+						_document.add(new Paragraph(pendienteText,
 								_fontNormal));
-
-						this.addSignature(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
-
-						_document.add(new Paragraph("\n"));
-						String firmaClienteText = "FIRMA CLIENTE\n";
-
-						_document.add(new Paragraph(firmaClienteText,
-								_fontNormal));
-
-						this.addSignature(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
-
-					} else {
-						_document.add(new Paragraph(
-								"Conforme - Firma Cliente:\n", _fontNormal));
-						this.addSignature(1);
 					}
+
+					_document.add(new Paragraph("\n"));
+					_document.add(new Paragraph("\n"));
+					String firmaVendedorText = "FIRMA VENDEDOR: "
+							+ _app.getUser().Name + "\n";
+					_document.add(new Paragraph(firmaVendedorText,
+							_fontNormal));
+
+					this.addSignature(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
+
+					_document.add(new Paragraph("\n"));
+					String firmaClienteText = "FIRMA CLIENTE\n";
+
+					_document.add(new Paragraph(firmaClienteText,
+							_fontNormal));
+
+					this.addSignature(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
+
+				} else {
+					_document.add(new Paragraph(
+							"Conforme - Firma Cliente:\n", _fontNormal));
+					this.addSignature(1);
 				}
 			}
+		}
 
-			if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN &&  this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
-				String pendienteEnvioText = "MERCANCIA PENDIENTE DE ENVIO"
-						+ "\n";
+		if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN &&  this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
+			String pendienteEnvioText = "MERCANCIA PENDIENTE DE ENVIO"
+					+ "\n";
 
-				_document.add(new Paragraph(pendienteEnvioText,
-						_fontBoldExtra));
-				this.insertSeparators();
-			}
+			_document.add(new Paragraph(pendienteEnvioText,
+					_fontBoldExtra));
+			this.insertSeparators();
+		}
 
-			if (isTransferPayment && tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN) {
-				String transferText = "\nHACER TRANSFERENCIA EN UNO DE LOS SIGUIENTES NUMEROS DE CUENTA:\n"
-						+ "\n"
-						+ "BANCO SABADELL\n"
-						+ "ES48 0081 0470 0500 0104 3307\n\n"
-						+ "LA CAIXA\n"
-						+ "ES08 2100 4652 0222 0002 2712\n\n"
-						+ "BANCO SANTADER\n"
-						+ "ES92 0075 1133 4405 0006 9237\n\n";
+		if (isTransferPayment && tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN) {
+			String transferText = "\nHACER TRANSFERENCIA EN UNO DE LOS SIGUIENTES NUMEROS DE CUENTA:\n"
+					+ "\n"
+					+ "BANCO SABADELL\n"
+					+ "ES48 0081 0470 0500 0104 3307\n\n"
+					+ "LA CAIXA\n"
+					+ "ES08 2100 4652 0222 0002 2712\n\n"
+					+ "BANCO SANTADER\n"
+					+ "ES92 0075 1133 4405 0006 9237\n\n";
 
-				Paragraph paragraph = new Paragraph(transferText, _fontNormal);
-				paragraph.setAlignment(Element.ALIGN_CENTER);
+			Paragraph paragraph = new Paragraph(transferText, _fontNormal);
+			paragraph.setAlignment(Element.ALIGN_CENTER);
 
-				_document.add(paragraph);
+			_document.add(paragraph);
 
-				transferText = "Poner en el concepto: " + _deposito.Nombre + " y num de albaran " + _app.getUser().User + "/" + _deposito.NumeroAlbaran + "\n\n";
+			transferText = "Poner en el concepto: " + _deposito.Nombre + " y num de albaran " + _app.getUser().User + "/" + _deposito.NumeroAlbaran + "\n\n";
 
-				paragraph = new Paragraph(transferText, _fontBold);
-				paragraph.setAlignment(Element.ALIGN_CENTER);
+			paragraph = new Paragraph(transferText, _fontBold);
+			paragraph.setAlignment(Element.ALIGN_CENTER);
 
-				_document.add(paragraph);
-			}
+			_document.add(paragraph);
 		}
 	}
 

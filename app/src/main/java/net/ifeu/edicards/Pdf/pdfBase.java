@@ -13,12 +13,16 @@ import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.R;
 import net.ifeu.library.Debugger.Debugger;
+
+import org.apache.poi.ss.usermodel.Cell;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -54,13 +58,9 @@ public class pdfBase {
 
 		this.addLogo();
 		String text;
-		text = "\nGRUP EDICIONES ESTER JAEN SL\n"
-				+ "NIF: B-61806808\n"
-				+ "Ediciones Ester Jaen S.L.  Pol. Ind Pla de la Bruguera\n"
-				+ "C/Solsones, 68  08211\n"
-				+ "Castellar del Valles  (Spain)\n"
-				+ "Telfs: 902007753  937143823    Tel. Internacional +34 937143823\n"
-				+ "Fax.902007754\n"
+		text = "\nGRUP EDICIONES ESTER JAEN SL   NIF: B-61806808\n"
+				+ "Pol. Ind Pla de la Bruguera    C/Solsones, 68   --   08211 Castellar del Valles  (Spain)\n"
+				+ "Telfs: 902007753  937143823    Tel. Internacional +34 937143823     Fax.902007754\n"
 				+ "e-mail: edicards@edicards.com    Web: www.edicards.com\n\n";
 
 		Paragraph paragraph = new Paragraph(text, _fontNormal);
@@ -170,8 +170,20 @@ public class pdfBase {
 				Image bgImage = Image.getInstance(bitmapdata);
 				bgImage.scaleToFit(bgImage.getWidth() / 7,
 						bgImage.getHeight() / 7);
-		
-				_document.add(bgImage);
+
+				PdfPTable table = new PdfPTable(1);
+				table.setWidthPercentage(100);
+
+				float[] columnWidths = {100f};
+				table.setWidths(columnWidths);
+
+				PdfPCell cell = new PdfPCell();
+				cell.setBorder(0);
+				cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+				cell.addElement(bgImage);
+
+				table.addCell(cell);
+				_document.add(table);
 				
 				bitmap.recycle();
 				System.gc();

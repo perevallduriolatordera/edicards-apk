@@ -140,7 +140,7 @@ public class DepositManagerExtension {
 	}
 	// ************************** FORMAT *************************************
 	
-	static class Format {
+	public static class Format {
 		public static double round(double d, int decimalPlace) {
 			BigDecimal bd = new BigDecimal(Double.toString(d));
 			bd = bd.setScale(decimalPlace, RoundingMode.HALF_UP);
