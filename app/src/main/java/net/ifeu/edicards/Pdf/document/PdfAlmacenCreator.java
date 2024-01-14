@@ -95,7 +95,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
                 + "  Mail:" + _deposito.Mail + "\n" + pago;
 
         Paragraph paragraph = new Paragraph(text, _fontNormal);
-        paragraph.setAlignment(Element.ALIGN_CENTER);
+        paragraph.setAlignment(Element.ALIGN_LEFT);
 
         _document.add(paragraph);
     }
