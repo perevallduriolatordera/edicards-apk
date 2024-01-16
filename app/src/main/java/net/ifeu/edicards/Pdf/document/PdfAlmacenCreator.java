@@ -153,58 +153,76 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
 
         if ((_deposito.Totales.DescuentoFinanciero != 0 || _deposito.Totales.DescuentoProntoPago != 0)
                 && (_deposito.Serie.equals(_app.getUser().SerialInvoiceA))) {
-            String total = padLeft(" ", 43)
+
+            String total = "TOTAL: " + df
+                    .format(_deposito.Totales.TotalBaseSinDte);
+            /*String total = padLeft(" ", 43)
                     + padRight("TOTAL:", 10)
                     + padLeft(" ", 10)
                     + padRight(String.valueOf(df
-                    .format(_deposito.Totales.TotalBaseSinDte)), 10);
+                    .format(_deposito.Totales.TotalBaseSinDte)), 10);*/
             _document.add(new Paragraph("\n" + total + "\n", _fontBold));
 
             if (_deposito.Totales.DescuentoProntoPago != 0) {
-                String prontoPago = padLeft(" ", 43)
+
+                String prontoPago = "DTE. COMERCIAL: " + df
+                        .format(_deposito.Totales.TotalDescuentoProntoPago);
+                /*String prontoPago = padLeft(" ", 43)
                         + padRight("DTE. COMERCIAL:", 15)
                         + padLeft(" ", 5)
                         + padRight(
                         String.valueOf(df
                                 .format(_deposito.Totales.TotalDescuentoProntoPago)),
-                        10);
+                        10);*/
                 _document.add(new Paragraph(prontoPago + "\n", _fontBold));
             }
 
             if (_deposito.Totales.DescuentoFinanciero != 0) {
-                String financiero = padLeft(" ", 43)
+
+                String financiero = "DTE. FINANCIERO: " + df
+                        .format(_deposito.Totales.TotalDescuentoFinanciero);
+
+                /*String financiero = padLeft(" ", 43)
                         + padRight("DTE. FINANCIERO:", 16)
                         + padLeft(" ", 4)
                         + padRight(
                         String.valueOf(df
                                 .format(_deposito.Totales.TotalDescuentoFinanciero)),
-                        10);
+                        10);*/
                 _document.add(new Paragraph(financiero + "\n", _fontBold));
             }
 
-            String neto = padLeft(" ", 43)
+            String neto = "NETO: " + df
+                    .format(_deposito.Totales.TotalBase);
+            /*String neto = padLeft(" ", 43)
                     + padRight("NETO:", 10)
                     + padLeft(" ", 10)
                     + padRight(String.valueOf(df
                     .format(_deposito.Totales.TotalBase)), 10);
-            _document.add(new Paragraph(neto + "\n", _fontBold));
+            _document.add(new Paragraph(neto + "\n", _fontBold));*/
         }
 
         if (_deposito.Serie.equals(_app.getUser().SerialInvoiceA)) {
-            String suma = padLeft(" ", 43)
-                    + padRight("SUMA:", 10)
-                    + padLeft(" ", 10)
-                    + padRight(String.valueOf(df
-                    .format(_deposito.Totales.TotalBase)), 10);
+
+            String suma = "SUMA: " + df.format(_deposito.Totales.TotalBase);
+            //String suma = padLeft(" ", 43)
+            //        + padRight("SUMA:", 10)
+            //        + padLeft(" ", 10)
+            //        + padRight(String.valueOf(df
+            //        .format(_deposito.Totales.TotalBase)), 10);
 
             _document.add(new Paragraph("\n" + suma + "\n", _fontBold));
 
-            String impuestos = padLeft(" ", 43)
-                    + padRight("IMPUESTOS:", 10)
-                    + padLeft(" ", 10)
-                    + padRight(String.valueOf(df
+            String impuestos = "IMPUESTOS: "  + df
                     .format(_deposito.Totales.TotalIVA
-                            + _deposito.Totales.TotalRecargo)), 10);
+                            + _deposito.Totales.TotalRecargo);
+
+            //String impuestos = padLeft(" ", 43)
+            //        + padRight("IMPUESTOS:", 10)
+            //        + padLeft(" ", 10)
+            //        + padRight(String.valueOf(df
+            //        .format(_deposito.Totales.TotalIVA
+            //                + _deposito.Totales.TotalRecargo)), 10);
 
             _document.add(new Paragraph(impuestos + "\n", _fontBold));
         }
@@ -212,20 +230,23 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
         String total;
 
         if (_deposito.Serie.equals(_app.getUser().SerialInvoiceA)) {
-            total = padLeft(" ", 43)
-                    + padRight("TOTAL:", 10)
-                    + padLeft(" ", 10)
-                    + padRight(
-                    String.valueOf(df.format(_deposito.Totales.Total)),
-                    10);
+
+            total = "TOTAL: " + df.format(_deposito.Totales.Total);
+            //total = padLeft(" ", 43)
+            //        + padRight("TOTAL:", 10)
+            //        + padLeft(" ", 10)
+            //        + padRight(
+            //        String.valueOf(df.format(_deposito.Totales.Total)),
+            //        10);
         } else {
             try {
-                total = padLeft(" ", 43)
-                        + padRight("TOTAL:", 10)
-                        + padLeft(" ", 10)
-                        + padRight(
-                        String.valueOf(df.format(_deposito.Totales.TotalBase)),
-                        10);
+                total = "TOTAL: " + df.format(_deposito.Totales.TotalBase);
+                //total = padLeft(" ", 43)
+                //        + padRight("TOTAL:", 10)
+                //        + padLeft(" ", 10)
+                //        + padRight(
+                //        String.valueOf(df.format(_deposito.Totales.TotalBase)),
+                //        10);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -387,11 +408,11 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
                 cell.addElement(getParagraph(String.valueOf(linea.PVP), _fontNormal));
                 table.addCell(cell);
 
-                double totalLinea = DepositManagerExtension.Format.round((linea.UnidadesFacturadas * linea.PVP)
-                        - ((linea.UnidadesFacturadas * linea.PVP) * (linea.Descuento1 / 100)), 2);
+                double totalLinea = ((linea.UnidadesFacturadas * linea.PVP)
+                        - ((linea.UnidadesFacturadas * linea.PVP) * (linea.Descuento1 / 100)));
 
                 cell = new PdfPCell();
-                cell.addElement(getParagraph(String.valueOf(totalLinea), _fontNormal));
+                cell.addElement(getParagraph(String.valueOf(DepositManagerExtension.Format.RoundTo2Decimals(totalLinea)), _fontNormal));
                 table.addCell(cell);
 
                 cell = new PdfPCell();

@@ -1082,6 +1082,17 @@ public class DepositManager extends Fragment implements  IMediator {
 		}
 	}
 
+	private void resetHeaders() {
+		LinearLayout lineHeader = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout7);
+		lineHeader.removeAllViews();
+
+		LinearLayout abonoLineHader = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout7);
+		abonoLineHader.removeAllViews();
+
+		_headerLayout = null;
+		_headerAbonoLayout = null;
+	}
+
 	private void addLineHeader(LineaDeposito lineaDeposito, final LinearLayout layoutGrid) {
 
 		final DepositManager that = this;
@@ -1896,8 +1907,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		_abonoMode = false;
 		_appConfig.getWorkingArea().CurrentCliente = null;
 		_appConfig.getWorkingArea().CurrentDeposito = null;
-		_headerLayout = null;
-		_headerAbonoLayout = null;
+		this.resetHeaders();
 	}
 	private void closeKeyboard(EditText editText) {
 		InputMethodManager imm = (InputMethodManager) this.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
