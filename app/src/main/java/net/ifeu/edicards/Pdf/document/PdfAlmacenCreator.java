@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.os.Environment;
 
 import com.google.zxing.BarcodeFormat;
+import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -13,7 +14,10 @@ import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPCellEvent;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 
@@ -141,6 +145,42 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
         _document.add(table);
     }
 
+    private PdfPCell createEmptyCell() {
+        PdfPCell cell = new PdfPCell();
+        cell.addElement(getParagraph("", _fontBold));
+        cell.setBorder(0);
+        return cell;
+    }
+
+    private void printTotalsFooter(String label, String  value) throws DocumentException {
+
+        PdfPTable table = new PdfPTable(NUMBER_OF_COLUMNS_DETAIL);
+        table.setWidthPercentage(100); // 100% of the available width
+
+        // Set the relative widths of the columns
+        table.setWidths(COLUMNS_WIDTH_DETAIL);
+
+        table.addCell(this.createEmptyCell());
+        table.addCell(this.createEmptyCell());
+        table.addCell(this.createEmptyCell());
+        table.addCell(this.createEmptyCell());
+
+        PdfPCell cell = new PdfPCell();
+        cell.addElement(getParagraph(label, _fontBold));
+        cell.setBorder(0);
+        table.addCell(cell);
+
+        cell = new PdfPCell();
+        cell.addElement(getParagraph(value, _fontNormal));
+        cell.setBorder(0);
+        table.addCell(cell);
+
+        table.addCell(this.createEmptyCell());
+
+        _document.add(table);
+
+    }
+
 
     private void printTotals(boolean isTransferPayment) throws DocumentException {
         DecimalFormat df = new DecimalFormat("0.00");
@@ -153,108 +193,42 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
 
         if ((_deposito.Totales.DescuentoFinanciero != 0 || _deposito.Totales.DescuentoProntoPago != 0)
                 && (_deposito.Serie.equals(_app.getUser().SerialInvoiceA))) {
-
-            String total = "TOTAL: " + df
-                    .format(_deposito.Totales.TotalBaseSinDte);
-            /*String total = padLeft(" ", 43)
-                    + padRight("TOTAL:", 10)
-                    + padLeft(" ", 10)
-                    + padRight(String.valueOf(df
-                    .format(_deposito.Totales.TotalBaseSinDte)), 10);*/
-            _document.add(new Paragraph("\n" + total + "\n", _fontBold));
+            printTotalsFooter("TOTAL", df.format(_deposito.Totales.TotalBaseSinDte));
 
             if (_deposito.Totales.DescuentoProntoPago != 0) {
-
-                String prontoPago = "DTE. COMERCIAL: " + df
-                        .format(_deposito.Totales.TotalDescuentoProntoPago);
-                /*String prontoPago = padLeft(" ", 43)
-                        + padRight("DTE. COMERCIAL:", 15)
-                        + padLeft(" ", 5)
-                        + padRight(
-                        String.valueOf(df
-                                .format(_deposito.Totales.TotalDescuentoProntoPago)),
-                        10);*/
-                _document.add(new Paragraph(prontoPago + "\n", _fontBold));
+                this.printTotalsFooter("DTE. COMERCIAL:", df.format(_deposito.Totales.TotalDescuentoProntoPago));
             }
 
             if (_deposito.Totales.DescuentoFinanciero != 0) {
-
-                String financiero = "DTE. FINANCIERO: " + df
-                        .format(_deposito.Totales.TotalDescuentoFinanciero);
-
-                /*String financiero = padLeft(" ", 43)
-                        + padRight("DTE. FINANCIERO:", 16)
-                        + padLeft(" ", 4)
-                        + padRight(
-                        String.valueOf(df
-                                .format(_deposito.Totales.TotalDescuentoFinanciero)),
-                        10);*/
-                _document.add(new Paragraph(financiero + "\n", _fontBold));
+                this.printTotalsFooter("DTE. FINANCIERO:", df.format(_deposito.Totales.TotalDescuentoFinanciero));
             }
-
-            String neto = "NETO: " + df
-                    .format(_deposito.Totales.TotalBase);
-            /*String neto = padLeft(" ", 43)
-                    + padRight("NETO:", 10)
-                    + padLeft(" ", 10)
-                    + padRight(String.valueOf(df
-                    .format(_deposito.Totales.TotalBase)), 10);
-            _document.add(new Paragraph(neto + "\n", _fontBold));*/
         }
 
         if (_deposito.Serie.equals(_app.getUser().SerialInvoiceA)) {
+            this.printTotalsFooter("SUMA:", df.format(_deposito.Totales.TotalBase));
 
-            String suma = "SUMA: " + df.format(_deposito.Totales.TotalBase);
-            //String suma = padLeft(" ", 43)
-            //        + padRight("SUMA:", 10)
-            //        + padLeft(" ", 10)
-            //        + padRight(String.valueOf(df
-            //        .format(_deposito.Totales.TotalBase)), 10);
-
-            _document.add(new Paragraph("\n" + suma + "\n", _fontBold));
-
-            String impuestos = "IMPUESTOS: "  + df
+            this.printTotalsFooter("IMPUESTOS:", df
                     .format(_deposito.Totales.TotalIVA
-                            + _deposito.Totales.TotalRecargo);
-
-            //String impuestos = padLeft(" ", 43)
-            //        + padRight("IMPUESTOS:", 10)
-            //        + padLeft(" ", 10)
-            //        + padRight(String.valueOf(df
-            //        .format(_deposito.Totales.TotalIVA
-            //                + _deposito.Totales.TotalRecargo)), 10);
-
-            _document.add(new Paragraph(impuestos + "\n", _fontBold));
+                            + _deposito.Totales.TotalRecargo));
         }
 
         String total;
 
         if (_deposito.Serie.equals(_app.getUser().SerialInvoiceA)) {
 
-            total = "TOTAL: " + df.format(_deposito.Totales.Total);
-            //total = padLeft(" ", 43)
-            //        + padRight("TOTAL:", 10)
-            //        + padLeft(" ", 10)
-            //        + padRight(
-            //        String.valueOf(df.format(_deposito.Totales.Total)),
-            //        10);
-        } else {
+            total = df.format(_deposito.Totales.Total);
+       } else {
             try {
-                total = "TOTAL: " + df.format(_deposito.Totales.TotalBase);
-                //total = padLeft(" ", 43)
-                //        + padRight("TOTAL:", 10)
-                //        + padLeft(" ", 10)
-                //        + padRight(
-                //        String.valueOf(df.format(_deposito.Totales.TotalBase)),
-                //        10);
+                total = df.format(_deposito.Totales.TotalBase);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
 
-        _document.add(new Paragraph(total + "\n", _fontBold));
+        this.printTotalsFooter("TOTAL:", total);
 
         if (_deposito.Serie.equals(_app.getUser().SerialInvoiceB)) {
+
             _document.add(new Paragraph("\nIVA NO INCLUIDO\n", _fontBold));
             _document.add(new Paragraph(_deposito.PagoDescripcion + "\n",
                     _fontBold));
@@ -389,7 +363,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
                 table.setWidths(COLUMNS_WIDTH_DETAIL);
 
                 PdfPCell cell = new PdfPCell();
-                cell.setCellEvent(new PdfAlmacenDeprecated.RectangleEvent());
+                cell.setCellEvent(new RectangleEvent());
                 table.addCell(cell);
 
                 cell = new PdfPCell();
@@ -412,7 +386,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
                         - ((linea.UnidadesFacturadas * linea.PVP) * (linea.Descuento1 / 100)));
 
                 cell = new PdfPCell();
-                cell.addElement(getParagraph(String.valueOf(DepositManagerExtension.Format.RoundTo2Decimals(totalLinea)), _fontNormal));
+                cell.addElement(getParagraph(currencyRound(totalLinea), _fontNormal));
                 table.addCell(cell);
 
                 cell = new PdfPCell();
@@ -561,6 +535,9 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
 
     private void printSignatureBoxesAlmacen() throws DocumentException {
 
+        if (_deposito.Serie.equals(_deposito.Serie.equals(_app.getUser().SerialInvoiceB)))
+            return;
+
         this.insertSeparators();
         this.insertSeparators();
         this.insertSeparators();
@@ -580,7 +557,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
             table.addCell(cell);
 
             cell = new PdfPCell();
-            cell.setCellEvent(new PdfAlmacenDeprecated.RectangleEvent());
+            cell.setCellEvent(new RectangleEvent());
             table.addCell(cell);
 
             cell = new PdfPCell();
@@ -588,13 +565,32 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
             table.addCell(cell);
 
             cell = new PdfPCell();
-            cell.setCellEvent(new PdfAlmacenDeprecated.RectangleEvent());
+            cell.setCellEvent(new RectangleEvent());
             table.addCell(cell);
 
             _document.add(table);
 
         } catch (Exception ex) {
             throw new RuntimeException(ex.getMessage());
+        }
+    }
+
+    static class RectangleEvent implements PdfPCellEvent {
+
+        @Override
+        public void cellLayout(PdfPCell pdfPCell, com.itextpdf.text.Rectangle position, PdfContentByte[] canvases) {
+            PdfContentByte canvas = canvases[PdfPTable.TEXTCANVAS];
+            Rectangle rect = new Rectangle(position.getLeft(), position.getBottom(), position.getRight(), position.getTop());
+
+            // Draw a rectangle with a border of 2 units
+            rect.setBorder(Rectangle.BOX);
+            rect.setBorderWidth(1f);
+
+            // Set the color of the rectangle
+            rect.setBorderColor(BaseColor.BLACK);
+
+            // Draw the rectangle on the canvas
+            canvas.rectangle(rect);
         }
     }
 }

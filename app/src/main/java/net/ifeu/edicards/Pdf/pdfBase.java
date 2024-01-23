@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -262,6 +263,17 @@ public class pdfBase {
 		int l;
 		while ((l = bis.read(buf)) >= 0)
 			baos.write(buf, 0, l);
+	}
+
+	protected String currencyRound(double value) {
+		// Create a DecimalFormat object with the desired format
+		DecimalFormat decimalFormat = new DecimalFormat("0.00");
+
+		// Use the format method to round the double value
+		String roundedValue = decimalFormat.format(value);
+
+		return roundedValue;
+
 	}
 
 }
