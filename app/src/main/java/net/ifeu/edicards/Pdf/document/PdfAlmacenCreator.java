@@ -379,7 +379,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
                 table.addCell(cell);
 
                 cell = new PdfPCell();
-                cell.addElement(getParagraph(String.valueOf(linea.PVP), _fontNormal));
+                cell.addElement(getParagraph(currencyRound(linea.PVP), _fontNormal));
                 table.addCell(cell);
 
                 double totalLinea = ((linea.UnidadesFacturadas * linea.PVP)

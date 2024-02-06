@@ -72,7 +72,21 @@
                     android:id="@+id/lblTotalFactura"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginRight="25dp"
                     android:textSize="12dp" />
+
+                <TextView
+                    android:layout_width="150dp"
+                    android:layout_height="wrap_content"
+                    android:text="Tipo de entrega:"
+                    android:textSize="14dp" />
+
+                <TextView
+                    android:textColor="#FFFFFF"
+                    android:id="@+id/lblTipoEntrega"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="14dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -102,7 +116,7 @@
                 android:layout_marginLeft="50dp"
                 android:orientation="horizontal"/>
 
-            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+           <!-- <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/headerMainLinearLayout5"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -124,7 +138,7 @@
                     android:layout_height="wrap_content"
                     android:textSize="14dp" />
 
-            </LinearLayout>
+            </LinearLayout>-->
 
             <LinearLayout
                 android:id="@+id/headerMainLinearLayout6"

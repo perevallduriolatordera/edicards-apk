@@ -79,6 +79,8 @@ public class DepositManager extends Fragment implements  IMediator {
 	private AdvancedMessageBox _dialogDepositoModalidad;
 	private LinearLayout _headerLayout;
 	private LinearLayout _headerAbonoLayout;
+
+	private LinearLayout _articlesLayout;
 	private final int TEXT_SIZE = 14;
 	private boolean _isRendered = false;
 	private LinearLayout _mainLayout;
@@ -98,6 +100,10 @@ public class DepositManager extends Fragment implements  IMediator {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+
+		_articlesLayout = (LinearLayout) this.getActivity()
+				.findViewById(R.id.mainLinearLayoutArticles);
+
 	}
 
 	@Override
@@ -484,12 +490,11 @@ public class DepositManager extends Fragment implements  IMediator {
 				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params, getResources().getDrawable(R.drawable.ic_view_all));
 
 		buttonSearchArticulos.setOnClickListener( v-> {
-			LinearLayout mainLayout = (LinearLayout) that.getActivity()
-					.findViewById(R.id.mainLinearLayoutArticles);
-			int count = mainLayout.getChildCount();
+
+			int count = _articlesLayout.getChildCount();
 
 			for(int i=0; i<count; i++) {
-				View view = mainLayout.getChildAt(i);
+				View view = _articlesLayout.getChildAt(i);
 				view.setVisibility(View.VISIBLE);
 			}
 		});
@@ -508,6 +513,13 @@ public class DepositManager extends Fragment implements  IMediator {
 		this.showHeader(visible);
 		this.showArticlesGrid(visible);
 		this.showButtonBar(visible);
+		this.removeArticleLayoutListeners();
+	}
+
+	private void removeArticleLayoutListeners() {
+		for (int i = 0; i < _articlesLayout.getChildCount(); i++) {
+			_articlesLayout.getChildAt(i).setOnClickListener(null);
+		}
 	}
 
 	private void CreateDepositView() throws Exception {
@@ -622,14 +634,12 @@ public class DepositManager extends Fragment implements  IMediator {
 		Collections.sort(depositLines, new LineaDeposito().new ArticuloComparator());
 		Collections.sort(potentialLines, new LineaDeposito().new ArticuloComparator());
 
-		LinearLayout articlesLayout = (LinearLayout) this.getActivity()
-				.findViewById(R.id.mainLinearLayoutArticles);
-
-		articlesLayout.removeAllViews();
+		this.removeArticleLayoutListeners();
+		_articlesLayout.removeAllViews();
 
 		for (LineaDeposito linea : depositLines) {
 			try {
-				articlesLayout.addView(addLine(linea));
+				_articlesLayout.addView(addLine(linea));
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -637,7 +647,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		for (LineaDeposito linea : potentialLines) {
 			try {
-				articlesLayout.addView(addLine(linea));
+				_articlesLayout.addView(addLine(linea));
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -659,14 +669,12 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			String selectedArticle =  listView.getItemAtPosition(position).toString().trim().toUpperCase();
 
-			LinearLayout layout = (LinearLayout) that.getActivity()
-					.findViewById(R.id.mainLinearLayoutArticles);
-			int count = layout.getChildCount();
+			int count = _articlesLayout.getChildCount();
 
 			boolean isShowed = false;
 
 			for(int i=0; i<count; i++) {
-				View v = layout.getChildAt(i);
+				View v = _articlesLayout.getChildAt(i);
 
 				LabelColor articleLabel = (LabelColor) ((LinearLayout) v).getChildAt(1);
 				String currentArticle = articleLabel.getText().toString().trim().toUpperCase();
@@ -1108,6 +1116,9 @@ public class DepositManager extends Fragment implements  IMediator {
 		if (createHeaderLayout) {
 			_headerLayout = new LinearLayout(_appConfig);
 			_headerLayout.setOrientation(LinearLayout.HORIZONTAL);
+		} else {
+			_headerLayout.getChildAt(1).setOnClickListener(null);
+			for (int i=3; i<9; i++) _headerLayout.setOnFocusChangeListener(null);
 		}
 
 		try {
@@ -1139,43 +1150,40 @@ public class DepositManager extends Fragment implements  IMediator {
 			unidadesDevueltas.setTag(lineaDeposito);
 
 			unidadesDevueltas.setOnFocusChangeListener((view, hasFocus) -> {
+
+				_lastTextBox = (TextBoxColor) view;
 				if (!hasFocus) {
-					_lastTextBox = (TextBoxColor) view;
-					TextBoxColor textBox = (TextBoxColor) view;
-					int unidadesDevueltas1;
+					int unidadesDevueltasValue = 0;
 
-					if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-						unidadesDevueltas1 = NumberUtils.toInt(textBox.getHint().toString(), 0);
+					if (_lastTextBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
+						unidadesDevueltasValue = NumberUtils.toInt(_lastTextBox.getHint().toString(), 0);
 					else
-						unidadesDevueltas1 = NumberUtils.toInt(textBox.getText().toString(), 0);
+						unidadesDevueltasValue = NumberUtils.toInt(_lastTextBox.getText().toString(), 0);
 
-					LineaDeposito lineaDeposito1 = (LineaDeposito) view.getTag();
-					if ((unidadesDevueltas1) > lineaDeposito1.UnidadesInicialesFijas) {
+					LineaDeposito lineaDepositoValue = (LineaDeposito) _lastTextBox.getTag();
+					if ((unidadesDevueltasValue) > lineaDepositoValue.UnidadesInicialesFijas) {
 						_appConfig.getMessageBox()
 								.Show("Atención",
 										"La cantidad devuelta no puede ser superior a la inicial en el artículo "
-												+ lineaDeposito1.Articulo.Descripcion,
+												+ lineaDepositoValue.Articulo.Descripcion,
 										getActivity(), MessageBoxType.Error);
 
-						unidadesDevueltas1 = lineaDeposito1.UnidadesInicialesFijas;
-						textBox.setText(String.valueOf(unidadesDevueltas1));
-						((LineaDeposito) view.getTag()).UnidadesDevueltas = unidadesDevueltas1;
+						unidadesDevueltasValue = lineaDepositoValue.UnidadesInicialesFijas;
+						_lastTextBox.setText(String.valueOf(unidadesDevueltasValue));
+						lineaDepositoValue.UnidadesDevueltas = unidadesDevueltasValue;
 					} else {
-						((LineaDeposito) view.getTag()).UnidadesDevueltas = unidadesDevueltas1;
+						lineaDepositoValue.UnidadesDevueltas = unidadesDevueltasValue;
 						try {
-							refreshLayout(lineaDeposito1, layoutGrid, false);
+							refreshLayout(lineaDepositoValue, layoutGrid, false);
 						} catch (Exception e) {
 							throw new RuntimeException(e);
 						}
-
 					}
 				} else {
-					((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
-					((TextBoxColor) view).setHint(ConstantsTypes.EMPTY_STRING);
-					_lastTextBox = (TextBoxColor) view;
+					_lastTextBox.setText(ConstantsTypes.EMPTY_STRING);
+					_lastTextBox.setHint(ConstantsTypes.EMPTY_STRING);
 				}
 
-				that.closeKeyboard((EditText) view);
 			});
 
 			TextBoxColor unidadesDefectuosas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
@@ -1189,45 +1197,44 @@ public class DepositManager extends Fragment implements  IMediator {
 			unidadesDefectuosas.setInputType(InputType.TYPE_NULL);
 
 			unidadesDefectuosas.setOnFocusChangeListener((view, hasFocus) -> {
+
+				_lastTextBox = (TextBoxColor) view;
 				if (!hasFocus) {
-					_lastTextBox = (TextBoxColor) view;
-					EditText textBox = (EditText) view;
-					int unidadesDefectuosas1;
 
-					if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-						unidadesDefectuosas1 = NumberUtils.toInt(((EditText) view).getHint().toString(), 0);
+					int unidadesDefectuosasValue = 0;
+
+					if (_lastTextBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
+						unidadesDefectuosasValue = NumberUtils.toInt(_lastTextBox.getHint().toString(), 0);
 					else
-						unidadesDefectuosas1 = NumberUtils.toInt(((EditText) view).getText().toString(), 0);
+						unidadesDefectuosasValue = NumberUtils.toInt(_lastTextBox.getText().toString(), 0);
 
-					LineaDeposito lineaDeposito12 = (LineaDeposito) view.getTag();
+					LineaDeposito lineaDepositoValue = (LineaDeposito) _lastTextBox.getTag();
 
-					if ((unidadesDefectuosas1) > lineaDeposito12.UnidadesDevueltas) {
+					if ((unidadesDefectuosasValue) > lineaDepositoValue.UnidadesDevueltas) {
 						_appConfig.getMessageBox()
 								.Show("Atención",
 										"La cantidad de defectuosas no puede ser superior a las devueltas en el artículo "
-												+ lineaDeposito12.Articulo.Descripcion,
+												+ lineaDepositoValue.Articulo.Descripcion,
 										getActivity(), MessageBoxType.Error);
 
-						unidadesDefectuosas1 = 0;
-						textBox.setText(String.valueOf(unidadesDefectuosas1));
-						((LineaDeposito) view.getTag()).UnidadesDefectuosas = unidadesDefectuosas1;
-						textBox.setHint(String.valueOf(unidadesDefectuosas1));
+						unidadesDefectuosasValue = 0;
+						_lastTextBox.setText(String.valueOf(unidadesDefectuosasValue));
+						lineaDepositoValue.UnidadesDefectuosas = unidadesDefectuosasValue;
+						_lastTextBox.setHint(String.valueOf(unidadesDefectuosasValue));
 					} else {
-						((LineaDeposito) view.getTag()).UnidadesDefectuosas = unidadesDefectuosas1;
+						lineaDepositoValue.UnidadesDefectuosas = unidadesDefectuosasValue;
 						try {
-							refreshLayout(lineaDeposito12, layoutGrid, false);
+							refreshLayout(lineaDepositoValue, layoutGrid, false);
 						} catch (Exception e) {
 							throw new RuntimeException(e);
 						}
 
 					}
 				} else {
-					((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
-					((TextBoxColor) view).setHint(ConstantsTypes.EMPTY_STRING);
-					_lastTextBox = (TextBoxColor) view;
+					_lastTextBox.setText(ConstantsTypes.EMPTY_STRING);
+					_lastTextBox.setHint(ConstantsTypes.EMPTY_STRING);
 				}
 
-				that.closeKeyboard((EditText) view);
 			});
 
 			TextBoxColor pvp = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT,
@@ -1239,32 +1246,30 @@ public class DepositManager extends Fragment implements  IMediator {
 			pvp.setTag(lineaDeposito);
 
 			pvp.setOnFocusChangeListener((view, hasFocus) -> {
+				_lastTextBox = (TextBoxColor) view;
 				if (!hasFocus) {
-					_lastTextBox = (TextBoxColor) view;
-					EditText textBox = (EditText) view;
-					float pvp1;
 
-					if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-						pvp1 = NumberUtils.toFloat(textBox.getHint().toString(), 0);
+					float pvp1;
+					LineaDeposito lineaDepositoValue = (LineaDeposito) _lastTextBox.getTag();
+
+					if (_lastTextBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
+						pvp1 = NumberUtils.toFloat(_lastTextBox.getHint().toString(), 0);
 					else {
-						pvp1 = NumberUtils.toFloat(textBox.getText().toString(), 0);
-						((LineaDeposito) view.getTag()).PVPAnterior = pvp1;
+						pvp1 = NumberUtils.toFloat(_lastTextBox.getText().toString(), 0);
+						lineaDepositoValue.PVPAnterior = pvp1;
 					}
 
-					((LineaDeposito) view.getTag()).PVP = pvp1;
-					LineaDeposito lineaDepositoPVP = (LineaDeposito) view.getTag();
+					lineaDepositoValue.PVP = pvp1;
 					try {
-						refreshLayout(lineaDepositoPVP, layoutGrid, false);
+						refreshLayout(lineaDepositoValue, layoutGrid, false);
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
 				} else {
-					((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
-					((TextBoxColor) view).setHint(ConstantsTypes.EMPTY_STRING);
-					_lastTextBox = (TextBoxColor) view;
+					_lastTextBox.setText(ConstantsTypes.EMPTY_STRING);
+					_lastTextBox.setHint(ConstantsTypes.EMPTY_STRING);
 				}
 
-				that.closeKeyboard((EditText) view);
 			});
 
 			TextBoxColor unidadesFacturadas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.rgb(0, 128, 0), Gravity.LEFT,
@@ -1275,55 +1280,52 @@ public class DepositManager extends Fragment implements  IMediator {
 			unidadesFacturadas.setTag(lineaDeposito);
 
 			unidadesFacturadas.setOnFocusChangeListener((view, hasFocus) -> {
+				_lastTextBox = (TextBoxColor) view;
 				if (!hasFocus) {
-					_lastTextBox = (TextBoxColor) view;
-					EditText textBox = (EditText) view;
-					int unidadesFacturadas1;
+					int unidadesFacturadasValue;
 
-					if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-						unidadesFacturadas1 = NumberUtils.toInt(((EditText) view).getHint().toString(), 0);
+					if (_lastTextBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
+						unidadesFacturadasValue = NumberUtils.toInt(_lastTextBox.getHint().toString(), 0);
 					else
-						unidadesFacturadas1 = NumberUtils.toInt(((EditText) view).getText().toString(), 0);
+						unidadesFacturadasValue = NumberUtils.toInt(_lastTextBox.getText().toString(), 0);
 
-					LineaDeposito lineaDeposito14 = (LineaDeposito) view.getTag();
+					LineaDeposito lineaDepositoValue = (LineaDeposito) view.getTag();
 
-					lineaDeposito14.IsVentaDirecta = false;
+					lineaDepositoValue.IsVentaDirecta = false;
 					boolean directa = false;
 
-					if (unidadesFacturadas1 < (lineaDeposito14.UnidadesIniciales - lineaDeposito14.UnidadesDevueltas)
-							&& (!lineaDeposito14.IsNew)) {
+					if (unidadesFacturadasValue < (lineaDepositoValue.UnidadesIniciales - lineaDepositoValue.UnidadesDevueltas)
+							&& (!lineaDepositoValue.IsNew)) {
 						_appConfig.getMessageBox().Show("Unidades Facturadas",
 								"No puede realizar una venta directa con una cantidad inferior a la devuelta",
 								getActivity(), MessageBoxType.Information);
 
-						unidadesFacturadas1 = lineaDeposito14.UnidadesIniciales - lineaDeposito14.UnidadesDevueltas;
-						((EditText) view).setText(String.valueOf(unidadesFacturadas1));
-						((LineaDeposito) view.getTag()).UnidadesFacturadas = unidadesFacturadas1;
+						unidadesFacturadasValue = lineaDepositoValue.UnidadesIniciales - lineaDepositoValue.UnidadesDevueltas;
+						_lastTextBox.setText(String.valueOf(unidadesFacturadasValue));
+						lineaDepositoValue.UnidadesFacturadas = unidadesFacturadasValue;
 					} else {
-						if (unidadesFacturadas1 > 0 && (unidadesFacturadas1 != (lineaDeposito14.UnidadesInicialesFijas
-								- lineaDeposito14.UnidadesDevueltas))) {
+						if (unidadesFacturadasValue > 0 && (unidadesFacturadasValue != (lineaDepositoValue.UnidadesInicialesFijas
+								- lineaDepositoValue.UnidadesDevueltas))) {
 							directa = true;
 						}
 
-						lineaDeposito14.IsVentaDirecta = directa;
-						if (lineaDeposito14.IsVentaDirecta) {
-							((LineaDeposito) view.getTag()).UnidadesFacturadas = unidadesFacturadas1;
+						lineaDepositoValue.IsVentaDirecta = directa;
+						if (lineaDepositoValue.IsVentaDirecta) {
+							lineaDepositoValue.UnidadesFacturadas = unidadesFacturadasValue;
 						}
 
 						try {
-							refreshLayout(lineaDeposito14, layoutGrid, false);
+							refreshLayout(lineaDepositoValue, layoutGrid, false);
 						} catch (Exception e) {
 							throw new RuntimeException(e);
 						}
 					}
 
 				} else {
-					((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
-					((TextBoxColor) view).setHint(ConstantsTypes.EMPTY_STRING);
-					_lastTextBox = (TextBoxColor) view;
+					_lastTextBox.setText(ConstantsTypes.EMPTY_STRING);
+					_lastTextBox.setHint(ConstantsTypes.EMPTY_STRING);
 				}
 
-				that.closeKeyboard((EditText) view);
 			});
 
 			TextBoxColor unidadesRepuestas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT,
@@ -1334,33 +1336,30 @@ public class DepositManager extends Fragment implements  IMediator {
 			unidadesRepuestas.setTag(lineaDeposito);
 
 			unidadesRepuestas.setOnFocusChangeListener((view, hasFocus) -> {
+				_lastTextBox = (TextBoxColor) view;
 				if (!hasFocus) {
-					_lastTextBox = (TextBoxColor) view;
-					EditText textBox = (EditText) view;
-					int unidadesRepuestas1;
 
-					if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-						unidadesRepuestas1 = NumberUtils.toInt(((EditText) view).getHint().toString(), 0);
+					int unidadesRepuestasValue;
+
+					if (_lastTextBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
+						unidadesRepuestasValue = NumberUtils.toInt(_lastTextBox.getHint().toString(), 0);
 					else
-						unidadesRepuestas1 = NumberUtils.toInt(((EditText) view).getText().toString(), 0);
+						unidadesRepuestasValue = NumberUtils.toInt(_lastTextBox.getText().toString(), 0);
 
-					LineaDeposito lineaDeposito15 = (LineaDeposito) view.getTag();
-
-					((LineaDeposito) view.getTag()).UnidadesRepuestas = unidadesRepuestas1;
+					LineaDeposito lineaDepositoValue = (LineaDeposito) view.getTag();
+					lineaDepositoValue.UnidadesRepuestas = unidadesRepuestasValue;
 
 					try {
-						refreshLayout(lineaDeposito15, layoutGrid, false);
+						refreshLayout(lineaDepositoValue, layoutGrid, false);
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
 
 				} else {
-					((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
-					((TextBoxColor) view).setHint(ConstantsTypes.EMPTY_STRING);
-					_lastTextBox = (TextBoxColor) view;
+					_lastTextBox.setText(ConstantsTypes.EMPTY_STRING);
+					_lastTextBox.setHint(ConstantsTypes.EMPTY_STRING);
 				}
 
-				that.closeKeyboard((EditText) view);
 			});
 
 			TextBoxColor pvpAnterior = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT,
@@ -1372,31 +1371,29 @@ public class DepositManager extends Fragment implements  IMediator {
 			pvpAnterior.setTag(lineaDeposito);
 
 			pvpAnterior.setOnFocusChangeListener((view, hasFocus) -> {
+				_lastTextBox = (TextBoxColor) view;
 				if (!hasFocus) {
-					_lastTextBox = (TextBoxColor) view;
-					EditText textBox = (EditText) view;
-					float pvpAnterior1;
+					float pvpAnteriorValue;
 
-					if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-						pvpAnterior1 = NumberUtils.toFloat(textBox.getHint().toString(), 0);
+					if (_lastTextBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
+						pvpAnteriorValue = NumberUtils.toFloat(_lastTextBox.getHint().toString(), 0);
 					else
-						pvpAnterior1 = NumberUtils.toFloat(textBox.getText().toString(), 0);
+						pvpAnteriorValue = NumberUtils.toFloat(_lastTextBox.getText().toString(), 0);
 
-					((LineaDeposito) view.getTag()).PVPAnterior = pvpAnterior1;
-					LineaDeposito lineaDeposito16 = (LineaDeposito) view.getTag();
+					LineaDeposito lineaDepositoValue = (LineaDeposito) view.getTag();
+					lineaDepositoValue.PVPAnterior = pvpAnteriorValue;
+
 					try {
-						refreshLayout(lineaDeposito16, layoutGrid, false);
+						refreshLayout(lineaDepositoValue, layoutGrid, false);
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
 				} else {
-					((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
-					((TextBoxColor) view).setHint(ConstantsTypes.EMPTY_STRING);
-					_lastTextBox = (TextBoxColor) view;
+					_lastTextBox.setText(ConstantsTypes.EMPTY_STRING);
+					_lastTextBox.setHint(ConstantsTypes.EMPTY_STRING);
 				}
 
 
-				that.closeKeyboard((EditText) view);
 			});
 
 			double total = (lineaDeposito.UnidadesFacturadas * lineaDeposito.PVP);
@@ -1418,15 +1415,16 @@ public class DepositManager extends Fragment implements  IMediator {
 					: (ButtonColor) _headerLayout.getChildAt(10);
 
 			modoAbono.setTag(lineaDeposito);
-			if (_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards)
-				modoAbono.setVisibility(View.INVISIBLE);
+
+			modoAbono.setVisibility(_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ?
+					View.INVISIBLE : View.VISIBLE);
 
 			modoAbono.setOnClickListener(arg0 -> {
 
 				_abonoMode = true;
-				LineaDeposito lineaDeposito17 = (LineaDeposito) arg0.getTag();
+				LineaDeposito lineaDepositoValue = (LineaDeposito) arg0.getTag();
 				try {
-					refreshLayout(lineaDeposito17, layoutGrid, true);
+					refreshLayout(lineaDepositoValue, layoutGrid, true);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
@@ -1461,6 +1459,9 @@ public class DepositManager extends Fragment implements  IMediator {
 		if (createHeaderLayout) {
 			_headerAbonoLayout = new LinearLayout(_appConfig);
 			_headerAbonoLayout.setOrientation(LinearLayout.HORIZONTAL);
+		} else {
+			_headerAbonoLayout.getChildAt(1).setOnClickListener(null);
+			for (int i=3; i<8; i++) _headerAbonoLayout.setOnFocusChangeListener(null);
 		}
 
 		LabelColor codigoArticulo = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
@@ -1488,47 +1489,46 @@ public class DepositManager extends Fragment implements  IMediator {
 		unidadesAbono.setTag(lineaDeposito);
 
 		unidadesAbono.setOnFocusChangeListener((view, hasFocus) -> {
+			_lastTextBox = (TextBoxColor) view;
 			if (!hasFocus) {
-				_lastTextBox = (TextBoxColor) view;
-				EditText textBox = (EditText) view;
-				int unidadesAbono1;
 
-				LineaDeposito lineaDeposito1 = (LineaDeposito) view.getTag();
+				int unidadesAbonoValue;
 
-				if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-					unidadesAbono1 = NumberUtils.toInt(((EditText) view).getHint().toString(), 0);
+				LineaDeposito lineaDepositoValue = (LineaDeposito) view.getTag();
+
+				if (_lastTextBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
+					unidadesAbonoValue = NumberUtils.toInt(_lastTextBox.getHint().toString(), 0);
 				else
-					unidadesAbono1 = NumberUtils.toInt(((EditText) view).getText().toString(), 0);
+					unidadesAbonoValue = NumberUtils.toInt(_lastTextBox.getText().toString(), 0);
 
-				int defectuosas = lineaDeposito1.DefectuosasAbono;
+				int defectuosas = lineaDepositoValue.DefectuosasAbono;
 
-				if (defectuosas > unidadesAbono1) {
+				if (defectuosas > unidadesAbonoValue) {
 					_appConfig.getMessageBox()
 							.Show("Atención",
 									"La cantidad de unidades devueltas es inferior a las defectuosas en el artículo "
-											+ lineaDeposito1.Articulo.Descripcion,
+											+ lineaDepositoValue.Articulo.Descripcion,
 									getActivity(), MessageBoxType.Error);
 
-					textBox.setText(String.valueOf(lineaDeposito1.UnidadesAbono));
-					textBox.setHint(String.valueOf(lineaDeposito1.UnidadesAbono));
+					_lastTextBox.setText(String.valueOf(lineaDepositoValue.UnidadesAbono));
+					_lastTextBox.setHint(String.valueOf(lineaDepositoValue.UnidadesAbono));
 				} else {
-					((LineaDeposito) view.getTag()).UnidadesAbono = unidadesAbono1;
-					((LineaDeposito) view.getTag()).DefectuosasAbono = defectuosas;
-
+					lineaDepositoValue.UnidadesAbono = unidadesAbonoValue;
+					lineaDepositoValue.DefectuosasAbono = defectuosas;
 				}
 
 				try {
-					refreshLayout(lineaDeposito1, layoutGrid,false);
+					refreshLayout(lineaDepositoValue, layoutGrid,false);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
 
 			} else {
-				((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
-				_lastTextBox = (TextBoxColor) view;
+				_lastTextBox.setText(ConstantsTypes.EMPTY_STRING);
+				_lastTextBox.setHint(ConstantsTypes.EMPTY_STRING);
 			}
 
-			that.closeKeyboard((EditText) view);
+
 		});
 
 		LabelColor labelDefectuosasAbono =  createHeaderLayout ? DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
@@ -1546,36 +1546,34 @@ public class DepositManager extends Fragment implements  IMediator {
 		defectuosasAbono.setInputType(InputType.TYPE_NULL);
 
 		defectuosasAbono.setOnFocusChangeListener((view, hasFocus) -> {
+			_lastTextBox = (TextBoxColor) view;
 			if (!hasFocus) {
-				_lastTextBox = (TextBoxColor) view;
-				EditText textBox = (EditText) view;
 
-				LineaDeposito lineaDeposito12 = (LineaDeposito) view.getTag();
+				LineaDeposito lineaDepositoValue = (LineaDeposito) view.getTag();
 				int defectuosas;
 
-				if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-					defectuosas = NumberUtils.toInt(((EditText) view).getHint().toString(),0);
+				if (_lastTextBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
+					defectuosas = NumberUtils.toInt(_lastTextBox.getHint().toString(),0);
 				else
-					defectuosas = NumberUtils.toInt(((EditText) view).getText().toString(),0);
+					defectuosas = NumberUtils.toInt(_lastTextBox.getText().toString(),0);
 
-				((LineaDeposito) view.getTag()).DefectuosasAbono = defectuosas;
+				lineaDepositoValue.DefectuosasAbono = defectuosas;
 
-				if ((defectuosas) > lineaDeposito12.UnidadesAbono) {
+				if ((defectuosas) > lineaDepositoValue.UnidadesAbono) {
 					_appConfig.getMessageBox()
 							.Show("Atención",
 									"La cantidad de defectuosas no puede ser superior a las devueltas en el artículo "
-											+ lineaDeposito12.Articulo.Descripcion,
+											+ lineaDepositoValue.Articulo.Descripcion,
 									getActivity(), MessageBoxType.Error);
 
 					defectuosas = 0;
-					((LineaDeposito) view.getTag()).DefectuosasAbono = defectuosas;
-					textBox.setHint(String.valueOf(defectuosas));
-					textBox.setText(String.valueOf(defectuosas));
-
+					lineaDepositoValue.DefectuosasAbono = defectuosas;
+					_lastTextBox.setHint(String.valueOf(defectuosas));
+					_lastTextBox.setText(String.valueOf(defectuosas));
 				}
 
 				try {
-					refreshLayout(lineaDeposito12, layoutGrid,false);
+					refreshLayout(lineaDepositoValue, layoutGrid,false);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
@@ -1585,7 +1583,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
 				_lastTextBox = (TextBoxColor) view;
 			}
-			that.closeKeyboard((EditText) view);
+
 		});
 		
 		LabelColor labelPVPAbono = createHeaderLayout ?  DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
@@ -1599,29 +1597,28 @@ public class DepositManager extends Fragment implements  IMediator {
 		pvpAbono.setTag(lineaDeposito);
 
 		pvpAbono.setOnFocusChangeListener((view, hasFocus) -> {
+			_lastTextBox = (TextBoxColor) view;
 			if (!hasFocus) {
-				_lastTextBox = (TextBoxColor) view;
-				EditText textBox = (EditText) view;
 				float pvpAbono1;
 
-				if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-					pvpAbono1 = NumberUtils.toFloat(textBox.getHint().toString(), 0);
+				if (_lastTextBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
+					pvpAbono1 = NumberUtils.toFloat(_lastTextBox.getHint().toString(), 0);
 				else
-					pvpAbono1 = NumberUtils.toFloat(textBox.getText().toString(), 0);
+					pvpAbono1 = NumberUtils.toFloat(_lastTextBox.getText().toString(), 0);
 
-				((LineaDeposito) view.getTag()).PVPAbono = pvpAbono1;
-				LineaDeposito lineaDeposito13 = (LineaDeposito) view.getTag();
+				LineaDeposito lineaDepositoValue = (LineaDeposito) view.getTag();
+				lineaDepositoValue.PVPAbono = pvpAbono1;
+
 				try {
-					refreshLayout(lineaDeposito13, layoutGrid,false);
+					refreshLayout(lineaDepositoValue, layoutGrid,false);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
 			} else {
-				((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
-				((TextBoxColor) view).setText(ConstantsTypes.EMPTY_STRING);
-				_lastTextBox = (TextBoxColor) view;
+				_lastTextBox.setText(ConstantsTypes.EMPTY_STRING);
+				_lastTextBox.setText(ConstantsTypes.EMPTY_STRING);
 			}
-			that.closeKeyboard((EditText) view);
+
 		});
 
 		double totalAbonoImporte = lineaDeposito.TotalAbono;
@@ -1644,9 +1641,9 @@ public class DepositManager extends Fragment implements  IMediator {
 		modoVenta.setOnClickListener(arg0 -> {
 
 			_abonoMode = false;
-			LineaDeposito lineaDeposito14 = (LineaDeposito) arg0.getTag();
+			LineaDeposito lineaDepositoValue = (LineaDeposito) arg0.getTag();
 			try {
-				refreshLayout(lineaDeposito14, layoutGrid,true);
+				refreshLayout(lineaDepositoValue, layoutGrid,true);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -1788,10 +1785,11 @@ public class DepositManager extends Fragment implements  IMediator {
 		LinearLayout.LayoutParams layoutParamsImage = new LinearLayout.LayoutParams(25, 25);
 		imageView.setLayoutParams(layoutParamsImage);
 		layout.addView(imageView);
+		layout.setTag(lineaDeposito);
+		layout.setId(View.generateViewId());
 
 		layout.setClickable(true);
-		layout.setOnClickListener(v -> {
-
+		layout.setOnClickListener( v-> {
 			if (_lastTextBox != null)
 				_lastTextBox.clearFocus();
 
@@ -1801,21 +1799,23 @@ public class DepositManager extends Fragment implements  IMediator {
 			v.setBackgroundColor(Color.rgb(240,140,40));
 			_lastSelectedLayout = (LinearLayout) v;
 
-			if (_abonoMode)
+			if (_abonoMode) {
 				try {
 					addLineHeaderAbono(lineaDeposito, _lastSelectedLayout);
 					refreshTotals();
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
-			else
+			} else {
 				try {
 					addLineHeader(lineaDeposito, _lastSelectedLayout);
 
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
-			});
+			}
+
+		});
 
 		return layout;
 	}
@@ -1908,10 +1908,6 @@ public class DepositManager extends Fragment implements  IMediator {
 		_appConfig.getWorkingArea().CurrentCliente = null;
 		_appConfig.getWorkingArea().CurrentDeposito = null;
 		this.resetHeaders();
-	}
-	private void closeKeyboard(EditText editText) {
-		InputMethodManager imm = (InputMethodManager) this.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-		imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
 	}
 	@Override
 	public void notify(String event, Object payload) {

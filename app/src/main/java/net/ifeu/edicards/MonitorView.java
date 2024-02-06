@@ -4,6 +4,7 @@ import android.app.ActionBar.LayoutParams;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.v4.app.Fragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -22,10 +23,13 @@ import net.ifeu.edicards.Services.ServiceMonitor;
 import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
+import net.ifeu.library.Performance.CpuInfo;
+import net.ifeu.library.Performance.MemoryInfo;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -54,6 +58,20 @@ public class MonitorView extends Fragment {
 		
 		_appConfig = (AppConfig) this.getActivity().getApplicationContext();
     	ServiceMonitor monitor = _appConfig.getWorkingArea().Monitor;
+
+		CountDownTimer countDownTimer = new CountDownTimer(100000, 5000) {
+			@Override
+			public void onTick(long millisUntilFinished) {
+				fillDataMonitor(monitor);
+			}
+
+			@Override
+			public void onFinish() {
+			}
+		};
+
+		// Start the timer
+		countDownTimer.start();
     	
 		this.fillDataMonitor(monitor);
 	}
@@ -71,6 +89,20 @@ public class MonitorView extends Fragment {
     	layout1.addView(this.createLabelWaiting("Espere unos instantes..." ,message));
     	mainLinearLayout.addView(layout1);
 	}
+
+	private LinearLayout fillPerformanceSummaryMonitor() {
+		double memoryUsage = MemoryInfo.getMemoryUsage(_appConfig);
+		int cpuUsage = CpuInfo.getCpuUsageSinceLastCall();
+
+		LinearLayout layout = new LinearLayout(this.getActivity());
+		layout.removeAllViews();
+		layout.setOrientation(LinearLayout.HORIZONTAL);
+
+		layout.addView(this.createLabel("Uso de CPU",String.valueOf(cpuUsage) + " %", false));
+		layout.addView(this.createLabel("Uso de memoria" ,String.valueOf(roundTo2Decimals(memoryUsage) + " %"), false));
+
+		return layout;
+	}
 	
     private void fillDataMonitor(ServiceMonitor monitor) {
     	    	
@@ -85,6 +117,10 @@ public class MonitorView extends Fragment {
     	
     	 
     	LinearLayout mainLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.mainLinearLayout);
+		if (mainLinearLayout == null) {
+			return;
+		}
+
     	mainLinearLayout.removeAllViews();
     	mainLinearLayout.setOrientation(LinearLayout.VERTICAL);
     	mainLinearLayout.setGravity(Gravity.CENTER);
@@ -260,6 +296,9 @@ public class MonitorView extends Fragment {
 		}
 
 		layout.addView(layout2);
+
+		layout.addView(fillPerformanceSummaryMonitor());
+
 		mainLinearLayout.addView(layout);
     }
     
@@ -447,5 +486,10 @@ public class MonitorView extends Fragment {
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}
+	}
+
+	private double roundTo2Decimals(double val) {
+		DecimalFormat df2 = new DecimalFormat("0.00");
+		return Double.parseDouble(df2.format(val).replace(",", "."));
 	}
 }
