@@ -482,7 +482,7 @@ public class ServiceWorker extends ServiceBase {
 		                                                                                                                             
 		// * * * * * * * * * ENVIAMOS STOCK DIARIO * * * * * * * * * * * *                                                           
                                                                                                                                      
-		XmlCreator creator = new XmlCreator(app, app);                                                                               
+		XmlCreator creator = new XmlCreator(app);
 		creator.createXmlDailyStock();                                                                                               
 
 		directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"                         

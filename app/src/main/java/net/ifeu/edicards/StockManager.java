@@ -178,7 +178,7 @@ public class StockManager extends Fragment implements IMediator {
 	
 	private void CreateXmlRecuento()  {
 		
-		XmlCreator xml = new XmlCreator(_appConfig, _activity);
+		XmlCreator xml = new XmlCreator(_appConfig);
 		
 		try {
 			xml.createXmlRecuento();	

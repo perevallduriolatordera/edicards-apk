@@ -31,11 +31,9 @@ import android.os.Environment;
 public class XmlCreator {
 
 	private final AppConfig _appConfig;
-	private final Context _context;
 
-	public XmlCreator(AppConfig appConfig, Context context) {
+	public XmlCreator(AppConfig appConfig) {
 		_appConfig = appConfig;
-		_context = context;
 	}
 	
 	public void createXmlRecuento() throws Exception {

@@ -836,7 +836,7 @@ public class Reports extends Fragment {
 		deposito.cancel();
 		deposito.Calculate();
 		
-		XmlCreator creator = new XmlCreator(_appConfig, _appConfig);
+		XmlCreator creator = new XmlCreator(_appConfig);
 		creator.createXmlAlbaran(deposito, historico.NumeroAlbaran);
 
 		IPdfDocumentGenerator pdf = new PdfDTOCreator(deposito, _appConfig);

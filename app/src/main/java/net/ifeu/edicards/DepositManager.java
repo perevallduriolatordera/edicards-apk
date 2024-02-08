@@ -746,7 +746,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		this.SaveHistorico();
 
-		XmlCreator creator = new XmlCreator(_appConfig, _appConfig);
+		XmlCreator creator = new XmlCreator(_appConfig);
 		creator.createXmlArticulos();
 
 		if (_deposito.isAlbaran())
@@ -875,7 +875,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 				DepositManagerExtension.Incidencias.createIncidenciaBajaCliente(_appConfig, _deposito);
 
-				XmlCreator creator = new XmlCreator(_appConfig, _appConfig);
+				XmlCreator creator = new XmlCreator(_appConfig);
 				creator.createXmlDeposito(_deposito);
 			}
 		}

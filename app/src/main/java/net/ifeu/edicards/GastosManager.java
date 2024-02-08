@@ -263,7 +263,7 @@ public class GastosManager extends Fragment {
 							try {
 								gasto1.save();
 
-								XmlCreator creator = new XmlCreator(_appConfig, getActivity());
+								XmlCreator creator = new XmlCreator(_appConfig);
 								creator.createXmlGastos(_calendar.getTime());
 
 							} catch (Exception e) {
