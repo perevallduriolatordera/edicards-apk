@@ -1,6 +1,8 @@
 package net.ifeu.edicards;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 import android.app.ActionBar.LayoutParams;
@@ -11,15 +13,18 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import net.ifeu.edicards.Application.AppConfig;
@@ -28,6 +33,7 @@ import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.Factories.Factory;
+import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.MovimientosAlmacen;
 import net.ifeu.edicards.Pdf.inventory.PdfInventoryRecycled;
 import net.ifeu.edicards.Services.ServiceWorker;
@@ -46,12 +52,14 @@ public class StockManager extends Fragment implements IMediator {
 	private final int TEXT_SIZE_BUTTON = 12;
 	private final int BUTTONS_WIDTH = 150;
 
-	private TextBoxColor _lastTextBox;
-	
 	private boolean _isManagerPasswordMode;
 
 	private boolean _isRendered = false;
 	private LinearLayout _mainLayout;
+
+	private ListView _articlesListView;
+	ArrayAdapter<Articulo> _adapter;
+	List<Articulo> _listArticulos;
 	
 	Activity _activity;
 
@@ -79,8 +87,11 @@ public class StockManager extends Fragment implements IMediator {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
+		_articlesListView = (ListView) this.getActivity().findViewById(R.id.listViewArticles);
+
 		if (!_isRendered)
 			this.createSotckView(true);
+
 	}
 
 	@Override
@@ -90,11 +101,10 @@ public class StockManager extends Fragment implements IMediator {
 
 	private void createSotckView(boolean addHeader) {
 
-		((LinearLayout) _activity
-				.findViewById(R.id.articleLinearLayout)).removeAllViews();
-
 		try {
 			_articulos = _appConfig.getCache().getAllArticulos();
+			_listArticulos = new ArrayList<>(_articulos.values());
+
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -109,13 +119,120 @@ public class StockManager extends Fragment implements IMediator {
 							"No se han encontrado artículos. Sincronice datos con el servidor",
 							_activity, MessageBoxType.Information);
 		} else {
-			for (Articulo articulo : _articulos.values())
-				try {
-					addLine(articulo);
-				} catch (Exception e) {
-						throw new RuntimeException(e);
-				}
 
+			final StockManager that = this;
+			_adapter = new ArrayAdapter<Articulo>(_appConfig, R.layout.list_item_stock_article, _listArticulos) {
+				@NonNull
+				@Override
+				public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+
+					LayoutInflater layoutInflater = (LayoutInflater) _appConfig.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+					if(convertView == null) {
+						convertView = layoutInflater.inflate(R.layout.list_item_stock_article, parent, false);
+					}
+
+					Articulo articulo = getItem(position);
+					articulo.Activo = true;
+
+					TextView itemTextView = (TextView) convertView.findViewById(R.id.itemCodigoArticulo);
+					itemTextView.setText(articulo.CodigoArticulo);
+
+					itemTextView = (TextView) convertView.findViewById(R.id.itemDescripcionArticulo);
+					itemTextView.setText(articulo.Descripcion);
+					itemTextView.setOnClickListener(v -> StartArticuloDialog(articulo));
+
+					itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesInicial);
+					itemTextView.setText(String.valueOf(articulo.Stock));
+					itemTextView.setTextColor(Color.BLUE);
+
+					itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesInicialDefectuoso);
+					itemTextView.setText(String.valueOf(articulo.StockDefectuoso));
+					itemTextView.setTextColor(Color.RED);
+
+					EditText editText = (EditText) convertView.findViewById(R.id.itemUnidadesRecuento);
+					editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+					editText.setHint(String.valueOf(articulo.Stock));
+					editText.setText(String.valueOf(articulo.Stock));
+					editText.setOnFocusChangeListener((view, hasFocus) -> {
+
+						if (!hasFocus) {
+							Deposito deposito = Factory.build(Deposito.class, _appConfig);
+
+							EditText textBox = (EditText) view;
+
+							try {
+								LogBook logBookWriter = Factory.build(LogBook.class, _appConfig);
+
+								if (deposito.getDepositosToday().size() > 0) {
+									_appConfig.getMessageBox().Show(
+											"Atención",
+											"No se puede hacer recuento de almacén, ya que ya se han producido operaciones durante el día de hoy! "
+											, _activity,
+											MessageBoxType.Error);
+
+									int unidades = articulo.Stock;
+									textBox.setText(unidades);
+
+								} else {
+
+									if (that._isManagerPasswordMode) {
+
+										int unidades = Integer.parseInt(!Objects.equals(textBox.getText().toString(), "") ? textBox.getText().toString() : "0");
+
+										((Articulo) editText.getTag()).Stock = unidades;
+										logBookWriter.setData("ASIGNACION DE ALMACÉN", ConstantsTypes.EMPTY_STRING,
+												ConstantsTypes.EMPTY_STRING, articulo.CodigoArticulo, articulo.Descripcion,
+												articulo.Stock, unidades, 0, 0, 0, 0, 0, 0,0);
+
+										logBookWriter.save();
+
+									} else {
+
+										String password = _appConfig.getMessageBox().InputBox("Recuento de artículo", "introduzca la contraseña", _activity);
+
+										if (password.equals(ConstantsTypes.MANAGER_PASSWORD)) {
+
+											that._isManagerPasswordMode = true;
+
+											int unidades = Integer.parseInt(!Objects.equals(textBox.getText().toString(), "") ? textBox.getText().toString(): "0");
+											articulo.Stock = unidades;
+
+											logBookWriter.setData("ASIGNACION DE ALMACÉN", ConstantsTypes.EMPTY_STRING,
+													ConstantsTypes.EMPTY_STRING, articulo.CodigoArticulo, articulo.Descripcion,
+													articulo.Stock, unidades, 0, 0, 0, 0, 0, 0,0);
+
+											logBookWriter.save();
+
+										} else {
+											_appConfig.getMessageBox().Show(
+													"Error",
+													"La clave introducida no es correcta",
+													that.getContext(),
+													MessageBoxType.Error);
+										}
+									}
+								}
+							} catch (Exception e) {
+								throw new RuntimeException(e);
+
+							}
+
+						}
+					});
+
+					ImageView itemImageView = (ImageView) convertView.findViewById(R.id.itemImage);
+					if (articulo.StockPropio)
+						itemImageView.setImageResource(R.drawable.stock_ok_png);
+					else
+						itemImageView.setImageResource(R.drawable.stock_ko_png);
+
+					return convertView;
+				}
+			};
+
+			_articlesListView.setAdapter(_adapter);
+
+			_isRendered = true;
 			if (_articulos.size() == 0)
 				_appConfig
 						.getMessageBox()
@@ -404,275 +521,8 @@ public class StockManager extends Fragment implements IMediator {
 		mainHeaderButtonsLinearLayout.addView(reciclado);
 
 	}
-	private void addLine(Articulo articulo) {
-
-		final StockManager that = this;
-		
-		articulo.Activo = true;
-
-		LinearLayout articleLayout = (LinearLayout) _activity
-				.findViewById(R.id.articleLinearLayout);
-
-		android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		
-		LinearLayout layout = new LinearLayout(this._activity);
-		
-    	layout.setBackgroundResource(R.drawable.card_background);
-    	layout.setLayoutParams(params);
-		layout.setOrientation(LinearLayout.HORIZONTAL);
-		layout.setPadding(20, 20, 20, 20);
-
-		LabelColor codigoArticulo = new LabelColor(_activity, Color.BLACK);
-		codigoArticulo.setText(articulo.CodigoArticulo);
-		int TEXT_SIZE = 16;
-		codigoArticulo.setTextSize(TEXT_SIZE);
-		int CODE_WIDTH = 75;
-		codigoArticulo.setWidth(CODE_WIDTH);
-		codigoArticulo.setLayoutParams(params);
-
-		LabelColor articuloDescripcion = new LabelColor(_activity,
-				Color.BLACK, true);
-		articuloDescripcion.setTag(articulo);
-		articuloDescripcion.setText(articulo.Descripcion);
-		articuloDescripcion.setTextSize(TEXT_SIZE);
-		int DESCRIPTION_WIDTH = 225;
-		articuloDescripcion.setWidth(DESCRIPTION_WIDTH);
-		articuloDescripcion.setPaintFlags(articuloDescripcion.getPaintFlags()
-				| Paint.FAKE_BOLD_TEXT_FLAG);
-		articuloDescripcion.setLayoutParams(params);
-
-		articuloDescripcion.setOnClickListener(v -> StartArticuloDialog((Articulo) ((LabelColor) v).getTag()));
-
-		LabelColor unidadesIniciales = new LabelColor(_activity,
-				Color.argb(255, 100, 100, 50), true, Gravity.RIGHT);
-		unidadesIniciales.setText(String.valueOf(articulo.Stock));
-		unidadesIniciales.setTag(articulo);
-		unidadesIniciales.setTextSize(TEXT_SIZE);
-		int FIELDS_WIDTH = 70;
-		unidadesIniciales.setWidth(FIELDS_WIDTH);
-		unidadesIniciales.setLayoutParams(params);
-		layout.setTag(unidadesIniciales);
-
-		TextBoxColor unidadesEntradas = new TextBoxColor(_activity,
-				Color.argb(255, 100, 100, 50), Gravity.RIGHT);
-		unidadesEntradas.setInputType(InputType.TYPE_CLASS_NUMBER);
-		unidadesEntradas.setHint(String.valueOf(articulo.Entradas));
-		unidadesEntradas.setTag(articulo);
-		unidadesEntradas.setTextSize(TEXT_SIZE);
-		unidadesEntradas.setWidth(FIELDS_WIDTH);
-		unidadesEntradas.setLayoutParams(params);
-
-		TextBoxColor unidadesSalidas = new TextBoxColor(_activity,
-				Color.argb(255, 100, 100, 50), Gravity.RIGHT);
-		unidadesSalidas.setInputType(InputType.TYPE_CLASS_NUMBER);
-		unidadesSalidas.setHint(String.valueOf(articulo.Salidas));
-		unidadesSalidas.setTag(articulo);
-		unidadesSalidas.setTextSize(TEXT_SIZE);
-		unidadesSalidas.setWidth(FIELDS_WIDTH);
-		unidadesSalidas.setLayoutParams(params);
-
-		TextView space = new TextView(_activity);
-		space.setWidth(30);
-		space.setLayoutParams(params);
-		
-		TextView space2 = new TextView(_activity);
-		space2.setWidth(30);
-		space2.setLayoutParams(params);
-
-		LabelColor unidadesInicialesDefectuoso = new LabelColor(_activity,
-				Color.RED, true, Gravity.RIGHT);
-		unidadesInicialesDefectuoso
-				.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-		unidadesInicialesDefectuoso.setText(String
-				.valueOf(articulo.StockDefectuoso));
-		unidadesInicialesDefectuoso.setTag(articulo);
-		unidadesInicialesDefectuoso.setTextSize(TEXT_SIZE);
-		unidadesInicialesDefectuoso.setWidth(FIELDS_WIDTH);
-		unidadesInicialesDefectuoso.setTextColor(Color.RED);
-		unidadesInicialesDefectuoso.setLayoutParams(params);
-		layout.setTag(unidadesInicialesDefectuoso);
-
-		TextBoxColor unidadesEntradasDefectuoso = new TextBoxColor(
-				_activity, Color.RED, Gravity.RIGHT);
-		unidadesEntradasDefectuoso.setInputType(InputType.TYPE_CLASS_NUMBER);
-		unidadesEntradasDefectuoso.setHint(String.valueOf(articulo.Entradas));
-		unidadesEntradasDefectuoso.setTag(articulo);
-		unidadesEntradasDefectuoso.setTextSize(TEXT_SIZE);
-		unidadesEntradasDefectuoso.setWidth(FIELDS_WIDTH);
-		unidadesEntradasDefectuoso.setTextColor(Color.RED);
-		unidadesEntradasDefectuoso.setLayoutParams(params);
-
-		TextBoxColor unidadesSalidasDefectuoso = new TextBoxColor(
-				_activity, Color.RED, Gravity.RIGHT);
-		unidadesSalidasDefectuoso.setInputType(InputType.TYPE_CLASS_NUMBER);
-		unidadesSalidasDefectuoso.setHint(String.valueOf(articulo.Salidas));
-		unidadesSalidasDefectuoso.setTag(articulo);
-		unidadesSalidasDefectuoso.setTextSize(TEXT_SIZE);
-		unidadesSalidasDefectuoso.setWidth(FIELDS_WIDTH);
-		unidadesSalidasDefectuoso.setTextColor(Color.RED);
-		unidadesSalidasDefectuoso.setLayoutParams(params);
-
-		ButtonColor regularizacion = new ButtonColor(_activity,
-				Color.DKGRAY);
-
-		regularizacion.setText("Inventario");
-		regularizacion.setTextSize(TEXT_SIZE_BUTTON);
-		regularizacion.setWidth(BUTTONS_WIDTH);
-		regularizacion.setTag(new SwapStorage(articulo, unidadesEntradas,
-				unidadesSalidas, unidadesIniciales, unidadesEntradasDefectuoso,
-				unidadesSalidasDefectuoso, unidadesInicialesDefectuoso));
-		regularizacion.setLayoutParams(params);
-
-		regularizacion.setOnClickListener(arg0 -> {
-
-			try {
-				saveStock(arg0, 1);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-
-			}
-		});
-
-		ButtonColor intercambio = new ButtonColor(_activity, Color.BLUE);
-
-		intercambio.setText("Camión");
-		intercambio.setTextSize(TEXT_SIZE_BUTTON);
-		intercambio.setWidth(BUTTONS_WIDTH);
-		intercambio.setTag(new SwapStorage(articulo, unidadesEntradas,
-				unidadesSalidas, unidadesIniciales, unidadesEntradasDefectuoso,
-				unidadesSalidasDefectuoso, unidadesInicialesDefectuoso));
-		intercambio.setLayoutParams(params);
-
-		intercambio.setOnClickListener(arg0 -> {
-
-			try {
-				saveStock(arg0, 2);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-
-			}
-		});
-
-		final TextBoxColor unidadesRecuento = new TextBoxColor(
-				_activity, Color.BLACK, Gravity.RIGHT);
-		unidadesRecuento.setInputType(InputType.TYPE_CLASS_NUMBER);
-		unidadesRecuento.setHint(String.valueOf(articulo.Stock));
-		unidadesRecuento.setTag(articulo);
-		unidadesRecuento.setTextSize(TEXT_SIZE);
-		unidadesRecuento.setWidth(FIELDS_WIDTH);
-		unidadesRecuento.setTextColor(Color.BLACK);
-		unidadesRecuento.setLayoutParams(params);
-		
-		unidadesRecuento.setOnFocusChangeListener((view, hasFocus) -> {
-
-			if (!hasFocus) {
-				Deposito deposito = Factory.build(Deposito.class, _appConfig);
-
-				try {
-					LogBook logBookWriter = Factory.build(LogBook.class, _appConfig);
-
-					if (deposito.getDepositosToday().size() > 0) {
-						_appConfig.getMessageBox().Show(
-								"Atención",
-								"No se puede hacer recuento de almacén, ya que ya se han producido operaciones durante el día de hoy! "
-										, _activity,
-								MessageBoxType.Error);
-
-						EditText textBox = (EditText) view;
-
-						int unidades = ((Articulo) unidadesRecuento.getTag()).Stock;
-
-						textBox.setText(ConstantsTypes.EMPTY_STRING);
-						textBox.setHint(unidades);
-
-					} else {
-
-						if (that._isManagerPasswordMode) {
-
-							_lastTextBox = (TextBoxColor) view;
-							EditText textBox = (EditText) view;
-							int unidades = Integer.parseInt(!Objects.equals(textBox.getText().toString(), "") ? textBox.getText().toString() : "0");
-
-							((Articulo) unidadesRecuento.getTag()).Stock = unidades;
-							logBookWriter.setData("ASIGNACION DE ALMACÉN", ConstantsTypes.EMPTY_STRING,
-									ConstantsTypes.EMPTY_STRING, ((Articulo) unidadesRecuento.getTag()).CodigoArticulo, ((Articulo) unidadesRecuento.getTag()).Descripcion,
-									articulo.Stock, unidades, 0, 0, 0, 0, 0, 0,0);
-
-							logBookWriter.save();
-
-						} else {
-
-							String password = _appConfig.getMessageBox().InputBox("Recuento de artículo", "introduzca la contraseña", _activity);
-
-							if (password.equals(ConstantsTypes.MANAGER_PASSWORD)) {
-
-								that._isManagerPasswordMode = true;
-								_lastTextBox = (TextBoxColor) view;
-								EditText textBox = (EditText) view;
-
-								int unidades = Integer.parseInt(!Objects.equals(textBox.getText().toString(), "") ? textBox.getText().toString(): "0");
-								((Articulo) unidadesRecuento.getTag()).Stock = unidades;
-
-								logBookWriter.setData("ASIGNACION DE ALMACÉN", ConstantsTypes.EMPTY_STRING,
-										ConstantsTypes.EMPTY_STRING, ((Articulo) unidadesRecuento.getTag()).CodigoArticulo, ((Articulo) unidadesRecuento.getTag()).Descripcion,
-										articulo.Stock, unidades, 0, 0, 0, 0, 0, 0,0);
-
-								logBookWriter.save();
-
-							} else {
-								_appConfig.getMessageBox().Show(
-										"Error",
-										"La clave introducida no es correcta",
-										that.getContext(),
-										MessageBoxType.Error);
-
-								_lastTextBox.setText("0");
-
-							}
-						}
-					}
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-
-				}
-
-			} else {
-				_lastTextBox = (TextBoxColor) view;
-			}
-		});
-
-		ImageView imageView = new ImageView(this._appConfig);
-
-		LinearLayout.LayoutParams imageViewParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-		imageViewParams.gravity = Gravity.CENTER_VERTICAL;
-
-		imageView.setLayoutParams(imageViewParams);
-
-		if (!articulo.StockPropio)
-			imageView.setImageResource(R.drawable.stock_ko_png);
-		else
-			imageView.setImageResource(R.drawable.stock_ok_png);
-
-		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(150, 60);
-		imageView.setLayoutParams(layoutParams);
-		
-		layout.addView(codigoArticulo);
-		layout.addView(articuloDescripcion);
-		layout.addView(unidadesIniciales);
-		layout.addView(space);
-		layout.addView(unidadesInicialesDefectuoso);
-		layout.addView(space2);
-		layout.addView(unidadesRecuento);
-		layout.addView(imageView);
-		
-		articleLayout.addView(layout);
-
-	}
 
 	private void StartArticuloDialog(Articulo articulo) {
-
-		//_appConfig = (AppConfig) _activity.getApplicationContext();
 
 		_appConfig.getWorkingArea().CurrentArticulo = articulo;
 
@@ -682,141 +532,6 @@ public class StockManager extends Fragment implements IMediator {
 
 		this.startActivityForResult(intent, 1);
 	}
-	
-	private void saveStock(View view, int tipo) throws Exception {
-
-		// Movimientos Para Stock
-		SwapStorage swap = (SwapStorage) view.getTag();
-		int stock = swap.Articulo.Stock;
-
-		int entradas;
-		int salidas;
-
-		if (swap.Entradas.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-			entradas = 0;
-		else
-			entradas = Integer.parseInt(swap.Entradas.getText().toString());
-
-		if (swap.Salidas.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-			salidas = 0;
-		else
-			salidas = Integer.parseInt(swap.Salidas.getText().toString());
-
-		if (salidas > (stock + entradas))
-			_appConfig.getMessageBox().Show(
-					"Error",
-					"Cuidado! El stock es negativo en el articulo "
-							+ swap.Articulo.Descripcion, _activity,
-					MessageBoxType.Error);
-
-		int stockInicial = swap.Articulo.Stock;
-		swap.Articulo.Stock = stockInicial + entradas - salidas;
-
-		LogBook logBookWriter = Factory.build(LogBook.class, _appConfig);
-
-		logBookWriter.setData("ASIGNACION DE ALMACÉN", ConstantsTypes.EMPTY_STRING,
-				ConstantsTypes.EMPTY_STRING, swap.Articulo.CodigoArticulo, swap.Articulo.Descripcion,
-				stockInicial, swap.Articulo.Stock, entradas, 0, salidas, 0, 0, 0,0);
-
-		logBookWriter.save();
-
-		swap.Articulo.Entradas = entradas;
-		swap.Articulo.Salidas = salidas;
-		swap.Articulo.Tipo = tipo;
-
-		swap.Inicial.setText(String.valueOf(swap.Articulo.Stock));
-		swap.Entradas.setHint(String.valueOf(0));
-		swap.Entradas.setText(ConstantsTypes.EMPTY_STRING);
-		swap.Salidas.setHint(String.valueOf(0));
-		swap.Salidas.setText(ConstantsTypes.EMPTY_STRING);
-
-		try {
-			swap.Articulo.update();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
-		// Damos de alta el movimiento de almacén
-
-		MovimientosAlmacen movimiento = Factory.build(MovimientosAlmacen.class, _appConfig);
-
-		try {
-			movimiento.Articulo = swap.Articulo;
-			movimiento.Entradas = swap.Articulo.Entradas;
-			movimiento.Salidas = swap.Articulo.Salidas;
-			movimiento.Tipo = tipo;
-			movimiento.TipoStock = 1;
-
-			movimiento.save();
-
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
-		// Movimientos Stock Defectuoso
-
-		int stockDefectuoso = swap.Articulo.StockDefectuoso;
-		int entradasDefectuoso;
-		int salidasDefectuoso;
-
-		if (swap.EntradasDefectuoso.getText().toString()
-				.equals(ConstantsTypes.EMPTY_STRING))
-			entradasDefectuoso = 0;
-		else
-			entradasDefectuoso = Integer.parseInt(swap.EntradasDefectuoso
-					.getText().toString());
-
-		if (swap.SalidasDefectuoso.getText().toString()
-				.equals(ConstantsTypes.EMPTY_STRING))
-			salidasDefectuoso = 0;
-		else
-			salidasDefectuoso = Integer.parseInt(swap.SalidasDefectuoso
-					.getText().toString());
-
-		if (salidasDefectuoso > (stockDefectuoso + entradasDefectuoso))
-			_appConfig.getMessageBox().Show(
-					"Error",
-					"Cuidado! El stock de material defectuoso es negativo en el articulo  "
-							+ swap.Articulo.Descripcion, _activity,
-					MessageBoxType.Error);
-
-		swap.Articulo.StockDefectuoso = swap.Articulo.StockDefectuoso
-				+ entradasDefectuoso - salidasDefectuoso;
-		swap.Articulo.Entradas = entradasDefectuoso;
-		swap.Articulo.Salidas = salidasDefectuoso;
-		swap.Articulo.Tipo = tipo;
-
-		swap.InicialDefectuoso.setText(String
-				.valueOf(swap.Articulo.StockDefectuoso));
-		swap.EntradasDefectuoso.setHint(String.valueOf(0));
-		swap.EntradasDefectuoso.setText(ConstantsTypes.EMPTY_STRING);
-		swap.SalidasDefectuoso.setHint(String.valueOf(0));
-		swap.SalidasDefectuoso.setText(ConstantsTypes.EMPTY_STRING);
-
-		try {
-			swap.Articulo.update();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
-		// Damos de alta el movimiento de almacén
-
-		MovimientosAlmacen movimientoDefectuoso = Factory.build(MovimientosAlmacen.class, _appConfig);
-
-		try {
-			movimientoDefectuoso.Articulo = swap.Articulo;
-			movimientoDefectuoso.Entradas = swap.Articulo.Entradas;
-			movimientoDefectuoso.Salidas = swap.Articulo.Salidas;
-			movimientoDefectuoso.Tipo = tipo;
-			movimientoDefectuoso.TipoStock = 2;
-
-			movimientoDefectuoso.save();
-
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
-	}
 
 	@Override
 	public void notify(String event, Object payload) {
@@ -825,28 +540,4 @@ public class StockManager extends Fragment implements IMediator {
 			_isRendered = false;
 		}
 	}
-
-	private static class SwapStorage {
-		public Articulo Articulo;
-		public EditText Entradas;
-		public EditText Salidas;
-		public TextView Inicial;
-		public EditText EntradasDefectuoso;
-		public EditText SalidasDefectuoso;
-		public TextView InicialDefectuoso;
-
-		public SwapStorage(Articulo articulo, EditText entradas,
-				EditText salidas, TextView inicial,
-				EditText entradasDefectuoso, EditText salidasDefectuoso,
-				TextView inicialDefectuoso) {
-			this.Articulo = articulo;
-			this.Entradas = entradas;
-			this.Salidas = salidas;
-			this.Inicial = inicial;
-			this.EntradasDefectuoso = entradasDefectuoso;
-			this.SalidasDefectuoso = salidasDefectuoso;
-			this.InicialDefectuoso = inicialDefectuoso;
-		}
-	}
-
 }

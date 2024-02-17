@@ -141,7 +141,7 @@
             </LinearLayout>-->
 
             <LinearLayout
-                android:id="@+id/headerMainLinearLayout6"
+                android:id="@+id/headerLabelsLinearLayout"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/DarkBlue"
@@ -164,23 +164,30 @@
         android:id="@+id/linearLayoutArticles"
         android:orientation="vertical" >
 
-        <ScrollView
+        <!--<ScrollView
             android:id="@+id/svcScroll"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:clickable="true" >
+            android:clickable="true" >-->
 
             <LinearLayout
                 android:id="@+id/mainLinearLayoutArticles"
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
+                android:layout_height="wrap_content"
                 android:animateLayoutChanges="false"
                 android:layout_marginTop="0dp"
                 android:layout_marginBottom="0dp"
                 android:orientation="vertical" >
+
+                <ListView
+                    android:id="@+id/listViewArticles"
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    android:divider="#b5b5b5"
+                    android:dividerHeight="1dp"/>
             </LinearLayout>
-        </ScrollView>
+        <!--</ScrollView>-->
     </LinearLayout>
 
 </LinearLayout>

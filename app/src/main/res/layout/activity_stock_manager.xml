@@ -19,7 +19,7 @@
         	  android:id="@+id/headerMainLinearLayout" 
               android:layout_width="fill_parent" 
               android:layout_height="50px" 
-              android:layout_marginTop="5dp" 
+              android:layout_marginTop="5dp"
               android:background="@color/DarkBlue"
               android:orientation="horizontal" >
               
@@ -71,30 +71,18 @@
     		android:layout_marginTop="10dp"
     		android:layout_marginLeft="10dp"/>
 
-</LinearLayout>
+	</LinearLayout>
  
-<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical"
-               android:layout_width="fill_parent" 
-               android:layout_height="fill_parent"
-               android:layout_marginTop="20dp" >
-
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/svcScroll" 
-    android:clickable="true" 
-    android:layout_weight="1" 
-    android:layout_width="fill_parent" 
-    android:layout_marginLeft="5px" 
-    android:layout_height="fill_parent">
-    
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        	  android:id="@+id/articleLinearLayout"
-              android:layout_width="fill_parent" 
-              android:layout_height="300px"
-              android:orientation="vertical" >
+	<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+		android:orientation="vertical"
+		android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+		android:background="@color/White">
+		<ListView
+			android:id="@+id/listViewArticles"
+			android:layout_width="fill_parent"
+			android:layout_height="match_parent"
+			android:divider="#b5b5b5"
+			android:dividerHeight="1dp"/>
     </LinearLayout>
-</ScrollView>
-
-</LinearLayout>
-
- 
 </LinearLayout>

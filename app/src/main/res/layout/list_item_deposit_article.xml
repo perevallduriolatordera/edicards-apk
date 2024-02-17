@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/itemCodigoArticulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:width="50dp"
+        android:layout_marginRight="15dp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/itemDescripcionArticulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:width="130dp"
+        android:layout_marginRight="15dp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/itemUnidadesInicial"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:width="70dp"
+        android:layout_marginRight="15dp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/itemUnidadesContadas"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:width="90dp"
+        android:layout_marginRight="15dp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/itemUnidadesRecicladas"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:width="90dp"
+        android:layout_marginRight="15dp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/itemPVP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:width="90dp"
+        android:layout_marginRight="15dp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/itemUnidadesFacturadas"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:width="90dp"
+        android:layout_marginRight="15dp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/itemUnidadesRepuestas"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:width="90dp"
+        android:layout_marginRight="15dp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/itemPVPPost"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:width="90dp"
+        android:layout_marginRight="15dp"
+        android:textColor="#000000" />
+
+    <ImageView
+        android:id="@+id/itemImage"
+        android:layout_width="32dp"
+        android:layout_height="32dp">
+    </ImageView>
+
+</LinearLayout>

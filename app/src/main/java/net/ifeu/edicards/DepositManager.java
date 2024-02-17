@@ -3,13 +3,13 @@ package net.ifeu.edicards;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.itextpdf.text.DocumentException;
@@ -74,16 +75,19 @@ public class DepositManager extends Fragment implements  IMediator {
 	private CheckBox _checkPagado;
 	private TextBoxColor _textBoxColorRequestFocus;
 	private TextBoxColor _lastTextBox;
-	private LinearLayout _lastSelectedLayout;
 	private final LinkedList<String> _articles = new LinkedList<>();
 	private AdvancedMessageBox _dialogDepositoModalidad;
 	private LinearLayout _headerLayout;
 	private LinearLayout _headerAbonoLayout;
-
 	private LinearLayout _articlesLayout;
+	private ListView _articlesListView;
+
 	private final int TEXT_SIZE = 14;
 	private boolean _isRendered = false;
 	private LinearLayout _mainLayout;
+	private List<LineaDeposito> _currentLines = new ArrayList<>();
+	private List<LineaDeposito> _originalLines = new ArrayList<>();
+	ArrayAdapter<LineaDeposito> _adapter;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -101,8 +105,12 @@ public class DepositManager extends Fragment implements  IMediator {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
+		_mainLayout = (LinearLayout) getActivity().findViewById(R.id.depositManagerLayout);
+
 		_articlesLayout = (LinearLayout) this.getActivity()
 				.findViewById(R.id.mainLinearLayoutArticles);
+
+		_articlesListView = (ListView) this.getActivity().findViewById(R.id.listViewArticles);
 
 	}
 
@@ -284,7 +292,6 @@ public class DepositManager extends Fragment implements  IMediator {
 		_checkPagado.setOnCheckedChangeListener((buttonView, isChecked) -> {
 
 			if (_deposito == null) return;
-
 			_deposito.Pagado = isChecked;
 
 			if (isChecked)
@@ -458,6 +465,7 @@ public class DepositManager extends Fragment implements  IMediator {
 			}
 		});
 
+		// Botón Nuevo
 		ButtonColor nuevo = DepositManagerExtension.UI.addButton(getActivity(), Color.MAGENTA, "Nuevo depósito",
 				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params, getResources().getDrawable(R.drawable.ic_new));
 
@@ -475,7 +483,6 @@ public class DepositManager extends Fragment implements  IMediator {
 			}
 		});
 
-
 		// Autocompletado para articulos
 
 		AutoCompleteTextView searchArticulos = new AutoCompleteTextView(getContext());
@@ -490,13 +497,9 @@ public class DepositManager extends Fragment implements  IMediator {
 				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params, getResources().getDrawable(R.drawable.ic_view_all));
 
 		buttonSearchArticulos.setOnClickListener( v-> {
-
-			int count = _articlesLayout.getChildCount();
-
-			for(int i=0; i<count; i++) {
-				View view = _articlesLayout.getChildAt(i);
-				view.setVisibility(View.VISIBLE);
-			}
+			_currentLines.clear();
+			_currentLines.addAll(_originalLines);
+			_adapter.notifyDataSetChanged();
 		});
 
 		DepositManagerExtension.UI.addViewsToLayout(layout, datos, totales, albaran, nuevo, searchArticulos, buttonSearchArticulos);
@@ -513,16 +516,11 @@ public class DepositManager extends Fragment implements  IMediator {
 		this.showHeader(visible);
 		this.showArticlesGrid(visible);
 		this.showButtonBar(visible);
-		this.removeArticleLayoutListeners();
-	}
-
-	private void removeArticleLayoutListeners() {
-		for (int i = 0; i < _articlesLayout.getChildCount(); i++) {
-			_articlesLayout.getChildAt(i).setOnClickListener(null);
-		}
 	}
 
 	private void CreateDepositView() throws Exception {
+
+		final DepositManager that = this;
 
 		if (this.RestriccionIngresos()) return;
 		this.prepareScreenRegions(true);
@@ -617,44 +615,111 @@ public class DepositManager extends Fragment implements  IMediator {
 			throw new RuntimeException(e);
 		}
 
+		_currentLines.addAll(getSortedLineasDeposito());
+		_originalLines.addAll(_currentLines);
+
+		for (LineaDeposito lineaDeposito : _originalLines)
+			_articles.add(lineaDeposito.Articulo.Descripcion.trim().toUpperCase());
+
 		this.createHeaderLabels();
 		createHeaderControls();
 		this.createHeaderButtons();
 
-		List<LineaDeposito> depositLines = new ArrayList<>();
-		List<LineaDeposito> potentialLines = new ArrayList<>();
+		_adapter = new ArrayAdapter<LineaDeposito>(_appConfig, R.layout.list_item_deposit_article, _currentLines) {
+			@NonNull
+			@Override
+			public View getView(int position, View convertView, @NonNull ViewGroup parent) {
 
-		for (LineaDeposito linea : _deposito.Lineas.values()) {
-			if (linea.IsNew)
-				potentialLines.add(linea);
-			else
-				depositLines.add(linea);
-		}
+				LayoutInflater layoutInflater = (LayoutInflater) _appConfig.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				if(convertView == null) {
+					convertView = layoutInflater.inflate(R.layout.list_item_deposit_article, parent, false);
+				}
 
-		Collections.sort(depositLines, new LineaDeposito().new ArticuloComparator());
-		Collections.sort(potentialLines, new LineaDeposito().new ArticuloComparator());
+				LineaDeposito lineaDeposito = getItem(position);
 
-		this.removeArticleLayoutListeners();
-		_articlesLayout.removeAllViews();
+				int color = lineaDeposito.IsNew ? Color.BLUE : Color.BLACK;
 
-		for (LineaDeposito linea : depositLines) {
-			try {
-				_articlesLayout.addView(addLine(linea));
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+				TextView itemTextView = (TextView) convertView.findViewById(R.id.itemCodigoArticulo);
+				itemTextView.setText(lineaDeposito.Articulo.CodigoArticulo);
+				itemTextView.setTextColor(color);
+
+				itemTextView = (TextView) convertView.findViewById(R.id.itemDescripcionArticulo);
+				itemTextView.setText(lineaDeposito.Articulo.Descripcion);
+				itemTextView.setTextColor(color);
+
+				itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesInicial);
+				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesIniciales));
+				itemTextView.setTextColor(color);
+
+				lineaDeposito.UnidadesDevueltas = lineaDeposito.UnidadesInicialesFijas;
+
+				itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesContadas);
+				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesDevueltas));
+				itemTextView.setTextColor(color);
+
+				itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesRecicladas);
+				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesDefectuosas));
+				itemTextView.setTextColor(color);
+
+				lineaDeposito.PVPAbono = lineaDeposito.PVP;
+				lineaDeposito.PVPAnterior = lineaDeposito.PVP;
+
+				itemTextView = (TextView) convertView.findViewById(R.id.itemPVP);
+				itemTextView.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP));
+				itemTextView.setTextColor(color);
+
+				itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesFacturadas);
+				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesFacturadas));
+				itemTextView.setTextColor(color);
+
+				itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesRepuestas);
+				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesRepuestas));
+				itemTextView.setTextColor(color);
+
+				itemTextView = (TextView) convertView.findViewById(R.id.itemPVPPost);
+				itemTextView.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAnterior));
+				itemTextView.setTextColor(color);
+
+				ImageView itemImageView = (ImageView) convertView.findViewById(R.id.itemImage);
+				if (lineaDeposito.TotalAbono < 0)
+					itemImageView.setImageResource(R.drawable.abono);
+				else
+				if (lineaDeposito.Articulo.StockPropio)
+					itemImageView.setImageResource(R.drawable.stock_ok_png);
+				else
+					itemImageView.setImageResource(R.drawable.stock_ko_png);
+
+				return convertView;
 			}
-		}
+		};
 
-		for (LineaDeposito linea : potentialLines) {
-			try {
-				_articlesLayout.addView(addLine(linea));
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+		_articlesListView.setOnItemClickListener((parent, view, position, id) -> {
+			// Handle item click here
+			LineaDeposito lineaDeposito = (LineaDeposito) parent.getItemAtPosition(position);
+
+			if (_lastTextBox != null)
+				_lastTextBox.clearFocus();
+
+			if (_abonoMode) {
+				try {
+					addLineHeaderAbono(lineaDeposito);
+					refreshTotals();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			} else {
+				try {
+					addLineHeader(lineaDeposito);
+
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
 			}
-		}
+		});
+
+		_articlesListView.setAdapter(_adapter);
 
 		_isRendered = true;
-		_mainLayout = (LinearLayout) getActivity().findViewById(R.id.depositManagerLayout);
 	}
 	
 	private void createAutoComplete(AutoCompleteTextView autocomplete) {
@@ -668,25 +733,14 @@ public class DepositManager extends Fragment implements  IMediator {
 		autocomplete.setOnItemClickListener((listView, view, position, id) -> {
 
 			String selectedArticle =  listView.getItemAtPosition(position).toString().trim().toUpperCase();
+			_currentLines.clear();
 
-			int count = _articlesLayout.getChildCount();
-
-			boolean isShowed = false;
-
-			for(int i=0; i<count; i++) {
-				View v = _articlesLayout.getChildAt(i);
-
-				LabelColor articleLabel = (LabelColor) ((LinearLayout) v).getChildAt(1);
-				String currentArticle = articleLabel.getText().toString().trim().toUpperCase();
-
-				if (selectedArticle.equals(currentArticle) && !isShowed) {
-					v.setVisibility(View.VISIBLE);
-					isShowed = true;
-				} else {
-					v.setVisibility(View.GONE);
-				}
-
+			for (LineaDeposito lineaDeposito : _originalLines) {
+				if (lineaDeposito.Articulo.Descripcion.trim().toUpperCase().equals(selectedArticle))
+					_currentLines.add(lineaDeposito);
 			}
+
+			_adapter.notifyDataSetChanged();
 			autocomplete.setText(ConstantsTypes.EMPTY_STRING);
 		});
 	}
@@ -717,7 +771,6 @@ public class DepositManager extends Fragment implements  IMediator {
 				linea.IsNew = true;
 
 				_deposito.Lineas.put(String.valueOf(linea.Articulo.CodigoArticulo), linea);
-				//layouts.add(addLine(linea));
 
 			} catch (Exception e) {
 				throw new RuntimeException(e);
@@ -1101,7 +1154,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		_headerAbonoLayout = null;
 	}
 
-	private void addLineHeader(LineaDeposito lineaDeposito, final LinearLayout layoutGrid) {
+	private void addLineHeader(LineaDeposito lineaDeposito) {
 
 		final DepositManager that = this;
 
@@ -1174,7 +1227,7 @@ public class DepositManager extends Fragment implements  IMediator {
 					} else {
 						lineaDepositoValue.UnidadesDevueltas = unidadesDevueltasValue;
 						try {
-							refreshLayout(lineaDepositoValue, layoutGrid, false);
+							refreshLayout(lineaDepositoValue, false);
 						} catch (Exception e) {
 							throw new RuntimeException(e);
 						}
@@ -1224,7 +1277,7 @@ public class DepositManager extends Fragment implements  IMediator {
 					} else {
 						lineaDepositoValue.UnidadesDefectuosas = unidadesDefectuosasValue;
 						try {
-							refreshLayout(lineaDepositoValue, layoutGrid, false);
+							refreshLayout(lineaDepositoValue, false);
 						} catch (Exception e) {
 							throw new RuntimeException(e);
 						}
@@ -1261,7 +1314,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 					lineaDepositoValue.PVP = pvp1;
 					try {
-						refreshLayout(lineaDepositoValue, layoutGrid, false);
+						refreshLayout(lineaDepositoValue, false);
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
@@ -1315,7 +1368,7 @@ public class DepositManager extends Fragment implements  IMediator {
 						}
 
 						try {
-							refreshLayout(lineaDepositoValue, layoutGrid, false);
+							refreshLayout(lineaDepositoValue, false);
 						} catch (Exception e) {
 							throw new RuntimeException(e);
 						}
@@ -1350,7 +1403,7 @@ public class DepositManager extends Fragment implements  IMediator {
 					lineaDepositoValue.UnidadesRepuestas = unidadesRepuestasValue;
 
 					try {
-						refreshLayout(lineaDepositoValue, layoutGrid, false);
+						refreshLayout(lineaDepositoValue, false);
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
@@ -1384,7 +1437,7 @@ public class DepositManager extends Fragment implements  IMediator {
 					lineaDepositoValue.PVPAnterior = pvpAnteriorValue;
 
 					try {
-						refreshLayout(lineaDepositoValue, layoutGrid, false);
+						refreshLayout(lineaDepositoValue, false);
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
@@ -1424,7 +1477,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				_abonoMode = true;
 				LineaDeposito lineaDepositoValue = (LineaDeposito) arg0.getTag();
 				try {
-					refreshLayout(lineaDepositoValue, layoutGrid, true);
+					refreshLayout(lineaDepositoValue, true);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
@@ -1444,7 +1497,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		}
 	}
 
-	private void addLineHeaderAbono(LineaDeposito lineaDeposito,  final LinearLayout layoutGrid) {
+	private void addLineHeaderAbono(LineaDeposito lineaDeposito) {
 
 		final DepositManager that = this;
 
@@ -1518,7 +1571,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				}
 
 				try {
-					refreshLayout(lineaDepositoValue, layoutGrid,false);
+					refreshLayout(lineaDepositoValue,false);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
@@ -1573,7 +1626,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				}
 
 				try {
-					refreshLayout(lineaDepositoValue, layoutGrid,false);
+					refreshLayout(lineaDepositoValue,false);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
@@ -1610,7 +1663,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				lineaDepositoValue.PVPAbono = pvpAbono1;
 
 				try {
-					refreshLayout(lineaDepositoValue, layoutGrid,false);
+					refreshLayout(lineaDepositoValue,false);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
@@ -1643,7 +1696,7 @@ public class DepositManager extends Fragment implements  IMediator {
 			_abonoMode = false;
 			LineaDeposito lineaDepositoValue = (LineaDeposito) arg0.getTag();
 			try {
-				refreshLayout(lineaDepositoValue, layoutGrid,true);
+				refreshLayout(lineaDepositoValue,true);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -1666,7 +1719,7 @@ public class DepositManager extends Fragment implements  IMediator {
 	}
 
 	private void showArticlesGrid(boolean visible) {
-		(this.getActivity().findViewById(R.id.linearLayoutArticles)).setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+		_articlesLayout.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
 	}
 
 	private void showButtonBar(boolean visible) {
@@ -1688,7 +1741,7 @@ public class DepositManager extends Fragment implements  IMediator {
 	private void createHeaderLabels() {
 		
 		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity()
-				.findViewById(R.id.headerMainLinearLayout6);
+				.findViewById(R.id.headerLabelsLinearLayout);
 		
 		mainLinearLayout.removeAllViews();
 		
@@ -1718,116 +1771,14 @@ public class DepositManager extends Fragment implements  IMediator {
 
 	}
 
-	private LinearLayout addLine(final LineaDeposito lineaDeposito) throws Exception {
-
-		this._articles.add(lineaDeposito.Articulo.Descripcion);
-
-		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
-		final LinearLayout layout = new LinearLayout(_appConfig);
-		layout.setOrientation(LinearLayout.HORIZONTAL);
-
-		int color = lineaDeposito.IsNew ? Color.BLUE : Color.BLACK;
-
-		LabelColor codigoArticulo = DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				lineaDeposito.Articulo.CodigoArticulo.trim(), TEXT_SIZE, 8, params, true);
-
-		LabelColor articuloDescripcion = DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				lineaDeposito.Articulo.Descripcion.trim(), TEXT_SIZE, 12, params, true, lineaDeposito.Articulo);
-
-		LabelColor unidadesInicialesFijas = DepositManagerExtension.UI.addLabelByText(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				String.valueOf(lineaDeposito.UnidadesInicialesFijas), TEXT_SIZE, 13, params, true, lineaDeposito);
-
-		lineaDeposito.UnidadesDevueltas = lineaDeposito.UnidadesInicialesFijas;
-		LabelColor unidadesDevueltas = DepositManagerExtension.UI.addLabelByText(_appConfig, Color.RED, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				String.valueOf(lineaDeposito.UnidadesDevueltas), TEXT_SIZE, 13, params, true, lineaDeposito);
-
-		lineaDeposito.UnidadesDefectuosas = 0;
-		LabelColor unidadesDefectuosas = DepositManagerExtension.UI.addLabelByText(_appConfig, Color.RED, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				String.valueOf(lineaDeposito.UnidadesDefectuosas), TEXT_SIZE, 13, params, true, lineaDeposito);
-
-		lineaDeposito.UnidadesFacturadas = 0;
-		LabelColor unidadesFacturadas = DepositManagerExtension.UI.addLabelByText(_appConfig, Color.rgb(0, 128, 0), Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				String.valueOf(lineaDeposito.UnidadesFacturadas), TEXT_SIZE, 13, params, true, lineaDeposito);
-
-		lineaDeposito.UnidadesRepuestas = lineaDeposito.UnidadesInicialesFijas;
-		LabelColor unidadesRepuestas = DepositManagerExtension.UI.addLabelByText(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				String.valueOf(lineaDeposito.UnidadesRepuestas), TEXT_SIZE, 13, params, true, lineaDeposito);
-
-		lineaDeposito.PVPAbono = lineaDeposito.PVP;
-		lineaDeposito.PVPAnterior = lineaDeposito.PVP;
-		
-		LabelColor pvp = DepositManagerExtension.UI.addLabelByText(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP), TEXT_SIZE, 13, params, true, lineaDeposito);
-
-		lineaDeposito.Descuento1 = lineaDeposito.getDte(_cliente, lineaDeposito.Articulo);
-
-		LabelColor pvpAnterior = DepositManagerExtension.UI.addLabelByText(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAnterior), TEXT_SIZE, 13, params, true, lineaDeposito);
-
-		LabelColor totalLinea = DepositManagerExtension.UI.addLabelByText(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				DepositManagerExtension.Format.CurrencyFormat(0), TEXT_SIZE, 13, params, true, lineaDeposito);
-
-		DepositManagerExtension.UI.addViewsToLayout(layout, codigoArticulo, articuloDescripcion, unidadesInicialesFijas, unidadesDevueltas,
-				unidadesDefectuosas, pvp, unidadesFacturadas, unidadesRepuestas, pvpAnterior, totalLinea);
-
-		ImageView imageView = new ImageView(this._appConfig);
-		LinearLayout.LayoutParams imageViewParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-		imageViewParams.gravity = Gravity.CENTER_VERTICAL;
-
-		imageView.setLayoutParams(imageViewParams);
-
-		if (lineaDeposito.Articulo.StockPropio)
-			imageView.setImageResource(R.drawable.stock_ok_png);
-		else
-			imageView.setImageResource(R.drawable.stock_ko_png);
-
-		LinearLayout.LayoutParams layoutParamsImage = new LinearLayout.LayoutParams(25, 25);
-		imageView.setLayoutParams(layoutParamsImage);
-		layout.addView(imageView);
-		layout.setTag(lineaDeposito);
-		layout.setId(View.generateViewId());
-
-		layout.setClickable(true);
-		layout.setOnClickListener( v-> {
-			if (_lastTextBox != null)
-				_lastTextBox.clearFocus();
-
-			if (_lastSelectedLayout != null)
-				_lastSelectedLayout.setBackgroundColor(Color.TRANSPARENT);
-
-			v.setBackgroundColor(Color.rgb(240,140,40));
-			_lastSelectedLayout = (LinearLayout) v;
-
-			if (_abonoMode) {
-				try {
-					addLineHeaderAbono(lineaDeposito, _lastSelectedLayout);
-					refreshTotals();
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			} else {
-				try {
-					addLineHeader(lineaDeposito, _lastSelectedLayout);
-
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			}
-
-		});
-
-		return layout;
-	}
-
-	private void refreshLayout(LineaDeposito linea, LinearLayout layoutGrid,  boolean redraw)
+	private void refreshLayout(LineaDeposito linea,  boolean redraw)
 			throws Exception {
 
 		if (redraw) {
 			if (_abonoMode)
-				addLineHeaderAbono(linea, layoutGrid);
+				addLineHeaderAbono(linea);
 			else
-				addLineHeader(linea, layoutGrid);
+				addLineHeader(linea);
 		}
 
 		linea.StockInicial = linea.Articulo.Stock + linea.UnidadesDevueltas - linea.UnidadesRepuestas;
@@ -1847,28 +1798,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		double totalLinea = DepositManagerExtension.Format.round((linea.UnidadesFacturadas * linea.PVP)
 				- ((linea.UnidadesFacturadas * linea.PVP) * (linea.Descuento1 / 100)), 2);
 
-
-		//((LabelColor) controlsGrid.get(0)).setText(String.valueOf(linea.UnidadesIniciales));
-		((LabelColor) layoutGrid.getChildAt(3)).setText(String.valueOf(linea.UnidadesDevueltas));
-
-		((LabelColor) layoutGrid.getChildAt(4)).setText(String.valueOf(linea.UnidadesDefectuosas));
-
-		((LabelColor) layoutGrid.getChildAt(5)).setText(String.valueOf(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(linea.PVP))));
-		((LabelColor) layoutGrid.getChildAt(6)).setText(String.valueOf(linea.UnidadesFacturadas));
-		((LabelColor) layoutGrid.getChildAt(7)).setText(String.valueOf(linea.UnidadesRepuestas));
-
-		//((LabelColor) controlsGrid.get(5)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(linea.PVP)));
-
-		((LabelColor) layoutGrid.getChildAt(9)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(totalLinea)));
-		((LabelColor) layoutGrid.getChildAt(8)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(linea.PVPAnterior)));
-
-		if (linea.TotalAbono < 0)
-			((ImageView) layoutGrid.getChildAt(10)).setImageResource(R.drawable.abono);
-		else
-			if (linea.Articulo.StockPropio)
-				((ImageView) layoutGrid.getChildAt(10)).setImageResource(R.drawable.stock_ok_png);
-			else
-				((ImageView) layoutGrid.getChildAt(10)).setImageResource(R.drawable.stock_ko_png);
+		_adapter.notifyDataSetChanged();
 
 		if (!_abonoMode) {
 
@@ -1879,7 +1809,6 @@ public class DepositManager extends Fragment implements  IMediator {
 				((TextView) _headerLayout.getChildAt(9)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(totalLinea)));
 			}
 		} else {
-
 			((LabelColor) _headerAbonoLayout.getChildAt(8)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(linea.TotalAbono)));
 		}
 	}
@@ -1978,5 +1907,24 @@ public class DepositManager extends Fragment implements  IMediator {
 		}
 
 		return false;
+	}
+
+	private List<LineaDeposito> getSortedLineasDeposito() {
+
+		List<LineaDeposito> lines = new ArrayList<>();
+		List<LineaDeposito> potentialLines = new ArrayList<>();
+
+		for (LineaDeposito linea : _deposito.Lineas.values()) {
+			if (linea.IsNew)
+				potentialLines.add(linea);
+			else
+				lines.add(linea);
+		}
+
+		Collections.sort(lines, new LineaDeposito().new ArticuloComparator());
+		Collections.sort(potentialLines, new LineaDeposito().new ArticuloComparator());
+
+		lines.addAll(potentialLines);
+		return lines;
 	}
 }

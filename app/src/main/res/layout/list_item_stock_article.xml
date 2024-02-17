@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/itemCodigoArticulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:width="85dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="20dp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/itemDescripcionArticulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:width="240dp"
+        android:layout_marginRight="15dp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/itemUnidadesInicial"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="22sp"
+        android:width="85dp"
+        android:layout_marginRight="15dp"
+        android:textColor="#000000" />
+
+    <TextView
+        android:id="@+id/itemUnidadesInicialDefectuoso"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="22sp"
+        android:width="100dp"
+        android:layout_marginRight="15dp"
+        android:textColor="#000000" />
+
+    <EditText
+        android:id="@+id/itemUnidadesRecuento"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="22sp"
+        android:width="150dp"
+        android:layout_marginRight="15dp"
+        android:textColor="#000000" />
+
+    <ImageView
+        android:id="@+id/itemImage"
+        android:layout_width="32dp"
+        android:layout_height="32dp">
+    </ImageView>
+
+</LinearLayout>
