@@ -60,6 +60,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class DepositManager extends Fragment implements  IMediator {
 
@@ -80,13 +81,12 @@ public class DepositManager extends Fragment implements  IMediator {
 	private LinearLayout _headerLayout;
 	private LinearLayout _headerAbonoLayout;
 	private LinearLayout _articlesLayout;
-	private ListView _articlesListView;
-
 	private final int TEXT_SIZE = 14;
 	private boolean _isRendered = false;
 	private LinearLayout _mainLayout;
-	private List<LineaDeposito> _currentLines = new ArrayList<>();
-	private List<LineaDeposito> _originalLines = new ArrayList<>();
+	private ListView _articlesListView;
+	private final List<LineaDeposito> _currentLines = new ArrayList<>();
+	private final List<LineaDeposito> _originalLines = new ArrayList<>();
 	ArrayAdapter<LineaDeposito> _adapter;
 
 	public void onCreate(Bundle savedInstanceState) {
@@ -520,8 +520,6 @@ public class DepositManager extends Fragment implements  IMediator {
 
 	private void CreateDepositView() throws Exception {
 
-		final DepositManager that = this;
-
 		if (this.RestriccionIngresos()) return;
 		this.prepareScreenRegions(true);
 
@@ -632,12 +630,12 @@ public class DepositManager extends Fragment implements  IMediator {
 
 				LayoutInflater layoutInflater = (LayoutInflater) _appConfig.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				if(convertView == null) {
-					convertView = layoutInflater.inflate(R.layout.list_item_deposit_article, parent, false);
+					convertView = Objects.requireNonNull(layoutInflater).inflate(R.layout.list_item_deposit_article, parent, false);
 				}
 
 				LineaDeposito lineaDeposito = getItem(position);
 
-				int color = lineaDeposito.IsNew ? Color.BLUE : Color.BLACK;
+				int color = Objects.requireNonNull(lineaDeposito).IsNew ? Color.BLUE : Color.BLACK;
 
 				TextView itemTextView = (TextView) convertView.findViewById(R.id.itemCodigoArticulo);
 				itemTextView.setText(lineaDeposito.Articulo.CodigoArticulo);
@@ -689,13 +687,24 @@ public class DepositManager extends Fragment implements  IMediator {
 				else
 					itemImageView.setImageResource(R.drawable.stock_ko_png);
 
+				if (lineaDeposito.IsSelected)
+					convertView.setBackgroundColor(Color.GRAY);
+				else
+					convertView.setBackgroundColor(Color.TRANSPARENT);
+
 				return convertView;
 			}
 		};
 
 		_articlesListView.setOnItemClickListener((parent, view, position, id) -> {
+
+			for (LineaDeposito linea : _currentLines)
+				linea.IsSelected = false;
+
 			// Handle item click here
 			LineaDeposito lineaDeposito = (LineaDeposito) parent.getItemAtPosition(position);
+			lineaDeposito.IsSelected = true;
+			_adapter.notifyDataSetChanged();
 
 			if (_lastTextBox != null)
 				_lastTextBox.clearFocus();
@@ -719,12 +728,11 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		_articlesListView.setAdapter(_adapter);
 
+
 		_isRendered = true;
 	}
 	
 	private void createAutoComplete(AutoCompleteTextView autocomplete) {
-		
-		final DepositManager that = this;
 
 		autocomplete.addTextChangedListener(new DepositManagerTextWatcher());
 		ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_dropdown_item_1line, this._articles);
@@ -1206,7 +1214,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 				_lastTextBox = (TextBoxColor) view;
 				if (!hasFocus) {
-					int unidadesDevueltasValue = 0;
+					int unidadesDevueltasValue;
 
 					if (_lastTextBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
 						unidadesDevueltasValue = NumberUtils.toInt(_lastTextBox.getHint().toString(), 0);
@@ -1254,7 +1262,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				_lastTextBox = (TextBoxColor) view;
 				if (!hasFocus) {
 
-					int unidadesDefectuosasValue = 0;
+					int unidadesDefectuosasValue;
 
 					if (_lastTextBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
 						unidadesDefectuosasValue = NumberUtils.toInt(_lastTextBox.getHint().toString(), 0);
@@ -1836,6 +1844,10 @@ public class DepositManager extends Fragment implements  IMediator {
 		_abonoMode = false;
 		_appConfig.getWorkingArea().CurrentCliente = null;
 		_appConfig.getWorkingArea().CurrentDeposito = null;
+		this._articles.clear();
+		this._currentLines.clear();
+		this._originalLines.clear();
+		this._adapter.clear();
 		this.resetHeaders();
 	}
 	@Override

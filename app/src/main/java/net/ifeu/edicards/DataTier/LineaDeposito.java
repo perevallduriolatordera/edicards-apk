@@ -33,6 +33,7 @@ public class LineaDeposito extends Persistent implements IPersistable {
 	public double PVPAnterior;
 	public int UnidadesAnterior;
 	public boolean IsNew;
+	public boolean IsSelected;
 	public boolean IsVentaDirecta;
 	public double PVPInicial;
 	public int UnidadesAbono;
