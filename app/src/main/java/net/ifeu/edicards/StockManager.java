@@ -51,12 +51,7 @@ public class StockManager extends Fragment implements IMediator {
 	private HashMap<String, Articulo> _articulos;
 	private final int TEXT_SIZE_BUTTON = 12;
 	private final int BUTTONS_WIDTH = 150;
-
 	private boolean _isManagerPasswordMode;
-
-	private boolean _isRendered = false;
-	private LinearLayout _mainLayout;
-
 	private ListView _articlesListView;
 	ArrayAdapter<Articulo> _adapter;
 	List<Articulo> _listArticulos;
@@ -76,11 +71,8 @@ public class StockManager extends Fragment implements IMediator {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
-		if (!_isRendered)
 			return inflater.inflate(R.layout.activity_stock_manager, container,
 					false);
-		else
-			return _mainLayout;
 	}
 
 	@Override
@@ -88,9 +80,7 @@ public class StockManager extends Fragment implements IMediator {
 		super.onActivityCreated(savedInstanceState);
 
 		_articlesListView = (ListView) this.getActivity().findViewById(R.id.listViewArticles);
-
-		if (!_isRendered)
-			this.createSotckView(true);
+		this.createSotckView(true);
 
 	}
 
@@ -232,7 +222,6 @@ public class StockManager extends Fragment implements IMediator {
 
 			_articlesListView.setAdapter(_adapter);
 
-			_isRendered = true;
 			if (_articulos.size() == 0)
 				_appConfig
 						.getMessageBox()
@@ -240,9 +229,6 @@ public class StockManager extends Fragment implements IMediator {
 								"No se han encontrado artículos. Sincronice datos con el servidor",
 								_activity, MessageBoxType.Information);
 		}
-
-		_isRendered = true;
-		_mainLayout = (LinearLayout) this._activity.findViewById(R.id.mainLayoutStockManager);
 	}
 	
 	private void SendRecuento() {
@@ -537,7 +523,8 @@ public class StockManager extends Fragment implements IMediator {
 	public void notify(String event, Object payload) {
 
 		if (Objects.equals(event, ConstantsEvents.EVENT_STOCK_CHANGED)) {
-			_isRendered = false;
+			_articlesListView = (ListView) this.getActivity().findViewById(R.id.listViewArticles);
+			this.createSotckView(true);
 		}
 	}
 }

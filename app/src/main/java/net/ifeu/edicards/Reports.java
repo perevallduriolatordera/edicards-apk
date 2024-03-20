@@ -53,10 +53,6 @@ public class Reports extends Fragment {
 	private Calendar _calendar1;
 	private Calendar _calendar2;
 
-	private boolean _isRendered = false;
-	private LinearLayout _mainLayout;
-
-
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		_appConfig = (AppConfig) this.getActivity().getApplicationContext();
@@ -65,10 +61,7 @@ public class Reports extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 
-		if (!_isRendered)
-			return inflater.inflate(R.layout.activity_reports, container, false);
-		else
-			return _mainLayout;
+		return inflater.inflate(R.layout.activity_reports, container, false);
 	}
 
 	@Override
@@ -86,12 +79,10 @@ public class Reports extends Fragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		if (!_isRendered) {
-			_calendar1 = Calendar.getInstance();
-			_calendar2 = Calendar.getInstance();
+		_calendar1 = Calendar.getInstance();
+		_calendar2 = Calendar.getInstance();
 
-			FillButtonsHeader();
-		}
+		FillButtonsHeader();
 	}
 
 	private void CreateReportLayout() throws Exception {
@@ -997,9 +988,6 @@ public class Reports extends Fragment {
 		footerLinearLayout.removeAllViews();
 		footerLinearLayout.setOrientation(LinearLayout.VERTICAL);
 		footerLinearLayout.addView(layout);
-
-		_isRendered = true;
-		_mainLayout = (LinearLayout) getActivity().findViewById(R.id.reportsManagerLayout);
 	}
 
 	private void StartPotenciadosDialog() {

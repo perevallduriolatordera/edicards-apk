@@ -185,8 +185,6 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener, 
 			}
 		}
 
-
-
 		fragmentManager
 				.beginTransaction()
 				.replace(R.id.fragment_placeholder, fragment, tabId)

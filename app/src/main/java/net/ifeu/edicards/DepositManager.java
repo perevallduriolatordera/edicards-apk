@@ -161,14 +161,14 @@ public class DepositManager extends Fragment implements  IMediator {
 		// Formas de pago
 		
 		LabelColor labelPago = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"Forma de pago", TEXT_SIZE, 200, params);
+				"Forma de pago", TEXT_SIZE, 75, params);
 		
 		_comboPago = DepositManagerExtension.UI.addCombo(_appConfig, 350, params, _appConfig.getCache().getAllFormasPagoList(), _deposito.Cliente.FormaPago.Descripcion);
 		
 		// Filiacion
 		
 		LabelColor labelFiliacion = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"Filiación", TEXT_SIZE, 200, params);
+				"Filiación", TEXT_SIZE, 75, params);
 
 		
 		TipoIVA iva = Factory.build(TipoIVA.class, _appConfig);
@@ -186,13 +186,13 @@ public class DepositManager extends Fragment implements  IMediator {
 		// Series
 
 		LabelColor labelSeries = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				"Series", TEXT_SIZE, 90, params);
+				"Series", TEXT_SIZE, 75, params);
 		
 		List<String> series = new ArrayList<>();
 		series.add(_appConfig.getUser().SerialInvoiceA);
 		series.add(_appConfig.getUser().SerialInvoiceB);
 
-		_comboSerie = DepositManagerExtension.UI.addCombo(_appConfig, 150, params, series, _appConfig.getUser().SerialInvoiceA);
+		_comboSerie = DepositManagerExtension.UI.addCombo(_appConfig, 75, params, series, _appConfig.getUser().SerialInvoiceA);
 
 		// //Pagado
 
@@ -202,15 +202,15 @@ public class DepositManager extends Fragment implements  IMediator {
 		_checkPagado.setLayoutParams(params);
 		
 		LabelColor labelCantidadPagada = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				"Cantidad Pagada", TEXT_SIZE, 200, params);
+				"Cantidad Pagada", TEXT_SIZE, 150, params);
 		
 		_textBoxCantidadPagada = DepositManagerExtension.UI.addEdit(getActivity(), Color.GREEN, Gravity.LEFT, 
-				"0", TEXT_SIZE, 100, params, false);
+				"0", TEXT_SIZE, 75, params, false);
 
 		// descuento 1
 		
 		LabelColor labelDescuento1 = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"Dte. com.", TEXT_SIZE, 150, params);
+				"Dte. com.", TEXT_SIZE, 75, params);
 
 		DecimalFormat dec = new DecimalFormat("0.00");
 
@@ -253,8 +253,8 @@ public class DepositManager extends Fragment implements  IMediator {
 		// descuento 2
 		
 		LabelColor labelDescuento2 = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				"Dte. fin.", TEXT_SIZE, 150, params);
-		
+				"Dte. fin.", TEXT_SIZE, 75, params);
+
 		TextBoxColor descuento2 = DepositManagerExtension.UI.addEdit(getActivity(), Color.WHITE, Gravity.LEFT,
 				dec.format(_cliente.DescuentoFinanciero), TEXT_SIZE, 60, params, true);
 	
@@ -322,12 +322,12 @@ public class DepositManager extends Fragment implements  IMediator {
 		topLinearLayout3.removeAllViews();
 
 		DepositManagerExtension.UI.addViewsToLayout(topLinearLayout, labelPago, _comboPago, _checkPagado,
-		labelCantidadPagada, _textBoxCantidadPagada);
+		labelCantidadPagada, _textBoxCantidadPagada, labelSeries, _comboSerie);
 
 		DepositManagerExtension.UI.addViewsToLayout(topLinearLayout2, labelFiliacion, _comboFiliacion, labelCopias,
-				_comboCopias, labelSeries, _comboSerie);
+				_comboCopias, labelDescuento1, descuento1, labelDescuento2, descuento2);
 
-		DepositManagerExtension.UI.addViewsToLayout(topLinearLayout3, labelDescuento1, descuento1, labelDescuento2, descuento2);
+		//DepositManagerExtension.UI.addViewsToLayout(topLinearLayout3, );
 
 		this.addComboObservers();
 	}
@@ -649,7 +649,8 @@ public class DepositManager extends Fragment implements  IMediator {
 				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesIniciales));
 				itemTextView.setTextColor(color);
 
-				lineaDeposito.UnidadesDevueltas = lineaDeposito.UnidadesInicialesFijas;
+				if (lineaDeposito.UnidadesDevueltas == 0)
+					lineaDeposito.UnidadesDevueltas = lineaDeposito.UnidadesInicialesFijas;
 
 				itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesContadas);
 				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesDevueltas));
