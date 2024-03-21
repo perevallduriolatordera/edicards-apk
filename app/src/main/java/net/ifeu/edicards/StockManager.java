@@ -323,7 +323,7 @@ public class StockManager extends Fragment implements IMediator {
 	private void addHeader() {
 		
 		LinearLayout mainHeaderButtonsLinearLayout = (LinearLayout) _activity
-				.findViewById(R.id.headerButtonsLinearLayout);
+				.findViewById(R.id.headerStockButtonsLinearLayout);
 		
 		android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -500,12 +500,11 @@ public class StockManager extends Fragment implements IMediator {
 		TextView space = new TextView(_activity);
 		space.setWidth(30);
 		space.setLayoutParams(params);
-		
+
 		mainHeaderButtonsLinearLayout.addView(space);
 		mainHeaderButtonsLinearLayout.addView(recuento);
 		mainHeaderButtonsLinearLayout.addView(inicializar);
 		mainHeaderButtonsLinearLayout.addView(reciclado);
-
 	}
 
 	private void StartArticuloDialog(Articulo articulo) {
@@ -522,9 +521,9 @@ public class StockManager extends Fragment implements IMediator {
 	@Override
 	public void notify(String event, Object payload) {
 
-		if (Objects.equals(event, ConstantsEvents.EVENT_STOCK_CHANGED)) {
-			_articlesListView = (ListView) this.getActivity().findViewById(R.id.listViewArticles);
-			this.createSotckView(true);
-		}
+		//if (Objects.equals(event, ConstantsEvents.EVENT_STOCK_CHANGED)) {
+			//_articlesListView = (ListView) this.getActivity().findViewById(R.id.listViewArticles);
+			//this.createSotckView(true);
+		//}
 	}
 }

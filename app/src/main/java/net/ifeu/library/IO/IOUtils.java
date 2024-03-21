@@ -24,19 +24,7 @@ public class IOUtils {
 
 				if (listOfFile.isFile()) {
 					files = listOfFile.getName();
-					if (files.endsWith(".xml")
-							|| files.endsWith(".XML")
-							|| files.endsWith(".pdf")
-							|| files.endsWith(".PDF")
-							|| files.endsWith(".1")
-							|| files.endsWith(".2")
-							|| files.endsWith(".txt")
-							|| files.endsWith(".TXT")
-							|| files.endsWith(".JPG")
-							|| files.endsWith(".jpg"))
-					{
-						list.add(path + "/" + files);
-					}
+					list.add(path + "/" + files);
 				}
 			}
 

@@ -6,7 +6,7 @@
     android:background="@color/Edicards"> >
 
 	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-		android:id="@+id/headerButtonsLinearLayout"
+		android:id="@+id/headerStockButtonsLinearLayout"
 		android:layout_width="fill_parent"
 		android:layout_height="50px"
 		android:layout_marginTop="5dp"
