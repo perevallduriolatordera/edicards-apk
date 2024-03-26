@@ -857,7 +857,7 @@ public class ServiceWorker extends ServiceBase {
 
 		// Creamos excel de trazabilidad si es necesario
 
-		try {
+		/*try {
 			LogBook logBook = Factory.build(LogBook.class, app);
 
 			if (!logBook.hasLogBookCurrentWeek()) {
@@ -866,7 +866,7 @@ public class ServiceWorker extends ServiceBase {
 			}
 		} catch (Exception e) {
 			result = false;
-		}
+		}*/
 
 		this.Monitor().ParserMonitor = parser.Monitor();
 		return result;                                                                                                               

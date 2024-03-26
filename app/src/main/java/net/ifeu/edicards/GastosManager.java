@@ -1,10 +1,12 @@
 package net.ifeu.edicards;
 
+import android.annotation.SuppressLint;
 import android.app.ActionBar.LayoutParams;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
 import android.text.method.DigitsKeyListener;
@@ -18,19 +20,24 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Gasto;
 import net.ifeu.edicards.DataTier.GastosInfo;
+import net.ifeu.edicards.Excel.LogBookCreator;
 import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
+import net.ifeu.library.IO.IOUtils;
+import net.ifeu.library.LogBook.LogBook;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 public class GastosManager extends Fragment {
 
@@ -149,7 +156,8 @@ public class GastosManager extends Fragment {
 	    	  }
 	    	 };
 	    
-	    private void addLine(Articulo articulo) throws Exception
+	    @SuppressLint("SuspiciousIndentation")
+		private void addLine(Articulo articulo) throws Exception
 	    {
 	    	articulo.Activo = true; 
 	    	
@@ -266,6 +274,11 @@ public class GastosManager extends Fragment {
 								XmlCreator creator = new XmlCreator(_appConfig);
 								creator.createXmlGastos(_calendar.getTime());
 
+								// Creamos excel de trazabilidad si es necesario
+
+								if (!isLogBookCreated())
+									createLogBook();
+
 							} catch (Exception e) {
 								throw new RuntimeException(e);							}
 						}
@@ -292,5 +305,21 @@ public class GastosManager extends Fragment {
 	    	  }
 	    	  return calendar;
 	    }
+
+		private void createLogBook() {
+			LogBookCreator logBookCreator = new LogBookCreator(_appConfig);
+			try {
+				logBookCreator.createExcel30Days();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		private boolean isLogBookCreated() {
+			String directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+					+ ConstantsFolders.FOLDER_LOGBOOK;
+
+			return IOUtils.getFilesFromDirectory(directory).size() > 0;
+		}
 	    
 }
