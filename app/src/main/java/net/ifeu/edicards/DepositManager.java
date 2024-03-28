@@ -649,8 +649,8 @@ public class DepositManager extends Fragment implements  IMediator {
 				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesIniciales));
 				itemTextView.setTextColor(color);
 
-				if (lineaDeposito.UnidadesDevueltas == 0)
-					lineaDeposito.UnidadesDevueltas = lineaDeposito.UnidadesInicialesFijas;
+				//if (lineaDeposito.UnidadesDevueltas == 0)
+				//	lineaDeposito.UnidadesDevueltas = lineaDeposito.UnidadesInicialesFijas;
 
 				itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesContadas);
 				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesDevueltas));
@@ -705,26 +705,22 @@ public class DepositManager extends Fragment implements  IMediator {
 			// Handle item click here
 			LineaDeposito lineaDeposito = (LineaDeposito) parent.getItemAtPosition(position);
 			lineaDeposito.IsSelected = true;
-			_adapter.notifyDataSetChanged();
 
 			if (_lastTextBox != null)
 				_lastTextBox.clearFocus();
 
-			if (_abonoMode) {
-				try {
+			try {
+				if (_abonoMode)
 					addLineHeaderAbono(lineaDeposito);
-					refreshTotals();
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			} else {
-				try {
+				else
 					addLineHeader(lineaDeposito);
 
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
+				refreshTotals();
+
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
+			_adapter.notifyDataSetChanged();
 		});
 
 		_articlesListView.setAdapter(_adapter);
@@ -1809,7 +1805,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		_adapter.notifyDataSetChanged();
 
-		if (!_abonoMode) {
+		/*if (!_abonoMode) {
 
 			if (_headerLayout != null) {
 				((TextView) _headerLayout.getChildAt(3)).setText(String.valueOf(linea.UnidadesIniciales));
@@ -1819,7 +1815,7 @@ public class DepositManager extends Fragment implements  IMediator {
 			}
 		} else {
 			((LabelColor) _headerAbonoLayout.getChildAt(8)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(linea.TotalAbono)));
-		}
+		}*/
 	}
 	private void refreshTotals() throws Exception {
 		if (_deposito != null) {
@@ -1858,11 +1854,7 @@ public class DepositManager extends Fragment implements  IMediator {
 			case "EventCustomerSelected": {
 				try {
 					_appConfig.getWorkingArea().CurrentCliente = (Cliente) payload;
-					try {
-						this.CreateDepositView();
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
+					this.CreateDepositView();
 
 					this._dialogDepositoModalidad = new AdvancedMessageBox();
 					boolean resultDepositoModalidad = _dialogDepositoModalidad.Show("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", DepositManager.this.getContext(), MessageBoxType.Information);

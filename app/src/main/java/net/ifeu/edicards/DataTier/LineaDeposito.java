@@ -115,6 +115,7 @@ public class LineaDeposito extends Persistent implements IPersistable {
 						linea.UnidadesIniciales = Integer.parseInt(cursor.getString(cursor.getColumnIndex("UnidadesIniciales")));
 						linea.UnidadesRepuestas = linea.UnidadesIniciales;
 						linea.UnidadesInicialesFijas = linea.UnidadesIniciales;
+						linea.UnidadesDevueltas = linea.UnidadesInicialesFijas;
 						linea.UnidadesFacturadas = 0;
 						
 						linea.UnidadesAnterior = Integer.parseInt(cursor.getString(cursor.getColumnIndex("UnidadesIniciales")));
