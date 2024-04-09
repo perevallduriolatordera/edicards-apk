@@ -609,17 +609,12 @@ public class Reports extends Fragment {
 						try {
 							dto.Calculate();
 						} catch (Exception e1) {
-
-										_appConfig.getMessageBox().Show("Atención",
-									_appConfig.getStackTrace(e1),
-									getActivity(), MessageBoxType.Error);		
+							throw new RuntimeException(e1);
 						}
 						try {
 							dto.CalculateDeposito();
 						} catch (Exception e1) {
-										_appConfig.getMessageBox().Show("Atención",
-									_appConfig.getStackTrace(e1),
-									getActivity(), MessageBoxType.Error);		
+							throw new RuntimeException(e1);
 						}
 
 						that.GenerateAlbaran(dto, hist);

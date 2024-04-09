@@ -520,7 +520,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 	private void CreateDepositView() throws Exception {
 
-		if (this.RestriccionIngresos()) return;
+ 		if (this.RestriccionIngresos()) return;
 		this.prepareScreenRegions(true);
 
 		Cliente cliente = _appConfig.getWorkingArea().CurrentCliente;
@@ -974,10 +974,6 @@ public class DepositManager extends Fragment implements  IMediator {
 
 				SaveDeposito();
 
-				if (_deposito.isAlbaran() && _deposito.Pagado) {
-					DepositManagerExtension.Dialogs.StartSignatureVendorDialog(this);
-				}
-
 				// Generem el consentiment GDPR si és necessari
 
 				if (!_deposito.Cliente.hasGDPRSigned()) {
@@ -987,23 +983,23 @@ public class DepositManager extends Fragment implements  IMediator {
 						_deposito.Cliente.setGDPRSigned();
 					else
 						_appConfig.getMessageBox().Show("Cierre de operación",
-							"Se ha producido un error al generar el documento GDPR. Contacte con el servicio técnico",
-							this.getActivity(), MessageBoxType.Error);
+								"Se ha producido un error al generar el documento GDPR. Contacte con el servicio técnico",
+								this.getActivity(), MessageBoxType.Error);
 
 					DepositManagerExtension.Documents.GenerateAuthorization(GUID, _deposito, _appConfig);
 				}
-			}
 
-			if (_appConfig.getWorkingArea().CurrentHistorico.GUID == null) {
-				_appConfig.getMessageBox().Show("Cierre de operación",
-						"Se ha producido un error al cerrar la operación. Contacte con el servicio técnico",
-						this.getActivity(), MessageBoxType.Information);
-				return;
+				if (_deposito.isAlbaran() && _deposito.Pagado) {
+					DepositManagerExtension.Dialogs.StartSignatureVendorDialog(this);
+				} else {
+					_appConfig.getMediator().notify(ConstantsEvents.EVENT_CLOSE_OPERATION, GUID);
+				}
+
 			}
 		}
-		this.printDeposito(GUID);
-		closeOperation();
-		resetDepositData();
+		//this.printDeposito(GUID);
+		//closeOperation();
+		//resetDepositData();
 
 	}
 
@@ -1209,7 +1205,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			unidadesDevueltas.setOnFocusChangeListener((view, hasFocus) -> {
 
-				_lastTextBox = (TextBoxColor) view;
+ 				_lastTextBox = (TextBoxColor) view;
 				if (!hasFocus) {
 					int unidadesDevueltasValue;
 
@@ -1892,6 +1888,19 @@ public class DepositManager extends Fragment implements  IMediator {
 			case "EventCustomerCancelled": {
 				_appConfig.getMediator().notify(ConstantsEvents.EVENT_DEPOSIT_CLOSED, null);
 				break;
+			}
+
+			case "EventCloseOperation" : {
+
+				if (_appConfig.getWorkingArea().CurrentHistorico.GUID == null) {
+					_appConfig.getMessageBox().Show("Cierre de operación",
+							"Se ha producido un error al cerrar la operación. Contacte con el servicio técnico",
+							this.getActivity(), MessageBoxType.Information);
+					return;
+				}
+				this.printDeposito(payload.toString());
+				closeOperation();
+				resetDepositData();
 			}
 		}
 	}

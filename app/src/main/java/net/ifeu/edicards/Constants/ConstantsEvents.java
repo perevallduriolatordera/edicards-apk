@@ -8,4 +8,6 @@ public class ConstantsEvents {
 
     public static String EVENT_STOCK_CHANGED = "EventStockChanged;";
     public static String EVENT_DEPOSIT_CLOSED = "EventDepositChanged";
+
+    public static String EVENT_CLOSE_OPERATION = "EventCloseOperation";
 }

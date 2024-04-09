@@ -3,7 +3,7 @@
     package="net.ifeu.edicards"
     android:versionCode="4"
     android:exported="true"
-    android:versionName="4.4.1 (26 Marzo 2024)" >
+    android:versionName="4.4.2 (09 Abril 2024)" >
 
     <!--<uses-sdk
         android:minSdkVersion="16"
