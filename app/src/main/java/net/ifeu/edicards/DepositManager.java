@@ -370,7 +370,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		});
 	}
 
-	private void createHeaderButtons() {
+	private void createHeaderButtons(boolean onlyNewDeposit) {
 
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params.setMargins(5, 0, 5, 0);
@@ -502,7 +502,10 @@ public class DepositManager extends Fragment implements  IMediator {
 			_adapter.notifyDataSetChanged();
 		});
 
-		DepositManagerExtension.UI.addViewsToLayout(layout, datos, totales, albaran, nuevo, searchArticulos, buttonSearchArticulos);
+		if (!onlyNewDeposit)
+			DepositManagerExtension.UI.addViewsToLayout(layout, datos, totales, albaran, nuevo, searchArticulos, buttonSearchArticulos);
+		else
+			DepositManagerExtension.UI.addViewsToLayout(layout, nuevo);
 
 		LinearLayout footerLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerButtonsLinearLayout);
 		footerLinearLayout.removeAllViews();
@@ -621,7 +624,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		this.createHeaderLabels();
 		createHeaderControls();
-		this.createHeaderButtons();
+		this.createHeaderButtons(false);
 
 		_adapter = new ArrayAdapter<LineaDeposito>(_appConfig, R.layout.list_item_deposit_article, _currentLines) {
 			@NonNull
@@ -1840,7 +1843,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		this._articles.clear();
 		this._currentLines.clear();
 		this._originalLines.clear();
-		this._adapter.clear();
+		if (this._adapter != null) this._adapter.clear();
 		this.resetHeaders();
 	}
 	@Override
@@ -1887,6 +1890,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			case "EventCustomerCancelled": {
 				_appConfig.getMediator().notify(ConstantsEvents.EVENT_DEPOSIT_CLOSED, null);
+				this.createHeaderButtons(true);
 				break;
 			}
 

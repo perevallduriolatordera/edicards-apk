@@ -26,10 +26,7 @@ public class IngresoData extends Fragment {
 	AppConfig _appConfig;
 
 	public void onCreate(Bundle savedInstanceState) {
-
 		super.onCreate(savedInstanceState);
-
-		_appConfig = (AppConfig) getActivity().getApplicationContext();
 	}
 
 	@Override
@@ -68,6 +65,8 @@ public class IngresoData extends Fragment {
 		((EditText) getActivity().findViewById(R.id.lblObservaciones)).setText(ConstantsTypes.EMPTY_STRING);
 	}
 	public void OnSaveIngreso() throws Exception {
+
+		_appConfig = (AppConfig) getActivity().getApplicationContext();
 
 		String entidad = ((EditText) getActivity().findViewById(R.id.lblEntidad)).getText().toString();
 		String cantidad = ((EditText) getActivity().findViewById(R.id.lblCantidad)).getText().toString();
