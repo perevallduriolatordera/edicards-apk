@@ -428,6 +428,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params, getResources().getDrawable(R.drawable.ic_save));
 		
 		albaran.setOnClickListener(arg0 -> {
+			albaran.setEnabled(false);
 
 			try {
 
@@ -439,6 +440,7 @@ public class DepositManager extends Fragment implements  IMediator {
 							"No hay ningún depósito cargado",
 							getActivity(), MessageBoxType.Error);
 
+					albaran.setEnabled(true);
 					return;
 				}
 
@@ -448,6 +450,7 @@ public class DepositManager extends Fragment implements  IMediator {
 							"Tiene que tomar fotos del DNI del cliente nuevo. Tome las fotos desde la ventana 'Cliente' y vuelva a cerrar la operación",
 							this.getActivity(), MessageBoxType.Information);
 
+					albaran.setEnabled(true);
 					return;
 				}
 
@@ -455,12 +458,22 @@ public class DepositManager extends Fragment implements  IMediator {
 					boolean result = _appConfig.getMessageBox().ShowWithResult("Cierre de operación",
 							"El cliente NO está correctamente rellenado. Desea editarlo?", arg0.getContext(),
 							MessageBoxType.Information);
-					if (!result) return;
-					else DepositManagerExtension.Dialogs.StartCustomerDataDialog(that);
+					if (!result) {
+						albaran.setEnabled(true);
+						return;
+					} else {
+						DepositManagerExtension.Dialogs.StartCustomerDataDialog(that);
+						albaran.setEnabled(true);
+						return;
+					}
 				}
 
-				GenerateAlbaran();
+				GenerateOperation();
+				albaran.setEnabled(true);
 			} catch (Exception e) {
+				_appConfig.getMessageBox().Show("Advertencia",
+						"No se ha podido cerrar la operación debido a un error\n\n. Motivo: " + e.getMessage(),
+						this.getActivity(), MessageBoxType.Error);
 				throw new RuntimeException(e);
 			}
 		});
@@ -663,8 +676,8 @@ public class DepositManager extends Fragment implements  IMediator {
 				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesDefectuosas));
 				itemTextView.setTextColor(color);
 
-				lineaDeposito.PVPAbono = lineaDeposito.PVP;
-				lineaDeposito.PVPAnterior = lineaDeposito.PVP;
+				//lineaDeposito.PVPAbono = lineaDeposito.PVP;
+				//lineaDeposito.PVPAnterior = lineaDeposito.PVP;
 
 				itemTextView = (TextView) convertView.findViewById(R.id.itemPVP);
 				itemTextView.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP));
@@ -804,21 +817,9 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			DepositManagerExtension.Incidencias.createIncidenciaNuevoCliente(_appConfig, _deposito);
 		}
-
-		this.SaveHistorico();
-
-		XmlCreator creator = new XmlCreator(_appConfig);
-		creator.createXmlArticulos();
-
-		if (_deposito.isAlbaran())
-			creator.createXmlAlbaran(_deposito);
-
-		if (_deposito.isDeposito() || (!_deposito.isDeposito() && _deposito.isDepositoUpdated()))
-			creator.createXmlDeposito(_deposito);
-
 	}
 
-	private void GenerateAlbaran() throws Exception {
+	private void GenerateOperation() throws Exception {
 
 		String GUID = "";
 
@@ -976,6 +977,8 @@ public class DepositManager extends Fragment implements  IMediator {
 					return;
 
 				SaveDeposito();
+				SaveHistorico();
+				generateXML();
 
 				// Generem el consentiment GDPR si és necessari
 
@@ -1000,10 +1003,6 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			}
 		}
-		//this.printDeposito(GUID);
-		//closeOperation();
-		//resetDepositData();
-
 	}
 
 	private void SaveHistorico() {
@@ -1019,6 +1018,22 @@ public class DepositManager extends Fragment implements  IMediator {
 		}
 
 		_appConfig.getWorkingArea().CurrentHistorico.saveChangesToHistorico(_deposito);
+	}
+
+	private void generateXML() {
+
+		try {
+			XmlCreator creator = new XmlCreator(_appConfig);
+			creator.createXmlArticulos();
+
+			if (_deposito.isAlbaran())
+				creator.createXmlAlbaran(_deposito);
+
+			if (_deposito.isDeposito() || (!_deposito.isDeposito() && _deposito.isDepositoUpdated()))
+				creator.createXmlDeposito(_deposito);
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
 	}
 
 	private void printDeposito(String GUID) {
