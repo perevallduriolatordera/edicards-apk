@@ -46,21 +46,21 @@
     <content url="file://$MODULE_DIR$/../../../app/src/androidTestDebug" />
     <orderEntry type="jdk" jdkName="Android API 19 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/activation.jar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/additionnal.jar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/commons-logging-1.2.jar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/fluent-hc-4.5.6.jar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/httpclient-4.5.6.jar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/httpclient-cache-4.5.6.jar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/httpclient-win-4.5.6.jar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/httpcore-4.4.10.jar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/httpmime-4.5.6.jar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/itextpdf-5.4.0.jar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/ksoap2-android-assembly-2.3-jar-with-dependencies.jar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/mail.jar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/Parse-1.2.3.jar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/StarIOPort3.1.jar" level="project" />
-    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-app/edicards-apk/app/libs/woosimprinter_bt.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-apk/app/libs/activation.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-apk/app/libs/additionnal.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-apk/app/libs/commons-logging-1.2.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-apk/app/libs/fluent-hc-4.5.6.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-apk/app/libs/httpclient-4.5.6.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-apk/app/libs/httpclient-cache-4.5.6.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-apk/app/libs/httpclient-win-4.5.6.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-apk/app/libs/httpcore-4.4.10.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-apk/app/libs/httpmime-4.5.6.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-apk/app/libs/itextpdf-5.4.0.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-apk/app/libs/ksoap2-android-assembly-2.3-jar-with-dependencies.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-apk/app/libs/mail.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-apk/app/libs/Parse-1.2.3.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-apk/app/libs/StarIOPort3.1.jar" level="project" />
+    <orderEntry type="library" scope="TEST" name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-apk/app/libs/woosimprinter_bt.jar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: org.apache.commons:commons-csv:1.5" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.android.support:support-annotations:25.3.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.google.code.gson:gson:2.8.0" level="project" />

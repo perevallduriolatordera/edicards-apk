@@ -2,6 +2,7 @@ package net.ifeu.edicards;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -428,7 +429,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params, getResources().getDrawable(R.drawable.ic_save));
 		
 		albaran.setOnClickListener(arg0 -> {
-			albaran.setEnabled(false);
+			albaran.setVisibility(View.GONE);
 
 			try {
 
@@ -440,7 +441,7 @@ public class DepositManager extends Fragment implements  IMediator {
 							"No hay ningún depósito cargado",
 							getActivity(), MessageBoxType.Error);
 
-					albaran.setEnabled(true);
+					albaran.setVisibility(View.VISIBLE);
 					return;
 				}
 
@@ -450,7 +451,7 @@ public class DepositManager extends Fragment implements  IMediator {
 							"Tiene que tomar fotos del DNI del cliente nuevo. Tome las fotos desde la ventana 'Cliente' y vuelva a cerrar la operación",
 							this.getActivity(), MessageBoxType.Information);
 
-					albaran.setEnabled(true);
+					albaran.setVisibility(View.VISIBLE);
 					return;
 				}
 
@@ -459,17 +460,19 @@ public class DepositManager extends Fragment implements  IMediator {
 							"El cliente NO está correctamente rellenado. Desea editarlo?", arg0.getContext(),
 							MessageBoxType.Information);
 					if (!result) {
-						albaran.setEnabled(true);
+						albaran.setVisibility(View.VISIBLE);
 						return;
 					} else {
 						DepositManagerExtension.Dialogs.StartCustomerDataDialog(that);
-						albaran.setEnabled(true);
+						albaran.setVisibility(View.VISIBLE);
 						return;
 					}
 				}
 
-				GenerateOperation();
-				albaran.setEnabled(true);
+				if (!this.GenerateOperation()) {
+					albaran.setVisibility(View.VISIBLE);
+				};
+
 			} catch (Exception e) {
 				_appConfig.getMessageBox().Show("Advertencia",
 						"No se ha podido cerrar la operación debido a un error\n\n. Motivo: " + e.getMessage(),
@@ -677,7 +680,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				itemTextView.setTextColor(color);
 
 				//lineaDeposito.PVPAbono = lineaDeposito.PVP;
-				//lineaDeposito.PVPAnterior = lineaDeposito.PVP;
+				lineaDeposito.PVPAnterior = lineaDeposito.PVP;
 
 				itemTextView = (TextView) convertView.findViewById(R.id.itemPVP);
 				itemTextView.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP));
@@ -819,7 +822,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		}
 	}
 
-	private void GenerateOperation() throws Exception {
+	private boolean GenerateOperation() throws Exception {
 
 		String GUID = "";
 
@@ -841,7 +844,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			_textBoxCantidadPagada.requestFocus();
 
-			return;
+			return false;
 
 		} else if ((!_checkPagado.isChecked())) {
 			_deposito.CantidadPagada = 0;
@@ -851,7 +854,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				"Se va a proceder a cerrar la operación. Desea Continuar?", this.getActivity(),
 				MessageBoxType.Information);
 		if (!close)
-			return;
+			return false;
 
 		_deposito.Retirado = false;
 
@@ -947,7 +950,7 @@ public class DepositManager extends Fragment implements  IMediator {
 					"NO se ha modificado el depósito. Desea Continuar?", this.getActivity(),
 					MessageBoxType.Information);
 			if (!result)
-				return;
+				return false;
 		}
 
 		if (!_deposito.isAlbaran()) {
@@ -955,7 +958,7 @@ public class DepositManager extends Fragment implements  IMediator {
 					"La operación realizada NO generará factura. Desea Continuar?", this.getActivity(),
 					MessageBoxType.Information);
 			if (!result)
-				return;
+				return false;
 		}
 
 		if (_deposito.isDeposito() || _deposito.isAlbaran() || _deposito.isDepositoRetirado()) {
@@ -974,7 +977,7 @@ public class DepositManager extends Fragment implements  IMediator {
 						this.getActivity(), MessageBoxType.Information);
 
 				if (!result)
-					return;
+					return false;
 
 				SaveDeposito();
 				SaveHistorico();
@@ -1003,6 +1006,8 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			}
 		}
+
+		return true;
 	}
 
 	private void SaveHistorico() {

@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Gradle: C./treball/desenvolupament/clients/edicards/edicards-apk/app/libs/additionnal.jar">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/app/libs/additionnal.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
