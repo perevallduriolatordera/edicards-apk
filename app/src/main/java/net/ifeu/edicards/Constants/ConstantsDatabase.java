@@ -33,7 +33,7 @@ public class ConstantsDatabase {
     public static final String INDEX_LOGBOOK_FECHA  = "idx_LogBook_Fecha";
     public static String DATABASE_NAME = "Edicards.db";
 
-    public static String DATABASE_RESTOREPOINT_NAME = "Edicards_restore_point.db";
+    public static String DATABASE_RESTOREPOINT_NAME = "Edicards.db";
     public  static int DATABASE_VERSION = 2;
 
 
