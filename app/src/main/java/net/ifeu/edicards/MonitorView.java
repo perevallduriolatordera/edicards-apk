@@ -14,7 +14,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.Constants.ConstantsEvents;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.Excel.LogBookCreator;
@@ -31,6 +33,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class MonitorView extends Fragment {
@@ -125,40 +128,7 @@ public class MonitorView extends Fragment {
     	mainLinearLayout.setOrientation(LinearLayout.VERTICAL);
     	mainLinearLayout.setGravity(Gravity.CENTER);
 
-    	ButtonColor sync = new ButtonColor(getActivity(), Color.RED);
-
-    	sync.setText("Sincronización");
-		int TEXT_SIZE_BUTTON = 18;
-		sync.setTextSize(TEXT_SIZE_BUTTON);
-		int BUTTONS_WIDTH = 100;
-		sync.setWidth(BUTTONS_WIDTH);
-
-    	final MonitorView that = this;
-    	sync.setOnClickListener(arg0 -> {
-			that.executeSync("Se está ejecutando la sincronización");
-		});
-    	
-    	mainLinearLayout.addView(sync);
-
-		ButtonColor logBookReport = new ButtonColor(getActivity(), Color.RED);
-
-		logBookReport.setText("Enviar trazabilidad de stock");
-		logBookReport.setTextSize(TEXT_SIZE_BUTTON);
-		logBookReport.setWidth(BUTTONS_WIDTH);
-
-		logBookReport.setOnClickListener(view -> {
-
-			that.showWaiting("Generando reporte de trazabilidad de stock");
-			LogBookCreator logBookCreator = new LogBookCreator(_appConfig);
-			try {
-				logBookCreator.createExcel30Days();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-			that.executeSync("Enviar trazabilidad de stock");
-		});
-
-		mainLinearLayout.addView(logBookReport);
+    	this.createButtonsHeader();
 
 		LinearLayout layout = new LinearLayout(this.getActivity());
 		layout.setOrientation(LinearLayout.VERTICAL);
@@ -301,7 +271,110 @@ public class MonitorView extends Fragment {
 
 		mainLinearLayout.addView(layout);
     }
-    
+
+	private void createButtonsHeader() {
+
+		int TEXT_SIZE_BUTTON = 18;
+		int BUTTON_MARGIN = 50;
+		final MonitorView that = this;
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+		LinearLayout layout = (LinearLayout) this.getActivity().findViewById(R.id.buttonLinearLayout);
+
+		layout.removeAllViews();
+		layout.setOrientation(LinearLayout.HORIZONTAL);
+		layout.setGravity(Gravity.CENTER);
+
+		ButtonColor sync = new ButtonColor(getActivity(), Color.RED);
+
+		sync.setText("Sincronización");
+		params.setMargins(0, 0, BUTTON_MARGIN, 0);
+		sync.setLayoutParams(params);
+		sync.setTextSize(TEXT_SIZE_BUTTON);
+
+		sync.setOnClickListener(arg0 -> {
+			that.executeSync("Se está ejecutando la sincronización");
+		});
+
+		layout.addView(sync);
+
+		ButtonColor logBookReport = new ButtonColor(getActivity(), Color.RED);
+
+		logBookReport.setText("Enviar trazabilidad de stock");
+		logBookReport.setTextSize(TEXT_SIZE_BUTTON);
+		params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+		params.setMargins(0, 0, BUTTON_MARGIN, 0);
+		logBookReport.setLayoutParams(params);
+
+		logBookReport.setOnClickListener(view -> {
+
+			that.showWaiting("Generando reporte de trazabilidad de stock");
+			LogBookCreator logBookCreator = new LogBookCreator(_appConfig);
+			try {
+				logBookCreator.createExcel30Days();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+			that.executeSync("Enviar trazabilidad de stock");
+		});
+
+		layout.addView(logBookReport);
+
+		ButtonColor createBackup = new ButtonColor(getActivity(), Color.RED);
+
+		createBackup.setText("Crear copia de seguridad");
+		createBackup.setTextSize(TEXT_SIZE_BUTTON);
+		params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+		params.setMargins(0, 0, BUTTON_MARGIN, 0);
+		createBackup.setLayoutParams(params);
+
+		createBackup.setOnClickListener(view -> {
+
+			try {
+				_appConfig.getDatabaseOperations().backupDatabase(ConstantsDatabase.DATABASE_RESTOREPOINT_NAME);
+			} catch (IOException e) {
+				_appConfig.getMessageBox().Show("Creando backup de la base de datos", "Se ha producido un error generando la base de datos", getActivity(), MessageBoxType.Error);
+			}
+			_appConfig.getMessageBox().Show("Creando backup de la base de datos", "La base de datos se ha generado correctamente", getActivity(), MessageBoxType.Information);
+		});
+
+		layout.addView(createBackup);
+
+		ButtonColor restoreBackup = new ButtonColor(getActivity(), Color.RED);
+
+		restoreBackup.setText("Restaurar copia de seguridad");
+		restoreBackup.setTextSize(TEXT_SIZE_BUTTON);
+		params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+		params.setMargins(0, 0, BUTTON_MARGIN, 0);
+		restoreBackup.setLayoutParams(params);
+
+		restoreBackup.setOnClickListener(view -> {
+
+			String restorePassword;
+			do {
+				restorePassword = _appConfig.getMessageBox().InputBox("Restaurar base de datos",
+						"Introduzca la contraseña para restaurar la base de datos. Si la operación de realiza con éxito, la app será reiniciada.", getActivity());
+			} while (restorePassword.trim().equals(ConstantsTypes.EMPTY_STRING));
+
+			if (!restorePassword.equals(getPasswordForRestore())) {
+				_appConfig.getMessageBox().Show("Restaurando backup de la base de datos", "Se ha introducido una contraseña no correcte. Vuelva a intentarlo" ,getActivity(), MessageBoxType.Error);
+				return;
+			}
+
+			boolean result = _appConfig.getDatabaseOperations().restoreDatabase(ConstantsDatabase.DATABASE_RESTOREPOINT_NAME);
+			if (!result)
+				_appConfig.getMessageBox().Show("Restaurando backup de la base de datos", "Se ha producido un error restaurando la base de datos" ,getActivity(), MessageBoxType.Error);
+			else {
+				_appConfig.getMessageBox().Show("Restaurando backup de la base de datos", "La base de datos se ha restaurado correctamente.", getActivity(), MessageBoxType.Information);
+				System.exit(0);
+			}
+
+		});
+
+		layout.addView(restoreBackup);
+
+	}
+
     private LinearLayout createLabel(String text, String value, boolean compress) {
     	
 	 	LinearLayout layout = new LinearLayout(this.getActivity());
@@ -491,5 +564,12 @@ public class MonitorView extends Fragment {
 	private double roundTo2Decimals(double val) {
 		DecimalFormat df2 = new DecimalFormat("0.00");
 		return Double.parseDouble(df2.format(val).replace(",", "."));
+	}
+
+	private String getPasswordForRestore() {
+		Calendar calendar = Calendar.getInstance();
+		int dayOfYear = calendar.get(Calendar.DAY_OF_YEAR);
+		int currentYear = calendar.get(Calendar.YEAR);
+		return String.valueOf(dayOfYear) + currentYear;
 	}
 }

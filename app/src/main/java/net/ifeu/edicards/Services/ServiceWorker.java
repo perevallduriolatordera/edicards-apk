@@ -6,6 +6,7 @@ import android.os.Environment;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsCredentials;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.Constants.ConstantsEndpoints;
 import net.ifeu.edicards.Constants.ConstantsFTP;
 import net.ifeu.edicards.Constants.ConstantsFolders;
@@ -848,7 +849,7 @@ public class ServiceWorker extends ServiceBase {
 
 			app.getDatabaseOperations().closeDB();          
 			
-			app.getDatabaseOperations().backupDatabase();
+			app.getDatabaseOperations().backupDatabase(ConstantsDatabase.DATABASE_NAME);
 			app.getDatabaseOperations().openDB(context);                                                                                   
                                                                                                                                      
 		} catch (Exception e) {                                                                                                      

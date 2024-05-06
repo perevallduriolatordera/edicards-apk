@@ -36,7 +36,7 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener, 
 	public static final String TAB_INGRESOS = "ingresos";
 	public static final String TAB_INGRESOS_CAPTION = "Ingresos";
 	public static final String TAB_SINCRO = "sincro";
-	public static final String TAB_SINCRO_CAPTION = "Sincronización";
+	public static final String TAB_SINCRO_CAPTION = "Herramientas";
 
 	private View _root;
 	private TabHost _tabHost;

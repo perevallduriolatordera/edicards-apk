@@ -42,7 +42,7 @@ public class DatabaseOperations {
 		
 		if (!existsTable(ConstantsDatabase.TABLE_CLIENTES)) {
 			_databaseConnection.closeDB();
-			boolean resultRestore = this.restoreDatabase();
+			boolean resultRestore = this.restoreDatabase(ConstantsDatabase.DATABASE_NAME);
 			if (!resultRestore) {
 				_databaseConnection = new DatabaseConnection(_context,ConstantsDatabase.DATABASE_NAME,ConstantsDatabase.DATABASE_VERSION);
 				_databaseConnection.openDB();
@@ -120,9 +120,9 @@ public class DatabaseOperations {
 		}
 	}
 
-	public boolean restoreDatabase() {
+	public boolean restoreDatabase(String databaseName) {
 		String backupFileName = "/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_DB_BACKUP + "/" +
-				ConstantsDatabase.DATABASE_NAME;
+				databaseName;
 
 		FileInputStream inputStreamNewDB;
 		try {
@@ -146,7 +146,7 @@ public class DatabaseOperations {
 		return true;
 	}
 
-	public void backupDatabase() throws IOException {
+	public void backupDatabase(String databaseName) throws IOException {
 		final File dbFile = _context.getDatabasePath(ConstantsDatabase.DATABASE_NAME);
 	    
 	    FileInputStream fis = null;
@@ -157,7 +157,7 @@ public class DatabaseOperations {
 		}
 
 	    String outFileName = "/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_DB_BACKUP + "/" +
-				ConstantsDatabase.DATABASE_NAME;
+				databaseName;
 	    
 	    final File currentDb = new File(outFileName);
 	    currentDb.delete();
