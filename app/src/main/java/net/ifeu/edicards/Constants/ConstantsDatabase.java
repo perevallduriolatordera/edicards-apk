@@ -34,6 +34,8 @@ public class ConstantsDatabase {
     public static String DATABASE_NAME = "Edicards.db";
 
     public static String DATABASE_RESTOREPOINT_NAME = "Edicards.db";
+
+    public static String DATABASE_BACKUP_NAME = "Edicards_backup.db";
     public  static int DATABASE_VERSION = 2;
 
 

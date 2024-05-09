@@ -40,7 +40,8 @@ public class DatabaseOperations {
 		
 		// Creem l'estructura de base de dades en el cas de que sigui necessari.
 		
-		if (!existsTable(ConstantsDatabase.TABLE_CLIENTES)) {
+		//if (!existsTable(ConstantsDatabase.TABLE_CLIENTES)) {
+		if (false) {
 			_databaseConnection.closeDB();
 			boolean resultRestore = this.restoreDatabase(ConstantsDatabase.DATABASE_NAME);
 			if (!resultRestore) {

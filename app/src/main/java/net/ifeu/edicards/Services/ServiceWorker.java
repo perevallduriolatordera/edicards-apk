@@ -114,7 +114,6 @@ public class ServiceWorker extends ServiceBase {
         FTPUploader ftpUploader = new FTPUploader();
         ftpUploader.uploadFile(server, port, username, password, remoteDirectory, localFilePath);
 
-
         // * * * * * * * * * ENVIAMOS PDF * * * * * * * * * * * *
 
 		directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
@@ -849,8 +848,8 @@ public class ServiceWorker extends ServiceBase {
 
 			app.getDatabaseOperations().closeDB();          
 			
-			app.getDatabaseOperations().backupDatabase(ConstantsDatabase.DATABASE_NAME);
-			app.getDatabaseOperations().openDB(context);                                                                                   
+			app.getDatabaseOperations().backupDatabase(ConstantsDatabase.DATABASE_BACKUP_NAME);
+			app.getDatabaseOperations().openDB(context);
                                                                                                                                      
 		} catch (Exception e) {                                                                                                      
 			result = false;                                                                                                          
@@ -858,7 +857,7 @@ public class ServiceWorker extends ServiceBase {
 
 		// Creamos excel de trazabilidad si es necesario
 
-		/*try {
+		try {
 			LogBook logBook = Factory.build(LogBook.class, app);
 
 			if (!logBook.hasLogBookCurrentWeek()) {
@@ -867,7 +866,7 @@ public class ServiceWorker extends ServiceBase {
 			}
 		} catch (Exception e) {
 			result = false;
-		}*/
+		}
 
 		this.Monitor().ParserMonitor = parser.Monitor();
 		return result;                                                                                                               

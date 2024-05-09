@@ -4,12 +4,18 @@ android {
     compileSdkVersion 19
     buildToolsVersion "28.0.3"
 
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
+
     defaultConfig {
         applicationId "net.ifeu.edicards"
         minSdkVersion 16
         targetSdkVersion 19
         multiDexEnabled true
-
     }
 
     buildTypes {

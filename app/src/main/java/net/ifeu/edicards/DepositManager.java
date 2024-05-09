@@ -679,7 +679,10 @@ public class DepositManager extends Fragment implements  IMediator {
 				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesDefectuosas));
 				itemTextView.setTextColor(color);
 
-				//lineaDeposito.PVPAbono = lineaDeposito.PVP;
+
+				if (lineaDeposito.PVPAbono == 0)
+					lineaDeposito.PVPAbono = lineaDeposito.PVP;
+
 				lineaDeposito.PVPAnterior = lineaDeposito.PVP;
 
 				itemTextView = (TextView) convertView.findViewById(R.id.itemPVP);

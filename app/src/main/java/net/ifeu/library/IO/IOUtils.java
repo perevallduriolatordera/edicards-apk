@@ -20,6 +20,7 @@ public class IOUtils {
 		    File folder = new File(path);
 		    File[] listOfFiles = folder.listFiles();
 
+			if (listOfFiles == null)  return new ArrayList<>();
 			for (File listOfFile : listOfFiles) {
 
 				if (listOfFile.isFile()) {
@@ -27,8 +28,7 @@ public class IOUtils {
 					list.add(path + "/" + files);
 				}
 			}
-
-			  return list;
+			return list;
 	}
 	
 	public static String getFileContent(String file) throws IOException
