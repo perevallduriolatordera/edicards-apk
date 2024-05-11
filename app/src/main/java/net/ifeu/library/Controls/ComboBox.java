@@ -3,11 +3,14 @@ package net.ifeu.library.Controls;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+
+import net.ifeu.library.Utils.Screen.ScreenManager;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,32 +23,36 @@ public class ComboBox extends LinearLayout {
    private LabelColor _label;
    final private Map<String, IComboBoxChangeEvent> _observers = new HashMap<>();
    
-   public ComboBox(Context context, int width) {
+   public ComboBox(Context context) {
        super(context);
-       this.createChildControls(context,width);
+       this.createChildControls(context);
    }
 
-   public ComboBox(Context context, AttributeSet attrs, int width) {
+   public ComboBox(Context context, AttributeSet attrs) {
        super(context, attrs);
-       this.createChildControls(context,width);
+       this.createChildControls(context);
    }
    
    public void addObserver(String id, IComboBoxChangeEvent observer) {
 	   this._observers.put(id, observer);
    }
 
-   private void createChildControls(Context context, int width) {
+   private void createChildControls(Context context) {
 	   
 	   final ComboBox that = this;
        this.setOrientation(HORIZONTAL);
-       this.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
-                       LayoutParams.WRAP_CONTENT));
+       LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT,
+               LayoutParams.WRAP_CONTENT);
+
+       this.setLayoutParams(params);
 
        RelativeLayout relativeLayout = new RelativeLayout(context);
        
        _text = new AutoCompleteTextView(context);
+       WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+
+       _text.setWidth(ScreenManager.getScreenSizeByPercentage(windowManager, 0.2f).getWidth());
        _text.setFocusable(false);
-       _text.setWidth(width);
        _text.setSingleLine();
      /*  _text.setInputType(InputType.TYPE_CLASS_TEXT
                        | InputType.TYPE_TEXT_VARIATION_NORMAL

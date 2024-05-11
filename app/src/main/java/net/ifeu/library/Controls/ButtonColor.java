@@ -45,6 +45,4 @@ public class ButtonColor extends Button {
 		drawable.setBounds(0, 0, 30, 30);
 		this.setCompoundDrawables(drawable, null, null, null);
 	}
-
-
 }

@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 
 public class NewUser extends Activity {
@@ -31,8 +32,9 @@ public class NewUser extends Activity {
         
         android.view.WindowManager.LayoutParams params = getWindow().getAttributes(); 
         params.height = LayoutParams.FILL_PARENT;
-        params.width  = 500;
-        getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+		params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+
+		getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
       
     }
 

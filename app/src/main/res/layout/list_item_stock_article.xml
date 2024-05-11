@@ -6,7 +6,8 @@
 
     <TextView
         android:id="@+id/itemCodigoArticulo"
-        android:layout_width="wrap_content"
+        android:layout_weight="1"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textSize="22sp"
         android:textStyle="bold"
@@ -17,7 +18,8 @@
 
     <TextView
         android:id="@+id/itemDescripcionArticulo"
-        android:layout_width="wrap_content"
+        android:layout_weight="4"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textSize="22sp"
         android:textStyle="bold"
@@ -27,7 +29,8 @@
 
     <TextView
         android:id="@+id/itemUnidadesInicial"
-        android:layout_width="wrap_content"
+        android:layout_weight="1"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textSize="22sp"
         android:width="85dp"
@@ -36,7 +39,8 @@
 
     <TextView
         android:id="@+id/itemUnidadesInicialDefectuoso"
-        android:layout_width="wrap_content"
+        android:layout_weight="1"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textSize="22sp"
         android:width="100dp"
@@ -45,7 +49,8 @@
 
     <EditText
         android:id="@+id/itemUnidadesRecuento"
-        android:layout_width="wrap_content"
+        android:layout_weight="1"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textSize="22sp"
         android:width="150dp"
@@ -54,6 +59,7 @@
 
     <ImageView
         android:id="@+id/itemImage"
+        android:layout_weight="1"
         android:layout_width="32dp"
         android:layout_height="32dp">
     </ImageView>

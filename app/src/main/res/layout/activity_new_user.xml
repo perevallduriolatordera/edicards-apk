@@ -13,174 +13,193 @@
         android:layout_marginTop="10px"
         android:layout_marginBottom="10px"/>
 
-    <TextView
-        android:id="@+id/lblUser"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:textColor="#FFF"
-        android:text="Identificador del usuario" />
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/svcScroll"
+        android:clickable="true"
+        android:layout_weight="1"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
 
-    <EditText
-        android:id="@+id/txtUser"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:ems="10" >
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/mainLinearLayout"
+                android:layout_width="fill_parent"
+                android:layout_height="250dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:orientation="vertical" >
 
-        <requestFocus />
-    </EditText>
+                <TextView
+                    android:id="@+id/lblUser"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="150px"
+                    android:layout_marginRight="150px"
+                    android:textColor="#FFF"
+                    android:text="Identificador del usuario" />
 
-    <TextView
-        android:id="@+id/lblPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:textColor="#FFF"
-        android:text="Contraseña" />
+                <EditText
+                    android:id="@+id/txtUser"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="150px"
+                    android:layout_marginRight="150px"
+                    android:ems="10" >
 
-    <EditText
-        android:id="@+id/txtPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:ems="10"
-        android:inputType="textPassword" />
+                    <requestFocus />
+                </EditText>
 
-    <TextView
-        android:id="@+id/lblPasswordRepeat"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:textColor="#FFF"
-        android:text="Vuelva a escribir la contraseña" />
+                <TextView
+                    android:id="@+id/lblPassword"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="150px"
+                    android:layout_marginRight="150px"
+                    android:textColor="#FFF"
+                    android:text="Contraseña" />
 
-    <EditText
-        android:id="@+id/txtPasswordRepeat"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:ems="10"
-        android:inputType="textPassword" />
+                <EditText
+                    android:id="@+id/txtPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="150px"
+                    android:layout_marginRight="150px"
+                    android:ems="10"
+                    android:inputType="textPassword" />
 
-    <TextView
-        android:id="@+id/lblSerialInvoiceA"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:textColor="#FFF"
-        android:text="Código Série Factura A" />
+                <TextView
+                    android:id="@+id/lblPasswordRepeat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="150px"
+                    android:layout_marginRight="150px"
+                    android:textColor="#FFF"
+                    android:text="Vuelva a escribir la contraseña" />
 
-    <EditText
-        android:id="@+id/txtSerialInoviceA"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:ems="10" >
-    </EditText>
+                <EditText
+                    android:id="@+id/txtPasswordRepeat"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="150px"
+                    android:layout_marginRight="150px"
+                    android:ems="10"
+                    android:inputType="textPassword" />
 
-    <TextView
-        android:id="@+id/lblSerialInoviceB"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:textColor="#FFF"
-        android:text="Código Série Factura B" />
+                <TextView
+                    android:id="@+id/lblSerialInvoiceA"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="150px"
+                    android:layout_marginRight="150px"
+                    android:textColor="#FFF"
+                    android:text="Código Série Factura A" />
 
-    <EditText
-        android:id="@+id/txtSerialInoviceB"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:ems="10" >
-    </EditText>
+                <EditText
+                    android:id="@+id/txtSerialInoviceA"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="150px"
+                    android:layout_marginRight="150px"
+                    android:ems="10" >
+                </EditText>
 
-    <TextView
-        android:id="@+id/lblCompany"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:textColor="#FFF"
-        android:text="Código de Empresa" />
+                <TextView
+                    android:id="@+id/lblSerialInoviceB"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="150px"
+                    android:layout_marginRight="150px"
+                    android:textColor="#FFF"
+                    android:text="Código Série Factura B" />
 
-    <EditText
-        android:id="@+id/txtCompany"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:ems="10" >
-    </EditText>
+                <EditText
+                    android:id="@+id/txtSerialInoviceB"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="150px"
+                    android:layout_marginRight="150px"
+                    android:ems="10" >
+                </EditText>
 
-    <TextView
-        android:id="@+id/lblName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:textColor="#FFF"
-        android:text="Nombre del vendedor" />
+                <TextView
+                    android:id="@+id/lblCompany"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="150px"
+                    android:layout_marginRight="150px"
+                    android:textColor="#FFF"
+                    android:text="Código de Empresa" />
 
-    <EditText
-        android:id="@+id/txtName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:ems="10" >
-    </EditText>
+                <EditText
+                    android:id="@+id/txtCompany"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="150px"
+                    android:layout_marginRight="150px"
+                    android:ems="10" >
+                </EditText>
 
-    <TextView
-        android:id="@+id/lblSerieA"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:textColor="#FFF"
-        android:text="Inicialización Serie A" />
+                <TextView
+                    android:id="@+id/lblName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="150px"
+                    android:layout_marginRight="150px"
+                    android:textColor="#FFF"
+                    android:text="Nombre del vendedor" />
 
-    <EditText
-        android:id="@+id/txtSerieA"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:ems="10" >
-    </EditText>
+                <EditText
+                    android:id="@+id/txtName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="150px"
+                    android:layout_marginRight="150px"
+                    android:ems="10" >
+                </EditText>
 
-     <TextView
-        android:id="@+id/lblSerieB"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:textColor="#FFF"
-        android:text="Inicialización Serie B" />
+                <TextView
+                    android:id="@+id/lblSerieA"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="150px"
+                    android:layout_marginRight="150px"
+                    android:textColor="#FFF"
+                    android:text="Inicialización Serie A" />
 
-    <EditText
-        android:id="@+id/txtSerieB"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:ems="10" >
-    </EditText>
+                <EditText
+                    android:id="@+id/txtSerieA"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="150px"
+                    android:layout_marginRight="150px"
+                    android:ems="10" >
+                </EditText>
+
+                 <TextView
+                    android:id="@+id/lblSerieB"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                     android:layout_marginLeft="150px"
+                     android:layout_marginRight="150px"
+                    android:textColor="#FFF"
+                    android:text="Inicialización Serie B" />
+
+                <EditText
+                    android:id="@+id/txtSerieB"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="150px"
+                    android:layout_marginRight="150px"
+                    android:ems="10" >
+                </EditText>
+
+        </LinearLayout>
+    </ScrollView>
 
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="right"
         android:layout_marginTop="5px"
         android:orientation="horizontal" >

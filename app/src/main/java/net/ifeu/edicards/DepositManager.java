@@ -160,20 +160,21 @@ public class DepositManager extends Fragment implements  IMediator {
 		params.setMargins(0, 5, 0, 0);
 
 		// Formas de pago
-		
+
+		params.weight = 1;
 		LabelColor labelPago = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"Forma de pago", TEXT_SIZE, 75, params);
+				"Forma de pago", TEXT_SIZE,  params);
 		
-		_comboPago = DepositManagerExtension.UI.addCombo(_appConfig, 350, params, _appConfig.getCache().getAllFormasPagoList(), _deposito.Cliente.FormaPago.Descripcion);
+		_comboPago = DepositManagerExtension.UI.addCombo(_appConfig, params, _appConfig.getCache().getAllFormasPagoList(), _deposito.Cliente.FormaPago.Descripcion);
 		
 		// Filiacion
 		
 		LabelColor labelFiliacion = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"Filiación", TEXT_SIZE, 75, params);
+				"Filiación", TEXT_SIZE, params);
 
 		
 		TipoIVA iva = Factory.build(TipoIVA.class, _appConfig);
-		_comboFiliacion = DepositManagerExtension.UI.addCombo(_appConfig, 350, params, iva.getFiliaciones(), iva.getFiliacionByCode(_deposito.Cliente.Filiacion));
+		_comboFiliacion = DepositManagerExtension.UI.addCombo(_appConfig, params, iva.getFiliaciones(), iva.getFiliacionByCode(_deposito.Cliente.Filiacion));
 
 		// //Copias
 		
@@ -182,7 +183,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		List<String> copias = new ArrayList<>();
 		for (int i=1; i < 6; i++) copias.add(String.valueOf(i));
 		
-		_comboCopias = DepositManagerExtension.UI.addCombo(_appConfig, 75, params, copias, "1");
+		_comboCopias = DepositManagerExtension.UI.addCombo(_appConfig, params, copias, "1");
 		
 		// Series
 
@@ -193,7 +194,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		series.add(_appConfig.getUser().SerialInvoiceA);
 		series.add(_appConfig.getUser().SerialInvoiceB);
 
-		_comboSerie = DepositManagerExtension.UI.addCombo(_appConfig, 75, params, series, _appConfig.getUser().SerialInvoiceA);
+		_comboSerie = DepositManagerExtension.UI.addCombo(_appConfig, params, series, _appConfig.getUser().SerialInvoiceA);
 
 		// //Pagado
 
@@ -445,7 +446,9 @@ public class DepositManager extends Fragment implements  IMediator {
 					return;
 				}
 
-				if(_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE) &&
+				//PVT : Versió MIREIA
+
+				/*if(_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE) &&
 						!DepositManagerExtension.DataTier.isCustomerAttachedFilled(_appConfig)) {
 					_appConfig.getMessageBox().Show("Advertencia",
 							"Tiene que tomar fotos del DNI del cliente nuevo. Tome las fotos desde la ventana 'Cliente' y vuelva a cerrar la operación",
@@ -453,7 +456,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 					albaran.setVisibility(View.VISIBLE);
 					return;
-				}
+				}*/
 
 				if (!DepositManagerExtension.DataTier.IsCustomerDataFilled(that._deposito)) {
 					boolean result = _appConfig.getMessageBox().ShowWithResult("Cierre de operación",

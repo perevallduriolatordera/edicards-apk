@@ -8,6 +8,7 @@ import net.ifeu.edicards.Application.WorkingArea;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Factories.Factory;
+import net.ifeu.library.Utils.Screen.ScreenManager;
 
 import android.app.ListActivity;
 import android.os.Bundle;
@@ -26,15 +27,15 @@ public class CustomerSearchListDialog extends ListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		_appConfig = (AppConfig) this.getApplicationContext();
+
 		setContentView(R.layout.activity_customer_search_list_dialog);
 
 		android.view.WindowManager.LayoutParams params = getWindow().getAttributes();
-		params.width = 850;
+		ScreenManager.ScreenSize screenSize= ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.75f);
+		params.width = screenSize.getWidth();
+		params.height= screenSize.getHeight();
 		getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
-
-		// Inicialitzem l'objecte AppConfig
-
-		_appConfig = (AppConfig) this.getApplicationContext();
 
 		// Obtenim les dades passades des de l'activitat
 

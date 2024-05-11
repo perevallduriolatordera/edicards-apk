@@ -312,11 +312,14 @@ public class DepositManagerExtension {
 			Incidencia incidencia = new Incidencia(appConfig.getUser().User, new Date(), IncidenciaType.ClienteNuevo,
 					text);
 
-			incidencia.Attachments.put("ANVERSO",
-					appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerFrontDocument);
+			//PVT : Versió MIREIA
+			if (false) {
+				incidencia.Attachments.put("ANVERSO",
+						appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerFrontDocument);
 
-			incidencia.Attachments.put("REVERSO",
-					appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerBackDocument);
+				incidencia.Attachments.put("REVERSO",
+						appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerBackDocument);
+			}
 
 			try {
 				incidencia.create(new IncidentPdfCreator(appConfig));
@@ -358,6 +361,19 @@ public class DepositManagerExtension {
 			label.setWidth(width);
 			label.setLayoutParams(params);
 			
+			return label;
+		}
+
+		public static LabelColor addLabel(Context context, int color, int gravity, int input, String text, int size,
+			LayoutParams params) {
+
+			LabelColor label = new LabelColor(context, color, gravity);
+			label.setRawInputType(input);
+			label.setText(text);
+			label.setTextSize(size);
+
+			label.setLayoutParams(params);
+
 			return label;
 		}
 		
@@ -516,8 +532,8 @@ public class DepositManagerExtension {
 			return label;
 		}
 		
-		public static ComboBox addCombo(Context context, int width, LayoutParams params, List<String> items, String text) {
-			ComboBox combo = new ComboBox(context, width);
+		public static ComboBox addCombo(Context context, LayoutParams params, List<String> items, String text) {
+			ComboBox combo = new ComboBox(context);
 			combo.setLayoutParams(params);
 
 			combo.setSuggestionArray(items);
