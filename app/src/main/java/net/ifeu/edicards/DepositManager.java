@@ -2,7 +2,6 @@ package net.ifeu.edicards;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -49,6 +48,7 @@ import net.ifeu.library.LogBook.LogBook;
 import net.ifeu.library.Mediator.IMediator;
 import net.ifeu.library.Utils.MessageBox.AdvancedMessageBox;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
+import net.ifeu.library.Utils.Screen.ScreenManager;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
@@ -391,7 +391,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		int TEXT_SIZE_BUTTON = 12;
 		int BUTTONS_WIDTH = 150;
 		ButtonColor datos = DepositManagerExtension.UI.addButton(getActivity(), Color.BLUE, "Cliente",
-				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params, getResources().getDrawable(R.drawable.ic_customer_data));
+				TEXT_SIZE_BUTTON, ScreenManager.getViewWidthByLength(_appConfig, 20, TEXT_SIZE_BUTTON, Gravity.LEFT), params, getResources().getDrawable(R.drawable.ic_customer_data));
 		
 		final DepositManager that = this;
 		datos.setOnClickListener(arg0 -> {
@@ -410,7 +410,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		// Botón Totales
 
 		ButtonColor totales = DepositManagerExtension.UI.addButton(getActivity(), Color.WHITE, "Resumen",
-				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params, getResources().getDrawable(R.drawable.ic_totals));
+				TEXT_SIZE_BUTTON, ScreenManager.getViewWidthByLength(_appConfig, 20, TEXT_SIZE_BUTTON, Gravity.LEFT), params, getResources().getDrawable(R.drawable.ic_totals));
 
 		totales.setOnClickListener(arg0 -> {
 
@@ -427,8 +427,8 @@ public class DepositManager extends Fragment implements  IMediator {
 		// Botón Albarán
 		
 		ButtonColor albaran = DepositManagerExtension.UI.addButton(getActivity(), Color.RED, "Cerrar operación",
-				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params, getResources().getDrawable(R.drawable.ic_save));
-		
+				TEXT_SIZE_BUTTON, ScreenManager.getViewWidthByLength(_appConfig, 20, TEXT_SIZE_BUTTON, Gravity.LEFT), params, getResources().getDrawable(R.drawable.ic_save));
+
 		albaran.setOnClickListener(arg0 -> {
 			albaran.setVisibility(View.GONE);
 
@@ -486,7 +486,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		// Botón Nuevo
 		ButtonColor nuevo = DepositManagerExtension.UI.addButton(getActivity(), Color.MAGENTA, "Nuevo depósito",
-				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params, getResources().getDrawable(R.drawable.ic_new));
+				TEXT_SIZE_BUTTON, ScreenManager.getViewWidthByLength(_appConfig, 20, TEXT_SIZE_BUTTON, Gravity.LEFT), params, getResources().getDrawable(R.drawable.ic_new));
 
 		nuevo.setTag("NUEVO");
 		nuevo.setOnClickListener(arg0 -> {
@@ -505,7 +505,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		// Autocompletado para articulos
 
 		AutoCompleteTextView searchArticulos = new AutoCompleteTextView(getContext());
-		searchArticulos.setWidth(300);
+		searchArticulos.setWidth(ScreenManager.getViewWidthByLength(_appConfig, 30, TEXT_SIZE, Gravity.LEFT));
 		searchArticulos.setTextColor(getResources().getColor(R.color.Black));
 		searchArticulos.setHint("nombre del artículo");
 		searchArticulos.setThreshold(1);
@@ -513,7 +513,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		this.createAutoComplete(searchArticulos);
 
 		ButtonColor buttonSearchArticulos = DepositManagerExtension.UI.addButton(getActivity(), Color.RED, "",
-				TEXT_SIZE_BUTTON, BUTTONS_WIDTH, params, getResources().getDrawable(R.drawable.ic_view_all));
+				TEXT_SIZE_BUTTON, ScreenManager.getViewWidthByLength(_appConfig, 20, TEXT_SIZE_BUTTON, Gravity.LEFT), params, getResources().getDrawable(R.drawable.ic_view_all));
 
 		buttonSearchArticulos.setOnClickListener( v-> {
 			_currentLines.clear();
@@ -1226,10 +1226,9 @@ public class DepositManager extends Fragment implements  IMediator {
 			unidadesInicialesFijas.setTag(lineaDeposito);
 
 			TextBoxColor unidadesDevueltas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
-					String.valueOf(lineaDeposito.UnidadesDevueltas), TEXT_SIZE, 100, params, true, lineaDeposito)
+					String.valueOf(lineaDeposito.UnidadesDevueltas), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER ), params, true, lineaDeposito)
 					: (TextBoxColor) _headerLayout.getChildAt(3);
 			unidadesDevueltas.setText(String.valueOf(lineaDeposito.UnidadesDevueltas));
-			unidadesDevueltas.setWidth(100);
 			unidadesDevueltas.setTag(lineaDeposito);
 
 			unidadesDevueltas.setOnFocusChangeListener((view, hasFocus) -> {
@@ -1270,10 +1269,9 @@ public class DepositManager extends Fragment implements  IMediator {
 			});
 
 			TextBoxColor unidadesDefectuosas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
-					String.valueOf(lineaDeposito.UnidadesDefectuosas), TEXT_SIZE, 100, params, true, lineaDeposito)
+					String.valueOf(lineaDeposito.UnidadesDefectuosas), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
 					: (TextBoxColor) _headerLayout.getChildAt(4);
 			unidadesDefectuosas.setText(String.valueOf(lineaDeposito.UnidadesDefectuosas));
-			unidadesDefectuosas.setWidth(100);
 			unidadesDefectuosas.setTag(lineaDeposito);
 
 			unidadesDefectuosas.setEnabled(false);
@@ -1322,10 +1320,9 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			TextBoxColor pvp = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT,
 					DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP),
-					TEXT_SIZE, 100, params, true, lineaDeposito)
+					TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
 					: (TextBoxColor) _headerLayout.getChildAt(5);
 			pvp.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP));
-			pvp.setWidth(100);
 			pvp.setTag(lineaDeposito);
 
 			pvp.setOnFocusChangeListener((view, hasFocus) -> {
@@ -1356,10 +1353,9 @@ public class DepositManager extends Fragment implements  IMediator {
 			});
 
 			TextBoxColor unidadesFacturadas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.rgb(0, 128, 0), Gravity.LEFT,
-					String.valueOf(lineaDeposito.UnidadesFacturadas), TEXT_SIZE, 100, params, true, lineaDeposito)
+					String.valueOf(lineaDeposito.UnidadesFacturadas), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
 					: (TextBoxColor) _headerLayout.getChildAt(6);
 			unidadesFacturadas.setText(String.valueOf(lineaDeposito.UnidadesFacturadas));
-			unidadesFacturadas.setWidth(100);
 			unidadesFacturadas.setTag(lineaDeposito);
 
 			unidadesFacturadas.setOnFocusChangeListener((view, hasFocus) -> {
@@ -1412,10 +1408,9 @@ public class DepositManager extends Fragment implements  IMediator {
 			});
 
 			TextBoxColor unidadesRepuestas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT,
-					String.valueOf(lineaDeposito.UnidadesRepuestas), TEXT_SIZE, 100, params, true, lineaDeposito)
+					String.valueOf(lineaDeposito.UnidadesRepuestas), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
 					: (TextBoxColor) _headerLayout.getChildAt(7);
 			unidadesRepuestas.setText(String.valueOf(lineaDeposito.UnidadesRepuestas));
-			unidadesRepuestas.setWidth(100);
 			unidadesRepuestas.setTag(lineaDeposito);
 
 			unidadesRepuestas.setOnFocusChangeListener((view, hasFocus) -> {
@@ -1447,10 +1442,9 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			TextBoxColor pvpAnterior = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT,
 					DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAnterior),
-					TEXT_SIZE, 100, params, true, lineaDeposito)
+					TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
 					: (TextBoxColor) _headerLayout.getChildAt(8);
 			pvpAnterior.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAnterior));
-			pvpAnterior.setWidth(100);
 			pvpAnterior.setTag(lineaDeposito);
 
 			pvpAnterior.setOnFocusChangeListener((view, hasFocus) -> {
@@ -1482,7 +1476,7 @@ public class DepositManager extends Fragment implements  IMediator {
 			double total = (lineaDeposito.UnidadesFacturadas * lineaDeposito.PVP);
 
 			LabelColor totalLinea = createHeaderLayout ? DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-					String.valueOf(DepositManagerExtension.Format.round(total, 2)), TEXT_SIZE, 50, params, true, lineaDeposito)
+					String.valueOf(DepositManagerExtension.Format.round(total, 2)), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 13, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
 					: (LabelColor) _headerLayout.getChildAt(9);
 
 			totalLinea.setText(String.valueOf(DepositManagerExtension.Format.round(total, 2)));
@@ -1494,7 +1488,7 @@ public class DepositManager extends Fragment implements  IMediator {
 			buttonParams.setMargins(10,10,10,10);
 
 			ButtonColor modoAbono = createHeaderLayout ? DepositManagerExtension.UI.addButton(getActivity(), Color.GREEN, "ABONO",
-					10, 70, buttonParams, lineaDeposito)
+					10, ScreenManager.getViewWidthByLength(_appConfig, 10, TEXT_SIZE, Gravity.LEFT), buttonParams, lineaDeposito)
 					: (ButtonColor) _headerLayout.getChildAt(10);
 
 			modoAbono.setTag(lineaDeposito);
@@ -1562,11 +1556,11 @@ public class DepositManager extends Fragment implements  IMediator {
 		articuloDescripcion.setOnClickListener(v -> DepositManagerExtension.Dialogs.StartArticuloDialog((Articulo) v.getTag(), that));
 
 		LabelColor labelCantidadAbono = createHeaderLayout ?  DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"Cantidad", TEXT_SIZE, 100, params, true)
+				"Cantidad", TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true)
 				: (LabelColor) _headerAbonoLayout.getChildAt(2);
 
 		TextBoxColor unidadesAbono =  createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
-				String.valueOf(lineaDeposito.UnidadesAbono), TEXT_SIZE, 100, params, true, lineaDeposito)
+				String.valueOf(lineaDeposito.UnidadesAbono), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true, lineaDeposito)
 				: (TextBoxColor) _headerAbonoLayout.getChildAt(3);
 		unidadesAbono.setText(String.valueOf(lineaDeposito.UnidadesAbono));
 		unidadesAbono.setTag(lineaDeposito);
@@ -1615,12 +1609,12 @@ public class DepositManager extends Fragment implements  IMediator {
 		});
 
 		LabelColor labelDefectuosasAbono =  createHeaderLayout ? DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"Defect.", TEXT_SIZE, 100, params, true)
+				"Defect.", TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true)
 				: (LabelColor) _headerAbonoLayout.getChildAt(4);
 
 		
 		TextBoxColor defectuosasAbono = createHeaderLayout ?  DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
-				String.valueOf(lineaDeposito.DefectuosasAbono), TEXT_SIZE, 100, params, true, lineaDeposito)
+				String.valueOf(lineaDeposito.DefectuosasAbono), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true, lineaDeposito)
 				: (TextBoxColor) _headerAbonoLayout.getChildAt(5);
 		defectuosasAbono.setText(String.valueOf(lineaDeposito.DefectuosasAbono));
 		defectuosasAbono.setTag(lineaDeposito);
@@ -1670,11 +1664,11 @@ public class DepositManager extends Fragment implements  IMediator {
 		});
 		
 		LabelColor labelPVPAbono = createHeaderLayout ?  DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"PVP", TEXT_SIZE, 100, params, true)
+				"PVP", TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true)
 				: (LabelColor) _headerAbonoLayout.getChildAt(6);
 		
 		TextBoxColor pvpAbono =  createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
-				DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAbono), TEXT_SIZE, 100, params, true, lineaDeposito)
+				DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAbono), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true, lineaDeposito)
 				:(TextBoxColor) _headerAbonoLayout.getChildAt(7);
 		pvpAbono.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAbono));
 		pvpAbono.setTag(lineaDeposito);
@@ -1707,7 +1701,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		double totalAbonoImporte = lineaDeposito.TotalAbono;
 		
 		LabelColor totalAbono =  createHeaderLayout ?  DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.RIGHT, InputType.TYPE_CLASS_NUMBER,
-				DepositManagerExtension.Format.CurrencyFormat(totalAbonoImporte), TEXT_SIZE, 100, params, true)
+				DepositManagerExtension.Format.CurrencyFormat(totalAbonoImporte), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true)
 				: (LabelColor) _headerAbonoLayout.getChildAt(8);
 		totalAbono.setText(DepositManagerExtension.Format.CurrencyFormat(totalAbonoImporte));
 		totalAbono.setTag(lineaDeposito);
@@ -1717,7 +1711,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		LayoutParams buttonParams = new LayoutParams(params);
 		buttonParams.setMargins(10,10,10,10);
 		ButtonColor modoVenta = createHeaderLayout ?  DepositManagerExtension.UI.addButton(getActivity(), Color.GREEN, "VENTA",
-				10, 70, buttonParams, lineaDeposito)
+				10, ScreenManager.getViewWidthByLength(_appConfig, 10, TEXT_SIZE, Gravity.LEFT), buttonParams, lineaDeposito)
 				: (ButtonColor) _headerAbonoLayout.getChildAt(9);
 
 		modoVenta.setTag(lineaDeposito);

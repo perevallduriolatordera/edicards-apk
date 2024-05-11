@@ -7,7 +7,8 @@
 
     <EditText
         android:id="@+id/txtTextSearch"
-        android:layout_width="600px"
+        android:layout_width="fill_parent"
+        android:layout_weight="1"
         android:layout_height="wrap_content"
         android:layout_marginLeft="50px"
         android:layout_marginRight="50px"
@@ -42,9 +43,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginRight="15dp"
-            android:text="Nombre" />
 
+            android:text="Nombre" />
         <RadioButton
             android:id="@+id/optNIF"
             android:layout_width="0dp"

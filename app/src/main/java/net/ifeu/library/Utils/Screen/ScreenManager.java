@@ -1,8 +1,12 @@
 package net.ifeu.library.Utils.Screen;
 
+import android.content.Context;
 import android.util.DisplayMetrics;
 import android.view.Display;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 
 public class ScreenManager {
 
@@ -37,6 +41,24 @@ public class ScreenManager {
         int targetHeight = (int) (screenHeight * percentage);
 
         return new ScreenSize(targetWidth, targetHeight);
+    }
+
+    public static int getViewWidthByLength(Context context, int length, int textSize, int gravity) {
+        String mask="";
+        for (int i=0; i < length; i++) mask = mask.concat("A");
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+
+        EditText editText = new EditText(context);
+        editText.setLayoutParams(params);
+        editText.setText(mask);
+        editText.setTextSize(textSize);
+        editText.setGravity(gravity);
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        int wSpec = View.MeasureSpec.makeMeasureSpec(displayMetrics.widthPixels, View.MeasureSpec.AT_MOST);
+        int hSpec = View.MeasureSpec.makeMeasureSpec(displayMetrics.heightPixels, View.MeasureSpec.AT_MOST);
+        editText.measure(wSpec, hSpec);
+        return Math.max(editText.getMeasuredWidth(), editText.getMeasuredHeight());
     }
 }
 
