@@ -86,8 +86,6 @@
         <Button
             android:id="@+id/btnAccept"
             android:layout_width="150px"
-            android:layout_height="40px"
-            android:layout_marginBottom="20dp"
             android:layout_marginLeft="25px"
             android:layout_marginRight="25px"
             android:layout_marginTop="20dp"
@@ -98,8 +96,6 @@
         <Button
             android:id="@+id/btnNewCustomer"
             android:layout_width="150px"
-            android:layout_height="40px"
-            android:layout_marginBottom="20dp"
             android:layout_marginLeft="25px"
             android:layout_marginRight="25px"
             android:layout_marginTop="20dp"
@@ -110,8 +106,6 @@
         <Button
             android:id="@+id/btnClose"
             android:layout_width="150px"
-            android:layout_height="40px"
-            android:layout_marginBottom="20dp"
             android:layout_marginLeft="25px"
             android:layout_marginRight="25px"
             android:layout_marginTop="20dp"

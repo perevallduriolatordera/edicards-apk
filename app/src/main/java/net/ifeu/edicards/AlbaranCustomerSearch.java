@@ -10,12 +10,18 @@ import android.widget.EditText;
 import android.widget.RadioGroup;
 
 import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.Constants.ConstantsEvents;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Factories.Factory;
+import net.ifeu.edicards.DataTier.NTV.DepositoNTVDTO;
+import net.ifeu.edicards.DataTier.NTV.support.ExcelNTVParser;
 import net.ifeu.library.Controls.ButtonColor;
+import net.ifeu.library.IO.IOUtils;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
+
+import java.io.File;
 
 public class AlbaranCustomerSearch extends Activity {
 
@@ -87,7 +93,27 @@ public class AlbaranCustomerSearch extends Activity {
 			} catch (Exception e) {
 				throw new RuntimeException(e);			}
 		});
-				
+
+		final ButtonColor ntvImportButton = (ButtonColor) findViewById(
+                R.id.btnNTVImport);
+		ntvImportButton.changeAspect(this, R.color.Black, getResources().getDrawable(R.drawable.contract));
+
+		ntvImportButton.setOnClickListener(v-> {
+
+			String file = IOUtils.getMostRecentlyModifiedFile(
+					new File("/sdcard/" + ConstantsFolders.FOLDER_NTV_IMPORT));
+			DepositoNTVDTO depositoNTVDTO =  ExcelNTVParser.parseExcelFile(file));
+
+			if (depositoNTVDTO == null)
+				_appConfig.getMessageBox().Show("Atención",
+						"No se han encontrado ningún depósito de NTV a importar",
+						this, MessageBoxType.Error);
+			else {
+				depositoNTVDTO.File = file;
+				finish();
+				_appConfig.getMediator().notify(ConstantsEvents.EVENT_NTV_IMPORT_STARTED, depositoNTVDTO);
+			}
+		});
 
 		final ButtonColor closeButton = (ButtonColor) findViewById(
 				R.id.btnClose);

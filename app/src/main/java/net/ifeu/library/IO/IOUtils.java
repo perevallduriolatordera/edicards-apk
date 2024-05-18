@@ -9,6 +9,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 public class IOUtils {
@@ -77,5 +79,28 @@ public class IOUtils {
 		} catch (IOException e) {
 			return false;
 		}
+	}
+
+	public static String getMostRecentlyModifiedFile(File directory) {
+		if (directory == null || !directory.isDirectory()) {
+			return ConstantsTypes.EMPTY_STRING;
+		}
+
+		// Get all files in the directory
+		File[] files = directory.listFiles();
+
+		if (files == null || files.length == 0) {
+			return ConstantsTypes.EMPTY_STRING;		}
+
+		// Sort files by last modified date in descending order (most recent first)
+		Arrays.sort(files, new Comparator<File>() {
+			@Override
+			public int compare(File file1, File file2) {
+				return Long.compare(file2.lastModified(), file1.lastModified());
+			}
+		});
+
+		// Return the most recently modified file
+		return files[0].getAbsolutePath();
 	}
 }

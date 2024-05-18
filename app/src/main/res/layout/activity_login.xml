@@ -11,7 +11,7 @@
         android:layout_marginRight="50px"
         android:textColor="#FFF"
         android:text="Identificador del usuario" />
-  
+
     <EditText
         android:id="@+id/txtUser"
         android:layout_width="match_parent"

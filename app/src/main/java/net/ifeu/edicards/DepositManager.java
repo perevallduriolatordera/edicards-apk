@@ -24,6 +24,7 @@ import com.itextpdf.text.DocumentException;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsEvents;
+import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Cliente;
@@ -34,6 +35,8 @@ import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.LineaDeposito;
+import net.ifeu.edicards.DataTier.NTV.DepositoNTVDTO;
+import net.ifeu.edicards.DataTier.NTV.support.ExcelNTVParser;
 import net.ifeu.edicards.DataTier.TipoIVA;
 import net.ifeu.edicards.DataTier.TransactionMetadata;
 import net.ifeu.edicards.DataTier.TransferMode;
@@ -44,6 +47,7 @@ import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.ComboBox;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
+import net.ifeu.library.IO.IOUtils;
 import net.ifeu.library.LogBook.LogBook;
 import net.ifeu.library.Mediator.IMediator;
 import net.ifeu.library.Utils.MessageBox.AdvancedMessageBox;
@@ -52,6 +56,7 @@ import net.ifeu.library.Utils.Screen.ScreenManager;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -206,7 +211,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		LabelColor labelCantidadPagada = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				"Cantidad Pagada", TEXT_SIZE, 150, params);
 		
-		_textBoxCantidadPagada = DepositManagerExtension.UI.addEdit(getActivity(), Color.GREEN, Gravity.LEFT, 
+		_textBoxCantidadPagada = DepositManagerExtension.UI.addEdit(getActivity(), Color.GREEN, Gravity.LEFT,
 				"0", TEXT_SIZE, 75, params, false);
 
 		// descuento 1
@@ -389,7 +394,6 @@ public class DepositManager extends Fragment implements  IMediator {
 		// Botón Datos
 
 		int TEXT_SIZE_BUTTON = 12;
-		int BUTTONS_WIDTH = 150;
 		ButtonColor datos = DepositManagerExtension.UI.addButton(getActivity(), Color.BLUE, "Cliente",
 				TEXT_SIZE_BUTTON, ScreenManager.getViewWidthByLength(_appConfig, 20, TEXT_SIZE_BUTTON, Gravity.LEFT), params, getResources().getDrawable(R.drawable.ic_customer_data));
 		
@@ -474,7 +478,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 				if (!this.GenerateOperation()) {
 					albaran.setVisibility(View.VISIBLE);
-				};
+				}
 
 			} catch (Exception e) {
 				_appConfig.getMessageBox().Show("Advertencia",
@@ -501,6 +505,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				throw new RuntimeException(e);
 			}
 		});
+
 
 		// Autocompletado para articulos
 
@@ -540,7 +545,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		this.showButtonBar(visible);
 	}
 
-	private void CreateDepositView() throws Exception {
+	private void CreateDepositView(boolean searchExistentDeposit, DepositoNTVDTO depositoNTVDTO) throws Exception {
 
  		if (this.RestriccionIngresos()) return;
 		this.prepareScreenRegions(true);
@@ -565,63 +570,70 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			try {
 
-				ArrayList<Deposito> depositos = deposito
-						.getDepositosByCodigoCliente(String.valueOf(cliente.CodigoCliente));
+				if (searchExistentDeposit) {
+					ArrayList<Deposito> depositos = deposito
+							.getDepositosByCodigoCliente(String.valueOf(cliente.CodigoCliente));
 
-				if (_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
+					if (_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
 
-					if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
-						_appConfig.getMessageBox().Show("Información", "Se va a proceder a crear un cliente nuevo.",
-								this.getActivity(), MessageBoxType.Information);
+						if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
+							_appConfig.getMessageBox().Show("Información", "Se va a proceder a crear un cliente nuevo.",
+									this.getActivity(), MessageBoxType.Information);
 
-						_deposito = Factory.build(Deposito.class, _appConfig);
-						_deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
-						_deposito.assingFromCliente(_cliente);
-						_deposito.Lineas.clear();
-						this.addPotentialArticles();
+							_deposito = Factory.build(Deposito.class, _appConfig);
+							_deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
+							_deposito.assingFromCliente(_cliente);
+							_deposito.Lineas.clear();
+							this.addPotentialArticles();
 
-					} else {
-						_appConfig.getMessageBox().Show("Advertencia",
-								"No se puede hacer un traspaso de un cliente nuevo. La operación va a ser cancelada",
-								this.getActivity(), MessageBoxType.Information);
+						} else {
+							_appConfig.getMessageBox().Show("Advertencia",
+									"No se puede hacer un traspaso de un cliente nuevo. La operación va a ser cancelada",
+									this.getActivity(), MessageBoxType.Information);
 
-						_appConfig.getWorkingArea().TransferMode = TransferMode.None;
+							_appConfig.getWorkingArea().TransferMode = TransferMode.None;
 
-						return;
-					}
-				}
-
-				if (depositos.size() == 0 && !_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
-
-					if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
-
-						_deposito = Factory.build(Deposito.class, _appConfig);
-						_deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
-						_deposito.assingFromCliente(_cliente);
-
-						this.addPotentialArticles();
-
-						_appConfig.getMessageBox().Show("Información",
-								"El cliente " + cliente.Nombre
-										+ " no tiene ningún depósito. Se va a proceder a crear uno de nuevo",
-								this.getActivity(), MessageBoxType.Information);
-					} else {
-						_appConfig.getMessageBox().Show("Advertencia",
-								"No se puede hacer un traspaso de un cliente sin depósito asignado. La operación va a ser cancelada",
-								this.getActivity(), MessageBoxType.Information);
-
-						_appConfig.getWorkingArea().TransferMode = TransferMode.None;
-
-						return;
+							return;
+						}
 					}
 
-				} else if (depositos.size() > 0 && !_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
-					_deposito = Factory.build(Deposito.class, _appConfig);
-					_deposito.setFirstDepositoByCliente(cliente.CodigoCliente);
-					_deposito.assingFromCliente(_cliente);
-					this.addPotentialArticles();
-				}
+					if (depositos.size() == 0 && !_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
 
+						if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
+
+							_deposito = Factory.build(Deposito.class, _appConfig);
+							_deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
+							_deposito.assingFromCliente(_cliente);
+
+							this.addPotentialArticles();
+
+							_appConfig.getMessageBox().Show("Información",
+									"El cliente " + cliente.Nombre
+											+ " no tiene ningún depósito. Se va a proceder a crear uno de nuevo",
+									this.getActivity(), MessageBoxType.Information);
+						} else {
+							_appConfig.getMessageBox().Show("Advertencia",
+									"No se puede hacer un traspaso de un cliente sin depósito asignado. La operación va a ser cancelada",
+									this.getActivity(), MessageBoxType.Information);
+
+							_appConfig.getWorkingArea().TransferMode = TransferMode.None;
+
+							return;
+						}
+
+					} else if (depositos.size() > 0 && !_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
+						_deposito = Factory.build(Deposito.class, _appConfig);
+						_deposito.setFirstDepositoByCliente(cliente.CodigoCliente);
+						_deposito.assingFromCliente(_cliente);
+						this.addPotentialArticles();
+					}
+				} else {
+					try {
+						this.addNTVArticles(depositoNTVDTO);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				}
 				_deposito.Serie = _appConfig.getUser().SerialInvoiceA;
 				_appConfig.getWorkingArea().CurrentDeposito = _deposito;
 				_appConfig.getWorkingArea().CurrentDeposito.DatosFiscalesUpdated = false;
@@ -635,7 +647,7 @@ public class DepositManager extends Fragment implements  IMediator {
 			throw new RuntimeException(e);
 		}
 
-		_currentLines.addAll(getSortedLineasDeposito());
+		_currentLines.addAll(getSortedLineasDeposito(!searchExistentDeposit));
 		_originalLines.addAll(_currentLines);
 
 		for (LineaDeposito lineaDeposito : _originalLines)
@@ -658,18 +670,22 @@ public class DepositManager extends Fragment implements  IMediator {
 				LineaDeposito lineaDeposito = getItem(position);
 
 				int color = Objects.requireNonNull(lineaDeposito).IsNew ? Color.BLUE : Color.BLACK;
+				color = Objects.requireNonNull(lineaDeposito).IsNtvLine ? Color.MAGENTA : color;
 
 				TextView itemTextView = (TextView) convertView.findViewById(R.id.itemCodigoArticulo);
 				itemTextView.setText(lineaDeposito.Articulo.CodigoArticulo);
 				itemTextView.setTextColor(color);
+				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 8));
 
 				itemTextView = (TextView) convertView.findViewById(R.id.itemDescripcionArticulo);
 				itemTextView.setText(lineaDeposito.Articulo.Descripcion);
 				itemTextView.setTextColor(color);
+				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 15));
 
 				itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesInicial);
 				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesIniciales));
 				itemTextView.setTextColor(color);
+				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 13));
 
 				//if (lineaDeposito.UnidadesDevueltas == 0)
 				//	lineaDeposito.UnidadesDevueltas = lineaDeposito.UnidadesInicialesFijas;
@@ -677,11 +693,12 @@ public class DepositManager extends Fragment implements  IMediator {
 				itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesContadas);
 				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesDevueltas));
 				itemTextView.setTextColor(color);
+				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 11));
 
 				itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesRecicladas);
 				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesDefectuosas));
 				itemTextView.setTextColor(color);
-
+				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 11));
 
 				if (lineaDeposito.PVPAbono == 0)
 					lineaDeposito.PVPAbono = lineaDeposito.PVP;
@@ -691,18 +708,22 @@ public class DepositManager extends Fragment implements  IMediator {
 				itemTextView = (TextView) convertView.findViewById(R.id.itemPVP);
 				itemTextView.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP));
 				itemTextView.setTextColor(color);
+				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 11));
 
 				itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesFacturadas);
 				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesFacturadas));
 				itemTextView.setTextColor(color);
+				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 11));
 
 				itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesRepuestas);
 				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesRepuestas));
 				itemTextView.setTextColor(color);
+				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 11));
 
 				itemTextView = (TextView) convertView.findViewById(R.id.itemPVPPost);
 				itemTextView.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAnterior));
 				itemTextView.setTextColor(color);
+				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 18));
 
 				ImageView itemImageView = (ImageView) convertView.findViewById(R.id.itemImage);
 				if (lineaDeposito.TotalAbono < 0)
@@ -806,6 +827,39 @@ public class DepositManager extends Fragment implements  IMediator {
 				throw new RuntimeException(e);
 			}
 	}
+
+	private void addNTVArticles(DepositoNTVDTO ntvDepositoDTO) throws Exception {
+		// Buscamos los artículos que no están asociados al depósito
+
+		LinkedHashMap<String, Articulo> articulos = _appConfig.getCache().getAllArticulos();
+
+		for (Articulo articuloInCatalgo : articulos.values())
+			try {
+
+				boolean isNtv = ntvDepositoDTO.Lineas.containsKey(articuloInCatalgo.CodigoArticulo);
+
+				LineaDeposito linea = Factory.build(LineaDeposito.class, _appConfig);
+				linea.Articulo = articuloInCatalgo;
+				linea.Deposito = _deposito;
+				linea.StockInicial = 0;
+				linea.UnidadesIniciales = 0;
+				linea.UnidadesInicialesFijas = linea.UnidadesIniciales;
+
+				linea.PVP = isNtv ? ntvDepositoDTO.Lineas.get(articuloInCatalgo.CodigoArticulo).precio : linea.getPVP(_cliente, articuloInCatalgo);
+				//linea.PVPAnterior = linea.getPVP(_cliente, articuloInCatalgo);
+				linea.UnidadesFacturadas = isNtv ? ntvDepositoDTO.Lineas.get(articuloInCatalgo.CodigoArticulo).cantidad : 0;
+				linea.PVPAnterior = linea.PVP;
+				linea.PVPInicial = linea.PVPAnterior;
+				linea.Descuento1 = isNtv ? ntvDepositoDTO.Lineas.get(articuloInCatalgo.CodigoArticulo).dto1 : 0;
+				linea.IsNew = true;
+				linea.IsNtvLine = isNtv;
+
+				_deposito.Lineas.put(String.valueOf(linea.Articulo.CodigoArticulo), linea);
+
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+	}
 	
 	private void SaveDeposito() throws Exception {
 
@@ -830,7 +884,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 	private boolean GenerateOperation() throws Exception {
 
-		String GUID = "";
+		String GUID;
 
 		double cantidadPagada;
 		String cantidadPagadaText = _textBoxCantidadPagada.getText().toString();
@@ -1157,6 +1211,10 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			_appConfig.getMessageBox().Show("Cierre de operación", "La operación se ha cerrado correctamente.",
 					this.getActivity(), MessageBoxType.Information);
+
+			if (_deposito.IsNtvDeposit) {
+				IOUtils.deleteFilesFromDirectory("/sdcard/" + ConstantsFolders.FOLDER_NTV_IMPORT);
+			}
 
 			if (_appConfig.getWorkingArea().TransferMode.equals(TransferMode.New))
 				_appConfig.getWorkingArea().TransferMode = TransferMode.None;
@@ -1873,7 +1931,7 @@ public class DepositManager extends Fragment implements  IMediator {
 			case "EventCustomerSelected": {
 				try {
 					_appConfig.getWorkingArea().CurrentCliente = (Cliente) payload;
-					this.CreateDepositView();
+					this.CreateDepositView(true, null);
 
 					this._dialogDepositoModalidad = new AdvancedMessageBox();
 					boolean resultDepositoModalidad = _dialogDepositoModalidad.Show("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", DepositManager.this.getContext(), MessageBoxType.Information);
@@ -1891,7 +1949,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 				try {
 					_appConfig.getWorkingArea().CurrentCliente = (Cliente) payload;
-					this.CreateDepositView();
+					this.CreateDepositView(true, null);
 
 					this._dialogDepositoModalidad = new AdvancedMessageBox();
 					boolean resultDepositoModalidad = _dialogDepositoModalidad.Show("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", DepositManager.this.getContext(), MessageBoxType.Information);
@@ -1925,6 +1983,51 @@ public class DepositManager extends Fragment implements  IMediator {
 				this.printDeposito(payload.toString());
 				closeOperation();
 				resetDepositData();
+
+				break;
+			}
+
+			case "EventNtvImportStarted": {
+				DepositoNTVDTO depositoNTVDTO = (DepositoNTVDTO) payload;
+
+				_cliente = Factory.build(Cliente.class, _appConfig);
+				boolean exists;
+				try {
+					exists = _cliente.setClienteByCodigo(depositoNTVDTO.IdCliente);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+
+				if (!exists) {
+					_appConfig.getMessageBox().Show("Atención",
+							"No se han encontrado el cliente especificado " + depositoNTVDTO.IdCliente,
+							_appConfig, MessageBoxType.Error);
+					return;
+				}
+
+				_appConfig.getWorkingArea().CurrentCliente = _cliente;
+
+				try {
+					_deposito = Factory.build(Deposito.class, _appConfig);
+					_deposito.assingFromCliente(_cliente);
+					_deposito.IsNtvDeposit = true;
+					this.CreateDepositView(false,depositoNTVDTO);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+
+				this._dialogDepositoModalidad = new AdvancedMessageBox();
+				boolean resultDepositoModalidad = _dialogDepositoModalidad.Show("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", DepositManager.this.getContext(), MessageBoxType.Information);
+				this._appConfig.getWorkingArea().CurrentDepositoModalidad = resultDepositoModalidad ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
+				TextView labelTipoEntrega = (TextView) getActivity().findViewById(R.id.lblTipoEntrega);
+				labelTipoEntrega.setText(_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
+				try {
+					this.refreshTotals();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+
+				break;
 			}
 		}
 	}
@@ -1947,16 +2050,24 @@ public class DepositManager extends Fragment implements  IMediator {
 		return false;
 	}
 
-	private List<LineaDeposito> getSortedLineasDeposito() {
+	private List<LineaDeposito> getSortedLineasDeposito(boolean isNtvImport) {
 
 		List<LineaDeposito> lines = new ArrayList<>();
 		List<LineaDeposito> potentialLines = new ArrayList<>();
 
 		for (LineaDeposito linea : _deposito.Lineas.values()) {
-			if (linea.IsNew)
-				potentialLines.add(linea);
-			else
-				lines.add(linea);
+
+			if (!isNtvImport) {
+				if (linea.IsNew)
+					potentialLines.add(linea);
+				else
+					lines.add(linea);
+			} else {
+				if (linea.IsNtvLine)
+					lines.add(linea);
+				else
+					potentialLines.add(linea);
+			}
 		}
 
 		Collections.sort(lines, new LineaDeposito().new ArticuloComparator());

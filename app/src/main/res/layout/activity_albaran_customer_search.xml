@@ -82,28 +82,38 @@
         <net.ifeu.library.Controls.ButtonColor
             android:id="@+id/btnAccept"
             android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_height="30dp"
             android:layout_marginRight="50px"
+            android:paddingLeft="5px"
             android:text="Buscar"
             android:textColor="#FFF"
             android:background="@drawable/background_button" />
         <net.ifeu.library.Controls.ButtonColor
             android:id="@+id/btnNewCustomer"
             android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_height="30dp"
             android:layout_marginRight="50px"
+            android:paddingLeft="5px"
             android:background="@drawable/background_button"
             android:text="Nuevo cliente"
+            android:textColor="#FFF" />
+
+        <net.ifeu.library.Controls.ButtonColor
+            android:id="@+id/btnNTVImport"
+            android:layout_width="150dp"
+            android:layout_height="30dp"
+            android:layout_marginRight="50px"
+            android:paddingLeft="5px"
+            android:background="@drawable/contract"
+            android:text="Importación NTV"
             android:textColor="#FFF" />
         
         <net.ifeu.library.Controls.ButtonColor
             android:id="@+id/btnClose"
             android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_height="30dp"
             android:layout_marginRight="50px"
+            android:paddingLeft="5px"
             android:background="@drawable/background_button"
             android:text="Cerrar"
             android:textColor="#FFF" />

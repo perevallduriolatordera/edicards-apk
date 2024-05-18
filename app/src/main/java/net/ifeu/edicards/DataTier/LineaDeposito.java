@@ -40,6 +40,7 @@ public class LineaDeposito extends Persistent implements IPersistable {
 	public int DefectuosasAbono;
 	public double PVPAbono;
 	public double TotalAbono;
+	public boolean IsNtvLine;
 
 	@Override
 	public void InitializePersistance(AppConfig appConfigParam) {

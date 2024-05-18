@@ -14,6 +14,7 @@ import net.ifeu.edicards.DataTier.IncidenciaType;
 import net.ifeu.edicards.Pdf.incident.IncidentPdfCreator;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
+import net.ifeu.library.Utils.Screen.ScreenManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +48,10 @@ public class CustomerData extends Activity {
 		android.view.WindowManager.LayoutParams params = getWindow()
 				.getAttributes();
 		params.height = android.app.ActionBar.LayoutParams.WRAP_CONTENT;
-		params.width = 1200;
+		ScreenManager.ScreenSize screenSize= ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.90f);
+		params.width = 	screenSize.getWidth();
+		params.height = screenSize.getHeight();
+
 		getWindow().setAttributes(
 				(android.view.WindowManager.LayoutParams) params);
 

@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.TextView;
 
 import com.itextpdf.text.DocumentException;
 
@@ -619,5 +620,22 @@ public class DepositManagerExtension {
 				layout.addView(view);
 			}
 		}
+
+		public static int getWidthOfEditText(Context context, int size, int width) {
+
+			String mask = "";
+			for (int i = 0; i < width; i++) mask = mask.concat("A");
+
+			TextView textView = new TextView(context);
+			textView.setTextSize(size);
+			textView.setText(mask);
+
+			DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+			int wSpec = View.MeasureSpec.makeMeasureSpec(displayMetrics.widthPixels, View.MeasureSpec.AT_MOST);
+			int hSpec = View.MeasureSpec.makeMeasureSpec(displayMetrics.heightPixels, View.MeasureSpec.AT_MOST);
+			textView.measure(wSpec, hSpec);
+			return Math.max(textView.getMeasuredWidth(), textView.getMeasuredHeight());
+		}
+
 	}
 }

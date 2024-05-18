@@ -41,6 +41,7 @@ public class Deposito extends Cliente implements IPersistable {
 	public boolean DatosFiscalesUpdated;
 	public String MotivoRetirado = ConstantsTypes.EMPTY_STRING;
 	public boolean CCCUpdated;
+	public boolean IsNtvDeposit;
 
 	@Override
 	public void InitializePersistance(AppConfig appConfigParam) {
