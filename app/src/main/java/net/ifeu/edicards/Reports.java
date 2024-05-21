@@ -45,6 +45,7 @@ import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.LogBook.LogBook;
 import net.ifeu.library.Utils.Inactivate;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
+import net.ifeu.library.Utils.Screen.ScreenManager;
 
 public class Reports extends Fragment {
 
@@ -259,14 +260,14 @@ public class Reports extends Fragment {
 		LinearLayout layout = new LinearLayout(this.getActivity());
 		layout.setOrientation(LinearLayout.HORIZONTAL);
 
-    	android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.MATCH_PARENT);
-    	
+    	android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
+
 		RelativeLayout card = new RelativeLayout(this.getActivity());
     	card.setBackgroundResource(R.drawable.card_background);
     	card.setGravity(Gravity.CENTER);
     	    	
-    	params.width=200;
-    	params.height=100;
+    	params.width= ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.2f).getWidth();
+		params.height= ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getHeight();
     	card.setLayoutParams(params);
     	card.setPadding(20, 20, 20, 20);
     	
@@ -290,15 +291,14 @@ public class Reports extends Fragment {
 		LinearLayout layout = new LinearLayout(this.getActivity());
 		layout.setOrientation(LinearLayout.HORIZONTAL);
 		
-    	android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.MATCH_PARENT);
+    	android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
     	
 		RelativeLayout card = new RelativeLayout(this.getActivity());
     	card.setBackgroundResource(R.drawable.card_background);
     	card.setGravity(Gravity.CENTER);
-    	    	
-    	params.width=200;
-    	params.height=100;
-    	card.setLayoutParams(params);
+
+		params.width= ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.2f).getWidth();
+		params.height= ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getHeight();	card.setLayoutParams(params);
     	card.setPadding(20, 20, 20, 20);
     	
     	LinearLayout layout1 = new LinearLayout(this.getActivity());
@@ -394,7 +394,7 @@ public class Reports extends Fragment {
 			
 			poblacion.setText(hist.PoblacionPresentacion);
 			poblacion.setTextSize(TEXT_SIZE);
-			poblacion.setWidth(150);
+			poblacion.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.1f).getWidth());
 			poblacion.setLayoutParams(params);
 
 			layout2.addView(poblacion);
@@ -402,7 +402,7 @@ public class Reports extends Fragment {
 			LabelColor cp = new LabelColor(this.getActivity(), colorText, true);
 			cp.setText(hist.CodigoPostalPresentacion);
 			cp.setTextSize(TEXT_SIZE);
-			cp.setWidth(75);
+			cp.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.1f).getWidth());
 			cp.setLayoutParams(params);
 
 			layout2.addView(cp);
@@ -411,7 +411,7 @@ public class Reports extends Fragment {
 					true);
 			nombre.setText(hist.NombrePresentacion);
 			nombre.setTextSize(TEXT_SIZE);
-			nombre.setWidth(300);
+			nombre.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.3f).getWidth());
 			nombre.setLayoutParams(params);
 
 			layout2.addView(nombre);
@@ -428,7 +428,7 @@ public class Reports extends Fragment {
 
 			numeroAlbaran.setText(numAlb);
 			numeroAlbaran.setTextSize(TEXT_SIZE);
-			numeroAlbaran.setWidth(120);
+			numeroAlbaran.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.1f).getWidth());
 			numeroAlbaran.setLayoutParams(params);
 
 			layout2.addView(numeroAlbaran);
@@ -438,7 +438,7 @@ public class Reports extends Fragment {
 					true);
 			total.setText("(" +df.format(hist.Total) + " €)");
 			total.setTextSize(TEXT_SIZE);
-			total.setWidth(120);
+			total.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.1f).getWidth());
 			total.setLayoutParams(params);
 
 			layout2.addView(total);
@@ -447,7 +447,7 @@ public class Reports extends Fragment {
 			ButtonColor reImpresion = new ButtonColor(this.getActivity(), color, getResources().getDrawable(R.drawable.ic_send));
 			reImpresion.setTextSize(TEXT_SIZE_BUTTON);
 			reImpresion.setText("Reimprimir");
-			reImpresion.setWidth(120);
+			reImpresion.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getWidth());
 
 			reImpresion.setLayoutParams(params);
 
@@ -579,7 +579,7 @@ public class Reports extends Fragment {
 			ButtonColor anular = new ButtonColor(this.getActivity(), color, getResources().getDrawable(R.drawable.ic_recycled));
 			anular.setTextSize(TEXT_SIZE_BUTTON);
 			anular.setText("Anular");
-			anular.setWidth(160);
+			anular.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getWidth());
 			anular.setLayoutParams(params);
 			
 			final Reports that = this;
@@ -869,7 +869,6 @@ public class Reports extends Fragment {
 	private void FillButtonsHeader() {
 
 		Reports that = this;
-		int BUTTONS_WIDTH = 140;
 
 		android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -887,7 +886,7 @@ public class Reports extends Fragment {
 
 		ver.setText("Ver");
 		ver.setTextSize(TEXT_SIZE_BUTTON);
-		ver.setWidth(BUTTONS_WIDTH);
+		ver.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getWidth());
 
 		ver.setLayoutParams(params);
 
@@ -912,7 +911,7 @@ public class Reports extends Fragment {
 
 		potenciados.setText("Potenciados");
 		potenciados.setTextSize(TEXT_SIZE_BUTTON);
-		potenciados.setWidth(BUTTONS_WIDTH);
+		potenciados.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getWidth());
 		potenciados.setLayoutParams(params);
 
 		potenciados.setOnClickListener(arg0 -> {
@@ -930,7 +929,7 @@ public class Reports extends Fragment {
 
 		retirados.setText("Retirados");
 		retirados.setTextSize(TEXT_SIZE_BUTTON);
-		retirados.setWidth(BUTTONS_WIDTH);
+		retirados.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getWidth());
 
 		retirados.setLayoutParams(params);
 
@@ -949,7 +948,7 @@ public class Reports extends Fragment {
 
 		piezas.setText("Piezas");
 		piezas.setTextSize(TEXT_SIZE_BUTTON);
-		piezas.setWidth(BUTTONS_WIDTH);
+		piezas.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getWidth());
 
 		piezas.setLayoutParams(params);
 
@@ -963,7 +962,7 @@ public class Reports extends Fragment {
 
 		totales.setText("Totales");
 		totales.setTextSize(TEXT_SIZE_BUTTON);
-		totales.setWidth(BUTTONS_WIDTH);
+		totales.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(),  0.15f).getWidth());
 
 		totales.setLayoutParams(params);
 

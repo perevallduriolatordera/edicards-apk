@@ -314,13 +314,13 @@ public class DepositManagerExtension {
 					text);
 
 			//PVT : Versió MIREIA
-			if (false) {
-				incidencia.Attachments.put("ANVERSO",
-						appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerFrontDocument);
 
-				incidencia.Attachments.put("REVERSO",
-						appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerBackDocument);
-			}
+			incidencia.Attachments.put("ANVERSO",
+					appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerFrontDocument);
+
+			incidencia.Attachments.put("REVERSO",
+					appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerBackDocument);
+
 
 			try {
 				incidencia.create(new IncidentPdfCreator(appConfig));

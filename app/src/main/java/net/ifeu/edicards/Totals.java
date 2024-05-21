@@ -6,6 +6,8 @@ import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.Totales;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
+import net.ifeu.library.Utils.Screen.ScreenManager;
+
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.graphics.Color;
@@ -32,7 +34,7 @@ public class Totals extends Activity {
         
         android.view.WindowManager.LayoutParams params = getWindow().getAttributes(); 
         params.height = LayoutParams.FILL_PARENT;
-        params.width  = 1000;
+        params.width  = ScreenManager.getScreenSizeByPercentage(this.getWindowManager(), 0.8f).getWidth();
         getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
 
 		fillBases();
@@ -108,14 +110,14 @@ public class Totals extends Activity {
 		LinearLayout layout = new LinearLayout(this);
 		layout.setOrientation(LinearLayout.HORIZONTAL);
 		
-    	android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.MATCH_PARENT);
-    	
+    	android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
+		params.width = ScreenManager.getScreenSizeByPercentage(this.getWindowManager(), 0.1f).getWidth();
+		params.height = ScreenManager.getScreenSizeByPercentage(this.getWindowManager(), .15f).getHeight();
+
 		RelativeLayout card = new RelativeLayout(this);
     	card.setBackgroundResource(R.drawable.card_background);
     	card.setGravity(Gravity.CENTER);
-    	    	
-    	params.width=150;
-    	params.height=100;
+
     	card.setLayoutParams(params);
     	card.setPadding(20, 20, 20, 20);
     	
@@ -150,7 +152,7 @@ public class Totals extends Activity {
 		button.setWidth(width);
 		button.setTextColor(Color.BLACK);
 
-		LayoutParams customParams = new LayoutParams(width, 40);
+		LayoutParams customParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		customParams.setMargins(0, 60, 0 , 30);
 		button.setLayoutParams(customParams);
 

@@ -183,7 +183,7 @@ public class GastosManager extends Fragment {
 	    	articuloDescripcion.setTag(articulo);
 	    	articuloDescripcion.setText(articulo.Descripcion);
 	    	articuloDescripcion.setTextSize(TEXT_SIZE -8);
-	    	articuloDescripcion.setWidth(300);
+	    	articuloDescripcion.setWidth(500);
 	    	articuloDescripcion.setPaintFlags(articuloDescripcion.getPaintFlags() | Paint.FAKE_BOLD_TEXT_FLAG);
 	    	articuloDescripcion.setLayoutParams(params);
 	    	

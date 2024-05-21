@@ -96,13 +96,13 @@ public class AlbaranCustomerSearch extends Activity {
 
 		final ButtonColor ntvImportButton = (ButtonColor) findViewById(
                 R.id.btnNTVImport);
-		ntvImportButton.changeAspect(this, R.color.Black, getResources().getDrawable(R.drawable.contract));
+		ntvImportButton.changeAspect(this, R.color.Black, getResources().getDrawable(R.drawable.ic_import));
 
 		ntvImportButton.setOnClickListener(v-> {
 
 			String file = IOUtils.getMostRecentlyModifiedFile(
 					new File("/sdcard/" + ConstantsFolders.FOLDER_NTV_IMPORT));
-			DepositoNTVDTO depositoNTVDTO =  ExcelNTVParser.parseExcelFile(file));
+			DepositoNTVDTO depositoNTVDTO =  ExcelNTVParser.parseExcelFile(file);
 
 			if (depositoNTVDTO == null)
 				_appConfig.getMessageBox().Show("Atención",

@@ -6,6 +6,8 @@ import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Reporting;
 import net.ifeu.library.Controls.LabelColor;
+import net.ifeu.library.Utils.Screen.ScreenManager;
+
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.graphics.Color;
@@ -26,7 +28,7 @@ public class Reporting_Piezas extends Activity {
         
         android.view.WindowManager.LayoutParams params = getWindow().getAttributes(); 
         params.height = LayoutParams.FILL_PARENT;
-        params.width  = 800;
+        params.width  = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.8f).getWidth();
         getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
         
         try {
@@ -58,7 +60,6 @@ public class Reporting_Piezas extends Activity {
     		layout2.removeAllViews();
         	layout2.setOrientation(LinearLayout.HORIZONTAL);
     		layout2.setBackgroundResource(R.drawable.card_background);
-    		layout2.setGravity(Gravity.CENTER);
     		layout2.setPadding(20, 20, 20, 20);
         	
         	int unidades = 0;
@@ -75,7 +76,7 @@ public class Reporting_Piezas extends Activity {
         		label.setRawInputType(InputType.TYPE_CLASS_NUMBER);
         		label.setText(art.Descripcion);
         		label.setTextSize(TEXT_SIZE);
-        		label.setWidth(200);
+        		label.setWidth(ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.3f).getWidth());
         		label.setLayoutParams(params);
         		
         		layout2.addView(label);
@@ -84,7 +85,7 @@ public class Reporting_Piezas extends Activity {
         		vendido.setRawInputType(InputType.TYPE_CLASS_NUMBER);
         		vendido.setText("0 un. vendidas");
         		vendido.setTextSize(TEXT_SIZE);
-        		vendido.setWidth(150);
+        		vendido.setWidth(ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.15f).getWidth());
         		vendido.setLayoutParams(params);
         		
         		layout2.addView(vendido);
@@ -95,7 +96,7 @@ public class Reporting_Piezas extends Activity {
         		retirado.setRawInputType(InputType.TYPE_CLASS_NUMBER);
         		retirado.setText(unidades + " un. retiradas");
         		retirado.setTextSize(TEXT_SIZE);
-        		retirado.setWidth(150);
+        		retirado.setWidth(ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.15f).getWidth());
         		retirado.setLayoutParams(params);
             	
         		layout2.addView(retirado);
@@ -104,7 +105,7 @@ public class Reporting_Piezas extends Activity {
             	stock.setRawInputType(InputType.TYPE_CLASS_NUMBER);
             	stock.setText(art.Stock + " un. almacén");
             	stock.setTextSize(TEXT_SIZE);
-            	stock.setWidth(150);
+            	stock.setWidth(ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.15f).getWidth());
             	stock.setLayoutParams(params);
             	
             	layout2.addView(stock);
@@ -118,7 +119,7 @@ public class Reporting_Piezas extends Activity {
         		label.setRawInputType(InputType.TYPE_CLASS_NUMBER);
         		label.setText(art.Descripcion);
         		label.setTextSize(TEXT_SIZE);
-        		label.setWidth(200);
+        		label.setWidth(ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.3f).getWidth());
         		label.setLayoutParams(params);
         		
         		layout2.addView(label);
@@ -127,7 +128,7 @@ public class Reporting_Piezas extends Activity {
         		vendido.setRawInputType(InputType.TYPE_CLASS_NUMBER);
         		vendido.setText(venta.unidades + " un. vendidas");
         		vendido.setTextSize(TEXT_SIZE);
-        		vendido.setWidth(150);
+        		vendido.setWidth(ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.15f).getWidth());
         		vendido.setLayoutParams(params);
             	
             	layout2.addView(vendido);
@@ -138,7 +139,7 @@ public class Reporting_Piezas extends Activity {
         		retirado.setRawInputType(InputType.TYPE_CLASS_NUMBER);
         		retirado.setText(unidades + " un. retiradas");
         		retirado.setTextSize(TEXT_SIZE);
-        		retirado.setWidth(150);
+        		retirado.setWidth(ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.15f).getWidth());
         		retirado.setLayoutParams(params);
         		
         		layout2.addView(retirado);
@@ -147,7 +148,7 @@ public class Reporting_Piezas extends Activity {
             	stock.setRawInputType(InputType.TYPE_CLASS_NUMBER);
             	stock.setText(art.Stock + " un. almacén");
             	stock.setTextSize(TEXT_SIZE);
-            	stock.setWidth(150);
+            	stock.setWidth(ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.15f).getWidth());
             	stock.setLayoutParams(params);
             	
             	layout2.addView(stock);
@@ -160,7 +161,4 @@ public class Reporting_Piezas extends Activity {
     	mainLinearLayout.addView(layout);
  
     }
-
-
-    
 }

@@ -9,6 +9,8 @@ import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Ingresos;
 import net.ifeu.edicards.DataTier.Reporting;
 import net.ifeu.library.Controls.LabelColor;
+import net.ifeu.library.Utils.Screen.ScreenManager;
+
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.graphics.Color;
@@ -30,10 +32,9 @@ public class Reporting_Totales extends Activity {
         
         android.view.WindowManager.LayoutParams params = getWindow().getAttributes(); 
         params.height = LayoutParams.FILL_PARENT;
-        params.width  = 900;
+		params.width  = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.8f).getWidth();
         getWindow().setAttributes(params);
-        
-        
+
         fillTotales();
     }
 
@@ -54,9 +55,10 @@ public class Reporting_Totales extends Activity {
     	card.setBackgroundResource(R.drawable.card_background);
     	card.setGravity(Gravity.CENTER);
     	    	
-    	params.width=200;
-    	params.height=100;
-    	card.setLayoutParams(params);
+    	params.width  = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.15f).getWidth();
+		params.height  = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.1f).getWidth();
+
+		card.setLayoutParams(params);
     	card.setPadding(20, 20, 20, 20);
     	
     	LinearLayout layout1 = new LinearLayout(this);

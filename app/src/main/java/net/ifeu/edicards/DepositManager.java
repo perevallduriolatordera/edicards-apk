@@ -452,15 +452,16 @@ public class DepositManager extends Fragment implements  IMediator {
 
 				//PVT : Versió MIREIA
 
-				/*if(_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE) &&
+				if(_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE) &&
 						!DepositManagerExtension.DataTier.isCustomerAttachedFilled(_appConfig)) {
 					_appConfig.getMessageBox().Show("Advertencia",
-							"Tiene que tomar fotos del DNI del cliente nuevo. Tome las fotos desde la ventana 'Cliente' y vuelva a cerrar la operación",
+							"T" +
+									"iene que tomar fotos del DNI del cliente nuevo. Tome las fotos desde la ventana 'Cliente' y vuelva a cerrar la operación",
 							this.getActivity(), MessageBoxType.Information);
 
 					albaran.setVisibility(View.VISIBLE);
 					return;
-				}*/
+				}
 
 				if (!DepositManagerExtension.DataTier.IsCustomerDataFilled(that._deposito)) {
 					boolean result = _appConfig.getMessageBox().ShowWithResult("Cierre de operación",

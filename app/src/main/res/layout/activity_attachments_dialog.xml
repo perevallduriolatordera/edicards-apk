@@ -43,12 +43,13 @@
 
                 <net.ifeu.library.Controls.ButtonColor
                     android:id="@+id/btnTakeFrontPhoto"
+                    android:padding="10dp"
                     android:layout_marginLeft="20px"
                     android:layout_marginRight="20px"
-                    android:layout_width="180px"
+                    android:layout_width="wrap_content"
                     android:layout_marginBottom="20dp"
                     android:layout_marginTop="20dp"
-                    android:layout_height="40px"
+                    android:layout_height="wrap_content"
                     android:background="@drawable/background_button"
                     android:textColor="@color/Black"
                     android:layout_gravity="center"
@@ -56,12 +57,13 @@
 
                 <net.ifeu.library.Controls.ButtonColor
                     android:id="@+id/btnClose"
+                    android:padding="10dp"
                     android:layout_marginLeft="20px"
                     android:layout_marginRight="20px"
-                    android:layout_width="180px"
+                    android:layout_width="wrap_content"
                     android:layout_marginBottom="20dp"
                     android:layout_marginTop="20dp"
-                    android:layout_height="40px"
+                    android:layout_height="wrap_content"
                     android:background="@drawable/background_button"
                     android:textColor="@color/Black"
                     android:layout_gravity="center"
@@ -82,12 +84,13 @@
 
                 <net.ifeu.library.Controls.ButtonColor
                     android:id="@+id/btnTakeBackPhoto"
+                    android:padding="10dp"
                     android:layout_marginLeft="20px"
                     android:layout_marginRight="20px"
-                    android:layout_width="180px"
+                    android:layout_width="wrap_content"
                     android:layout_marginBottom="20dp"
                     android:layout_marginTop="20dp"
-                    android:layout_height="40px"
+                    android:layout_height="wrap_content"
                     android:background="@drawable/background_button"
                     android:layout_gravity="center"
                     android:textColor="@color/Black"

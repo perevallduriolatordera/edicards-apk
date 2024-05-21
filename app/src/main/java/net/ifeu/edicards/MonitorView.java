@@ -28,6 +28,7 @@ import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Performance.CpuInfo;
 import net.ifeu.library.Performance.MemoryInfo;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
+import net.ifeu.library.Utils.Screen.ScreenManager;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -248,6 +249,11 @@ public class MonitorView extends Fragment {
 		// contadores de facturas
 
 		Contador contador = Factory.build(Contador.class, _appConfig);
+		try {
+			contador.getContadores();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 
 		layout2.addView(this.createLabel("contador tipo A" , String.valueOf(contador.ContadorSerieA), false));
 		layout2.addView(this.createLabel("contador tipo B" , String.valueOf(contador.ContadorSerieB), false));
@@ -262,7 +268,7 @@ public class MonitorView extends Fragment {
 		if (lastModified != null) {
 			DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 			String backupDate = formatter.format(lastModified);
-			layout2.addView(this.createLabel("Fecha última copia", String.valueOf(backupDate), false, true));
+			layout2.addView(this.createLabel("Fecha backup", String.valueOf(backupDate), false, true));
 		}
 
 		layout.addView(layout2);
@@ -280,6 +286,7 @@ public class MonitorView extends Fragment {
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
 		LinearLayout layout = (LinearLayout) this.getActivity().findViewById(R.id.buttonLinearLayout);
+		if (layout == null) return;
 
 		layout.removeAllViews();
 		layout.setOrientation(LinearLayout.HORIZONTAL);
@@ -386,8 +393,8 @@ public class MonitorView extends Fragment {
     	card.setBackgroundResource(R.drawable.card_background);
     	card.setGravity(Gravity.CENTER);
     	    	
-    	params.width=225;
-    	params.height=120;
+    	params.width= ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.2f).getWidth();
+		params.height= ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getWidth();
     	card.setLayoutParams(params);
     	card.setPadding(20, 20, 20, 20);
     	
