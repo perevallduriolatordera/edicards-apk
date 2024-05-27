@@ -20,6 +20,7 @@ public final class ConstantsTypes {
 	public static final String NEW_LINE = "\n";
 
 	public static final String NEW_CUSTOMER_CODE = "99";
+	public static final String NEW_NTV_CUSTOMER_CODE = "100000";
 	
 
 	public static final int TIPO_HISTORICO_CLIENTE_EXISTENTE = 1;

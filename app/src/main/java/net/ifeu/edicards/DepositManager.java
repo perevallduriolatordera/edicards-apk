@@ -630,6 +630,11 @@ public class DepositManager extends Fragment implements  IMediator {
 					}
 				} else {
 					try {
+
+						if (_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
+							_appConfig.getMessageBox().Show("Información", "Se va a proceder a crear un cliente nuevo.",
+									this.getActivity(), MessageBoxType.Information);
+						}
 						this.addNTVArticles(depositoNTVDTO);
 					} catch (Exception e) {
 						throw new RuntimeException(e);
@@ -1999,11 +2004,12 @@ public class DepositManager extends Fragment implements  IMediator {
 					throw new RuntimeException(e);
 				}
 
-				if (!exists) {
-					_appConfig.getMessageBox().Show("Atención",
-							"No se han encontrado el cliente especificado " + depositoNTVDTO.IdCliente,
-							_appConfig, MessageBoxType.Error);
-					return;
+				if (!exists && depositoNTVDTO.IdCliente.equals(ConstantsTypes.NEW_NTV_CUSTOMER_CODE)) {
+					try {
+						_cliente.setClienteByCodigo(ConstantsTypes.NEW_CUSTOMER_CODE);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
 				}
 
 				_appConfig.getWorkingArea().CurrentCliente = _cliente;

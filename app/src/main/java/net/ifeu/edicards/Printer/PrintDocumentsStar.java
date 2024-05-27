@@ -604,7 +604,7 @@ public class PrintDocumentsStar implements IPrint {
 						.getBytes();
 			else if (!deposito.Pagado)
 				outputByteBuffer = ("ALBARAN: NUM " + app.getUser().User + "/"
-						+ deposito.NumeroAlbaran + "\n")
+						+ deposito.NumeroAlbaran + "   ASOCIADO A FACTURA\n")
 						.getBytes();
 			else
 				outputByteBuffer = ("ALBARAN ENTREGA: NUM "

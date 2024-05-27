@@ -443,7 +443,7 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 				_document.add(new Paragraph(presupuestoText, _fontBold));
 			} else if (!_deposito.Pagado) {
 				String albaranText = "ALBARAN: NUM " + _app.getUser().User
-						+ "/" + _deposito.NumeroAlbaran + "\n";
+						+ "/" + _deposito.NumeroAlbaran + "   ASOCIADO A FACTURA\n";
 
 				_document.add(new Paragraph(albaranText, _fontBold));
 			} else {

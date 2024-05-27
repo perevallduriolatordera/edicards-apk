@@ -1,0 +1,90 @@
+Index: .idea/workspace.xml
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	
++++ b/.idea/workspace.xml	
+@@ -10,8 +10,6 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="373d8d28-3f16-41d0-a8bb-b39dfa2a22b0" name="Changes" comment="">
+-      <change afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/library/Controls/FlowLayout.java" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/app/src/main/res/drawable/ic_import.png" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.gradle/6.5/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/executionHistory/executionHistory.bin" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.gradle/6.5/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/executionHistory/executionHistory.lock" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.gradle/6.5/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/fileHashes/fileHashes.bin" afterDir="false" />
+@@ -21,19 +19,8 @@
+       <change beforePath="$PROJECT_DIR$/.gradle/6.5/javaCompile/javaCompile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/javaCompile/javaCompile.lock" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/AlbaranCustomerSearch.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/AlbaranCustomerSearch.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Constants/ConstantsTypes.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Constants/ConstantsTypes.java" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManagerExtension.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManagerExtension.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/GastosManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/GastosManager.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/MonitorView.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/MonitorView.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Reporting_Piezas.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Reporting_Piezas.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Reporting_Totales.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Reporting_Totales.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Reports.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Reports.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Totals.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Totals.java" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_albaran_customer_search.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_albaran_customer_search.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_attachments_dialog.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_attachments_dialog.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_customer_data.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_customer_data.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_totals.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_totals.xml" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -348,36 +335,11 @@
+           <option name="timeStamp" value="34" />
+         </line-breakpoint>
+         <line-breakpoint enabled="true" type="java-line">
+-          <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
+-          <line>1991</line>
+-          <option name="timeStamp" value="36" />
+-        </line-breakpoint>
+-        <line-breakpoint enabled="true" type="java-line">
+-          <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/AlbaranCustomerSearch.java</url>
+-          <line>104</line>
+-          <option name="timeStamp" value="37" />
+-        </line-breakpoint>
+-        <line-breakpoint enabled="true" type="java-line">
+           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/AlbaranCustomerSearch.java</url>
+           <line>96</line>
+           <option name="timeStamp" value="38" />
+         </line-breakpoint>
+         <line-breakpoint enabled="true" type="java-line">
+-          <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DataTier/NTV/support/ExcelNTVParser.java</url>
+-          <line>27</line>
+-          <option name="timeStamp" value="39" />
+-        </line-breakpoint>
+-        <line-breakpoint enabled="true" type="java-line">
+-          <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/library/IO/IOUtils.java</url>
+-          <line>103</line>
+-          <option name="timeStamp" value="41" />
+-        </line-breakpoint>
+-        <line-breakpoint enabled="true" type="java-line">
+-          <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DataTier/NTV/support/ExcelNTVParser.java</url>
+-          <line>48</line>
+-          <option name="timeStamp" value="42" />
+-        </line-breakpoint>
+-        <line-breakpoint enabled="true" type="java-line">
+           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
+           <line>1062</line>
+           <option name="timeStamp" value="43" />
+@@ -393,9 +355,14 @@
+           <option name="timeStamp" value="45" />
+         </line-breakpoint>
+         <line-breakpoint enabled="true" type="java-line">
+-          <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/AlbaranCustomerSearch.java</url>
+-          <line>113</line>
+-          <option name="timeStamp" value="46" />
++          <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
++          <line>550</line>
++          <option name="timeStamp" value="50" />
++        </line-breakpoint>
++        <line-breakpoint enabled="true" type="java-line">
++          <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
++          <line>1995</line>
++          <option name="timeStamp" value="51" />
+         </line-breakpoint>
+       </breakpoints>
+     </breakpoint-manager>

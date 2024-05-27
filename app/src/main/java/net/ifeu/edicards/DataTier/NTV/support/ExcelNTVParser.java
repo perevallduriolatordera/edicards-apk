@@ -50,12 +50,21 @@ public class ExcelNTVParser {
             Row row = sheet.getRow(i);
             if (row == null) continue;
 
-            String codigoArticulo = row.getCell(0).getStringCellValue();
+            boolean containsPhoto;
+            String codigoArticulo = "";
 
-            int cantidad = Integer.parseInt(row.getCell(4).getStringCellValue());
-            double precio = Double.parseDouble(row.getCell(5).getStringCellValue().replace(",","."));
-            double dto1 = Double.parseDouble(row.getCell(6).getStringCellValue().replace(",","."));
-            double dto2 = Double.parseDouble(row.getCell(7).getStringCellValue().replace(",","."));
+            try {
+                codigoArticulo = row.getCell(0).getStringCellValue();
+                containsPhoto = false;
+            } catch (Exception e) {
+                codigoArticulo = row.getCell(2).getStringCellValue();
+                containsPhoto = true;
+            }
+
+            int cantidad = Integer.parseInt(row.getCell(!containsPhoto ? 4 : 5).getStringCellValue());
+            double precio = Double.parseDouble(row.getCell(!containsPhoto ? 5 : 6).getStringCellValue().replace(",","."));
+            double dto1 = Double.parseDouble(row.getCell(!containsPhoto ? 6 : 7).getStringCellValue().replace(",","."));
+            double dto2 = Double.parseDouble(row.getCell(!containsPhoto ? 7 : 8).getStringCellValue().replace(",","."));
 
             DepositoNTVLineaDTO linea = new DepositoNTVLineaDTO(codigoArticulo, cantidad, precio, dto1, dto2);
             lineas.put(linea.codigoArticulo, linea);

@@ -559,7 +559,7 @@ public class PrintDocumentsWoosim implements IPrint {
 				_woosim.saveSpool(
 						LANGUAGE,
 						"ALBARAN: NUM " + app.getUser().User + "/"
-								+ deposito.NumeroAlbaran + "\n",
+								+ deposito.NumeroAlbaran + "   ASOCIADO A FACTURA\n",
 						0, true);
 
 				this.Print();

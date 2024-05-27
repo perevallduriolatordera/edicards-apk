@@ -30,7 +30,6 @@
         android:layout_marginLeft="250px"
         android:layout_marginRight="250px"
         android:textSize="24sp"
-        android:text="V14"
         android:ems="10" >
 
         <requestFocus />
@@ -54,7 +53,6 @@
         android:layout_marginRight="250px"
         android:layout_marginBottom="70px"
         android:textSize="24sp"
-        android:text="V14"
         android:inputType="textPassword" />
 
     <TextView android:id="@+id/lblVersion"

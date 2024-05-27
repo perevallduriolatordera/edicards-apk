@@ -391,7 +391,7 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 			if (deposito.Serie.equals(app.getUser().SerialInvoiceB))
 				outputByteBuffer = ("PRESUPUESTO: NUM " + app.getUser().User + "/" + deposito.NumeroAlbaran + "\n").getBytes();
 			else if(!deposito.Pagado)
-				outputByteBuffer = ("ALBARAN: NUM " + app.getUser().User + "/" + deposito.NumeroAlbaran + "\n").getBytes();
+				outputByteBuffer = ("ALBARAN: NUM " + app.getUser().User + "/" + deposito.NumeroAlbaran + "   ASOCIADO A FACTURA\n").getBytes();
 			else
 				outputByteBuffer = ("ALBARAN ENTREGA: NUM " + app.getUser().User + "/" + deposito.NumeroAlbaran + "\n").getBytes();
 			
