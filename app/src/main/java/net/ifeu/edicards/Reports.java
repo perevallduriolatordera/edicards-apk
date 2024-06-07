@@ -669,6 +669,7 @@ public class Reports extends Fragment {
 	private void upgradeStock(Historico historico) {
 
 		if (!historico.ActualizarStock) return;
+		_appConfig.getCache().invalidate();
 
 		try {
 

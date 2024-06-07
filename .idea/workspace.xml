@@ -20,20 +20,33 @@
       <change beforePath="$PROJECT_DIR$/.gradle/6.5/javaCompile/javaCompile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/javaCompile/javaCompile.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/6.5/javaCompile/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/javaCompile/taskHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_24_05_2024_12_46_[Changes]1/buildOutputCleanup.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_24_05_2024_12_46_[Changes]1/classAnalysis.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_24_05_2024_12_46_[Changes]1/executionHistory.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_24_05_2024_12_46_[Changes]1/executionHistory.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_24_05_2024_12_46_[Changes]1/fileHashes.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_24_05_2024_12_46_[Changes]1/fileHashes.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_24_05_2024_12_46_[Changes]1/jarAnalysis.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_24_05_2024_12_46_[Changes]1/javaCompile.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_24_05_2024_12_46_[Changes]1/resourceHashesCache.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_24_05_2024_12_46_[Changes]1/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_24_05_2024_12_46_[Changes]1/taskHistory.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_24_05_2024_12_46__Changes_1.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2024_9_32_[Changes]1/buildOutputCleanup.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2024_9_32_[Changes]1/classAnalysis.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2024_9_32_[Changes]1/executionHistory.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2024_9_32_[Changes]1/executionHistory.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2024_9_32_[Changes]1/fileHashes.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2024_9_32_[Changes]1/fileHashes.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2024_9_32_[Changes]1/jarAnalysis.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2024_9_32_[Changes]1/javaCompile.lock" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2024_9_32_[Changes]1/resourceHashesCache.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2024_9_32_[Changes]1/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2024_9_32_[Changes]1/taskHistory.bin" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Checkout_at_27_05_2024_9_32__Changes_1.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Constants/ConstantsTypes.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Constants/ConstantsTypes.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DataTier/NTV/support/ExcelNTVParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DataTier/NTV/support/ExcelNTVParser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Login.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Login.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Pdf/document/PdfAlmacenCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Pdf/document/PdfAlmacenCreator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Pdf/document/PdfCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Pdf/document/PdfCreator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Pdf/document/PdfDTOCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Pdf/document/PdfDTOCreator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Printer/PrintDTODocumentsStar.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Printer/PrintDTODocumentsStar.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Printer/PrintDTODocumentsWoosim.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Printer/PrintDTODocumentsWoosim.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Printer/PrintDocumentsStar.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Printer/PrintDocumentsStar.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Printer/PrintDocumentsWoosim.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Printer/PrintDocumentsWoosim.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Reports.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Reports.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Services/ParserResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Services/ParserResponse.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,7 +56,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[R9TX30GWZNB]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[78f1fc28]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />

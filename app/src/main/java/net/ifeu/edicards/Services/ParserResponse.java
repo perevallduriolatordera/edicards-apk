@@ -502,6 +502,7 @@ public class ParserResponse extends ParserBase {
 							0,0);
 
 					logBookTrace.save();
+					app.getCache().invalidate();
 				}
 			}
 
