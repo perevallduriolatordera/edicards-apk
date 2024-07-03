@@ -36,7 +36,6 @@ import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.NTV.DepositoNTVDTO;
-import net.ifeu.edicards.DataTier.NTV.support.ExcelNTVParser;
 import net.ifeu.edicards.DataTier.TipoIVA;
 import net.ifeu.edicards.DataTier.TransactionMetadata;
 import net.ifeu.edicards.DataTier.TransferMode;
@@ -118,6 +117,8 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		_articlesListView = (ListView) this.getActivity().findViewById(R.id.listViewArticles);
 
+		showCustomerSearchDialog();
+
 	}
 
 	@Override
@@ -147,9 +148,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		super.onResume();
 	}
 
-	@Override
-	public void onStart() {
-		super.onStart();
+	private void showCustomerSearchDialog() {
 		_appConfig = (AppConfig) this.getActivity().getApplicationContext();
 
 		if (_appConfig.getWorkingArea().CurrentCliente == null
@@ -206,6 +205,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		_checkPagado = new CheckBox(_appConfig);
 		_checkPagado.setText("Pagado");
 		_checkPagado.setTextSize(TEXT_SIZE);
+		_checkPagado.setTextColor(Color.WHITE);
 		_checkPagado.setLayoutParams(params);
 		
 		LabelColor labelCantidadPagada = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
@@ -500,7 +500,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				_appConfig.getWorkingArea().TransferMode = TransferMode.None;
 				//_isOperationClosed = false;
 				resetDepositData();
-				onStart();
+				showCustomerSearchDialog();
 
 			} catch (Exception e) {
 				throw new RuntimeException(e);
@@ -852,10 +852,12 @@ public class DepositManager extends Fragment implements  IMediator {
 				linea.UnidadesInicialesFijas = linea.UnidadesIniciales;
 
 				linea.PVP = isNtv ? ntvDepositoDTO.Lineas.get(articuloInCatalgo.CodigoArticulo).precio : linea.getPVP(_cliente, articuloInCatalgo);
-				//linea.PVPAnterior = linea.getPVP(_cliente, articuloInCatalgo);
+
 				linea.UnidadesFacturadas = isNtv ? ntvDepositoDTO.Lineas.get(articuloInCatalgo.CodigoArticulo).cantidad : 0;
+				linea.UnidadesInicialesFijas = linea.UnidadesFacturadas;
 				linea.PVPAnterior = linea.PVP;
 				linea.PVPInicial = linea.PVPAnterior;
+
 				linea.Descuento1 = isNtv ? ntvDepositoDTO.Lineas.get(articuloInCatalgo.CodigoArticulo).dto1 : 0;
 				linea.IsNew = true;
 				linea.IsNtvLine = isNtv;

@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "28.0.3"
+    compileSdkVersion 26
+    buildToolsVersion "29.0.2"
 
     lintOptions {
         checkReleaseBuilds false
@@ -14,7 +14,7 @@ android {
     defaultConfig {
         applicationId "net.ifeu.edicards"
         minSdkVersion 16
-        targetSdkVersion 19
+        targetSdkVersion 26
         multiDexEnabled true
     }
 

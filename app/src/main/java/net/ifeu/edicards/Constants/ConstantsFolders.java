@@ -23,7 +23,7 @@ public class ConstantsFolders {
 
     public static final String FOLDER_STOCK_NTV = "NTV";
 
-    public static final String FOLDER_NTV_IMPORT = "xls";
+    public static final String FOLDER_NTV_IMPORT = "Documents/xls";
     public static final String FOLDER_EAN = "EAN";
 
     public static  final String FOLDER_CUSTOMER_DOCUMENT = "DNI";
