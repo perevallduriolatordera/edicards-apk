@@ -936,8 +936,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				_deposito.RetirarDeposito();
 		}
 
-		if (_deposito.isDepositoRetirado()) {
-
+		if (_deposito.isDepositoRetirado() && !_deposito.IsNtvDeposit) {
 			boolean result;
 			if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
 				result = _appConfig.getMessageBox().ShowWithResult("Cierre de operación",
