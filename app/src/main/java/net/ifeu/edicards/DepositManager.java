@@ -546,7 +546,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		this.showButtonBar(visible);
 	}
 
-	private void CreateDepositView(boolean searchExistentDeposit, DepositoNTVDTO depositoNTVDTO) throws Exception {
+	private void CreateDepositView(DepositoNTVDTO depositoNTVDTO) throws Exception {
 
  		if (this.RestriccionIngresos()) return;
 		this.prepareScreenRegions(true);
@@ -571,75 +571,71 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			try {
 
-				if (searchExistentDeposit) {
-					ArrayList<Deposito> depositos = deposito
-							.getDepositosByCodigoCliente(String.valueOf(cliente.CodigoCliente));
+				//if (searchExistentDeposit) {
+				ArrayList<Deposito> depositos = deposito
+						.getDepositosByCodigoCliente(String.valueOf(cliente.CodigoCliente));
 
-					if (_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
+				if (_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
 
-						if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
-							_appConfig.getMessageBox().Show("Información", "Se va a proceder a crear un cliente nuevo.",
-									this.getActivity(), MessageBoxType.Information);
+					if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
+						_appConfig.getMessageBox().Show("Información", "Se va a proceder a crear un cliente nuevo.",
+								this.getActivity(), MessageBoxType.Information);
 
-							_deposito = Factory.build(Deposito.class, _appConfig);
-							_deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
-							_deposito.assingFromCliente(_cliente);
-							_deposito.Lineas.clear();
-							this.addPotentialArticles();
-
-						} else {
-							_appConfig.getMessageBox().Show("Advertencia",
-									"No se puede hacer un traspaso de un cliente nuevo. La operación va a ser cancelada",
-									this.getActivity(), MessageBoxType.Information);
-
-							_appConfig.getWorkingArea().TransferMode = TransferMode.None;
-
-							return;
-						}
-					}
-
-					if (depositos.size() == 0 && !_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
-
-						if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
-
-							_deposito = Factory.build(Deposito.class, _appConfig);
-							_deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
-							_deposito.assingFromCliente(_cliente);
-
-							this.addPotentialArticles();
-
-							_appConfig.getMessageBox().Show("Información",
-									"El cliente " + cliente.Nombre
-											+ " no tiene ningún depósito. Se va a proceder a crear uno de nuevo",
-									this.getActivity(), MessageBoxType.Information);
-						} else {
-							_appConfig.getMessageBox().Show("Advertencia",
-									"No se puede hacer un traspaso de un cliente sin depósito asignado. La operación va a ser cancelada",
-									this.getActivity(), MessageBoxType.Information);
-
-							_appConfig.getWorkingArea().TransferMode = TransferMode.None;
-
-							return;
-						}
-
-					} else if (depositos.size() > 0 && !_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
 						_deposito = Factory.build(Deposito.class, _appConfig);
-						_deposito.setFirstDepositoByCliente(cliente.CodigoCliente);
+						_deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
 						_deposito.assingFromCliente(_cliente);
+						_deposito.Lineas.clear();
 						this.addPotentialArticles();
-					}
-				} else {
-					try {
 
-						if (_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
-							_appConfig.getMessageBox().Show("Información", "Se va a proceder a crear un cliente nuevo.",
-									this.getActivity(), MessageBoxType.Information);
-						}
-						this.addNTVArticles(depositoNTVDTO);
-					} catch (Exception e) {
-						throw new RuntimeException(e);
+					} else {
+						_appConfig.getMessageBox().Show("Advertencia",
+								"No se puede hacer un traspaso de un cliente nuevo. La operación va a ser cancelada",
+								this.getActivity(), MessageBoxType.Information);
+
+						_appConfig.getWorkingArea().TransferMode = TransferMode.None;
+
+						return;
 					}
 				}
+
+				if (depositos.size() == 0 && !_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
+
+					if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
+
+						_deposito = Factory.build(Deposito.class, _appConfig);
+						_deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
+						_deposito.assingFromCliente(_cliente);
+
+						this.addPotentialArticles();
+
+						_appConfig.getMessageBox().Show("Información",
+								"El cliente " + cliente.Nombre
+										+ " no tiene ningún depósito. Se va a proceder a crear uno de nuevo",
+								this.getActivity(), MessageBoxType.Information);
+					} else {
+						_appConfig.getMessageBox().Show("Advertencia",
+								"No se puede hacer un traspaso de un cliente sin depósito asignado. La operación va a ser cancelada",
+								this.getActivity(), MessageBoxType.Information);
+
+						_appConfig.getWorkingArea().TransferMode = TransferMode.None;
+
+						return;
+					}
+
+				} else if (depositos.size() > 0 && !_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
+					_deposito = Factory.build(Deposito.class, _appConfig);
+					_deposito.setFirstDepositoByCliente(cliente.CodigoCliente);
+					_deposito.assingFromCliente(_cliente);
+					this.addPotentialArticles();
+				}
+			//} else {
+				try {
+					if (depositoNTVDTO != null)
+						this.addNTVArticles(depositoNTVDTO);
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+				//}
 				_deposito.Serie = _appConfig.getUser().SerialInvoiceA;
 				_appConfig.getWorkingArea().CurrentDeposito = _deposito;
 				_appConfig.getWorkingArea().CurrentDeposito.DatosFiscalesUpdated = false;
@@ -653,7 +649,7 @@ public class DepositManager extends Fragment implements  IMediator {
 			throw new RuntimeException(e);
 		}
 
-		_currentLines.addAll(getSortedLineasDeposito(!searchExistentDeposit));
+		_currentLines.addAll(getSortedLineasDeposito(depositoNTVDTO != null));
 		_originalLines.addAll(_currentLines);
 
 		for (LineaDeposito lineaDeposito : _originalLines)
@@ -843,26 +839,23 @@ public class DepositManager extends Fragment implements  IMediator {
 			try {
 
 				boolean isNtv = ntvDepositoDTO.Lineas.containsKey(articuloInCatalgo.CodigoArticulo);
+				if (!isNtv)
+					continue;
 
-				LineaDeposito linea = Factory.build(LineaDeposito.class, _appConfig);
-				linea.Articulo = articuloInCatalgo;
-				linea.Deposito = _deposito;
-				linea.StockInicial = 0;
-				linea.UnidadesIniciales = 0;
+				LineaDeposito linea = _deposito.Lineas.get(String.valueOf(articuloInCatalgo.CodigoArticulo));
+
 				linea.UnidadesInicialesFijas = linea.UnidadesIniciales;
 
-				linea.PVP = isNtv ? ntvDepositoDTO.Lineas.get(articuloInCatalgo.CodigoArticulo).precio : linea.getPVP(_cliente, articuloInCatalgo);
+				linea.PVP = ntvDepositoDTO.Lineas.get(articuloInCatalgo.CodigoArticulo).precio;
 
-				linea.UnidadesFacturadas = isNtv ? ntvDepositoDTO.Lineas.get(articuloInCatalgo.CodigoArticulo).cantidad : 0;
+				linea.UnidadesFacturadas = ntvDepositoDTO.Lineas.get(articuloInCatalgo.CodigoArticulo).cantidad;
 				linea.UnidadesInicialesFijas = linea.UnidadesFacturadas;
 				linea.PVPAnterior = linea.PVP;
 				linea.PVPInicial = linea.PVPAnterior;
 
-				linea.Descuento1 = isNtv ? ntvDepositoDTO.Lineas.get(articuloInCatalgo.CodigoArticulo).dto1 : 0;
+				linea.Descuento1 = ntvDepositoDTO.Lineas.get(articuloInCatalgo.CodigoArticulo).dto1;
 				linea.IsNew = true;
-				linea.IsNtvLine = isNtv;
-
-				_deposito.Lineas.put(String.valueOf(linea.Articulo.CodigoArticulo), linea);
+				linea.IsNtvLine = true;
 
 			} catch (Exception e) {
 				throw new RuntimeException(e);
@@ -936,7 +929,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				_deposito.RetirarDeposito();
 		}
 
-		if (_deposito.isDepositoRetirado() && !_deposito.IsNtvDeposit) {
+		if (_deposito.isDepositoRetirado()) {
 			boolean result;
 			if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
 				result = _appConfig.getMessageBox().ShowWithResult("Cierre de operación",
@@ -1938,7 +1931,7 @@ public class DepositManager extends Fragment implements  IMediator {
 			case "EventCustomerSelected": {
 				try {
 					_appConfig.getWorkingArea().CurrentCliente = (Cliente) payload;
-					this.CreateDepositView(true, null);
+					this.CreateDepositView( null);
 
 					this._dialogDepositoModalidad = new AdvancedMessageBox();
 					boolean resultDepositoModalidad = _dialogDepositoModalidad.Show("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", DepositManager.this.getContext(), MessageBoxType.Information);
@@ -1956,7 +1949,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 				try {
 					_appConfig.getWorkingArea().CurrentCliente = (Cliente) payload;
-					this.CreateDepositView(true, null);
+					this.CreateDepositView(null);
 
 					this._dialogDepositoModalidad = new AdvancedMessageBox();
 					boolean resultDepositoModalidad = _dialogDepositoModalidad.Show("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", DepositManager.this.getContext(), MessageBoxType.Information);
@@ -2019,7 +2012,7 @@ public class DepositManager extends Fragment implements  IMediator {
 					_deposito = Factory.build(Deposito.class, _appConfig);
 					_deposito.assingFromCliente(_cliente);
 					_deposito.IsNtvDeposit = true;
-					this.CreateDepositView(false,depositoNTVDTO);
+					this.CreateDepositView(depositoNTVDTO);
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
@@ -2062,6 +2055,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		List<LineaDeposito> lines = new ArrayList<>();
 		List<LineaDeposito> potentialLines = new ArrayList<>();
+		List<LineaDeposito> ntvLines = new ArrayList<>();
 
 		for (LineaDeposito linea : _deposito.Lineas.values()) {
 
@@ -2072,6 +2066,8 @@ public class DepositManager extends Fragment implements  IMediator {
 					lines.add(linea);
 			} else {
 				if (linea.IsNtvLine)
+					ntvLines.add(linea);
+				else if (!linea.IsNew)
 					lines.add(linea);
 				else
 					potentialLines.add(linea);
@@ -2079,8 +2075,10 @@ public class DepositManager extends Fragment implements  IMediator {
 		}
 
 		Collections.sort(lines, new LineaDeposito().new ArticuloComparator());
+		Collections.sort(ntvLines, new LineaDeposito().new ArticuloComparator());
 		Collections.sort(potentialLines, new LineaDeposito().new ArticuloComparator());
 
+		lines.addAll(ntvLines);
 		lines.addAll(potentialLines);
 		return lines;
 	}
