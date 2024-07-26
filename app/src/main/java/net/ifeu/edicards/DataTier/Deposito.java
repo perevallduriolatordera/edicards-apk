@@ -30,8 +30,8 @@ public class Deposito extends Cliente implements IPersistable {
 	public Totales TotalesDeposito = new Totales();
 	public String Serie;
 	public String NumeroAlbaran;
-	public float DescuentoComercial;
-	public float DescuentoFinanciero;
+	public float DescuentoComercial = new Float(0);
+	public float DescuentoFinanciero = new Float(0);
 	public String PagoDescripcion;
 	public boolean Pagado;
 	public double CantidadPagada;

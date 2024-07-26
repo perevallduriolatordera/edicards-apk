@@ -21,7 +21,7 @@
       <change beforePath="$PROJECT_DIR$/.gradle/6.5/javaCompile/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/javaCompile/taskHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DataTier/Deposito.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DataTier/Deposito.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -126,7 +126,7 @@
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;full.screen.before.presentation.mode&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;refactor/grid-view&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/treball/desenvolupament/clients/edicards/edicards-apk/keystore/KeyStore&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/treball/desenvolupament/clients/uxland/amb_apps/AMB-APP-CUMAN&quot;,
     &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.17&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
@@ -243,62 +243,62 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
-          <line>1034</line>
+          <line>1040</line>
           <option name="timeStamp" value="4" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
-          <line>1038</line>
+          <line>1044</line>
           <option name="timeStamp" value="5" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
-          <line>1041</line>
+          <line>1047</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
-          <line>1042</line>
+          <line>1048</line>
           <option name="timeStamp" value="7" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
-          <line>1043</line>
+          <line>1049</line>
           <option name="timeStamp" value="8" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
-          <line>1059</line>
+          <line>1065</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
-          <line>1066</line>
+          <line>1072</line>
           <option name="timeStamp" value="10" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
-          <line>1070</line>
+          <line>1076</line>
           <option name="timeStamp" value="11" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
-          <line>1067</line>
+          <line>1073</line>
           <option name="timeStamp" value="12" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
-          <line>1032</line>
+          <line>1038</line>
           <option name="timeStamp" value="13" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
-          <line>1518</line>
+          <line>1524</line>
           <option name="timeStamp" value="16" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
-          <line>866</line>
+          <line>865</line>
           <option name="timeStamp" value="19" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
@@ -323,7 +323,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
-          <line>484</line>
+          <line>483</line>
           <option name="timeStamp" value="31" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
@@ -348,17 +348,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
-          <line>1061</line>
+          <line>1067</line>
           <option name="timeStamp" value="43" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
-          <line>1060</line>
+          <line>1066</line>
           <option name="timeStamp" value="44" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
-          <line>1069</line>
+          <line>1075</line>
           <option name="timeStamp" value="45" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
@@ -378,17 +378,17 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
-          <line>1990</line>
+          <line>1996</line>
           <option name="timeStamp" value="59" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
-          <line>1246</line>
+          <line>1252</line>
           <option name="timeStamp" value="60" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
-          <line>1508</line>
+          <line>1514</line>
           <option name="timeStamp" value="61" />
         </line-breakpoint>
       </breakpoints>

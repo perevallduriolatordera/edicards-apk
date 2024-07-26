@@ -228,21 +228,20 @@ public class DepositManager extends Fragment implements  IMediator {
 			if (!hasFocus) {
 
 				_lastTextBox = (TextBoxColor) view;
-
 				EditText textBox = (EditText) view;
-				float descuento11;
+				float descuentoAplicar;
 
 				if (textBox.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-					descuento11 = Float.parseFloat(((EditText) view).getHint().toString());
+					descuentoAplicar = Float.parseFloat(((EditText) view).getHint().toString().replace(",", "."));
 				else
-					descuento11 = Float.parseFloat(((EditText) view).getText().toString());
+					descuentoAplicar = Float.parseFloat(((EditText) view).getText().toString().replace(",", "."));
 
-				if (descuento11 > 100) {
+				if (descuentoAplicar > 100) {
 					_appConfig.getMessageBox().Show("Error", "El porcentage de descuento comercial es incorrecto",
 							view.getContext(), MessageBoxType.Error);
 				} else {
 
-					_deposito.DescuentoComercial = descuento11;
+					_deposito.DescuentoComercial = descuentoAplicar;
 				}
 
 			} else {
@@ -962,9 +961,16 @@ public class DepositManager extends Fragment implements  IMediator {
 						LogBook logBookTrace = Factory.build(LogBook.class, _appConfig);
 
 						int stockInicial = linea.Articulo.Stock;
-						linea.Articulo.Stock = stockInicial + linea.UnidadesDevueltas - linea.UnidadesDefectuosas
-								- linea.UnidadesRepuestas
-								- (linea.UnidadesFacturadas - (linea.UnidadesInicialesFijas - linea.UnidadesDevueltas));
+
+						if (linea.UnidadesDevueltas == linea.UnidadesInicialesFijas) {
+							linea.Articulo.Stock = stockInicial - linea.UnidadesDefectuosas
+									- linea.UnidadesRepuestas
+									- (linea.UnidadesFacturadas - (linea.UnidadesInicialesFijas - linea.UnidadesDevueltas));
+						} else {
+							linea.Articulo.Stock = stockInicial + linea.UnidadesDevueltas - linea.UnidadesDefectuosas
+									- linea.UnidadesRepuestas
+									- (linea.UnidadesFacturadas - (linea.UnidadesInicialesFijas - linea.UnidadesDevueltas));
+						}
 
 						if (stockInicial != linea.Articulo.Stock) {
 
