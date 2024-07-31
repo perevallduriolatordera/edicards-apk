@@ -679,7 +679,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 8));
 
 				itemTextView = (TextView) convertView.findViewById(R.id.itemDescripcionArticulo);
-				itemTextView.setText(lineaDeposito.Articulo.Descripcion);
+				itemTextView.setText(lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion);
 				itemTextView.setTextColor(color);
 				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 15));
 
@@ -1275,10 +1275,10 @@ public class DepositManager extends Fragment implements  IMediator {
 			codigoArticulo.setText(lineaDeposito.Articulo.CodigoArticulo);
 
 			LabelColor articuloDescripcion = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-					lineaDeposito.Articulo.Descripcion.trim(), TEXT_SIZE, 12,
+					lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion, TEXT_SIZE, 12,
 					params, true, lineaDeposito.Articulo)
 					: (LabelColor) _headerLayout.getChildAt(1);
-			articuloDescripcion.setText(lineaDeposito.Articulo.Descripcion.trim());
+			articuloDescripcion.setText(lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion);
 			articuloDescripcion.setTag(lineaDeposito.Articulo);
 
 			articuloDescripcion.setOnClickListener(v -> DepositManagerExtension.Dialogs.StartArticuloDialog((Articulo) v.getTag(), that));
@@ -1611,10 +1611,10 @@ public class DepositManager extends Fragment implements  IMediator {
 		codigoArticulo.setText(lineaDeposito.Articulo.CodigoArticulo);
 
 		LabelColor articuloDescripcion = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				lineaDeposito.Articulo.Descripcion.trim() + " (Abono) ", TEXT_SIZE, 13,
+				lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion + " (Abono) ", TEXT_SIZE, 13,
 						params, true, lineaDeposito.Articulo)
 				: (LabelColor) _headerAbonoLayout.getChildAt(1);
-		articuloDescripcion.setText((lineaDeposito.Articulo.Descripcion.trim()));
+		articuloDescripcion.setText((lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion));
 		articuloDescripcion.setTag(lineaDeposito.Articulo);
 
 		articuloDescripcion.setOnClickListener(v -> DepositManagerExtension.Dialogs.StartArticuloDialog((Articulo) v.getTag(), that));
