@@ -827,7 +827,11 @@ public class Reports extends Fragment {
 		creator.createXmlAlbaran(deposito, historico.NumeroAlbaran);
 
 		IPdfDocumentGenerator pdf = new PdfDTOCreator(deposito, _appConfig);
-		pdf.createAlbaran(historico.GUID, !historico.ActualizarStock);
+		try {
+			pdf.createAlbaran(historico.GUID, !historico.ActualizarStock);
+		} catch (Exception e) {
+			DepositManagerExtension.Incidencias.createErrorPdfDocument(_appConfig, deposito.getDeposito(), e);
+		}
 		
 		try {
 			this.sendData();	

@@ -371,27 +371,28 @@ public class PdfDTOCreator extends pdfBase implements IPdfDocumentGenerator {
 
 	}
 
-	public boolean createAlbaran(String guid, boolean envioEdicards) {
-
-		_GUID = guid;
-		_document = new Document();
-
-		_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
-				+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_PDF + "/"
-				+ "REC_A_" + _app.getUser().User + " " + _deposito.NumeroAlbaran
-				+ "_" + this.getDateTimeFormat() + "_" + (envioEdicards ? "E" : "F") + ".pdf";
-
-		_document.addTitle(_app.getUser().User + "_" + _deposito.NumeroAlbaran
-				+ "_" + new Date(0));
+	public void createAlbaran(String guid, boolean envioEdicards) {
 
 		try {
-			PdfWriter.getInstance(_document, new FileOutputStream(_pdfName));
+			_GUID = guid;
+			_document = new Document();
+
+			_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
+					+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_PDF + "/"
+					+ "REC_A_" + _app.getUser().User + " " + _deposito.NumeroAlbaran
+					+ "_" + this.getDateTimeFormat() + "_" + (envioEdicards ? "E" : "F") + ".pdf";
+
+			_document.addTitle(_app.getUser().User + "_" + _deposito.NumeroAlbaran
+					+ "_" + new Date(0));
+
+
+				PdfWriter.getInstance(_document, new FileOutputStream(_pdfName));
 		} catch (DocumentException | FileNotFoundException e) {
 			throw new RuntimeException(e);
 		}
-		_document.open();
 
 		try {
+			_document.open();
 			if (_deposito.Serie.equals(_app.getUser().SerialInvoiceA))
 				printHeader();
 
@@ -421,13 +422,11 @@ public class PdfDTOCreator extends pdfBase implements IPdfDocumentGenerator {
 			closePage();
 
 		} catch (Exception e) {
-			return false;
+			throw new RuntimeException(e);
 		}
-
-		return true;
 	}
 
-	public boolean createDeposito(String guid) {
+	public void createDeposito(String guid) {
 
 		_GUID = guid;
 
@@ -466,9 +465,7 @@ public class PdfDTOCreator extends pdfBase implements IPdfDocumentGenerator {
 			closePage();
 
 		} catch (Exception e) {
-			return false;
+			throw new RuntimeException(e);
 		}
-
-		return true;
 	}
 }

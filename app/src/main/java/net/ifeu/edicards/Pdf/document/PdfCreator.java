@@ -411,7 +411,7 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 
 	}
 
-	public boolean createAlbaran(String guid, boolean isTransferPayment)
+	public void createAlbaran(String guid, boolean isTransferPayment)
 	{
 		try {
 
@@ -462,7 +462,7 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 
 		} catch (Exception e) {
 			sendMailToMantenimiento(e, _app.getUser().User, _deposito.NumeroAlbaran, "albarán");
-			return false;
+			throw new RuntimeException(e);
 		} finally {
 			{
 				try {
@@ -472,11 +472,9 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 				}
 			}
 		}
-
-		return true;
 	}
 
-	public boolean createDeposito(String guid)
+	public void createDeposito(String guid)
 	{
 
 		try {
@@ -515,12 +513,8 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 			this.addSignature(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
 			closePage();
 		} catch (Exception e) {
-			sendMailToMantenimiento(e, _app.getUser().User, _deposito.NumDoc, "depósito");
-			return false;
-
+			throw new RuntimeException(e);
 		}
-
-		return true;
 	}
 
 }

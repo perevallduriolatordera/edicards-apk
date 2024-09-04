@@ -430,7 +430,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
 
     }
 
-    public boolean createAlbaran(String guid, boolean isTransferPayment)
+    public void createAlbaran(String guid, boolean isTransferPayment)
     {
         try {
 
@@ -482,7 +482,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
 
         } catch (Exception e) {
             sendMailToMantenimiento(e, _app.getUser().User, _deposito.NumeroAlbaran, "albarán");
-            return false;
+            throw new RuntimeException(e);
         } finally {
             {
                 try {
@@ -492,11 +492,9 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
                 }
             }
         }
-
-        return true;
     }
 
-    public boolean createDeposito(String guid)
+    public void createDeposito(String guid)
     {
         throw new NotImplementedException("Esta opción aún no ha sido implementada");
     }

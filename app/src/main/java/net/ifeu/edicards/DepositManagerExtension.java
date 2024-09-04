@@ -46,6 +46,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -176,17 +178,27 @@ public class DepositManagerExtension {
 			IPdfDocumentGenerator pdfAlmacen = new PdfAlmacenCreator(deposito,config);
 	
 			if (deposito.isDeposito()) { // && _deposito.isDepositoUpdated())
-				boolean result = pdf.createDeposito(GUID);
-				if (!result) Incidencias.createErrorPdfDocument(config, deposito);
+				try {
+					pdf.createDeposito(GUID);
+				} catch (Exception e) {
+					Incidencias.createErrorPdfDocument(config, deposito, e);
+				}
 			}
 
 			if (!TextUtils.isEmpty(deposito.NumeroAlbaran)) {
-				boolean result = pdf.createAlbaran(GUID, DataTier.isTransferPayment(deposito.FormaPago));
-				if (!result) Incidencias.createErrorPdfDocument(config, deposito);
+
+				try {
+					pdf.createAlbaran(GUID, DataTier.isTransferPayment(deposito.FormaPago));
+				} catch (Exception e) {
+					Incidencias.createErrorPdfDocument(config, deposito, e);
+				}
 
 				if (config.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
-					boolean resultAlmacen = pdfAlmacen.createAlbaran(GUID, DataTier.isTransferPayment(deposito.FormaPago));
-					if (!resultAlmacen) Incidencias.createErrorPdfDocument(config, deposito);
+					try {
+						pdfAlmacen.createAlbaran(GUID, DataTier.isTransferPayment(deposito.FormaPago));
+					} catch (Exception e) {
+						Incidencias.createErrorPdfDocument(config, deposito, e);
+					}
 				}
 			}
 		}
@@ -329,7 +341,13 @@ public class DepositManagerExtension {
 			}
 		}
 
-		public static void createErrorPdfDocument(AppConfig appConfig, Deposito deposito) {
+		public static void createErrorPdfDocument(AppConfig appConfig, Deposito deposito, Exception e) {
+
+			StringWriter sw = new StringWriter();
+			PrintWriter pw = new PrintWriter(sw);
+			e.printStackTrace(pw);
+			String stackTraceAsString = sw.toString();
+
 			String text = "Se ha producido un error generando el documento pdf con los siguientes datos: " + ConstantsTypes.NEW_LINE
 					+ ConstantsTypes.NEW_LINE + "NUM. DEPOSITO DIMONI: " + deposito.NumDoc
 					+ ConstantsTypes.NEW_LINE + "NÚM. DEPOSITO TABLET (RefExt): " + deposito.IdDeposito
@@ -337,15 +355,15 @@ public class DepositManagerExtension {
 					(StringUtils.isEmpty(deposito.NumeroAlbaran) ? "" : deposito.NumeroAlbaran)
 					+ ConstantsTypes.NEW_LINE + "NIF/CIF:" + deposito.NIF + ConstantsTypes.NEW_LINE + "NOMBRE: "
 					+ deposito.Nombre + ConstantsTypes.NEW_LINE + "RAZON: " + deposito.Razon
-					+ ConstantsTypes.NEW_LINE;
-
+					+ ConstantsTypes.NEW_LINE
+					+ "INFORMACIÓN DEL ERROR: " + ConstantsTypes.NEW_LINE + stackTraceAsString;
 
 			Incidencia incidencia = new Incidencia(appConfig.getUser().User, new Date(),
 					IncidenciaType.ErrorDocumento, text);
 			try {
 				incidencia.create(new IncidentPdfCreator(appConfig));
-			} catch (Exception e) {
-				throw new RuntimeException(e);
+			} catch (Exception ex) {
+				throw new RuntimeException(ex);
 			}
 		}
 	}

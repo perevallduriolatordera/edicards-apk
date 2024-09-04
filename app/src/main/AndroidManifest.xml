@@ -3,7 +3,7 @@
     package="net.ifeu.edicards"
     android:versionCode="5"
     android:exported="true"
-    android:versionName="5.0.6 (30 Julio 2024)" >
+    android:versionName="5.0.7 (04 Septiembre 2024)" >
 
     <!--<uses-sdk
         android:minSdkVersion="16"
