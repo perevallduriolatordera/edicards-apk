@@ -163,6 +163,8 @@ public class pdfBase {
 		try {
 
 			Bitmap bitmap = this.loadImageFromFile(imageFile);
+			if (bitmap == null) return;
+
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		
 			bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
