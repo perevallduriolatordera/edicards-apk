@@ -241,7 +241,8 @@ public class DepositManager extends Fragment implements  IMediator {
 							view.getContext(), MessageBoxType.Error);
 				} else {
 
-					_deposito.DescuentoComercial = descuentoAplicar;
+					if (_deposito != null)
+						_deposito.DescuentoComercial = descuentoAplicar;
 				}
 
 			} else {
@@ -1113,6 +1114,12 @@ public class DepositManager extends Fragment implements  IMediator {
 		if (!_deposito.isDepositoUpdated() || _deposito.isDepositoUpdatedOnlyVentaDirecta()) {
 			printDeposito = _appConfig.getMessageBox().ShowWithResult("Impresión de documentos",
 					"El depósito no ha sido modificado. Desea imprimirlo de todos modos ?", this.getActivity(),
+					MessageBoxType.Information);
+		}
+
+		if (_deposito.IsNtvDeposit) {
+			printDeposito = _appConfig.getMessageBox().ShowWithResult("Impresión de documentos",
+					"El depósito es una importación de la app de NTV y no ha sido modificado. Desea imprimirlo de todos modos ?", this.getActivity(),
 					MessageBoxType.Information);
 		}
 
