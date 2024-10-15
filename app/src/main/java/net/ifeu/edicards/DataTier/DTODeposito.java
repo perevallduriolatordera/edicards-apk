@@ -86,6 +86,8 @@ public class DTODeposito {
 	@Expose
 	public String TipoDeposito;
 	@Expose
+	public boolean isNTV;
+	@Expose
 	public LinkedHashMap<String, DTOLineaDeposito> Lineas = new LinkedHashMap<>();
 
 	public Totales Totales = new Totales();
@@ -197,6 +199,7 @@ public class DTODeposito {
 		this.Telefono2 = dto.Telefono2;
 		this.TipoDeposito = dto.TipoDeposito;
 		this.Web = dto.Web;
+		this.isNTV = dto.isNTV;
 
 		this.Lineas.clear();
 		for (DTOLineaDeposito linea : dto.Lineas.values()) {
@@ -271,6 +274,7 @@ public class DTODeposito {
 		dep.Telefono2 = this.Telefono2;
 		dep.TipoDeposito = this.TipoDeposito;
 		dep.Web = this.Web;
+		dep.IsNtvDeposit = this.isNTV;
 
 		dep.Lineas.clear();
 		for (DTOLineaDeposito linea : this.Lineas.values()) {

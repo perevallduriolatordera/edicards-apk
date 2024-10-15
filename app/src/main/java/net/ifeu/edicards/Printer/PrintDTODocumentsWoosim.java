@@ -194,7 +194,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 
 				if (isMadeInSpain(deposito.CodigoPostal))
 					this.PrintBitmapImage(context.getResources(),
-							R.drawable.madeinspain, 1, false);
+							R.drawable.madeinspain_image, 1, false);
 
 			} else {
 				for (Totales.Base base : deposito.Totales.Bases.values()) {
@@ -231,7 +231,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 					if (isMadeInSpain(deposito.CodigoPostal))
 						this.PrintBitmapImage(
 								context.getResources(),
-								R.drawable.madeinspain, 1 , false);
+								R.drawable.madeinspain_image, 1 , false);
 
 					_woosim.saveSpool(LANGUAGE,
 							"Conforme firma cliente:\n\n", 0, true);
@@ -286,7 +286,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 					if (isMadeInSpain(deposito.CodigoPostal))
 						this.PrintBitmapImage(
 								context.getResources(),
-								R.drawable.madeinspain, 1, false);
+								R.drawable.madeinspain_image, 1, false);
 
 					_woosim.saveSpool(LANGUAGE,
 							"Conforme - Firma Cliente:\n", 0, false);
@@ -490,7 +490,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 
 			if (isMadeInSpain(deposito.CodigoPostal))
 				this.PrintBitmapImage(context.getResources(),
-						R.drawable.madeinspain, 1, false);
+						R.drawable.madeinspain_image, 1, false);
 
 			this.PrintBitmapImage(context.getResources(),
 					R.drawable.contract, 1 , false);

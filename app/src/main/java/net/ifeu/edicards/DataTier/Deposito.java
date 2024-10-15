@@ -977,6 +977,7 @@ public class Deposito extends Cliente implements IPersistable {
 		dto.Telefono2 = this.Telefono2;
 		dto.TipoDeposito = this.TipoDeposito;
 		dto.Web = this.Web;
+		dto.isNTV = this.IsNtvDeposit;
 
 		dto.Lineas.clear();
 

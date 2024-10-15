@@ -597,14 +597,17 @@ public class Reports extends Fragment {
 
 					if (drop) {
 
+						DTODeposito dto = new DTODeposito(_appConfig, getActivity());
+						dto.deserialize(hist.Serializacion);
+
 						that.upgradeStock(hist);
-						that.upgradeDeposito(hist);
+
+						if (!dto.isNTV)
+							that.upgradeDeposito(hist);
+
 						that.sendIncidencia(hist);
 
 						// CREAMOS EL NUEVO ALBARÁN DE ABONO
-						
-						DTODeposito dto = new DTODeposito(_appConfig, getActivity());
-						dto.deserialize(hist.Serializacion);
 
 						try {
 							dto.Calculate();

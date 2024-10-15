@@ -292,7 +292,7 @@ public class PrintDocumentsStar implements IPrint {
 
 				if (isMadeInSpain(deposito.CodigoPostal))
 					this.PrintBitmapImage(context, PORT, SETTINGS,
-							context.getResources(), R.drawable.madeinspain,
+							context.getResources(), R.drawable.madeinspain_image,
 							1500);
 
 				port.writePort(new byte[] { 0x1b, 0x45, 0x00 }, 0, 3); // Set
@@ -345,7 +345,7 @@ public class PrintDocumentsStar implements IPrint {
 					if (isMadeInSpain(deposito.CodigoPostal))
 						this.PrintBitmapImage(context, PORT, SETTINGS,
 								context.getResources(),
-								R.drawable.madeinspain, 1500);
+								R.drawable.madeinspain_image, 1500);
 
 					outputByteBuffer = ("Conforme   firma cliente:\n")
 							.getBytes();
@@ -406,7 +406,7 @@ public class PrintDocumentsStar implements IPrint {
 					if (isMadeInSpain(deposito.CodigoPostal))
 						this.PrintBitmapImage(context, PORT, SETTINGS,
 								context.getResources(),
-								R.drawable.madeinspain, 1500);
+								R.drawable.madeinspain_image, 1500);
 
 					port.writePort(new byte[] { 0x1b, 0x45, 0x01 }, 0, 3); // Set
 																			// Emphasized
@@ -709,7 +709,7 @@ public class PrintDocumentsStar implements IPrint {
 
 			if (isMadeInSpain(deposito.CodigoPostal))
 				this.PrintBitmapImage(context, PORT, SETTINGS,
-						context.getResources(), R.drawable.madeinspain, 1500);
+						context.getResources(), R.drawable.madeinspain_image, 1500);
 
 			this.PrintBitmapImage(context, PORT, SETTINGS,
 					context.getResources(), R.drawable.contract, 1500);

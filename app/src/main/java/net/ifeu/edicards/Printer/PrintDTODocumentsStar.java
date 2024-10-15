@@ -174,7 +174,7 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 				port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
 					
 				if (isMadeInSpain(deposito.CodigoPostal))
-					this.PrintBitmapImage(context, PORT, SETTINGS, context.getResources(), R.drawable.madeinspain, 1500);
+					this.PrintBitmapImage(context, PORT, SETTINGS, context.getResources(), R.drawable.madeinspain_image, 1500);
 				
 				port.writePort(new byte[]{0x1b, 0x45, 0x00}, 0, 3);                 //Set Emphasized Printing OFF (same command as on)
 			}
@@ -203,7 +203,7 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 				{
 					if (isMadeInSpain(deposito.CodigoPostal))
 						this.PrintBitmapImage(context, PORT, SETTINGS,
-								context.getResources(), R.drawable.madeinspain,
+								context.getResources(), R.drawable.madeinspain_image,
 								1500);
 
 					
@@ -242,7 +242,7 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
 					
 					if (isMadeInSpain(deposito.CodigoPostal))
-						this.PrintBitmapImage(context, PORT, SETTINGS, context.getResources(), R.drawable.madeinspain, 1500);
+						this.PrintBitmapImage(context, PORT, SETTINGS, context.getResources(), R.drawable.madeinspain_image, 1500);
 					
 					port.writePort(new byte[]{0x1b, 0x45, 0x01}, 0, 3);                 //Set Emphasized Printing ON
 					outputByteBuffer = ("Conforme - Firma Cliente:\n").getBytes();
@@ -460,7 +460,7 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 			port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
 
 			if (isMadeInSpain(deposito.CodigoPostal))
-				this.PrintBitmapImage(context, PORT, SETTINGS, context.getResources(), R.drawable.madeinspain, 1500);
+				this.PrintBitmapImage(context, PORT, SETTINGS, context.getResources(), R.drawable.madeinspain_image, 1500);
 			
 			this.PrintBitmapImage(context, PORT, SETTINGS, context.getResources(), R.drawable.contract, 1500);
 		
