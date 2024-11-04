@@ -111,7 +111,10 @@ public class AlbaranCustomerSearch extends Activity {
 			else {
 				depositoNTVDTO.File = file;
 				finish();
-				_appConfig.getMediator().notify(ConstantsEvents.EVENT_NTV_IMPORT_STARTED, depositoNTVDTO);
+
+				if (depositoNTVDTO != null) {
+					_appConfig.getMediator().notify(ConstantsEvents.EVENT_NTV_IMPORT_STARTED, depositoNTVDTO);
+				}
 			}
 		});
 

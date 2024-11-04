@@ -5,7 +5,9 @@ import android.database.Cursor;
 
 import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Articulo;
+import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.Factories.Factory;
+import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 import net.ifeu.library.Utils.DateTime.DateTimeUtils;
@@ -62,27 +64,33 @@ public class LogBook extends Persistent implements IPersistable {
     public void save() throws Exception {
 
         Articulo articuloHomonimo = Factory.build(Articulo.class, appConfig);
+        Deposito depositoHomonimo = Factory.build(Deposito.class, appConfig);
+        boolean existsDeposito = depositoHomonimo.setFirstDepositoByCliente(this.CodigoCliente);
 
-        boolean isCH = false;
+        boolean isChineseArticle = false;
         boolean isFound;
         if (this.CodigoArticulo.startsWith("CH")) {
             isFound = articuloHomonimo.setArticuloByCodigo(this.CodigoArticulo.substring(2));
-            isCH = true;
+            isChineseArticle = true;
         } else {
             isFound = articuloHomonimo.setArticuloByCodigo("CH" + this.CodigoArticulo);
         }
 
-        //PVT 03-03-2023
         if (isFound) {
-            if (isCH) {
+            if (isChineseArticle) {
                 this.CodigoArticulo = articuloHomonimo.CodigoArticulo;
                 this.NombreArticulo = articuloHomonimo.Descripcion;
-                this.StockInicial += articuloHomonimo.Stock;
-                this.StockFinal += articuloHomonimo.Stock;
-            } else {
-                this.StockInicial += articuloHomonimo.Stock;
-                this.StockFinal += articuloHomonimo.Stock;
             }
+
+            if (existsDeposito) {
+                if (depositoHomonimo.Lineas.containsKey(articuloHomonimo.CodigoArticulo)) {
+                    LineaDeposito lineaDeposito = depositoHomonimo.Lineas.get(articuloHomonimo.CodigoArticulo);
+                    this.UnidadesIniciales+= lineaDeposito.UnidadesIniciales;
+                    this.UnidadesRepuestas+= lineaDeposito.UnidadesRepuestas;
+                }
+            }
+            this.StockInicial += articuloHomonimo.Stock;
+            this.StockFinal += articuloHomonimo.Stock;
         }
 
         ContentValues values = new ContentValues();

@@ -8,6 +8,8 @@ import java.io.OutputStream;
 
 import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.library.Imaging.BitmapConvertor;
+
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -119,6 +121,7 @@ public class SignatureView extends View {
 		mPath.reset();// kill this so we don't double draw
 	}
 
+	@SuppressLint("WrongThread")
 	public void save(int tipo, String name) {
 
 		String path;

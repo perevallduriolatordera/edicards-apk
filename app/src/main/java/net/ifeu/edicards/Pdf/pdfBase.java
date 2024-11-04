@@ -108,7 +108,6 @@ public class pdfBase {
 			_document.add(bgImage);
 
 		} catch (Exception e) {
-			throw new RuntimeException(e);
 		}
 
 	}
@@ -130,6 +129,7 @@ public class pdfBase {
 		try {
 
 			Bitmap bitmap = this.loadImageFromFile(imageFile);
+			if (bitmap == null) return;
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		
 			bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
@@ -144,7 +144,6 @@ public class pdfBase {
 				System.gc();
 		
 			} catch (Exception e) {
-				throw new RuntimeException(e);
 			}
 		
 		} catch (Exception e) {
@@ -192,7 +191,6 @@ public class pdfBase {
 				System.gc();
 		
 			} catch (Exception e) {
-				throw new RuntimeException(e);
 			}
 		
 		} catch (Exception e) {

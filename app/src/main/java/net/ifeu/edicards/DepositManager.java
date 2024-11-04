@@ -705,7 +705,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				if (lineaDeposito.PVPAbono == 0)
 					lineaDeposito.PVPAbono = lineaDeposito.PVP;
 
-				lineaDeposito.PVPAnterior = lineaDeposito.PVP;
+				//lineaDeposito.PVPAnterior = lineaDeposito.PVP;
 
 				itemTextView = (TextView) convertView.findViewById(R.id.itemPVP);
 				itemTextView.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP));
@@ -973,19 +973,16 @@ public class DepositManager extends Fragment implements  IMediator {
 									- (linea.UnidadesFacturadas - (linea.UnidadesInicialesFijas - linea.UnidadesDevueltas));
 						}
 
-						if (stockInicial != linea.Articulo.Stock) {
+						if (!processed.containsKey(linea.Articulo.CodigoArticulo))
+						{
+							logBookTrace.setData("DEPOSITO RETIRADO", _deposito.Cliente.CodigoCliente,
+									_deposito.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+									stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+									linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
+									linea.UnidadesAbono, linea.UnidadesDefectuosas);
 
-							if (!processed.containsKey(linea.Articulo.CodigoArticulo))
-							{
-								logBookTrace.setData("DEPOSITO RETIRADO", _deposito.Cliente.CodigoCliente,
-										_deposito.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
-										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
-										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
-										linea.UnidadesAbono, linea.UnidadesDefectuosas);
-
-								logBookTrace.save();
-								processed.put(linea.Articulo.CodigoArticulo, linea);
-							}
+							logBookTrace.save();
+							processed.put(linea.Articulo.CodigoArticulo, linea);
 						}
 
 						linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesDevueltas
@@ -1895,17 +1892,6 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		_adapter.notifyDataSetChanged();
 
-		/*if (!_abonoMode) {
-
-			if (_headerLayout != null) {
-				((TextView) _headerLayout.getChildAt(3)).setText(String.valueOf(linea.UnidadesIniciales));
-				((TextView) _headerLayout.getChildAt(6)).setText(String.valueOf(linea.UnidadesFacturadas));
-				((TextView) _headerLayout.getChildAt(8)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(linea.PVPAnterior)));
-				((TextView) _headerLayout.getChildAt(9)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(totalLinea)));
-			}
-		} else {
-			((LabelColor) _headerAbonoLayout.getChildAt(8)).setText(String.valueOf(DepositManagerExtension.Format.CurrencyFormat(linea.TotalAbono)));
-		}*/
 	}
 	private void refreshTotals() throws Exception {
 		if (_deposito != null) {
