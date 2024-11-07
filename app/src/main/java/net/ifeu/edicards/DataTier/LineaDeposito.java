@@ -267,4 +267,8 @@ public class LineaDeposito extends Persistent implements IPersistable {
 		Articulo.Stock = Articulo.Stock - this.UnidadesFacturadas + this.UnidadesDevueltas  - this.UnidadesDefectuosas - this.UnidadesRepuestas;
 		Articulo.MovimientoStock = Articulo.MovimientoStock - this.UnidadesFacturadas + this.UnidadesDevueltas  - this.UnidadesDefectuosas - this.UnidadesRepuestas;
 	}
+
+	public void calculateStockAbono() {
+		Articulo.Stock = Articulo.Stock + this.UnidadesAbono - this.DefectuosasAbono;
+	}
 }

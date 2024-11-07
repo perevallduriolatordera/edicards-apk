@@ -1165,7 +1165,7 @@ public class Deposito extends Cliente implements IPersistable {
 					linea.Articulo.Activo = true;
 
 					int stockInicial = linea.Articulo.Stock;
-					linea.Articulo.Stock = stockInicial + linea.UnidadesAbono - linea.DefectuosasAbono;
+					linea.calculateStockAbono();
 
 					if (stockInicial != linea.Articulo.Stock) {
 
