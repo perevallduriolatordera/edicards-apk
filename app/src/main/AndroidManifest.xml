@@ -3,7 +3,7 @@
     package="net.ifeu.edicards"
     android:versionCode="5"
     android:exported="true"
-    android:versionName="5.0.12 (04 Noviembre 2024)" >
+    android:versionName="5.1.1 (07 Noviembre 2024) --> Nuevo cálculo de stock" >
 
     <!--<uses-sdk
         android:minSdkVersion="16"

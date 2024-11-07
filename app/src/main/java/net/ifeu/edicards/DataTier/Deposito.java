@@ -1055,9 +1055,7 @@ public class Deposito extends Cliente implements IPersistable {
 
 						if (linea.IsVentaDirecta) {
 							int stockInicial = linea.Articulo.Stock;
-							linea.Articulo.Stock = stockInicial + linea.UnidadesDevueltas - linea.UnidadesDefectuosas
-									- linea.UnidadesRepuestas
-									- (linea.UnidadesFacturadas - (linea.UnidadesInicialesFijas - linea.UnidadesDevueltas));
+							linea.calculateStock();
 
 							if (stockInicial != linea.Articulo.Stock) {
 								logBookTrace.setData("VENTA DIRECTA CON UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
@@ -1074,14 +1072,9 @@ public class Deposito extends Cliente implements IPersistable {
 
 							}
 
-							linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesDevueltas
-									- linea.UnidadesDefectuosas - linea.UnidadesRepuestas
-									- (linea.UnidadesFacturadas - linea.UnidadesInicialesFijas + linea.UnidadesDevueltas);
-
 						} else {
 							int stockInicial = linea.Articulo.Stock;
-							linea.Articulo.Stock = stockInicial + linea.UnidadesDevueltas - linea.UnidadesDefectuosas
-									- linea.UnidadesRepuestas;
+							linea.calculateStock();
 
 							if (stockInicial != linea.Articulo.Stock) {
 
@@ -1097,9 +1090,6 @@ public class Deposito extends Cliente implements IPersistable {
 									throw new RuntimeException(e);
 								}
 							}
-
-							linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesDevueltas
-									- linea.UnidadesDefectuosas - linea.UnidadesRepuestas;
 						}
 
 						linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.UnidadesDefectuosas;
@@ -1121,10 +1111,9 @@ public class Deposito extends Cliente implements IPersistable {
 
 						if (linea.IsVentaDirecta) {
 							int stockInicial = linea.Articulo.Stock;
-							linea.Articulo.Stock = stockInicial - linea.UnidadesFacturadas + linea.UnidadesDevueltas - linea.UnidadesIniciales - linea.UnidadesDefectuosas;
+							linea.calculateStock();
 
 							if (stockInicial != linea.Articulo.Stock) {
-
 								logBookTrace.setData("VENTA DIRECTA SIN UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
 										this.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
 										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
@@ -1141,9 +1130,7 @@ public class Deposito extends Cliente implements IPersistable {
 							linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock - linea.UnidadesFacturadas;
 						} else {
 							int stockInicial = linea.Articulo.Stock;
-							linea.Articulo.Stock = stockInicial + linea.UnidadesDevueltas - linea.UnidadesDefectuosas
-									- linea.UnidadesRepuestas;
-
+							linea.calculateStock();
 
 							if (stockInicial != linea.Articulo.Stock) {
 
@@ -1159,9 +1146,6 @@ public class Deposito extends Cliente implements IPersistable {
 									throw new RuntimeException(e);
 								}
 							}
-
-							linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesDevueltas
-									- linea.UnidadesDefectuosas - linea.UnidadesRepuestas;
 						}
 
 						linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.UnidadesDefectuosas;

@@ -260,4 +260,11 @@ public class LineaDeposito extends Persistent implements IPersistable {
 	    		return linea1.Articulo.Familia.compareTo(linea2.Articulo.Familia);
 	    }
 	}
+
+	public void calculateStock() {
+		if (this.UnidadesDevueltas == 0)
+			this.UnidadesDevueltas = this.UnidadesInicialesFijas;
+		Articulo.Stock = Articulo.Stock - this.UnidadesFacturadas + this.UnidadesDevueltas  - this.UnidadesDefectuosas - this.UnidadesRepuestas;
+		Articulo.MovimientoStock = Articulo.MovimientoStock - this.UnidadesFacturadas + this.UnidadesDevueltas  - this.UnidadesDefectuosas - this.UnidadesRepuestas;
+	}
 }

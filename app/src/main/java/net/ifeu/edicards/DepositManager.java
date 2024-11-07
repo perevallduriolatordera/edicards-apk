@@ -963,15 +963,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 						int stockInicial = linea.Articulo.Stock;
 
-						if (linea.UnidadesDevueltas == linea.UnidadesInicialesFijas) {
-							linea.Articulo.Stock = stockInicial - linea.UnidadesDefectuosas
-									- linea.UnidadesRepuestas
-									- (linea.UnidadesFacturadas - (linea.UnidadesInicialesFijas - linea.UnidadesDevueltas));
-						} else {
-							linea.Articulo.Stock = stockInicial + linea.UnidadesDevueltas - linea.UnidadesDefectuosas
-									- linea.UnidadesRepuestas
-									- (linea.UnidadesFacturadas - (linea.UnidadesInicialesFijas - linea.UnidadesDevueltas));
-						}
+						linea.calculateStock();
 
 						if (!processed.containsKey(linea.Articulo.CodigoArticulo))
 						{
@@ -985,12 +977,7 @@ public class DepositManager extends Fragment implements  IMediator {
 							processed.put(linea.Articulo.CodigoArticulo, linea);
 						}
 
-						linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock + linea.UnidadesDevueltas
-								- linea.UnidadesDefectuosas - linea.UnidadesRepuestas
-								- (linea.UnidadesFacturadas - linea.UnidadesInicialesFijas + linea.UnidadesDevueltas);
-						
 						linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.UnidadesDefectuosas;
-						
 						linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
 								+ linea.UnidadesDefectuosas;
 
