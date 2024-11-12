@@ -1391,7 +1391,7 @@ public class DepositManager extends Fragment implements  IMediator {
 						pvp1 = NumberUtils.toFloat(_lastTextBox.getHint().toString(), 0);
 					else {
 						pvp1 = NumberUtils.toFloat(_lastTextBox.getText().toString(), 0);
-						lineaDepositoValue.PVPAnterior = pvp1;
+						//lineaDepositoValue.PVPAnterior = pvp1;
 					}
 
 					lineaDepositoValue.PVP = pvp1;
