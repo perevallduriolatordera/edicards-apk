@@ -295,7 +295,7 @@ public class Reports extends Fragment {
     	
 		RelativeLayout card = new RelativeLayout(this.getActivity());
     	card.setBackgroundResource(R.drawable.card_background);
-    	card.setGravity(Gravity.CENTER);
+		card.setGravity(Gravity.CENTER);
 
 		params.width= ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.2f).getWidth();
 		params.height= ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getHeight();	card.setLayoutParams(params);
@@ -785,7 +785,6 @@ public class Reports extends Fragment {
 						linea.UnidadesInicialesFijas = linea.UnidadesIniciales;
 	
 						linea.PVP = historicoLinea.PVP;
-						//linea.PVPAnterior = linea.getPVP(_cliente, articuloInCatalgo);
 						linea.PVPAnterior = linea.PVP;
 						linea.PVPInicial = linea.PVPAnterior;
 						
@@ -985,7 +984,7 @@ public class Reports extends Fragment {
 		layout.addView(piezas);
 		layout.addView(totales);
 
-		LinearLayout footerLinearLayout = (LinearLayout) this.getActivity()
+		LinearLayout footerLinearLayout = this.getActivity()
 				.findViewById(R.id.headerReportButtonsLinearLayout);
 		footerLinearLayout.removeAllViews();
 		footerLinearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -1029,9 +1028,9 @@ public class Reports extends Fragment {
 	private void getHistoricos() {
 		try {
 
-			DatePicker picker1 = (DatePicker) getActivity().findViewById(
+			DatePicker picker1 = getActivity().findViewById(
 					R.id.dpResult1);
-			DatePicker picker2 = (DatePicker) getActivity().findViewById(
+			DatePicker picker2 = getActivity().findViewById(
 					R.id.dpResult2);
 
 			_calendar1.set(picker1.getYear(), picker1.getMonth(),

@@ -55,7 +55,6 @@ import net.ifeu.library.Utils.Screen.ScreenManager;
 
 import org.apache.commons.lang3.math.NumberUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -110,12 +109,12 @@ public class DepositManager extends Fragment implements  IMediator {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		_mainLayout = (LinearLayout) getActivity().findViewById(R.id.depositManagerLayout);
+		_mainLayout = getActivity().findViewById(R.id.depositManagerLayout);
 
-		_articlesLayout = (LinearLayout) this.getActivity()
+		_articlesLayout = this.getActivity()
 				.findViewById(R.id.mainLinearLayoutArticles);
 
-		_articlesListView = (ListView) this.getActivity().findViewById(R.id.listViewArticles);
+		_articlesListView = this.getActivity().findViewById(R.id.listViewArticles);
 
 		showCustomerSearchDialog();
 
@@ -320,9 +319,9 @@ public class DepositManager extends Fragment implements  IMediator {
 			}
 		}
 
-		LinearLayout topLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout2);
-		LinearLayout topLinearLayout2 = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout3);
-		LinearLayout topLinearLayout3 = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout4);
+		LinearLayout topLinearLayout = this.getActivity().findViewById(R.id.headerMainLinearLayout2);
+		LinearLayout topLinearLayout2 = this.getActivity().findViewById(R.id.headerMainLinearLayout3);
+		LinearLayout topLinearLayout3 = this.getActivity().findViewById(R.id.headerMainLinearLayout4);
 
 		topLinearLayout.removeAllViews();
 		topLinearLayout2.removeAllViews();
@@ -532,7 +531,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		else
 			DepositManagerExtension.UI.addViewsToLayout(layout, nuevo);
 
-		LinearLayout footerLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerButtonsLinearLayout);
+		LinearLayout footerLinearLayout = this.getActivity().findViewById(R.id.headerButtonsLinearLayout);
 		footerLinearLayout.removeAllViews();
 		footerLinearLayout.setOrientation(LinearLayout.VERTICAL);
 
@@ -554,13 +553,13 @@ public class DepositManager extends Fragment implements  IMediator {
 		Cliente cliente = _appConfig.getWorkingArea().CurrentCliente;
 		_cliente = _appConfig.getWorkingArea().CurrentCliente;
 
-		TextView labelCliente = (TextView) getActivity().findViewById(R.id.lblCliente);
+		TextView labelCliente = getActivity().findViewById(R.id.lblCliente);
 		labelCliente.setText(cliente.Nombre + " - " + cliente.NIF);
 
-		TextView labelBaseFactura = (TextView) getActivity().findViewById(R.id.lblBase);
+		TextView labelBaseFactura = getActivity().findViewById(R.id.lblBase);
 		labelBaseFactura.setText("0 €");
 
-		TextView labelTotalFactura = (TextView) getActivity().findViewById(R.id.lblTotalFactura);
+		TextView labelTotalFactura = getActivity().findViewById(R.id.lblTotalFactura);
 		labelTotalFactura.setText("0 €");
 
 		try {
@@ -674,30 +673,27 @@ public class DepositManager extends Fragment implements  IMediator {
 				int color = Objects.requireNonNull(lineaDeposito).IsNew ? Color.BLUE : Color.BLACK;
 				color = Objects.requireNonNull(lineaDeposito).IsNtvLine ? Color.MAGENTA : color;
 
-				TextView itemTextView = (TextView) convertView.findViewById(R.id.itemCodigoArticulo);
+				TextView itemTextView = convertView.findViewById(R.id.itemCodigoArticulo);
 				itemTextView.setText(lineaDeposito.Articulo.CodigoArticulo);
 				itemTextView.setTextColor(color);
 				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 8));
 
-				itemTextView = (TextView) convertView.findViewById(R.id.itemDescripcionArticulo);
+				itemTextView = convertView.findViewById(R.id.itemDescripcionArticulo);
 				itemTextView.setText(lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion);
 				itemTextView.setTextColor(color);
 				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 15));
 
-				itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesInicial);
+				itemTextView = convertView.findViewById(R.id.itemUnidadesInicial);
 				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesIniciales));
 				itemTextView.setTextColor(color);
 				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 13));
 
-				//if (lineaDeposito.UnidadesDevueltas == 0)
-				//	lineaDeposito.UnidadesDevueltas = lineaDeposito.UnidadesInicialesFijas;
-
-				itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesContadas);
+				itemTextView = convertView.findViewById(R.id.itemUnidadesContadas);
 				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesDevueltas));
 				itemTextView.setTextColor(color);
 				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 11));
 
-				itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesRecicladas);
+				itemTextView = convertView.findViewById(R.id.itemUnidadesRecicladas);
 				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesDefectuosas));
 				itemTextView.setTextColor(color);
 				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 11));
@@ -705,29 +701,27 @@ public class DepositManager extends Fragment implements  IMediator {
 				if (lineaDeposito.PVPAbono == 0)
 					lineaDeposito.PVPAbono = lineaDeposito.PVP;
 
-				//lineaDeposito.PVPAnterior = lineaDeposito.PVP;
-
-				itemTextView = (TextView) convertView.findViewById(R.id.itemPVP);
+				itemTextView = convertView.findViewById(R.id.itemPVP);
 				itemTextView.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP));
 				itemTextView.setTextColor(color);
 				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 11));
 
-				itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesFacturadas);
+				itemTextView = convertView.findViewById(R.id.itemUnidadesFacturadas);
 				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesFacturadas));
 				itemTextView.setTextColor(color);
 				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 11));
 
-				itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesRepuestas);
+				itemTextView = convertView.findViewById(R.id.itemUnidadesRepuestas);
 				itemTextView.setText(String.valueOf(lineaDeposito.UnidadesRepuestas));
 				itemTextView.setTextColor(color);
 				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 11));
 
-				itemTextView = (TextView) convertView.findViewById(R.id.itemPVPPost);
+				itemTextView = convertView.findViewById(R.id.itemPVPPost);
 				itemTextView.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAnterior));
 				itemTextView.setTextColor(color);
 				itemTextView.setWidth(DepositManagerExtension.UI.getWidthOfEditText(_appConfig, TEXT_SIZE, 18));
 
-				ImageView itemImageView = (ImageView) convertView.findViewById(R.id.itemImage);
+				ImageView itemImageView = convertView.findViewById(R.id.itemImage);
 				if (lineaDeposito.TotalAbono < 0)
 					itemImageView.setImageResource(R.drawable.abono);
 				else
@@ -1229,10 +1223,10 @@ public class DepositManager extends Fragment implements  IMediator {
 	}
 
 	private void resetHeaders() {
-		LinearLayout lineHeader = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout7);
+		LinearLayout lineHeader = this.getActivity().findViewById(R.id.headerMainLinearLayout7);
 		lineHeader.removeAllViews();
 
-		LinearLayout abonoLineHader = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout7);
+		LinearLayout abonoLineHader = this.getActivity().findViewById(R.id.headerMainLinearLayout7);
 		abonoLineHader.removeAllViews();
 
 		_headerLayout = null;
@@ -1243,7 +1237,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		final DepositManager that = this;
 
-		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout7);
+		LinearLayout mainLinearLayout = this.getActivity().findViewById(R.id.headerMainLinearLayout7);
 		mainLinearLayout.removeAllViews();
 
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -1391,7 +1385,7 @@ public class DepositManager extends Fragment implements  IMediator {
 						pvp1 = NumberUtils.toFloat(_lastTextBox.getHint().toString(), 0);
 					else {
 						pvp1 = NumberUtils.toFloat(_lastTextBox.getText().toString(), 0);
-						//lineaDepositoValue.PVPAnterior = pvp1;
+						lineaDepositoValue.PVPAnterior = pvp1;
 					}
 
 					lineaDepositoValue.PVP = pvp1;
@@ -1580,7 +1574,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		final DepositManager that = this;
 
-		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerMainLinearLayout7);
+		LinearLayout mainLinearLayout = this.getActivity().findViewById(R.id.headerMainLinearLayout7);
 		mainLinearLayout.removeAllViews();
 
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -1802,7 +1796,7 @@ public class DepositManager extends Fragment implements  IMediator {
 	}
 
 	private void showButtonBar(boolean visible) {
-		LinearLayout linearLayout = (LinearLayout) this.getActivity().findViewById(R.id.headerButtonsLinearLayout);
+		LinearLayout linearLayout = this.getActivity().findViewById(R.id.headerButtonsLinearLayout);
 		LinearLayout subLinearLayout = (LinearLayout) linearLayout.getChildAt(0);
 
 		if (subLinearLayout == null) return;
@@ -1819,7 +1813,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 	private void createHeaderLabels() {
 		
-		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity()
+		LinearLayout mainLinearLayout = this.getActivity()
 				.findViewById(R.id.headerLabelsLinearLayout);
 		
 		mainLinearLayout.removeAllViews();
@@ -1871,11 +1865,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		}
 
 		refreshTotals();
-		
 		linea.TotalAbono = DepositManagerExtension.Format.round((linea.UnidadesAbono * linea.PVPAbono * -1), 2);
-
-		double totalLinea = DepositManagerExtension.Format.round((linea.UnidadesFacturadas * linea.PVP)
-				- ((linea.UnidadesFacturadas * linea.PVP) * (linea.Descuento1 / 100)), 2);
 
 		_adapter.notifyDataSetChanged();
 
@@ -1922,7 +1912,7 @@ public class DepositManager extends Fragment implements  IMediator {
 					this._dialogDepositoModalidad = new AdvancedMessageBox();
 					boolean resultDepositoModalidad = _dialogDepositoModalidad.Show("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", DepositManager.this.getContext(), MessageBoxType.Information);
 					this._appConfig.getWorkingArea().CurrentDepositoModalidad = resultDepositoModalidad ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
-					TextView labelTipoEntrega = (TextView) getActivity().findViewById(R.id.lblTipoEntrega);
+					TextView labelTipoEntrega = getActivity().findViewById(R.id.lblTipoEntrega);
 					labelTipoEntrega.setText(_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
 
 				} catch (Exception e) {
@@ -1940,7 +1930,7 @@ public class DepositManager extends Fragment implements  IMediator {
 					this._dialogDepositoModalidad = new AdvancedMessageBox();
 					boolean resultDepositoModalidad = _dialogDepositoModalidad.Show("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", DepositManager.this.getContext(), MessageBoxType.Information);
 					this._appConfig.getWorkingArea().CurrentDepositoModalidad = resultDepositoModalidad ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
-					TextView labelTipoEntrega = (TextView) getActivity().findViewById(R.id.lblTipoEntrega);
+					TextView labelTipoEntrega = getActivity().findViewById(R.id.lblTipoEntrega);
 
 					if (labelTipoEntrega != null)
 						labelTipoEntrega.setText(_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
@@ -2006,7 +1996,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				this._dialogDepositoModalidad = new AdvancedMessageBox();
 				boolean resultDepositoModalidad = _dialogDepositoModalidad.Show("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", DepositManager.this.getContext(), MessageBoxType.Information);
 				this._appConfig.getWorkingArea().CurrentDepositoModalidad = resultDepositoModalidad ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
-				TextView labelTipoEntrega = (TextView) getActivity().findViewById(R.id.lblTipoEntrega);
+				TextView labelTipoEntrega = getActivity().findViewById(R.id.lblTipoEntrega);
 				labelTipoEntrega.setText(_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
 				try {
 					this.refreshTotals();
@@ -2045,6 +2035,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		for (LineaDeposito linea : _deposito.Lineas.values()) {
 
+			linea.PVPAnterior = linea.PVP;
 			if (!isNtvImport) {
 				if (linea.IsNew)
 					potentialLines.add(linea);
