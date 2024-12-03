@@ -877,6 +877,8 @@ public class Deposito extends Cliente implements IPersistable {
 
 	public boolean isDepositoRetirado() {
 
+		if (this.IsNtvDeposit) return false;
+
 		if (!isDeposito()) {
 			for (LineaDeposito linea : Lineas.values()) {
 				if (linea.UnidadesInicialesFijas > 0)
@@ -1041,7 +1043,7 @@ public class Deposito extends Cliente implements IPersistable {
 
 		for (LineaDeposito linea : this.Lineas.values()) {
 
-			if (!this.isDepositoRetirado() || this.IsNtvDeposit) {
+			if (!this.isDepositoRetirado()) {
 
 				if (linea.UnidadesRepuestas > 0) {
 					try {
@@ -1127,7 +1129,6 @@ public class Deposito extends Cliente implements IPersistable {
 								}
 							}
 
-							linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock - linea.UnidadesFacturadas;
 						} else if (linea.UnidadesFacturadas > 0) {
 							int stockInicial = linea.Articulo.Stock;
 							linea.calculateStock();
@@ -1139,8 +1140,6 @@ public class Deposito extends Cliente implements IPersistable {
 										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
 										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
 										linea.UnidadesAbono, linea.UnidadesDefectuosas);
-
-
 
 								try {
 									logBookTrace.save();
@@ -1160,8 +1159,6 @@ public class Deposito extends Cliente implements IPersistable {
 										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
 										linea.UnidadesAbono, linea.UnidadesDefectuosas);
 
-
-
 								try {
 									logBookTrace.save();
 								} catch (Exception e) {
@@ -1169,10 +1166,6 @@ public class Deposito extends Cliente implements IPersistable {
 								}
 							}
 						}
-
-						linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.UnidadesDefectuosas;
-						linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
-								+ linea.UnidadesDefectuosas;
 
 						try {
 							linea.Articulo.update();

@@ -841,14 +841,12 @@ public class DepositManager extends Fragment implements  IMediator {
 					continue;
 
 				LineaDeposito linea = _deposito.Lineas.get(String.valueOf(articuloInCatalgo.CodigoArticulo));
-
-				linea.UnidadesInicialesFijas = linea.UnidadesIniciales;
-
 				linea.PVP = ntvDepositoDTO.Lineas.get(articuloInCatalgo.CodigoArticulo).precio;
 
 				linea.UnidadesFacturadas = ntvDepositoDTO.Lineas.get(articuloInCatalgo.CodigoArticulo).cantidad;
-				linea.UnidadesInicialesFijas = linea.UnidadesFacturadas;
+				linea.UnidadesInicialesFijas = 0;
 				linea.PVPAnterior = linea.PVP;
+
 				linea.PVPInicial = linea.PVPAnterior;
 
 				linea.Descuento1 = ntvDepositoDTO.Lineas.get(articuloInCatalgo.CodigoArticulo).dto1;
@@ -927,7 +925,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				_deposito.RetirarDeposito();
 		}
 
-		if (_deposito.isDepositoRetirado() && !_deposito.IsNtvDeposit) {
+		if (_deposito.isDepositoRetirado()) {
 			boolean result;
 			if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
 				result = _appConfig.getMessageBox().ShowWithResult("Cierre de operación",
