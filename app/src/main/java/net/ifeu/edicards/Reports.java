@@ -602,8 +602,22 @@ public class Reports extends Fragment {
 
 						that.upgradeStock(hist);
 
-						if (!dto.isNTV)
+						if (!dto.isNTV) {
 							that.upgradeDeposito(hist);
+							_appConfig.getMessageBox().Show("Información",
+									"Se ha restaurado de nuevo el depísito del cliente " + hist.NombrePresentacion,
+
+
+
+
+
+
+									getActivity(), MessageBoxType.Information);
+						} else {
+							_appConfig.getMessageBox().Show("Información",
+									"Al ser un pedido NTV, el depósito NO será restaurado " + hist.NombrePresentacion,
+									getActivity(), MessageBoxType.Information);
+						}
 
 						that.sendIncidencia(hist);
 

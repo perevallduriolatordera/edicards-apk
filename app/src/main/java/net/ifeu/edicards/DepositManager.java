@@ -454,8 +454,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				if(_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE) &&
 						!DepositManagerExtension.DataTier.isCustomerAttachedFilled(_appConfig)) {
 					_appConfig.getMessageBox().Show("Advertencia",
-							"T" +
-									"iene que tomar fotos del DNI del cliente nuevo. Tome las fotos desde la ventana 'Cliente' y vuelva a cerrar la operación",
+							"Tiene que tomar fotos del DNI del cliente nuevo. Tome las fotos desde la ventana 'Cliente' y vuelva a cerrar la operación",
 							this.getActivity(), MessageBoxType.Information);
 
 					albaran.setVisibility(View.VISIBLE);
@@ -570,7 +569,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			try {
 
-				//if (searchExistentDeposit) {
+				boolean isNTV = _deposito != null && _deposito.IsNtvDeposit;
 				ArrayList<Deposito> depositos = deposito
 						.getDepositosByCodigoCliente(String.valueOf(cliente.CodigoCliente));
 
@@ -584,6 +583,7 @@ public class DepositManager extends Fragment implements  IMediator {
 						_deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
 						_deposito.assingFromCliente(_cliente);
 						_deposito.Lineas.clear();
+						_deposito.IsNtvDeposit = isNTV;
 						this.addPotentialArticles();
 
 					} else {
@@ -604,13 +604,16 @@ public class DepositManager extends Fragment implements  IMediator {
 						_deposito = Factory.build(Deposito.class, _appConfig);
 						_deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
 						_deposito.assingFromCliente(_cliente);
+						_deposito.IsNtvDeposit = isNTV;
 
 						this.addPotentialArticles();
 
-						_appConfig.getMessageBox().Show("Información",
-								"El cliente " + cliente.Nombre
-										+ " no tiene ningún depósito. Se va a proceder a crear uno de nuevo",
-								this.getActivity(), MessageBoxType.Information);
+						if (!_deposito.IsNtvDeposit) {
+							_appConfig.getMessageBox().Show("Información",
+									"El cliente " + cliente.Nombre
+											+ " no tiene ningún depósito. Se va a proceder a crear uno de nuevo",
+									this.getActivity(), MessageBoxType.Information);
+						}
 					} else {
 						_appConfig.getMessageBox().Show("Advertencia",
 								"No se puede hacer un traspaso de un cliente sin depósito asignado. La operación va a ser cancelada",
@@ -625,6 +628,7 @@ public class DepositManager extends Fragment implements  IMediator {
 					_deposito = Factory.build(Deposito.class, _appConfig);
 					_deposito.setFirstDepositoByCliente(cliente.CodigoCliente);
 					_deposito.assingFromCliente(_cliente);
+					_deposito.IsNtvDeposit = isNTV;
 					this.addPotentialArticles();
 				}
 			//} else {
@@ -923,7 +927,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				_deposito.RetirarDeposito();
 		}
 
-		if (_deposito.isDepositoRetirado()) {
+		if (_deposito.isDepositoRetirado() && !_deposito.IsNtvDeposit) {
 			boolean result;
 			if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
 				result = _appConfig.getMessageBox().ShowWithResult("Cierre de operación",
@@ -1066,7 +1070,6 @@ public class DepositManager extends Fragment implements  IMediator {
 			Contador contador = Factory.build(Contador.class, _appConfig);
 			_deposito.NumeroAlbaran = contador.updateContador(_deposito, _appConfig.getUser());
 		}
-
 		_appConfig.getWorkingArea().CurrentHistorico.saveChangesToHistorico(_deposito);
 	}
 

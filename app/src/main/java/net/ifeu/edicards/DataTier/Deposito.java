@@ -1041,7 +1041,7 @@ public class Deposito extends Cliente implements IPersistable {
 
 		for (LineaDeposito linea : this.Lineas.values()) {
 
-			if (!this.isDepositoRetirado()) {
+			if (!this.isDepositoRetirado() || this.IsNtvDeposit) {
 
 				if (linea.UnidadesRepuestas > 0) {
 					try {
@@ -1128,17 +1128,39 @@ public class Deposito extends Cliente implements IPersistable {
 							}
 
 							linea.Articulo.MovimientoStock = linea.Articulo.MovimientoStock - linea.UnidadesFacturadas;
-						} else {
+						} else if (linea.UnidadesFacturadas > 0) {
 							int stockInicial = linea.Articulo.Stock;
 							linea.calculateStock();
 
 							if (stockInicial != linea.Articulo.Stock) {
 
-								logBookTrace.setData("VENTA CONVENCIONAL (NO DIRECTA) CON UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
+								logBookTrace.setData("VENTA CONVENCIONAL (NO DIRECTA) SIN UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
 										this.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
 										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
 										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
 										linea.UnidadesAbono, linea.UnidadesDefectuosas);
+
+
+
+								try {
+									logBookTrace.save();
+								} catch (Exception e) {
+									throw new RuntimeException(e);
+								}
+							}
+						} else if (linea.UnidadesFacturadas == 0) {
+							int stockInicial = linea.Articulo.Stock;
+							linea.calculateStock();
+
+							if (stockInicial != linea.Articulo.Stock) {
+
+								logBookTrace.setData("RETIRADA DE ARTÍCULO", this.Cliente.CodigoCliente,
+										this.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
+										linea.UnidadesAbono, linea.UnidadesDefectuosas);
+
+
 
 								try {
 									logBookTrace.save();
@@ -1149,7 +1171,6 @@ public class Deposito extends Cliente implements IPersistable {
 						}
 
 						linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.UnidadesDefectuosas;
-
 						linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
 								+ linea.UnidadesDefectuosas;
 

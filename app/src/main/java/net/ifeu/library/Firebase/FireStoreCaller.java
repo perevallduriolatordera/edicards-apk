@@ -25,7 +25,7 @@ public class FireStoreCaller {
                 .setPriority(Priority.MEDIUM)
                 .build();
 
-        ANResponse<JSONObject> response = request.executeForJSONObject();
+        ANResponse<JSONObject> response =   request.executeForJSONObject();
 
         if (response.isSuccess()) {
             return response.getResult().getString("idToken");

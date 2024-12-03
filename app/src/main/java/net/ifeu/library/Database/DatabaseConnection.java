@@ -1,5 +1,6 @@
 package net.ifeu.library.Database;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -71,7 +72,8 @@ public class DatabaseConnection {
     }
 
     //---opens the database---
-    public DatabaseConnection openDB() throws SQLException 
+    @SuppressLint("SuspiciousIndentation")
+    public DatabaseConnection openDB() throws SQLException
     {
     	if (_database == null)
     		_database = _dbHelper.getWritableDatabase();
