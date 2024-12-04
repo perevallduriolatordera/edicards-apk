@@ -3,7 +3,7 @@
     package="net.ifeu.edicards"
     android:versionCode="5"
     android:exported="true"
-    android:versionName="5.1.5 (28 Noviembre 2024) --> Refactor" >
+    android:versionName="5.1.6 (04 Diciembre 2024) --> Incidencias NTV" >
 
     <!--<uses-sdk
         android:minSdkVersion="16"
