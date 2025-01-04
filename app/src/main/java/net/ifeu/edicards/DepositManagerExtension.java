@@ -65,7 +65,12 @@ public class DepositManagerExtension {
 	
 			Historico historico = Factory.build(Historico.class, config);
 			return historico.getCantidadPagadaOfThisWeek(new Date());
-	
+		}
+
+		public static double getCantidadPagadaDiaria(AppConfig config) throws Exception {
+
+			Historico historico = Factory.build(Historico.class, config);
+			return historico.getCantidadPagadaYesterday(new Date());
 		}
 		
 		public static double getIngresos(AppConfig config) throws Exception {
@@ -73,12 +78,17 @@ public class DepositManagerExtension {
 			return  ingresos.getTotalIngresosThisWeek(new Date());
 		}
 		
-		public static boolean RestriccionIngresos(AppConfig config) throws Exception {
+		public static boolean RestriccionIngresosFromCantidad(AppConfig config) throws Exception {
 	
 			double cantidadPagada = DepositManagerExtension.DataTier.getCantidadPagada(config);
 			double ingresos = getIngresos(config);
 
 			return ConstantsTypes.MAXIMO_SIN_INGRESAR <= (cantidadPagada - ingresos);
+		}
+
+		public static double getIngresosDiarios(AppConfig config) throws Exception {
+
+			return DepositManagerExtension.DataTier.getCantidadPagadaDiaria(config);
 		}
 		
 		public static FormaPago getFormaPagoByDescripcion(String descripcion, AppConfig config) {

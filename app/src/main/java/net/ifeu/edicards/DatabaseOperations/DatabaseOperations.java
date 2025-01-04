@@ -374,6 +374,7 @@ public class DatabaseOperations {
 			createIngresosTable();
 			createGDPRTable();
 			createLogBookTable();
+			createIngresosDiariosTable();
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -430,6 +431,7 @@ public class DatabaseOperations {
 			dropTable(ConstantsDatabase.TABLE_INGRESOS);
 			dropTable(ConstantsDatabase.TABLE_GDPR);
 			dropTable(ConstantsDatabase.TABLE_LOGBOOK);
+			dropTable(ConstantsDatabase.TABLE_INGRESOS_DIARIOS);
 			
 		}
 		catch (Exception e) {
@@ -932,6 +934,29 @@ public class DatabaseOperations {
 			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_INGRESOS + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
+	}
+
+	private void createIngresosDiariosTable() throws Exception
+	{
+		if (_databaseConnection.getDatabase().isOpen())
+		{
+			try {
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_INGRESOS_DIARIOS + " ( IdIngreso integer primary key autoincrement, "
+						+ "Fecha date, "
+						+ "Ingresos real, "
+						+ "Gastos real, "
+						+ "Cantidad real); ");
+
+			}
+			catch (Exception e) {
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_INGRESOS + ". Motivo: " + e.getMessage());
+			}
+
+		}
+		else {
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_INGRESOS + ". Motivo: La Base de datos no ha podido ser abierta.");
+		}
+
 	}
 	
 	private void createGDPRTable() throws Exception

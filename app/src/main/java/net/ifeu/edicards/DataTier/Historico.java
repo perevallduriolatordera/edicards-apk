@@ -13,6 +13,7 @@ import net.ifeu.library.Utils.DateTime.DateTimeUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.UUID;
@@ -193,6 +194,47 @@ public class Historico extends Persistent implements IPersistable {
 			{
 				cantidadPagada = Double.parseDouble(cursor.getString(cursor.getColumnIndex("CantidadPagada")));
 								
+				cursor.close();
+				return cantidadPagada;
+			}
+			else
+			{
+				cursor.close();
+				return 0;
+			}
+		}
+		else
+			return 0;
+
+	}
+
+	public double getCantidadPagadaYesterday(Date today) throws Exception
+	{
+
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(today);
+		calendar.add(Calendar.DAY_OF_MONTH, -1); // Restar un día
+		Date yesterday = calendar.getTime();
+
+		SimpleDateFormat formatter;
+		formatter = new SimpleDateFormat("yyyyMMdd");
+
+		Date firstDate = DateTimeUtils.getFirstDayOfCurrentWeek(today);
+
+		double cantidadPagada;
+
+		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT ifnull(sum(CantidadPagada),0) as CantidadPagada FROM " + ConstantsDatabase.TABLE_HISTORICOS + " WHERE substr(fecha,7)||substr(fecha,1,2)||substr(fecha,4,2) " +
+				"BETWEEN '" + formatter.format(yesterday) + "' AND '" + formatter.format(yesterday) + "'");
+
+
+		if (cursor != null)
+		{
+			cursor.moveToFirst();
+
+			if (cursor.getCount() > 0)
+			{
+				cantidadPagada = Double.parseDouble(cursor.getString(cursor.getColumnIndex("CantidadPagada")));
+
 				cursor.close();
 				return cantidadPagada;
 			}

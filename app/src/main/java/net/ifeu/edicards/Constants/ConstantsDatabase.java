@@ -18,6 +18,7 @@ public class ConstantsDatabase {
     public static final String TABLE_CLIENTES_INFO = "ClientesInfo";
     public static final String TABLE_GASTOS_INFO = "GastosInfo";
     public static final String TABLE_INGRESOS = "Ingresos";
+    public static final String TABLE_INGRESOS_DIARIOS = "IngresosDiarios";
     public static final String TABLE_GDPR = "GDPR";
     public static final String TABLE_LOGBOOK = "LogBook";
 
