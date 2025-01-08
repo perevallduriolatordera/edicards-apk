@@ -8,6 +8,8 @@ public class TransactionMetadata {
     public String NewCustomerFrontDocument;
     public String NewCustomerBackDocument;
 
+    public String IngresoDocument;
+
     public TransactionMetadata() {
         GUID = UUID.randomUUID().toString();
 

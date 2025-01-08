@@ -10,5 +10,6 @@ public enum IncidenciaType {
 	CuentaCorriente,
 	Filiacion,
 	Ingreso,
-	ErrorDocumento
+	ErrorDocumento,
+	IngresoDiario
 }

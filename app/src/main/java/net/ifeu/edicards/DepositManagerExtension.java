@@ -55,6 +55,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 public class DepositManagerExtension {
 
@@ -67,8 +68,7 @@ public class DepositManagerExtension {
 			return historico.getCantidadPagadaOfThisWeek(new Date());
 		}
 
-		public static double getCantidadPagadaDiaria(AppConfig config) throws Exception {
-
+		public static Optional<Double> getCantidadPagadaDiaria(AppConfig config) throws Exception {
 			Historico historico = Factory.build(Historico.class, config);
 			return historico.getCantidadPagadaYesterday(new Date());
 		}
@@ -86,8 +86,7 @@ public class DepositManagerExtension {
 			return ConstantsTypes.MAXIMO_SIN_INGRESAR <= (cantidadPagada - ingresos);
 		}
 
-		public static double getIngresosDiarios(AppConfig config) throws Exception {
-
+		public static Optional<Double> getIngresosDiarios(AppConfig config) throws Exception {
 			return DepositManagerExtension.DataTier.getCantidadPagadaDiaria(config);
 		}
 		
@@ -264,7 +263,12 @@ public class DepositManagerExtension {
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			fragment.startActivityForResult(intent, 1);
 		}
-	
+
+		public static void StartIngresoDiarioDialog(Fragment fragment) {
+			Intent intent = new Intent(fragment.getActivity(), IngresosDiarios.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			fragment.startActivityForResult(intent, 1);
+		}
 		public static void StartCustomerDataDialog(Fragment fragment) {
 			Intent intent = new Intent(fragment.getActivity(), CustomerData.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -291,6 +295,12 @@ public class DepositManagerExtension {
 
 		public static void StartAttachmentsDialog(Activity activity) {
 			Intent intent = new Intent(activity, AttachmentsDialog.class);
+			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			activity.startActivityForResult(intent, 1);
+		}
+
+		public static void StartIngresoDiarioDialog(Activity activity) {
+			Intent intent = new Intent(activity, IngresoDiarioDialog.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			activity.startActivityForResult(intent, 1);
 		}

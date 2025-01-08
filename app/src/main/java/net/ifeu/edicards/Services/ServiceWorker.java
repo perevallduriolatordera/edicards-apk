@@ -85,6 +85,8 @@ public class ServiceWorker extends ServiceBase {
 
 		IOUtils.deleteFilesFromDirectory(Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
 				+ ConstantsFolders.FOLDER_CUSTOMER_DOCUMENT);
+		IOUtils.deleteFilesFromDirectory(Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+				+ ConstantsFolders.FOLDER_INGRESO_DIARIO);
 		//IOUtils.deleteFilesFromDirectory(Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
 		//		+ ConstantsFolders.FOLDER_FIRMAS);
 
@@ -938,6 +940,9 @@ public class ServiceWorker extends ServiceBase {
 
 		File dni = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_CUSTOMER_DOCUMENT + "/");
 		dni.mkdirs();
+
+		File ingresoDiario = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_INGRESO_DIARIO + "/");
+		ingresoDiario.mkdirs();
                                                                                                                                      
 	}                                                                                                                                
 

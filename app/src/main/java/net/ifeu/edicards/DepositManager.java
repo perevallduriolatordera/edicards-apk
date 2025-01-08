@@ -65,6 +65,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 public class DepositManager extends Fragment implements  IMediator {
 
@@ -547,6 +548,11 @@ public class DepositManager extends Fragment implements  IMediator {
 	private void CreateDepositView(DepositoNTVDTO depositoNTVDTO) throws Exception {
 
  		if (this.RestriccionIngresosFromCantidad()) return;
+		if (this.RestriccionIngresosDiaria()) {
+			DepositManagerExtension.Dialogs.StartIngresoDiarioDialog(this);
+			return;
+		}
+
 		this.prepareScreenRegions(true);
 
 		Cliente cliente = _appConfig.getWorkingArea().CurrentCliente;
@@ -2030,24 +2036,21 @@ public class DepositManager extends Fragment implements  IMediator {
 
 	private boolean RestriccionIngresosDiaria() {
 		try {
-			double cantidad = DepositManagerExtension.DataTier.getIngresosDiarios(this._appConfig);
+			Optional<Double> cantidad = DepositManagerExtension.DataTier.getIngresosDiarios(this._appConfig);
+			if (cantidad.isPresent()) return false;
 
-			if (DepositManagerExtension.DataTier.RestriccionIngresosFromCantidad(this._appConfig)) {
+			_appConfig.getMessageBox().Show("Atención",
+					"Ayer ingresó " + cantidad.get()
+							+ " € y están pendientes de ingresar. Realice un ingreso para poder seguir trabajando",
+					getActivity(), MessageBoxType.Error);
 
-				_appConfig.getMessageBox().Show("Atención",
-						"Ha superado los " + ConstantsTypes.MAXIMO_SIN_INGRESAR
-								+ " € pendientes de ingresar. Realice un ingreso para poder seguir trabajando",
-						getActivity(), MessageBoxType.Error);
+			return true;
 
-				return true;
-
-			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 
-		return false;
-	}
+    }
 
 
 	private List<LineaDeposito> getSortedLineasDeposito(boolean isNtvImport) {

@@ -4,7 +4,6 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.ClienteInfo;
 import net.ifeu.edicards.DataTier.Deposito;
@@ -16,22 +15,13 @@ import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 import net.ifeu.library.Utils.Screen.ScreenManager;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.Toast;
 
 public class CustomerData extends Activity {
 

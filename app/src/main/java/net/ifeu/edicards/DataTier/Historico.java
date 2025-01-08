@@ -2,6 +2,7 @@ package net.ifeu.edicards.DataTier;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.graphics.Path;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsTypes;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Optional;
 import java.util.UUID;
 
 public class Historico extends Persistent implements IPersistable {
@@ -208,7 +210,7 @@ public class Historico extends Persistent implements IPersistable {
 
 	}
 
-	public double getCantidadPagadaYesterday(Date today) throws Exception
+	public Optional<Double> getCantidadPagadaYesterday(Date today) throws Exception
 	{
 
 		Calendar calendar = Calendar.getInstance();
@@ -218,8 +220,6 @@ public class Historico extends Persistent implements IPersistable {
 
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("yyyyMMdd");
-
-		Date firstDate = DateTimeUtils.getFirstDayOfCurrentWeek(today);
 
 		double cantidadPagada;
 
@@ -236,17 +236,16 @@ public class Historico extends Persistent implements IPersistable {
 				cantidadPagada = Double.parseDouble(cursor.getString(cursor.getColumnIndex("CantidadPagada")));
 
 				cursor.close();
-				return cantidadPagada;
+				return Optional.of(cantidadPagada);
 			}
 			else
 			{
 				cursor.close();
-				return 0;
+				return Optional.empty();
 			}
 		}
 		else
-			return 0;
-
+			return Optional.empty();
 	}
 
 	
