@@ -31,6 +31,7 @@ import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.Incidencia;
 import net.ifeu.edicards.DataTier.IncidenciaType;
 import net.ifeu.edicards.DataTier.Ingresos;
+import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.Pdf.document.IPdfDocumentGenerator;
 import net.ifeu.edicards.Pdf.document.PdfAlmacenCreator;
 import net.ifeu.edicards.Pdf.authorization.PdfAuthorization;
@@ -41,6 +42,7 @@ import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.ComboBox;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
+import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -52,6 +54,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +74,7 @@ public class DepositManagerExtension {
 
 		public static Optional<Double> getCantidadPagadaDiaria(AppConfig config) throws Exception {
 			Historico historico = Factory.build(Historico.class, config);
-			return historico.getCantidadPagadaYesterday(new Date());
+			return historico.getCantidadPagadaLastDay(new Date());
 		}
 		
 		public static double getIngresos(AppConfig config) throws Exception {
@@ -78,7 +82,7 @@ public class DepositManagerExtension {
 			return  ingresos.getTotalIngresosThisWeek(new Date());
 		}
 		
-		public static boolean RestriccionIngresosFromCantidad(AppConfig config) throws Exception {
+		public static boolean calculateCantidadIngresos(AppConfig config) throws Exception {
 	
 			double cantidadPagada = DepositManagerExtension.DataTier.getCantidadPagada(config);
 			double ingresos = getIngresos(config);
@@ -149,6 +153,78 @@ public class DepositManagerExtension {
 					|| descripcion.startsWith("HACER TRANSFERENCIA")
 					|| descripcion.startsWith("HACE TRANSFERENCIA (30 Y 60 D)");
 		}
+
+		public static List<LineaDeposito> getSortedLineasDeposito(Deposito deposuito, boolean isNtvImport) {
+
+			List<LineaDeposito> lines = new ArrayList<>();
+			List<LineaDeposito> potentialLines = new ArrayList<>();
+			List<LineaDeposito> ntvLines = new ArrayList<>();
+
+			for (LineaDeposito linea : deposuito.Lineas.values()) {
+
+				linea.PVPAnterior = linea.PVP;
+				if (!isNtvImport) {
+					if (linea.IsNew)
+						potentialLines.add(linea);
+					else
+						lines.add(linea);
+				} else {
+					if (linea.IsNtvLine)
+						ntvLines.add(linea);
+					else if (!linea.IsNew)
+						lines.add(linea);
+					else
+						potentialLines.add(linea);
+				}
+			}
+
+			Collections.sort(lines, new LineaDeposito().new ArticuloComparator());
+			Collections.sort(ntvLines, new LineaDeposito().new ArticuloComparator());
+			Collections.sort(potentialLines, new LineaDeposito().new ArticuloComparator());
+
+			lines.addAll(ntvLines);
+			lines.addAll(potentialLines);
+			return lines;
+		}
+
+		public static boolean RestriccionIngresosDiaria(AppConfig appConfig) {
+			try {
+				Optional<Double> cantidad = DepositManagerExtension.DataTier.getIngresosDiarios(appConfig);
+				if (cantidad.isPresent() && cantidad.get() > 0) {
+
+					appConfig.getMessageBox().Show("Atención",
+							"Ayer ingresó " + cantidad.get()
+									+ " € y están pendientes de ingresar. Realice un ingreso para poder seguir trabajando",
+							appConfig, MessageBoxType.Error);
+
+					return true;
+				}
+				return false;
+
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+
+		}
+
+	public static boolean RestriccionIngresosFromCantidad(AppConfig appConfig) {
+		try {
+			if (DepositManagerExtension.DataTier.calculateCantidadIngresos(appConfig)) {
+
+				appConfig.getMessageBox().Show("Atención",
+						"Ha superado los " + ConstantsTypes.MAXIMO_SIN_INGRESAR
+								+ " € pendientes de ingresar. Realice un ingreso para poder seguir trabajando",
+						appConfig, MessageBoxType.Error);
+
+				return true;
+
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		return false;
+	}
 	}
 	// ************************** FORMAT *************************************
 	

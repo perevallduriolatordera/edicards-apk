@@ -2,7 +2,6 @@ package net.ifeu.edicards.DataTier;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.graphics.Path;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsTypes;
@@ -14,7 +13,6 @@ import net.ifeu.library.Utils.DateTime.DateTimeUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Optional;
@@ -210,22 +208,46 @@ public class Historico extends Persistent implements IPersistable {
 
 	}
 
-	public Optional<Double> getCantidadPagadaYesterday(Date today) throws Exception
+	private String getLastMovement() throws Exception {
+		// Consulta para obtener la fecha más reciente con movimientos
+		String latestDateQuery = "SELECT fecha FROM " + ConstantsDatabase.TABLE_HISTORICOS +
+				" ORDER BY substr(fecha,7) || substr(fecha,4,2) || substr(fecha,1,2) DESC LIMIT 1";
+
+		Cursor latestDateCursor = super.getDatabaseOperations().executeSentence(latestDateQuery);
+
+		if (latestDateCursor != null && latestDateCursor.moveToFirst()) {
+			String fechaStr = latestDateCursor.getString(0);  // Suponiendo formato dd/MM/yy
+			latestDateCursor.close();
+
+			// Convertir la fecha recuperada a Date con formato YYYYMMDD
+			try {
+				// Primero interpretar el formato original de la fecha en la base de datos
+				SimpleDateFormat originalFormat = new SimpleDateFormat("dd/MM/yy");
+				Date parsedDate = originalFormat.parse(fechaStr);
+
+				// Convertir al formato YYYYMMDD
+				SimpleDateFormat targetFormat = new SimpleDateFormat("yyyyMMdd");
+				String formattedDate = targetFormat.format(parsedDate);
+
+				return formattedDate;
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+			return ConstantsTypes.EMPTY_STRING;
+		}
+        return ConstantsTypes.EMPTY_STRING;
+    }
+
+	public Optional<Double> getCantidadPagadaLastDay(Date today) throws Exception
 	{
 
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(today);
-		calendar.add(Calendar.DAY_OF_MONTH, -1); // Restar un día
-		Date yesterday = calendar.getTime();
-
-		SimpleDateFormat formatter;
-		formatter = new SimpleDateFormat("yyyyMMdd");
-
+		String latestDate = getLastMovement();
 		double cantidadPagada;
 
 		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT ifnull(sum(CantidadPagada),0) as CantidadPagada FROM " + ConstantsDatabase.TABLE_HISTORICOS + " WHERE substr(fecha,7)||substr(fecha,1,2)||substr(fecha,4,2) " +
-				"BETWEEN '" + formatter.format(yesterday) + "' AND '" + formatter.format(yesterday) + "'");
-
+				"BETWEEN '" + latestDate + "' AND '" + latestDate + "'");
 
 		if (cursor != null)
 		{

@@ -109,14 +109,11 @@ public class DepositManager extends Fragment implements  IMediator {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-
 		_mainLayout = getActivity().findViewById(R.id.depositManagerLayout);
-
 		_articlesLayout = this.getActivity()
 				.findViewById(R.id.mainLinearLayoutArticles);
 
 		_articlesListView = this.getActivity().findViewById(R.id.listViewArticles);
-
 		showCustomerSearchDialog();
 
 	}
@@ -506,7 +503,6 @@ public class DepositManager extends Fragment implements  IMediator {
 			}
 		});
 
-
 		// Autocompletado para articulos
 
 		AutoCompleteTextView searchArticulos = new AutoCompleteTextView(getContext());
@@ -547,8 +543,8 @@ public class DepositManager extends Fragment implements  IMediator {
 
 	private void CreateDepositView(DepositoNTVDTO depositoNTVDTO) throws Exception {
 
- 		if (this.RestriccionIngresosFromCantidad()) return;
-		if (this.RestriccionIngresosDiaria()) {
+ 		if (DepositManagerExtension.DataTier.RestriccionIngresosFromCantidad(_appConfig)) return;
+		if (DepositManagerExtension.DataTier.RestriccionIngresosDiaria(_appConfig)) {
 			DepositManagerExtension.Dialogs.StartIngresoDiarioDialog(this);
 			return;
 		}
@@ -658,7 +654,7 @@ public class DepositManager extends Fragment implements  IMediator {
 			throw new RuntimeException(e);
 		}
 
-		_currentLines.addAll(getSortedLineasDeposito(depositoNTVDTO != null));
+		_currentLines.addAll(DepositManagerExtension.DataTier.getSortedLineasDeposito(_deposito, depositoNTVDTO != null));
 		_originalLines.addAll(_currentLines);
 
 		for (LineaDeposito lineaDeposito : _originalLines)
@@ -2015,74 +2011,5 @@ public class DepositManager extends Fragment implements  IMediator {
 			}
 		}
 	}
-	private boolean RestriccionIngresosFromCantidad() {
-		try {
-			if (DepositManagerExtension.DataTier.RestriccionIngresosFromCantidad(this._appConfig)) {
 
-				_appConfig.getMessageBox().Show("Atención",
-						"Ha superado los " + ConstantsTypes.MAXIMO_SIN_INGRESAR
-								+ " € pendientes de ingresar. Realice un ingreso para poder seguir trabajando",
-						getActivity(), MessageBoxType.Error);
-
-				return true;
-
-			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
-		return false;
-	}
-
-	private boolean RestriccionIngresosDiaria() {
-		try {
-			Optional<Double> cantidad = DepositManagerExtension.DataTier.getIngresosDiarios(this._appConfig);
-			if (cantidad.isPresent()) return false;
-
-			_appConfig.getMessageBox().Show("Atención",
-					"Ayer ingresó " + cantidad.get()
-							+ " € y están pendientes de ingresar. Realice un ingreso para poder seguir trabajando",
-					getActivity(), MessageBoxType.Error);
-
-			return true;
-
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
-    }
-
-
-	private List<LineaDeposito> getSortedLineasDeposito(boolean isNtvImport) {
-
-		List<LineaDeposito> lines = new ArrayList<>();
-		List<LineaDeposito> potentialLines = new ArrayList<>();
-		List<LineaDeposito> ntvLines = new ArrayList<>();
-
-		for (LineaDeposito linea : _deposito.Lineas.values()) {
-
-			linea.PVPAnterior = linea.PVP;
-			if (!isNtvImport) {
-				if (linea.IsNew)
-					potentialLines.add(linea);
-				else
-					lines.add(linea);
-			} else {
-				if (linea.IsNtvLine)
-					ntvLines.add(linea);
-				else if (!linea.IsNew)
-					lines.add(linea);
-				else
-					potentialLines.add(linea);
-			}
-		}
-
-		Collections.sort(lines, new LineaDeposito().new ArticuloComparator());
-		Collections.sort(ntvLines, new LineaDeposito().new ArticuloComparator());
-		Collections.sort(potentialLines, new LineaDeposito().new ArticuloComparator());
-
-		lines.addAll(ntvLines);
-		lines.addAll(potentialLines);
-		return lines;
-	}
 }
