@@ -35,6 +35,8 @@ public class IngresosDiarios extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_ingresos_diarios);
 
+		_appConfig = (AppConfig) this.getApplicationContext();
+
 		Button button = findViewById(R.id.btnSaveIngresoDiario);
 
 		final IngresosDiarios that = this;
@@ -49,7 +51,6 @@ public class IngresosDiarios extends Activity {
 
 		ButtonColor takePhotos = findViewById(R.id.btnIngresoDiarioPhoto);
 		takePhotos.changeAspect(this, R.color.Black, getResources().getDrawable(R.drawable.ic_camera));
-		takePhotos.setVisibility(_appConfig.getWorkingArea().CurrentDeposito.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE) ? VISIBLE : GONE);
 
 		takePhotos.setOnClickListener( (View v)-> {
 			this.showIngresosDiariosDialog();

@@ -200,6 +200,16 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".IngresosDiarios"
+            android:label="Ingresos diarios"
+            android:theme="@android:style/Theme.Dialog" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".DepositView"
             android:label="@string/title_activity_deposit_view"
             android:theme="@android:style/Theme.Dialog" >

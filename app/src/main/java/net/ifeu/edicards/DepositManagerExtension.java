@@ -30,6 +30,7 @@ import net.ifeu.edicards.DataTier.FormaPago;
 import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.Incidencia;
 import net.ifeu.edicards.DataTier.IncidenciaType;
+import net.ifeu.edicards.DataTier.IngresoDiario;
 import net.ifeu.edicards.DataTier.Ingresos;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.Pdf.document.IPdfDocumentGenerator;
@@ -74,7 +75,7 @@ public class DepositManagerExtension {
 
 		public static Optional<Double> getCantidadPagadaDiaria(AppConfig config) throws Exception {
 			Historico historico = Factory.build(Historico.class, config);
-			return historico.getCantidadPagadaLastDay(new Date());
+			return historico.getCantidadPagadaLastDay();
 		}
 		
 		public static double getIngresos(AppConfig config) throws Exception {
@@ -192,12 +193,10 @@ public class DepositManagerExtension {
 				Optional<Double> cantidad = DepositManagerExtension.DataTier.getIngresosDiarios(appConfig);
 				if (cantidad.isPresent() && cantidad.get() > 0) {
 
-					appConfig.getMessageBox().Show("Atención",
-							"Ayer ingresó " + cantidad.get()
-									+ " € y están pendientes de ingresar. Realice un ingreso para poder seguir trabajando",
-							appConfig, MessageBoxType.Error);
+					IngresoDiario ingresoDiario = Factory.build(IngresoDiario.class, appConfig);
+					IngresoDiario ingresoDiarioFromDate = ingresoDiario.getIngresosDiariosFromDate();
 
-					return true;
+					return ingresoDiarioFromDate == null;
 				}
 				return false;
 

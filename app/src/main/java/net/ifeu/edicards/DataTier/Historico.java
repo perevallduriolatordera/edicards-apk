@@ -208,7 +208,7 @@ public class Historico extends Persistent implements IPersistable {
 
 	}
 
-	private String getLastMovement() throws Exception {
+	public String getDateOfLastMovement() throws Exception {
 		// Consulta para obtener la fecha más reciente con movimientos
 		String latestDateQuery = "SELECT fecha FROM " + ConstantsDatabase.TABLE_HISTORICOS +
 				" ORDER BY substr(fecha,7) || substr(fecha,4,2) || substr(fecha,1,2) DESC LIMIT 1";
@@ -222,7 +222,7 @@ public class Historico extends Persistent implements IPersistable {
 			// Convertir la fecha recuperada a Date con formato YYYYMMDD
 			try {
 				// Primero interpretar el formato original de la fecha en la base de datos
-				SimpleDateFormat originalFormat = new SimpleDateFormat("dd/MM/yy");
+				SimpleDateFormat originalFormat = new SimpleDateFormat("MM/dd/yy");
 				Date parsedDate = originalFormat.parse(fechaStr);
 
 				// Convertir al formato YYYYMMDD
@@ -240,10 +240,10 @@ public class Historico extends Persistent implements IPersistable {
         return ConstantsTypes.EMPTY_STRING;
     }
 
-	public Optional<Double> getCantidadPagadaLastDay(Date today) throws Exception
+	public Optional<Double> getCantidadPagadaLastDay() throws Exception
 	{
 
-		String latestDate = getLastMovement();
+		String latestDate = getDateOfLastMovement();
 		double cantidadPagada;
 
 		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT ifnull(sum(CantidadPagada),0) as CantidadPagada FROM " + ConstantsDatabase.TABLE_HISTORICOS + " WHERE substr(fecha,7)||substr(fecha,1,2)||substr(fecha,4,2) " +

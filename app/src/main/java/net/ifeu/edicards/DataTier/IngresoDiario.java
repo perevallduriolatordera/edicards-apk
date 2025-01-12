@@ -89,21 +89,13 @@ public class IngresoDiario extends Persistent implements IPersistable {
 	}
 	
 	
-	public IngresoDiario getIngresosDiariosFromYesterday(Date today) throws Exception
+	public IngresoDiario getIngresosDiariosFromDate() throws Exception
 	{
-
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(today);
-		calendar.add(Calendar.DATE, -1);
-		Date yesterday = calendar.getTime();
-
-		SimpleDateFormat formatter;
-		formatter = new SimpleDateFormat("yyyyMMdd");
-
-		Date firstDate = DateTimeUtils.getFirstDayOfCurrentWeek(yesterday);
+		Historico historico = Factory.build(Historico.class, appConfig);
+		String date = historico.getDateOfLastMovement();
 
 		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + ConstantsDatabase.TABLE_INGRESOS + " WHERE substr(Fecha,7)||substr(Fecha,1,2)||substr(Fecha,4,2) " +
-				"BETWEEN '" + formatter.format(yesterday) + "' AND '" + formatter.format(yesterday) + "'");
+				"BETWEEN '" + date + "' AND '" + date + "'");
 
 		ArrayList<IngresoDiario> list = new ArrayList<>();
 		
