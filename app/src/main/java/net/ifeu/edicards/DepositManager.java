@@ -39,6 +39,8 @@ import net.ifeu.edicards.DataTier.NTV.DepositoNTVDTO;
 import net.ifeu.edicards.DataTier.TipoIVA;
 import net.ifeu.edicards.DataTier.TransactionMetadata;
 import net.ifeu.edicards.DataTier.TransferMode;
+import net.ifeu.edicards.Html.notification.customer.HtmlCustomerNotification;
+import net.ifeu.edicards.Html.notification.customer.ICustomerNotification;
 import net.ifeu.edicards.Pdf.gdpr.PdfGDPR;
 import net.ifeu.edicards.Printer.PrintManager;
 import net.ifeu.edicards.Xml.XmlCreator;
@@ -543,10 +545,12 @@ public class DepositManager extends Fragment implements  IMediator {
 
 	private void CreateDepositView(DepositoNTVDTO depositoNTVDTO) throws Exception {
 
+		_appConfig.getWorkingArea().CurrentTransactionMetadata = new TransactionMetadata();
+
  		if (DepositManagerExtension.DataTier.RestriccionIngresosFromCantidad(_appConfig)) return;
 		if (DepositManagerExtension.DataTier.RestriccionIngresosDiaria(_appConfig)) {
 			DepositManagerExtension.Dialogs.StartIngresoDiarioDialog(this);
-			return;
+			//return;
 		}
 
 		this.prepareScreenRegions(true);
@@ -644,7 +648,6 @@ public class DepositManager extends Fragment implements  IMediator {
 				_deposito.Serie = _appConfig.getUser().SerialInvoiceA;
 				_appConfig.getWorkingArea().CurrentDeposito = _deposito;
 				_appConfig.getWorkingArea().CurrentDeposito.DatosFiscalesUpdated = false;
-				_appConfig.getWorkingArea().CurrentTransactionMetadata = new TransactionMetadata();
 
 			} catch (Exception e1) {
 				throw new RuntimeException(e1);
@@ -1200,6 +1203,9 @@ public class DepositManager extends Fragment implements  IMediator {
 	private void closeOperation() {
 
 		try {
+
+			ICustomerNotification<Deposito> notification = new HtmlCustomerNotification();
+			notification.notify(_deposito);
 
 			DepositManagerExtension.Documents.sendData(this.getActivity(), this._appConfig);
 

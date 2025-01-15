@@ -234,6 +234,10 @@ public class MonitorView extends Fragment {
 		layout2.removeAllViews();
 		layout2.setOrientation(LinearLayout.HORIZONTAL);
 
+		// Totales de albaranes a clientes enviados
+
+		layout2.addView(this.createLabel("albaranes a clientes enviados" , String.valueOf(monitor.EnviosClienteSend), false));
+
 		// Totales albaranes enviados
 		
     	layout2.addView(this.createLabel("albaranes enviados" , String.valueOf(monitor.AlbaranesSend), false));

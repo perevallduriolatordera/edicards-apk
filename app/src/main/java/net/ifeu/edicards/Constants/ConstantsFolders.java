@@ -28,6 +28,7 @@ public class ConstantsFolders {
 
     public static final String FOLDER_CUSTOMER_DOCUMENT = "DNI";
     public static final String FOLDER_INGRESO_DIARIO = "IngresoDiario";
+    public static final String FOLDER_ENVIOS_CLIENTE = "EnviosCliente";
     public static final String FILE_STOCK = "Stock.xml";
     public static final String FILE_DAILY_STOCK =  "StockDiario.xml";
 

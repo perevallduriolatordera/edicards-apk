@@ -3,16 +3,16 @@ package net.ifeu.edicards.DataTier;
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
-import net.ifeu.library.Utils.DateTime.DateTimeUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
+import java.util.Optional;
 
 public class IngresoDiario extends Persistent implements IPersistable {
 
@@ -67,7 +67,7 @@ public class IngresoDiario extends Persistent implements IPersistable {
 	
 	public boolean setIngresoById(String idIngreso) throws Exception
 	{
-		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(ConstantsDatabase.TABLE_INGRESOS, "IdIngreso", idIngreso, false);
+		Cursor cursor = super.getDatabaseOperations().getFirstRecordFromField(ConstantsDatabase.TABLE_INGRESOS_DIARIOS, "IdIngreso", idIngreso, false);
 		
 		if (cursor != null)
 		{
@@ -88,13 +88,31 @@ public class IngresoDiario extends Persistent implements IPersistable {
 		return false ; 
 	}
 	
-	
+
+	public static Optional<Double> getIngresosDiariosFromDate(AppConfig appConfig) {
+		Historico historico = Factory.build(Historico.class, appConfig);
+        try {
+            return historico.getCantidadPagadaLastDay();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+	public static Date getDateOfLastMovement(AppConfig appConfig) {
+		Historico historico = Factory.build(Historico.class, appConfig);
+		try {
+			return historico.getDateOfLastMovement();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public IngresoDiario getIngresosDiariosFromDate() throws Exception
 	{
 		Historico historico = Factory.build(Historico.class, appConfig);
-		String date = historico.getDateOfLastMovement();
+		String date = historico.getDateOfLastMovementFormatted();
 
-		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + ConstantsDatabase.TABLE_INGRESOS + " WHERE substr(Fecha,7)||substr(Fecha,1,2)||substr(Fecha,4,2) " +
+		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + ConstantsDatabase.TABLE_INGRESOS_DIARIOS + " WHERE substr(Fecha,7)||substr(Fecha,1,2)||substr(Fecha,4,2) " +
 				"BETWEEN '" + date + "' AND '" + date + "'");
 
 		ArrayList<IngresoDiario> list = new ArrayList<>();

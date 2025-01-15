@@ -3,6 +3,7 @@ package net.ifeu.edicards;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsTypes;
@@ -23,9 +25,12 @@ import net.ifeu.edicards.DataTier.Ingresos;
 import net.ifeu.edicards.Pdf.incident.IncidentPdfCreator;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
+import net.ifeu.library.Utils.Screen.ScreenManager;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class IngresosDiarios extends Activity {
 
@@ -34,6 +39,11 @@ public class IngresosDiarios extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_ingresos_diarios);
+
+		android.view.WindowManager.LayoutParams params = getWindow().getAttributes();
+		params.height = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.8f).getHeight();
+		params.width  = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.8f).getWidth();
+		getWindow().setAttributes(params);
 
 		_appConfig = (AppConfig) this.getApplicationContext();
 
@@ -55,6 +65,47 @@ public class IngresosDiarios extends Activity {
 		takePhotos.setOnClickListener( (View v)-> {
 			this.showIngresosDiariosDialog();
 		});
+
+		this.assignValues();
+	}
+
+	private void assignValues() {
+		TextView txtFecha = findViewById(R.id.txtFechaIngresosDiarios);
+		SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+		String formattedDate = formato.format(_appConfig.getWorkingArea().CurrentIngresoDiario.Fecha);
+		txtFecha.setText(formattedDate);
+
+		EditText txtTotal = findViewById(R.id.txtTotalIngresar);
+		txtTotal.setEnabled(false);
+		txtTotal.setText(String.valueOf(_appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos));
+
+		EditText txtGasto = findViewById(R.id.txtGastosDiarios);
+		txtGasto.setText("0");
+
+		EditText txtIngreso = findViewById(R.id.txtIngresosDiarios);
+		txtIngreso.setText(String.valueOf(_appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos));
+		txtIngreso.setEnabled(false);
+
+		txtGasto.setOnFocusChangeListener((v, hasFocus) -> {
+            // Cuando pierde el foco
+            if (!hasFocus) {
+				updateIngresos();
+            }
+        });
+
+	}
+
+	private void updateIngresos() {
+		EditText txtTotal = findViewById(R.id.txtTotalIngresar);
+		EditText txtGasto = findViewById(R.id.txtGastosDiarios);
+		EditText txtIngreso = findViewById(R.id.txtIngresosDiarios);
+
+		Double ingreso = Double.parseDouble(txtIngreso.getText().toString());
+		Double gasto = Double.parseDouble(txtGasto.getText().toString());
+		double total = ingreso - gasto;
+		txtTotal.setText(String.valueOf(total));
+		_appConfig.getWorkingArea().CurrentIngresoDiario.Gastos = gasto;
+		_appConfig.getWorkingArea().CurrentIngresoDiario.Cantidad = total;
 	}
 
 	private void showIngresosDiariosDialog() {
@@ -65,37 +116,48 @@ public class IngresosDiarios extends Activity {
 	@Override
 	public void onStart() {
 		super.onStart();
-
 	}
 
 	public void OnSaveIngreso() throws Exception {
 
 		_appConfig = (AppConfig) this.getApplicationContext();
+		updateIngresos();
 
+		SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+		String formattedDate = formato.format(_appConfig.getWorkingArea().CurrentIngresoDiario.Fecha);
 		String ingresos = ((EditText) findViewById(R.id.txtIngresosDiarios)).getText().toString();
 		String gastos = ((EditText) findViewById(R.id.txtGastosDiarios)).getText().toString();
 		String cantidad = ((EditText) findViewById(R.id.txtTotalIngresar)).getText().toString();
 
 		if (gastos.equals(ConstantsTypes.EMPTY_STRING)) {
-			_appConfig.getMessageBox().Show("Ingreso", "Tiene que informar de la cantidad de gastos", _appConfig,
+			_appConfig.getMessageBox().Show("Ingreso", "Tiene que informar de la cantidad de gastos", IngresosDiarios.this,
 					MessageBoxType.Information);
 			return;
 		}
 
-		IngresoDiario ingresoDiario = Factory.build(IngresoDiario.class, _appConfig);
+		if (Double.parseDouble(gastos) > Double.parseDouble(ingresos)) {
+			_appConfig.getMessageBox().Show("Ingreso", "La cantidad de gastos no puede ser mayor que la de ingresos", IngresosDiarios.this,
+					MessageBoxType.Information);
+			return;
+		}
 
-		ingresoDiario.Fecha = new Date();
-		ingresoDiario.Ingresos = Double.parseDouble(ingresos);
-		ingresoDiario.Gastos = Double.parseDouble(gastos);
-		ingresoDiario.Cantidad = Double.parseDouble(cantidad);
-		ingresoDiario.save();
+		if (_appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument == null || _appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument.equals(ConstantsTypes.EMPTY_STRING)) {
+			_appConfig.getMessageBox().Show("Ingreso", "Tiene que adjuntar una imagen del ingreso", IngresosDiarios.this,
+					MessageBoxType.Information);
+			return;
+		}
 
-		_appConfig.getMessageBox().Show("Ingreso", "El ingreso se ha realizado correctamente", this._appConfig,
+		_appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = Double.parseDouble(ingresos);
+		_appConfig.getWorkingArea().CurrentIngresoDiario.Gastos = Double.parseDouble(gastos);
+		_appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = Double.parseDouble(cantidad);
+		_appConfig.getWorkingArea().CurrentIngresoDiario.save();
+
+		_appConfig.getMessageBox().Show("Ingreso", "El ingreso se ha realizado correctamente", IngresosDiarios.this,
 				MessageBoxType.Information);
 
 				
 		String text = "Se ha efectuado un nuevo ingreso diario con los siguientes datos: " + ConstantsTypes.NEW_LINE
-				+ ConstantsTypes.NEW_LINE + "Comercial: " + this._appConfig.getUser().User + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE + "FECHA: " + ingresoDiario.Fecha.toString()
+				+ ConstantsTypes.NEW_LINE + "Comercial: " + this._appConfig.getUser().User + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE + "FECHA: " + formattedDate
 				+ ConstantsTypes.NEW_LINE + "CANTIDAD:" + cantidad
 				+ ConstantsTypes.NEW_LINE + "INGRESOS:" + ingresos
 				+ ConstantsTypes.NEW_LINE + "GASTOS:" + gastos
@@ -103,7 +165,12 @@ public class IngresosDiarios extends Activity {
 
 		Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(), IncidenciaType.IngresoDiario,
 				text);
+		incidencia.Attachments.put("INGRESO",
+				_appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument);
+
 		incidencia.create(new IncidentPdfCreator(_appConfig));
+
+		finish();
 
 	}
 }

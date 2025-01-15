@@ -606,12 +606,6 @@ public class Reports extends Fragment {
 							that.upgradeDeposito(hist);
 							_appConfig.getMessageBox().Show("Información",
 									"Se ha restaurado de nuevo el depísito del cliente " + hist.NombrePresentacion,
-
-
-
-
-
-
 									getActivity(), MessageBoxType.Information);
 						} else {
 							_appConfig.getMessageBox().Show("Información",

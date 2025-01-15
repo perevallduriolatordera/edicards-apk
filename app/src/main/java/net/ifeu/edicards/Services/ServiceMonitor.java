@@ -13,5 +13,6 @@ public class ServiceMonitor {
 	public int StockDiarioSend = 0;
 	public int AlbaranesSend = 0;
 	public int DepositosSend = 0;
+	public int EnviosClienteSend = 0;
 	
 }

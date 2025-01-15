@@ -22,8 +22,6 @@ import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.R;
 import net.ifeu.library.Debugger.Debugger;
 
-import org.apache.poi.ss.usermodel.Cell;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;

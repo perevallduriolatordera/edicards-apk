@@ -19,7 +19,12 @@ import net.ifeu.edicards.DataTier.Totales;
 import net.ifeu.edicards.Pdf.pdfBase;
 import net.ifeu.library.Debugger.Debugger;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -409,7 +414,17 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 
 		_document.close();
 
-	}
+		String target = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+				+ ConstantsFolders.FOLDER_ENVIOS_CLIENTE + "/" + _deposito.NumeroAlbaran + ".pdf";
+		try (FileChannel sourceChannel = new FileInputStream(_pdfName).getChannel();
+			 FileChannel targetChannel = new FileOutputStream(target).getChannel()) {
+			 targetChannel.transferFrom(sourceChannel, 0, targetChannel.size());
+
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+    }
 
 	public void createAlbaran(String guid, boolean isTransferPayment)
 	{

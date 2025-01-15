@@ -195,15 +195,22 @@ public class DepositManagerExtension {
 
 					IngresoDiario ingresoDiario = Factory.build(IngresoDiario.class, appConfig);
 					IngresoDiario ingresoDiarioFromDate = ingresoDiario.getIngresosDiariosFromDate();
+					appConfig.getWorkingArea().CurrentIngresoDiario = ingresoDiarioFromDate;
 
-					return ingresoDiarioFromDate == null;
+					if (ingresoDiarioFromDate == null) {
+						appConfig.getWorkingArea().CurrentIngresoDiario = Factory.build(IngresoDiario.class, appConfig);
+						appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = IngresoDiario.getDateOfLastMovement(appConfig);
+						appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = IngresoDiario.getIngresosDiariosFromDate(appConfig).get();
+						return true;
+					} else {
+						return false;
+					}
 				}
-				return false;
 
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
-
+			return false;
 		}
 
 	public static boolean RestriccionIngresosFromCantidad(AppConfig appConfig) {

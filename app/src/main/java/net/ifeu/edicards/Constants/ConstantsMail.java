@@ -13,6 +13,7 @@ public class ConstantsMail {
     public static final String MAIL_TO_GDPR = "gdprtabletedi@gmail.com";
 
     public static final String MAIL_TO_LOGBOOK = "trazabilidadtabletedi@gmail.com";
+    public static final String MAIL_INGRESOS_EDICARDS = "ingresostabletedi@gmail.com";
     public static final String MAIL_FROM = "tablet@grupediciones.com";
     public static final String MAIL_BODY = "Enviado desde dispositivo movil";
     public static final String MAIL_ADMINISTRACION = "comercial@edicards.com";
@@ -20,5 +21,6 @@ public class ConstantsMail {
     public static final String MAIL_FACTURACION = "facturacion@edicards.com";
     public static final String MAIL_ENVIOS_EDICARDS = "almacenedicards@gmail.com";
     public static final String MAIL_MANTENIMIENTO = "valldu@hotmail.com";
+    public static final String MAIL_CONTABILIDAD = "contabilidad@edicards.com";
 
 }

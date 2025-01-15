@@ -225,6 +225,12 @@
             android:label="@string/title_activity_albaran_view"
             android:theme="@android:style/Theme.Dialog" >
         </activity>
+
+        <activity
+            android:name=".IngresoDiarioDialog"
+            android:label="Adjuntos"
+            android:theme="@android:style/Theme.Dialog" >
+        </activity>
         
     </application>
 

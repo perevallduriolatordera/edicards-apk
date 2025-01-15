@@ -40,10 +40,13 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.w3c.dom.Document;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -306,7 +309,9 @@ public class ServiceWorker extends ServiceBase {
 				else if (fileInfo.getName().subSequence(0, 1).toString().equals("F"))
 					title = "Datos de filiación de cliente modificados enviado por " + app.getUser().User;
 				else if (fileInfo.getName().subSequence(0, 1).toString().equals("I"))
-					title = "Ingreso realizado por enviado por " + app.getUser().User;
+					title = "Ingreso por cantidad realizado enviado por " + app.getUser().User;
+				else if (fileInfo.getName().subSequence(0, 1).toString().equals("W"))
+					title = "Ingreso diario realizado enviado por " + app.getUser().User;
 				else if (fileInfo.getName().subSequence(0, 1).toString().equals("P"))
 					title = "Error producido al generar documento pdf enviado por " + app.getUser().User;
 
@@ -321,6 +326,9 @@ public class ServiceWorker extends ServiceBase {
 				if (fileInfo.getName().subSequence(0, 1).toString().equals("E"))
 					mail = new MailSender(ConstantsMail.MAIL_FACTURACION, title,  content, file);
 
+				if (fileInfo.getName().subSequence(0, 1).toString().equals("W"))
+					mail = new MailSender(ConstantsMail.MAIL_INGRESOS_EDICARDS, title,  content, file);
+
 				try {
 					mail.send();
 					IOUtils.deleteFile(file);
@@ -332,6 +340,62 @@ public class ServiceWorker extends ServiceBase {
 			} catch (Exception e) {
 			}
 		}
+
+		// * * * * * * * * * ENVIAMOS INFORMACIÓN DE PEDIDOS A CLIENTES * * * * * * * * * * * *
+
+		directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+				+ ConstantsFolders.FOLDER_ENVIOS_CLIENTE;
+
+		List<String> envios = IOUtils.getFilesFromDirectory(directory);
+
+		for (String file : envios) {
+
+			if (file.toUpperCase().endsWith(".PDF")) {
+				continue;
+			}
+
+			try {
+				File fileInfo = new File(file);
+				FileInputStream fis = new FileInputStream(fileInfo);
+				BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
+				String line;
+				StringBuilder stringBuilder = new StringBuilder();
+
+				while ((line = reader.readLine()) != null) {
+					stringBuilder.append(line).append("\n");
+				}
+				reader.close();
+				fis.close();
+
+				// Eliminar la extensión .html
+				String nombreSinExtension = file.replace(".html", "");
+
+				// Separar el correo y el número de albarán
+				String[] parts = nombreSinExtension.split("#");
+				String customerMail = nombreSinExtension.substring(nombreSinExtension.lastIndexOf("/") + 1, nombreSinExtension.indexOf("#"));
+				String numeroAlbaran = parts[1];
+
+				String title = "Envío de información del pedido número " + numeroAlbaran;
+
+				String content = stringBuilder.toString();
+
+				String albaranFile = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+						+ ConstantsFolders.FOLDER_ENVIOS_CLIENTE + "/" + numeroAlbaran + ".pdf";
+				MailSender mail = new MailSender(customerMail, title, content, albaranFile);
+
+				try {
+					mail.send();
+					IOUtils.deleteFile(file);
+					IOUtils.deleteFile(albaranFile);
+				} catch (Exception e) {
+					continue;
+				}
+
+				this.Monitor().EnviosClienteSend++;
+			} catch (Exception e) {
+			}
+		}
+
 
 		// * * * * * * * * * ENVIAMOS ARTICULOS * * * * * * * * * * * *                                                              
 
@@ -943,6 +1007,9 @@ public class ServiceWorker extends ServiceBase {
 
 		File ingresoDiario = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_INGRESO_DIARIO + "/");
 		ingresoDiario.mkdirs();
+
+		File enviosCliente = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_ENVIOS_CLIENTE + "/");
+		enviosCliente.mkdirs();
                                                                                                                                      
 	}                                                                                                                                
 
