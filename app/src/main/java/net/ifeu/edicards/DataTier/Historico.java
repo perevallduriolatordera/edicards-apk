@@ -238,6 +238,7 @@ public class Historico extends Persistent implements IPersistable {
 	public String getDateOfLastMovementFormatted() throws Exception {
 		// Consulta para obtener la fecha más reciente con movimientos
 		String latestDateQuery = "SELECT fecha FROM " + ConstantsDatabase.TABLE_HISTORICOS +
+				" WHERE fecha != strftime('%d/%m/%Y', 'now', 'localtime')" +
 				" ORDER BY substr(fecha,7) || substr(fecha,4,2) || substr(fecha,1,2) DESC LIMIT 1";
 
 		Cursor latestDateCursor = super.getDatabaseOperations().executeSentence(latestDateQuery);

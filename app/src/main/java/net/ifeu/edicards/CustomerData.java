@@ -176,33 +176,7 @@ public class CustomerData extends Activity {
 			if (!result)
 				return;
 
-			String text = "Datos antiguos: " + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE
-					+ "NÚM. DEPOSITO DIMONI: " + deposito.NumDoc + ConstantsTypes.NEW_LINE
-					+ "NÚM. DEPOSITO TABLET (RefExt): " + deposito.IdDeposito + ConstantsTypes.NEW_LINE
-					+ "NIF/CIF: " + deposito.NIFPrevious + ConstantsTypes.NEW_LINE + "NOMBRE: "
-					+ deposito.NombrePrevious + ConstantsTypes.NEW_LINE + "RAZÓN: " + deposito.RazonPrevious
-					+ ConstantsTypes.NEW_LINE + "DIRECCION: " + deposito.DireccionPrevious
-					+ ConstantsTypes.NEW_LINE + "POBLACION: " + deposito.PoblacionPrevious
-					+ ConstantsTypes.NEW_LINE + "CODIGO POSTAL: " + deposito.CodigoPostalPrevious
-					+ ConstantsTypes.NEW_LINE + "PROVINCIA: " + deposito.ProvinciaPrevious
-					+ ConstantsTypes.NEW_LINE + "TELEFONO 1: " + deposito.Telefono1Previous
-					+ ConstantsTypes.NEW_LINE + "TELEFONO 2: " + deposito.Telefono2Previous
-					+ ConstantsTypes.NEW_LINE + "FAX: " + deposito.FaxPrevious + ConstantsTypes.NEW_LINE + "MAIL: "
-					+ deposito.MailPrevious + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE
-					+ ConstantsTypes.NEW_LINE + "Han sido modificados por: " + ConstantsTypes.NEW_LINE
-					+ ConstantsTypes.NEW_LINE + "NIF/CIF: " + deposito.NIF + ConstantsTypes.NEW_LINE + "NOMBRE: "
-					+ deposito.Nombre + ConstantsTypes.NEW_LINE + "RAZÓN: " + deposito.Razon
-					+ ConstantsTypes.NEW_LINE + "DIRECCION: " + deposito.Direccion1 + ConstantsTypes.NEW_LINE
-					+ "POBLACION: " + deposito.Poblacion + ConstantsTypes.NEW_LINE + "CODIGO POSTAL: "
-					+ deposito.CodigoPostal + ConstantsTypes.NEW_LINE + "PROVINCIA: " + deposito.Provincia
-					+ ConstantsTypes.NEW_LINE + "TELEFONO 1: " + deposito.Telefono1 + ConstantsTypes.NEW_LINE
-					+ "TELEFONO 2: " + deposito.Telefono2 + ConstantsTypes.NEW_LINE + "FAX: " + deposito.Fax
-					+ ConstantsTypes.NEW_LINE + "MAIL: " + deposito.Mail;
-
-			Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(),
-					IncidenciaType.DatosFiscales, text);
-			incidencia.create(new IncidentPdfCreator(_appConfig));
-
+			createIncidenciaDatosFiscales(deposito, _appConfig);
 		}
 
 		if (deposito.CCCUpdated) {
@@ -215,20 +189,60 @@ public class CustomerData extends Activity {
 			if (!result)
 				return;
 
-			String text = "Datos de la cuenta corriente del cliente: " + ConstantsTypes.NEW_LINE
-					+ ConstantsTypes.NEW_LINE + "CODIGO CLIENTE: " + deposito.CodigoCliente
-					+ ConstantsTypes.NEW_LINE + "NOMBRE DEL CLIENTE: " + deposito.Nombre + ConstantsTypes.NEW_LINE
-					+ "NUM CUENTA CORRIENTE: " + deposito.ClienteInfo.CCC + ConstantsTypes.NEW_LINE
-					+ "REPRESENTANTE: " + deposito.ClienteInfo.Representante + ConstantsTypes.NEW_LINE
-					+ "DNI REPRESENTANTE: " + deposito.ClienteInfo.DniRepresentante + ConstantsTypes.NEW_LINE;
-
-			Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(),
-					IncidenciaType.CuentaCorriente, text);
-			incidencia.create(new IncidentPdfCreator(_appConfig));
+			createIncidenciaCCC(deposito, _appConfig);
 
 		}
 		finish();
 	}
+
+	public static void createIncidenciaCCC(Deposito deposito, AppConfig appConfig) {
+		String text = "Datos de la cuenta corriente del cliente: " + ConstantsTypes.NEW_LINE
+				+ ConstantsTypes.NEW_LINE + "CODIGO CLIENTE: " + deposito.CodigoCliente
+				+ ConstantsTypes.NEW_LINE + "NOMBRE DEL CLIENTE: " + deposito.Nombre + ConstantsTypes.NEW_LINE
+				+ "NUM CUENTA CORRIENTE: " + deposito.ClienteInfo.CCC + ConstantsTypes.NEW_LINE
+				+ "REPRESENTANTE: " + deposito.ClienteInfo.Representante + ConstantsTypes.NEW_LINE
+				+ "DNI REPRESENTANTE: " + deposito.ClienteInfo.DniRepresentante + ConstantsTypes.NEW_LINE;
+
+		Incidencia incidencia = new Incidencia(appConfig.getUser().User, new Date(),
+				IncidenciaType.CuentaCorriente, text);
+        try {
+            incidencia.create(new IncidentPdfCreator(appConfig));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+	public static void createIncidenciaDatosFiscales(Deposito deposito, AppConfig appConfig) {
+		String text = "Datos antiguos: " + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE
+				+ "NÚM. DEPOSITO DIMONI: " + deposito.NumDoc + ConstantsTypes.NEW_LINE
+				+ "NÚM. DEPOSITO TABLET (RefExt): " + deposito.IdDeposito + ConstantsTypes.NEW_LINE
+				+ "NIF/CIF: " + deposito.NIFPrevious + ConstantsTypes.NEW_LINE + "NOMBRE: "
+				+ deposito.NombrePrevious + ConstantsTypes.NEW_LINE + "RAZÓN: " + deposito.RazonPrevious
+				+ ConstantsTypes.NEW_LINE + "DIRECCION: " + deposito.DireccionPrevious
+				+ ConstantsTypes.NEW_LINE + "POBLACION: " + deposito.PoblacionPrevious
+				+ ConstantsTypes.NEW_LINE + "CODIGO POSTAL: " + deposito.CodigoPostalPrevious
+				+ ConstantsTypes.NEW_LINE + "PROVINCIA: " + deposito.ProvinciaPrevious
+				+ ConstantsTypes.NEW_LINE + "TELEFONO 1: " + deposito.Telefono1Previous
+				+ ConstantsTypes.NEW_LINE + "TELEFONO 2: " + deposito.Telefono2Previous
+				+ ConstantsTypes.NEW_LINE + "FAX: " + deposito.FaxPrevious + ConstantsTypes.NEW_LINE + "MAIL: "
+				+ deposito.MailPrevious + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE
+				+ ConstantsTypes.NEW_LINE + "Han sido modificados por: " + ConstantsTypes.NEW_LINE
+				+ ConstantsTypes.NEW_LINE + "NIF/CIF: " + deposito.NIF + ConstantsTypes.NEW_LINE + "NOMBRE: "
+				+ deposito.Nombre + ConstantsTypes.NEW_LINE + "RAZÓN: " + deposito.Razon
+				+ ConstantsTypes.NEW_LINE + "DIRECCION: " + deposito.Direccion1 + ConstantsTypes.NEW_LINE
+				+ "POBLACION: " + deposito.Poblacion + ConstantsTypes.NEW_LINE + "CODIGO POSTAL: "
+				+ deposito.CodigoPostal + ConstantsTypes.NEW_LINE + "PROVINCIA: " + deposito.Provincia
+				+ ConstantsTypes.NEW_LINE + "TELEFONO 1: " + deposito.Telefono1 + ConstantsTypes.NEW_LINE
+				+ "TELEFONO 2: " + deposito.Telefono2 + ConstantsTypes.NEW_LINE + "FAX: " + deposito.Fax
+				+ ConstantsTypes.NEW_LINE + "MAIL: " + deposito.Mail;
+
+		Incidencia incidencia = new Incidencia(appConfig.getUser().User, new Date(),
+				IncidenciaType.DatosFiscales, text);
+        try {
+            incidencia.create(new IncidentPdfCreator(appConfig));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 	
 	private boolean isUpdated()
 	{

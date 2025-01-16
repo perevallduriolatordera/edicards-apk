@@ -40,8 +40,11 @@ public class IngresosDiarios extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_ingresos_diarios);
 
+		// Evita que la actividad se cierre al tocar fuera de ella
+		setFinishOnTouchOutside(false);
+
 		android.view.WindowManager.LayoutParams params = getWindow().getAttributes();
-		params.height = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.8f).getHeight();
+		params.height = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.6f).getHeight();
 		params.width  = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.8f).getWidth();
 		getWindow().setAttributes(params);
 
@@ -172,5 +175,10 @@ public class IngresosDiarios extends Activity {
 
 		finish();
 
+	}
+
+	@Override
+	public void onBackPressed() {
+		// Evita que la actividad se cierre con el botón Atrás
 	}
 }

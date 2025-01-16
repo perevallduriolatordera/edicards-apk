@@ -1204,8 +1204,24 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		try {
 
-			ICustomerNotification<Deposito> notification = new HtmlCustomerNotification();
-			notification.notify(_deposito);
+			if (_deposito.Serie.equals(_appConfig.getUser().SerialInvoiceA)) {
+
+				_cliente.Mail = "";
+				if (_cliente.Mail.equals(ConstantsTypes.EMPTY_STRING) || _deposito.Cliente.Mail == null) {
+					String email;
+					do {
+						email = _appConfig.getMessageBox().InputBox("Cierre de operación",
+								"El cliente no tiene informado el correo electrónico. Introdúzcalo por favor", getActivity());
+					} while (!DepositManagerExtension.Format.isEmailFormat(email));
+
+					_cliente.Mail = email;
+					_deposito.assingFromCliente(_cliente);
+					CustomerData.createIncidenciaDatosFiscales(_deposito, _appConfig);
+				}
+
+				ICustomerNotification<Deposito> notification = new HtmlCustomerNotification();
+				notification.notify(_deposito);
+			}
 
 			DepositManagerExtension.Documents.sendData(this.getActivity(), this._appConfig);
 

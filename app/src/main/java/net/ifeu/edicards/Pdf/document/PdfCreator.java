@@ -414,14 +414,16 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 
 		_document.close();
 
-		String target = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
-				+ ConstantsFolders.FOLDER_ENVIOS_CLIENTE + "/" + _deposito.NumeroAlbaran + ".pdf";
-		try (FileChannel sourceChannel = new FileInputStream(_pdfName).getChannel();
-			 FileChannel targetChannel = new FileOutputStream(target).getChannel()) {
-			 targetChannel.transferFrom(sourceChannel, 0, targetChannel.size());
+		if (_deposito.Serie.equals(_app.getUser().SerialInvoiceA)) {
+			String target = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+					+ ConstantsFolders.FOLDER_ENVIOS_CLIENTE + "/" + _deposito.NumeroAlbaran + ".pdf";
+			try (FileChannel sourceChannel = new FileInputStream(_pdfName).getChannel();
+				 FileChannel targetChannel = new FileOutputStream(target).getChannel()) {
+				targetChannel.transferFrom(sourceChannel, 0, targetChannel.size());
 
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 
     }

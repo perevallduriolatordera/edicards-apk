@@ -255,6 +255,11 @@ public class DepositManagerExtension {
 			DecimalFormat df2 = new DecimalFormat("0.00");
 			return Double.parseDouble(df2.format(val).replace(",", "."));
 		}
+
+		public static boolean isEmailFormat(String email) {
+			String regex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+			return email.matches(regex);
+		}
 		
 		
 	}

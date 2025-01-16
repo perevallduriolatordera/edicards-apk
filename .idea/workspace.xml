@@ -32,41 +32,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="373d8d28-3f16-41d0-a8bb-b39dfa2a22b0" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Html/notification/customer/HtmlCustomerNotification.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Html/notification/customer/ICustomerNotification.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/resources/templates/customer_notification.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/6.5/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/executionHistory/executionHistory.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/6.5/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/executionHistory/executionHistory.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/6.5/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/fileHashes/fileHashes.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/6.5/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/6.5/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/fileHashes/resourceHashesCache.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/6.5/javaCompile/classAnalysis.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/javaCompile/classAnalysis.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/6.5/javaCompile/jarAnalysis.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/javaCompile/jarAnalysis.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/6.5/javaCompile/javaCompile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/javaCompile/javaCompile.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/6.5/javaCompile/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/javaCompile/taskHistory.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Application/WorkingArea.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Application/WorkingArea.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Constants/ConstantsFolders.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Constants/ConstantsFolders.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Constants/ConstantsMail.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Constants/ConstantsMail.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DataTier/Historico.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DataTier/Historico.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DataTier/Incidencia.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DataTier/Incidencia.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DataTier/IngresoDiario.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DataTier/IngresoDiario.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManagerExtension.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManagerExtension.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/IngresoDiarioDialog.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/IngresoDiarioDialog.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/IngresosDiarios.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/IngresosDiarios.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/MonitorView.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/MonitorView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Pdf/document/PdfCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Pdf/document/PdfCreator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Pdf/pdfBase.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Pdf/pdfBase.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Reports.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Reports.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Services/ServiceMonitor.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Services/ServiceMonitor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Services/ServiceWorker.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Services/ServiceWorker.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_ingresos_diarios.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_ingresos_diarios.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_ingresos_diarios_dialog.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_ingresos_diarios_dialog.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,7 +42,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=PhysicalDevice, isTemplate=false, identifier=serial=78f1fc28)]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
