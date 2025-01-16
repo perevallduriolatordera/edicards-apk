@@ -17,7 +17,7 @@ import javax.mail.internet.MimeMultipart;
 import net.ifeu.edicards.Constants.ConstantsMail;
 
 //Class is extending AsyncTask because this class is going to perform a networking operation
-public class MailSender  {
+public class EdicardsMailSender {
 
     //Information to send email
   final private String email;
@@ -25,8 +25,13 @@ public class MailSender  {
   final private String message;
   final private String attachment;
 
+  public enum AccountType {
+      OPERACIONES_TABLET,
+      CLIENTES_TABLET
+  }
+
   //Class Constructor
-  public MailSender(String email, String subject, String message, String attachment){
+  public EdicardsMailSender(String email, String subject, String message, String attachment){
       //Initializing variables
       this.email = email;
       this.subject = subject;
@@ -34,7 +39,7 @@ public class MailSender  {
       this.attachment = attachment;
   }
 
-  public void send() throws MessagingException, IOException {
+  public void send(AccountType accountType) throws MessagingException, IOException {
 	  
       //Creating properties
       Properties props = new Properties();
@@ -50,11 +55,14 @@ public class MailSender  {
       //Creating a new session
       //Authenticating the password
       //Declaring Variables
+
+      final String user = accountType == AccountType.OPERACIONES_TABLET ? ConstantsMail.MAIL_OPERACIONES_TABLET_USER : ConstantsMail.MAIL_CLIENTES_TABLET_USER;
+      final String password = accountType == AccountType.OPERACIONES_TABLET ? ConstantsMail.MAIL_OPERACIONES_TABLET_PASSWORD : ConstantsMail.MAIL_CLIENTES_TABLET_PASSWORD;
       Session session = Session.getDefaultInstance(props,
               new javax.mail.Authenticator() {
                   //Authenticating the password
                   protected PasswordAuthentication getPasswordAuthentication() {
-                      return new PasswordAuthentication(ConstantsMail.MAIL_USER, ConstantsMail.MAIL_PASSWORD);
+                      return new PasswordAuthentication(user, password);
                   }
               });
 

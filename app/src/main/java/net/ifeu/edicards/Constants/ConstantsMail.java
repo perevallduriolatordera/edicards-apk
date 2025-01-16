@@ -6,8 +6,11 @@ public class ConstantsMail {
     public static final String MAIL_PORT = "465";
     public static final String MAIL_SPORT = "465";
 
-    public static final String MAIL_USER = "tablet@grupediciones.com";
-    public static final String MAIL_PASSWORD = "Table23@Edi";
+    public static final String MAIL_OPERACIONES_TABLET_USER = "tablet@grupediciones.com";
+    public static final String MAIL_OPERACIONES_TABLET_PASSWORD = "Table23@Edi";
+
+    public static final String MAIL_CLIENTES_TABLET_USER = "pedidostablet@grupediciones.com";
+    public static final String MAIL_CLIENTES_TABLET_PASSWORD = "NE2)dmK5;T4";
 
     public static final String MAIL_TO = "testtabletedi@gmail.com";
     public static final String MAIL_TO_GDPR = "gdprtabletedi@gmail.com";

@@ -119,6 +119,10 @@ public class DepositManagerExtension {
 					|| deposito.CodigoPostal.trim().equals(ConstantsTypes.EMPTY_STRING));
 		}
 
+		public static boolean IsCustomerEmailFilled(Deposito deposito) {
+			return !deposito.Mail.trim().equals(ConstantsTypes.EMPTY_STRING);
+		}
+
 		public static boolean isCustomerAttachedFilled(AppConfig appConfig) {
 			return !StringUtils.isEmpty(appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerFrontDocument)
 					&& !StringUtils.isEmpty(appConfig.getWorkingArea().CurrentTransactionMetadata.NewCustomerBackDocument);

@@ -7,6 +7,8 @@ import android.app.ActionBar.LayoutParams;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 
 public class SignatureCustomer extends Activity {
 
@@ -19,6 +21,8 @@ public class SignatureCustomer extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_signature_customer);
+
+		_app = (AppConfig) this.getApplicationContext();
 		
 		setFinishOnTouchOutside (false);
 		
@@ -27,12 +31,15 @@ public class SignatureCustomer extends Activity {
         params.width  = 1000;
         getWindow().setAttributes(params);
 
+		TextView formaPago = this.findViewById(R.id.txtFormaDePago);
+		formaPago.setText("La forma de pago elegida por el cliente " + _app.getWorkingArea().CurrentCliente.Razon +
+				" es: " + _app.getWorkingArea().CurrentDeposito.FormaPago.Descripcion);
+
 		_bundle = savedInstanceState;
-		_app = (AppConfig) this.getApplicationContext();
 	}
 
 	public void OnClick(View v) {
-		SignatureView signature = (SignatureView) this.findViewById(R.id.signatureView);
+		SignatureView signature = this.findViewById(R.id.signatureView);
 		signature.save(1, _app.getWorkingArea().CurrentHistorico.GUID);
 		signature.saveBitmap1Color(1, _app.getWorkingArea().CurrentHistorico.GUID);
 		_isSaved = true;
@@ -43,22 +50,17 @@ public class SignatureCustomer extends Activity {
 	
 	private void StartDepositView()  {
 		Intent intent = new Intent(this, DepositView.class);
-
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
 		this.startActivityForResult(intent, 1);
 
 	}
 	
 	private void StartAlbaranView()  {
 		Intent intent = new Intent(this, AlbaranView.class);
-
 		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
 		this.startActivityForResult(intent, 1);
 
 	}
-
 
 	public void OnDepositView(View v)  {
 		this.StartDepositView();
@@ -74,8 +76,6 @@ public class SignatureCustomer extends Activity {
 
 	@Override
 	public void onDestroy() {
-		
 		super.onDestroy();
-
 	}
 }

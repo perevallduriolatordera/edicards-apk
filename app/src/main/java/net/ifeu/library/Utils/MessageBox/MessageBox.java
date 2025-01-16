@@ -95,14 +95,12 @@ public class MessageBox {
 	public String InputBox(String title, String text, Context context)
 	{
 		final TextBoxColor textBox = new TextBoxColor(context, Color.BLACK);
-		
 		 final Handler handler = new Handler() {
 		        @Override
 		        public void handleMessage(Message mesg) {
 					throw new RuntimeException("@Custom");
 		        } 
 		    };
-		
 		    
 		new AlertDialog.Builder(new ContextThemeWrapper(context, R.style.AppTheme))
 	    .setTitle(title)

@@ -5,7 +5,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
 import net.ifeu.edicards.Constants.ConstantsMail;
-import net.ifeu.library.Mail.MailSender;
+import net.ifeu.library.Mail.EdicardsMailSender;
 
 import java.io.IOException;
 
@@ -22,9 +22,9 @@ public class Debugger {
 
         Thread thread = new Thread(() -> {
             try  {
-                MailSender mailEnviosMantenimiento = new MailSender(ConstantsMail.MAIL_MANTENIMIENTO, "DEBUG edicards " + user, message, file);
+                EdicardsMailSender mailEnviosMantenimiento = new EdicardsMailSender(ConstantsMail.MAIL_MANTENIMIENTO, "DEBUG edicards " + user, message, file);
                 try {
-                    mailEnviosMantenimiento.send();
+                    mailEnviosMantenimiento.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET);
                 } catch (MessagingException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -42,9 +42,9 @@ public class Debugger {
 
         Thread thread = new Thread(() -> {
             try  {
-                MailSender mailEnviosMantenimiento = new MailSender(ConstantsMail.MAIL_MANTENIMIENTO, "CRASH app init edicards " + user, message, file);
+                EdicardsMailSender mailEnviosMantenimiento = new EdicardsMailSender(ConstantsMail.MAIL_MANTENIMIENTO, "CRASH app init edicards " + user, message, file);
                 try {
-                    mailEnviosMantenimiento.send();
+                    mailEnviosMantenimiento.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET);
                 } catch (MessagingException e) {
                     e.printStackTrace();
                 } catch (IOException e) {

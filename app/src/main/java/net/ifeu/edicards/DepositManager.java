@@ -55,6 +55,7 @@ import net.ifeu.library.Utils.MessageBox.AdvancedMessageBox;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 import net.ifeu.library.Utils.Screen.ScreenManager;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.io.IOException;
@@ -464,6 +465,22 @@ public class DepositManager extends Fragment implements  IMediator {
 				if (!DepositManagerExtension.DataTier.IsCustomerDataFilled(that._deposito)) {
 					boolean result = _appConfig.getMessageBox().ShowWithResult("Cierre de operación",
 							"El cliente NO está correctamente rellenado. Desea editarlo?", arg0.getContext(),
+							MessageBoxType.Information);
+					if (!result) {
+						albaran.setVisibility(View.VISIBLE);
+						return;
+					} else {
+						DepositManagerExtension.Dialogs.StartCustomerDataDialog(that);
+						albaran.setVisibility(View.VISIBLE);
+						return;
+					}
+				}
+
+				if (_deposito.Serie.equals(_appConfig.getUser().SerialInvoiceA)
+					&& !DepositManagerExtension.DataTier.IsCustomerEmailFilled(that._deposito)) {
+
+					boolean result = _appConfig.getMessageBox().ShowWithResult("Cierre de operación",
+							"El cliente NO tiene informada un cuenta de correo para que se le envíe la notificación del pedido. Desea editarlo?", arg0.getContext(),
 							MessageBoxType.Information);
 					if (!result) {
 						albaran.setVisibility(View.VISIBLE);
@@ -1205,22 +1222,10 @@ public class DepositManager extends Fragment implements  IMediator {
 		try {
 
 			if (_deposito.Serie.equals(_appConfig.getUser().SerialInvoiceA)) {
-
-				_cliente.Mail = "";
-				if (_cliente.Mail.equals(ConstantsTypes.EMPTY_STRING) || _deposito.Cliente.Mail == null) {
-					String email;
-					do {
-						email = _appConfig.getMessageBox().InputBox("Cierre de operación",
-								"El cliente no tiene informado el correo electrónico. Introdúzcalo por favor", getActivity());
-					} while (!DepositManagerExtension.Format.isEmailFormat(email));
-
-					_cliente.Mail = email;
-					_deposito.assingFromCliente(_cliente);
-					CustomerData.createIncidenciaDatosFiscales(_deposito, _appConfig);
+				if (DepositManagerExtension.DataTier.IsCustomerEmailFilled(_appConfig.getWorkingArea().CurrentDeposito)) {
+					ICustomerNotification<Deposito> notification = new HtmlCustomerNotification();
+					notification.notify(_deposito);
 				}
-
-				ICustomerNotification<Deposito> notification = new HtmlCustomerNotification();
-				notification.notify(_deposito);
 			}
 
 			DepositManagerExtension.Documents.sendData(this.getActivity(), this._appConfig);

@@ -19,6 +19,7 @@ import net.ifeu.edicards.DataTier.Totales;
 import net.ifeu.edicards.Pdf.pdfBase;
 import net.ifeu.library.Debugger.Debugger;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -415,16 +416,22 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 		_document.close();
 
 		if (_deposito.Serie.equals(_app.getUser().SerialInvoiceA)) {
-			String target = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
-					+ ConstantsFolders.FOLDER_ENVIOS_CLIENTE + "/" + _deposito.NumeroAlbaran + ".pdf";
-			try (FileChannel sourceChannel = new FileInputStream(_pdfName).getChannel();
-				 FileChannel targetChannel = new FileOutputStream(target).getChannel()) {
-				targetChannel.transferFrom(sourceChannel, 0, targetChannel.size());
+            String target = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+                    + ConstantsFolders.FOLDER_ENVIOS_CLIENTE + "/" + _deposito.NumeroAlbaran + ".pdf";
 
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
+            File sourceFile;
+            do {
+                sourceFile = new File(_pdfName);
+            } while (!sourceFile.exists() || !(sourceFile.length() > 0));
+
+            try (FileChannel sourceChannel = new FileInputStream(_pdfName).getChannel();
+                 FileChannel targetChannel = new FileOutputStream(target).getChannel()) {
+                targetChannel.transferFrom(sourceChannel, 0, targetChannel.size());
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
     }
 

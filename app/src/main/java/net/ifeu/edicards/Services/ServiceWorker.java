@@ -34,7 +34,7 @@ import net.ifeu.library.Ftp.FTPUploader;
 import net.ifeu.library.IO.IOUtils;
 import net.ifeu.library.LogBook.LogBook;
 import net.ifeu.library.Mail.Mail;
-import net.ifeu.library.Mail.MailSender;
+import net.ifeu.library.Mail.EdicardsMailSender;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -152,9 +152,9 @@ public class ServiceWorker extends ServiceBase {
 
 				String[] parts = file.split("_");
 				if (parts.length > 3 && parts[3].startsWith("E") && fileInfo.getName().subSequence(0, 4).equals("AALM")) {
-					MailSender mailEnviosEdicards = new MailSender(ConstantsMail.MAIL_ENVIOS_EDICARDS, title, ConstantsMail.MAIL_BODY, file);
+					EdicardsMailSender mailEnviosEdicards = new EdicardsMailSender(ConstantsMail.MAIL_ENVIOS_EDICARDS, title, ConstantsMail.MAIL_BODY, file);
 					try {
-						mailEnviosEdicards.send();
+						mailEnviosEdicards.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET);
 						Debugger.Debug(context, app.getUser().User,"Se ha enviado el albarán " + albaran + " al almacén de envios Edicards", file);
 					} catch (Exception e) {
 						this.sendMailToMantenimiento(context,  e, app.getUser().User, albaran);
@@ -164,9 +164,9 @@ public class ServiceWorker extends ServiceBase {
 
 				if (isRectificativo) {
 					if (parts.length > 4 && parts[4].startsWith("E") && fileInfo.getName().subSequence(0, 5).equals("REC_A")) {
-						MailSender mailEnviosEdicards = new MailSender(ConstantsMail.MAIL_ENVIOS_EDICARDS, title, ConstantsMail.MAIL_BODY, file);
+						EdicardsMailSender mailEnviosEdicards = new EdicardsMailSender(ConstantsMail.MAIL_ENVIOS_EDICARDS, title, ConstantsMail.MAIL_BODY, file);
 						try {
-							mailEnviosEdicards.send();
+							mailEnviosEdicards.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET);
 							Debugger.Debug(context, app.getUser().User,"Se ha enviado el albarán " + albaran  + " al almacén de envios Edicards", file);
 						} catch (Exception e) {
 							this.sendMailToMantenimiento(context, e, app.getUser().User, albaran);
@@ -175,11 +175,11 @@ public class ServiceWorker extends ServiceBase {
 					}
 				}
 
-				MailSender mail = new MailSender(ConstantsMail.MAIL_TO, title, ConstantsMail.MAIL_BODY, file);
+				EdicardsMailSender mail = new EdicardsMailSender(ConstantsMail.MAIL_TO, title, ConstantsMail.MAIL_BODY, file);
 
 				try {
 					if (!fileInfo.getName().subSequence(0, 4).equals("AALM"))
-						mail.send();
+						mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET);
 
 					IOUtils.deleteFile(file);
 					Debugger.Debug(context, app.getUser().User,"Se ha enviado el albarán " + albaran + " a la cuenta de gmail de Edicards", file);
@@ -208,8 +208,8 @@ public class ServiceWorker extends ServiceBase {
 				String title = "Autorización ";
 				title = title + (fileInfo.getName().substring(2).replace(".pdf", ConstantsTypes.EMPTY_STRING));
 
-				Mail mail = new Mail(ConstantsMail.MAIL_HOST, ConstantsMail.MAIL_PORT, ConstantsMail.MAIL_SPORT, ConstantsMail.MAIL_USER,
-						ConstantsMail.MAIL_PASSWORD, ConstantsMail.MAIL_FROM, title, ConstantsMail.MAIL_TO, ConstantsMail.MAIL_BODY);
+				Mail mail = new Mail(ConstantsMail.MAIL_HOST, ConstantsMail.MAIL_PORT, ConstantsMail.MAIL_SPORT, ConstantsMail.MAIL_OPERACIONES_TABLET_USER,
+						ConstantsMail.MAIL_OPERACIONES_TABLET_PASSWORD, ConstantsMail.MAIL_FROM, title, ConstantsMail.MAIL_TO, ConstantsMail.MAIL_BODY);
 
 				mail.addAttachment(file, title + ".pdf");
 
@@ -242,10 +242,10 @@ public class ServiceWorker extends ServiceBase {
 				String title = "Documento GDPR del cliente ";
 				title = title + (fileInfo.getName().replace(".pdf", ConstantsTypes.EMPTY_STRING));
 
-				MailSender mail = new MailSender(ConstantsMail.MAIL_TO_GDPR, title, ConstantsMail.MAIL_BODY, file);
+				EdicardsMailSender mail = new EdicardsMailSender(ConstantsMail.MAIL_TO_GDPR, title, ConstantsMail.MAIL_BODY, file);
 
 				try {
-					mail.send();
+					mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET);
 				} catch (Exception e) {
 					continue;
 				}
@@ -269,10 +269,10 @@ public class ServiceWorker extends ServiceBase {
 
 				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 				String title = "Documento Trazabilidad del comercial " + app.getUser().User + " " + "con fecha " + formatter.format(new Date());
-				MailSender mail = new MailSender(ConstantsMail.MAIL_TO_LOGBOOK, title, ConstantsMail.MAIL_BODY, file);
+				EdicardsMailSender mail = new EdicardsMailSender(ConstantsMail.MAIL_TO_LOGBOOK, title, ConstantsMail.MAIL_BODY, file);
 
 				try {
-					mail.send();
+					mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET);
 					IOUtils.deleteFile(file);
 				} catch (Exception e) {
 				}
@@ -316,21 +316,21 @@ public class ServiceWorker extends ServiceBase {
 					title = "Error producido al generar documento pdf enviado por " + app.getUser().User;
 
 				String content = "Este mensaje se ha generado automáticamente desde el dispositivo móvil.";
-				MailSender mail;
+				EdicardsMailSender mail;
 
 				if (fileInfo.getName().subSequence(0, 1).toString().equals("I"))
-					mail = new MailSender(ConstantsMail.MAIL_ADMINISTRACION_2, title, content, file);
+					mail = new EdicardsMailSender(ConstantsMail.MAIL_ADMINISTRACION_2, title, content, file);
 				else
-					mail = new MailSender(ConstantsMail.MAIL_ADMINISTRACION, title,  content, file);
+					mail = new EdicardsMailSender(ConstantsMail.MAIL_ADMINISTRACION, title,  content, file);
 
 				if (fileInfo.getName().subSequence(0, 1).toString().equals("E"))
-					mail = new MailSender(ConstantsMail.MAIL_FACTURACION, title,  content, file);
+					mail = new EdicardsMailSender(ConstantsMail.MAIL_FACTURACION, title,  content, file);
 
 				if (fileInfo.getName().subSequence(0, 1).toString().equals("W"))
-					mail = new MailSender(ConstantsMail.MAIL_INGRESOS_EDICARDS, title,  content, file);
+					mail = new EdicardsMailSender(ConstantsMail.MAIL_INGRESOS_EDICARDS, title,  content, file);
 
 				try {
-					mail.send();
+					mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET);
 					IOUtils.deleteFile(file);
 				} catch (Exception e) {
 					continue;
@@ -381,10 +381,10 @@ public class ServiceWorker extends ServiceBase {
 
 				String albaranFile = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
 						+ ConstantsFolders.FOLDER_ENVIOS_CLIENTE + "/" + numeroAlbaran + ".pdf";
-				MailSender mail = new MailSender(customerMail, title, content, albaranFile);
+				EdicardsMailSender mail = new EdicardsMailSender(customerMail, title, content, albaranFile);
 
 				try {
-					mail.send();
+					mail.send(EdicardsMailSender.AccountType.CLIENTES_TABLET);
 					IOUtils.deleteFile(file);
 					IOUtils.deleteFile(albaranFile);
 				} catch (Exception e) {
@@ -472,7 +472,7 @@ public class ServiceWorker extends ServiceBase {
 						String title = "Inventario ";
 						title = title + (fileInfo.getName().replace(".pdf", ConstantsTypes.EMPTY_STRING));
 						Mail mail = new Mail(ConstantsMail.MAIL_HOST, ConstantsMail.MAIL_PORT, ConstantsMail.MAIL_SPORT,
-								ConstantsMail.MAIL_USER, ConstantsMail.MAIL_PASSWORD, ConstantsMail.MAIL_FROM, title, ConstantsMail.MAIL_TO,
+								ConstantsMail.MAIL_OPERACIONES_TABLET_USER, ConstantsMail.MAIL_OPERACIONES_TABLET_PASSWORD, ConstantsMail.MAIL_FROM, title, ConstantsMail.MAIL_TO,
 								ConstantsMail.MAIL_BODY);
 
 						mail.addAttachment(file, title + ".pdf");
@@ -499,11 +499,11 @@ public class ServiceWorker extends ServiceBase {
 					File fileInfo = new File(file);
 					String title = "Inventario de reciclado ";
 					title = title + (fileInfo.getName().replace(".pdf", ConstantsTypes.EMPTY_STRING).replace("Reciclado_", ConstantsTypes.EMPTY_STRING));
-					MailSender mail;
-					mail = new MailSender(ConstantsMail.MAIL_FACTURACION, title, ConstantsTypes.EMPTY_STRING, file);
+					EdicardsMailSender mail;
+					mail = new EdicardsMailSender(ConstantsMail.MAIL_FACTURACION, title, ConstantsTypes.EMPTY_STRING, file);
 
 					try {
-						mail.send();
+						mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET);
 						IOUtils.deleteFile(file);
 					} catch (Exception e) {
 						continue;
