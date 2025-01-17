@@ -71,7 +71,7 @@ public class EdicardsMailSender {
           MimeMessage mm = new MimeMessage(session);
 
           //Setting sender address
-          mm.setFrom(new InternetAddress(ConstantsMail.MAIL_FROM));
+          mm.setFrom(new InternetAddress(accountType == AccountType.OPERACIONES_TABLET ? ConstantsMail.MAIL_OPERACIONES_TABLET_USER : ConstantsMail.MAIL_CLIENTES_TABLET_USER));
           //Adding receiver
           mm.addRecipient(Message.RecipientType.TO, new InternetAddress(this.email));
           //Adding subject

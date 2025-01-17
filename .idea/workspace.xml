@@ -10,32 +10,7 @@
           <theme>@style/AppTheme</theme>
         </config>
       </layout>
-      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_customer_data.xml">
-        <config>
-          <theme>@style/AppTheme</theme>
-        </config>
-      </layout>
-      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_ingreso_data.xml">
-        <config>
-          <theme>@style/AppTheme</theme>
-        </config>
-      </layout>
-      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_ingresos_diarios.xml">
-        <config>
-          <theme>@style/AppTheme</theme>
-        </config>
-      </layout>
-      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_ingresos_diarios_dialog.xml">
-        <config>
-          <theme>@style/AppTheme</theme>
-        </config>
-      </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_signature_customer.xml">
-        <config>
-          <theme>@style/AppTheme</theme>
-        </config>
-      </layout>
-      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_stock_manager.xml">
         <config>
           <theme>@style/AppTheme</theme>
         </config>
@@ -58,16 +33,9 @@
       <change beforePath="$PROJECT_DIR$/.gradle/6.5/javaCompile/taskHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/6.5/javaCompile/taskHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Constants/ConstantsMail.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Constants/ConstantsMail.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManagerExtension.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManagerExtension.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Pdf/document/PdfCreator.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Pdf/document/PdfCreator.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Services/ServiceWorker.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Services/ServiceWorker.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/SignatureCustomer.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/SignatureCustomer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/library/Debugger/Debugger.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/library/Debugger/Debugger.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/library/Mail/MailSender.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/library/Mail/EdicardsMailSender.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/library/Utils/MessageBox/MessageBox.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/library/Utils/MessageBox/MessageBox.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_signature_customer.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_signature_customer.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/MainActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/net/ifeu/library/Mail/EdicardsMailSender.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/net/ifeu/library/Mail/EdicardsMailSender.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/resources/templates/customer_notification.html" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/resources/templates/customer_notification.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -124,7 +92,6 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Interface" />
         <option value="Class" />
       </list>
     </option>
@@ -134,13 +101,10 @@
     <option name="KEY_ALIAS" value="edicards" />
     <option name="BUILD_TARGET_KEY" value="apk" />
   </component>
-  <component name="Git.Merge.Settings">
-    <option name="BRANCH" value="origin/refactor/calculate_stock" />
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="refactor/calculate_stock" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -167,7 +131,6 @@
     "DEBUGGABLE_PROCESS": "net.ifeu.edicards",
     "DEBUGGER_ID": "Auto",
     "ExportApk.ApkPathForedicards-apk.app": "C:\\treball\\desenvolupament\\clients\\edicards\\edicards-apk\\app",
-    "ResourceManagerPrefKey.ResourceType": "LAYOUT",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.cidr.known.project.marker": "true",
@@ -183,7 +146,7 @@
     "full.screen.before.presentation.mode": "false",
     "git-widget-placeholder": "features/cash-control",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/treball/desenvolupament/clients/edicards/edicards-apk/app/src/main/res/layout",
+    "last_opened_file_path": "C:/traspas/SwipeMenuListView",
     "project.structure.last.edited": "SDK Location",
     "project.structure.proportion": "0.17",
     "project.structure.side.proportion": "0.2",
@@ -199,15 +162,8 @@
     <option name="LAST_EDITED_BUILD_TYPE" value="release" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\treball\desenvolupament\clients\edicards\edicards-apk\app\src\main\res\layout" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\treball\desenvolupament\clients\edicards\edicards-apk\app\src\main\res\drawable" />
-    </key>
-    <key name="CopyClassDialog.RECENTS_KEY">
-      <recent name="net.ifeu.edicards" />
-      <recent name="net.ifeu.edicards.DataTier" />
     </key>
   </component>
   <component name="RunManager">
@@ -564,6 +520,41 @@
           <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/DepositManager.java</url>
           <line>1041</line>
           <option name="timeStamp" value="142" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Services/ServiceWorker.java</url>
+          <line>345</line>
+          <option name="timeStamp" value="143" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/MainActivity.java</url>
+          <line>182</line>
+          <option name="timeStamp" value="144" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Services/ServiceWorker.java</url>
+          <line>366</line>
+          <option name="timeStamp" value="145" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Services/ServiceWorker.java</url>
+          <line>390</line>
+          <option name="timeStamp" value="146" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/edicards/Services/ServiceWorker.java</url>
+          <line>387</line>
+          <option name="timeStamp" value="147" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/library/Mail/EdicardsMailSender.java</url>
+          <line>44</line>
+          <option name="timeStamp" value="148" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/net/ifeu/library/Mail/EdicardsMailSender.java</url>
+          <line>109</line>
+          <option name="timeStamp" value="149" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
