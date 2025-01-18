@@ -24,7 +24,7 @@ public class Debugger {
             try  {
                 EdicardsMailSender mailEnviosMantenimiento = new EdicardsMailSender(ConstantsMail.MAIL_MANTENIMIENTO, "DEBUG edicards " + user, message, file);
                 try {
-                    mailEnviosMantenimiento.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET);
+                    mailEnviosMantenimiento.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
                 } catch (MessagingException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -44,7 +44,7 @@ public class Debugger {
             try  {
                 EdicardsMailSender mailEnviosMantenimiento = new EdicardsMailSender(ConstantsMail.MAIL_MANTENIMIENTO, "CRASH app init edicards " + user, message, file);
                 try {
-                    mailEnviosMantenimiento.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET);
+                    mailEnviosMantenimiento.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
                 } catch (MessagingException e) {
                     e.printStackTrace();
                 } catch (IOException e) {

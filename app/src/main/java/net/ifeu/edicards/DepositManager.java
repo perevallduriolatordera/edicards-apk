@@ -1223,6 +1223,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			if (_deposito.Serie.equals(_appConfig.getUser().SerialInvoiceA)) {
 				if (DepositManagerExtension.DataTier.IsCustomerEmailFilled(_appConfig.getWorkingArea().CurrentDeposito)) {
+					_deposito.Cliente.Mail = _appConfig.getWorkingArea().CurrentDeposito.Mail;
 					ICustomerNotification<Deposito> notification = new HtmlCustomerNotification();
 					notification.notify(_deposito);
 				}

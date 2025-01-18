@@ -1,6 +1,7 @@
 package net.ifeu.library.Mail;
 
 import java.io.IOException;
+import java.text.Normalizer;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -30,6 +31,11 @@ public class EdicardsMailSender {
       CLIENTES_TABLET
   }
 
+  public enum FormatType {
+      HTML,
+      TEXT
+  }
+
   //Class Constructor
   public EdicardsMailSender(String email, String subject, String message, String attachment){
       //Initializing variables
@@ -39,7 +45,7 @@ public class EdicardsMailSender {
       this.attachment = attachment;
   }
 
-  public void send(AccountType accountType) throws MessagingException, IOException {
+  public void send(AccountType accountType, FormatType format) throws MessagingException, IOException {
 	  
       //Creating properties
       Properties props = new Properties();
@@ -80,8 +86,7 @@ public class EdicardsMailSender {
           // creates message part
           
           MimeBodyPart messageBodyPart = new MimeBodyPart();
-          messageBodyPart.setText(this.message, "UTF-8");
-          //messageBodyPart.setContent(this.message, "text/html");
+          messageBodyPart.setContent(this.message, format.equals(FormatType.TEXT) ? "UTF-8" : "text/html");
    
           // creates multi-part
           Multipart multipart = new MimeMultipart();

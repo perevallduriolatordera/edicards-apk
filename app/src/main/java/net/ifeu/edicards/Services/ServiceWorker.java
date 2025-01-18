@@ -154,7 +154,7 @@ public class ServiceWorker extends ServiceBase {
 				if (parts.length > 3 && parts[3].startsWith("E") && fileInfo.getName().subSequence(0, 4).equals("AALM")) {
 					EdicardsMailSender mailEnviosEdicards = new EdicardsMailSender(ConstantsMail.MAIL_ENVIOS_EDICARDS, title, ConstantsMail.MAIL_BODY, file);
 					try {
-						mailEnviosEdicards.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET);
+						mailEnviosEdicards.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 						Debugger.Debug(context, app.getUser().User,"Se ha enviado el albarán " + albaran + " al almacén de envios Edicards", file);
 					} catch (Exception e) {
 						this.sendMailToMantenimiento(context,  e, app.getUser().User, albaran);
@@ -166,7 +166,7 @@ public class ServiceWorker extends ServiceBase {
 					if (parts.length > 4 && parts[4].startsWith("E") && fileInfo.getName().subSequence(0, 5).equals("REC_A")) {
 						EdicardsMailSender mailEnviosEdicards = new EdicardsMailSender(ConstantsMail.MAIL_ENVIOS_EDICARDS, title, ConstantsMail.MAIL_BODY, file);
 						try {
-							mailEnviosEdicards.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET);
+							mailEnviosEdicards.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 							Debugger.Debug(context, app.getUser().User,"Se ha enviado el albarán " + albaran  + " al almacén de envios Edicards", file);
 						} catch (Exception e) {
 							this.sendMailToMantenimiento(context, e, app.getUser().User, albaran);
@@ -179,7 +179,7 @@ public class ServiceWorker extends ServiceBase {
 
 				try {
 					if (!fileInfo.getName().subSequence(0, 4).equals("AALM"))
-						mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET);
+						mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 
 					IOUtils.deleteFile(file);
 					Debugger.Debug(context, app.getUser().User,"Se ha enviado el albarán " + albaran + " a la cuenta de gmail de Edicards", file);
@@ -245,7 +245,7 @@ public class ServiceWorker extends ServiceBase {
 				EdicardsMailSender mail = new EdicardsMailSender(ConstantsMail.MAIL_TO_GDPR, title, ConstantsMail.MAIL_BODY, file);
 
 				try {
-					mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET);
+					mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 				} catch (Exception e) {
 					continue;
 				}
@@ -272,7 +272,7 @@ public class ServiceWorker extends ServiceBase {
 				EdicardsMailSender mail = new EdicardsMailSender(ConstantsMail.MAIL_TO_LOGBOOK, title, ConstantsMail.MAIL_BODY, file);
 
 				try {
-					mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET);
+					mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 					IOUtils.deleteFile(file);
 				} catch (Exception e) {
 				}
@@ -330,7 +330,7 @@ public class ServiceWorker extends ServiceBase {
 					mail = new EdicardsMailSender(ConstantsMail.MAIL_INGRESOS_EDICARDS, title,  content, file);
 
 				try {
-					mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET);
+					mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 					IOUtils.deleteFile(file);
 				} catch (Exception e) {
 					continue;
@@ -384,7 +384,7 @@ public class ServiceWorker extends ServiceBase {
 				EdicardsMailSender mail = new EdicardsMailSender(customerMail, title, content, albaranFile);
 
 				try {
-					mail.send(EdicardsMailSender.AccountType.CLIENTES_TABLET);
+					mail.send(EdicardsMailSender.AccountType.CLIENTES_TABLET, EdicardsMailSender.FormatType.HTML);
 					IOUtils.deleteFile(file);
 					IOUtils.deleteFile(albaranFile);
 				} catch (Exception e) {
@@ -503,7 +503,7 @@ public class ServiceWorker extends ServiceBase {
 					mail = new EdicardsMailSender(ConstantsMail.MAIL_FACTURACION, title, ConstantsTypes.EMPTY_STRING, file);
 
 					try {
-						mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET);
+						mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 						IOUtils.deleteFile(file);
 					} catch (Exception e) {
 						continue;

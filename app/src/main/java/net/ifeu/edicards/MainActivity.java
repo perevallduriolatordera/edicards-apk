@@ -172,12 +172,12 @@ public class MainActivity extends Activity {
 	
 				@Override
 				public void run() {
-					//PVT
-				//	try {
-				//		getData();
-				//	} catch (Exception e) {
-				//		throw new RuntimeException(e);
-				//	}
+
+					try {
+						getData();
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
 	
 					try {
 						sendData();
