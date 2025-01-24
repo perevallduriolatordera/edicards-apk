@@ -208,6 +208,40 @@ public class Historico extends Persistent implements IPersistable {
 
 	}
 
+	public Optional<Double> getCantidadPagadaToday() throws Exception
+	{
+		SimpleDateFormat formatter;
+		formatter = new SimpleDateFormat("yyyyMMdd");
+		Date today = new Date();
+
+		double cantidadPagada;
+
+		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT ifnull(sum(CantidadPagada),0) as CantidadPagada FROM " + ConstantsDatabase.TABLE_HISTORICOS + " WHERE substr(fecha,7)||substr(fecha,1,2)||substr(fecha,4,2) " +
+				"BETWEEN '" + formatter.format(today) + "' AND '" + formatter.format(today) + "'");
+
+
+		if (cursor != null)
+		{
+			cursor.moveToFirst();
+
+			if (cursor.getCount() > 0)
+			{
+				cantidadPagada = Double.parseDouble(cursor.getString(cursor.getColumnIndex("CantidadPagada")));
+
+				cursor.close();
+				return Optional.of(cantidadPagada);
+			}
+			else
+			{
+				cursor.close();
+				return Optional.empty();
+			}
+		}
+		else
+			return Optional.empty();
+
+	}
+
 	public Date getDateOfLastMovement() throws Exception {
 		// Consulta para obtener la fecha más reciente con movimientos
 		String latestDateQuery = "SELECT fecha FROM " + ConstantsDatabase.TABLE_HISTORICOS +

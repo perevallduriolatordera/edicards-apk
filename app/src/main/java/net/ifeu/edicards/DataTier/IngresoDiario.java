@@ -8,6 +8,7 @@ import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
+import net.ifeu.library.Utils.DateTime.DateTimeUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -107,7 +108,7 @@ public class IngresoDiario extends Persistent implements IPersistable {
 		}
 	}
 
-	public IngresoDiario getIngresosDiariosFromDate() throws Exception
+	public ArrayList<IngresoDiario> getIngresosDiariosFromDate() throws Exception
 	{
 		Historico historico = Factory.build(Historico.class, appConfig);
 		String date = historico.getDateOfLastMovementFormatted();
@@ -128,15 +129,75 @@ public class IngresoDiario extends Persistent implements IPersistable {
 					IngresoDiario ingreso = Factory.build(IngresoDiario.class, appConfig);
 					
 					if (ingreso.setIngresoById(String.valueOf(idIngreso)))
-						return ingreso;
+						list.add(ingreso);
 									
 				} while (cursor.moveToNext());
 			}
 			
 			cursor.close();
 		}
-		
-		return null;
+
+		return list ;
+	}
+
+	public ArrayList<IngresoDiario> getListIngresosOfThisWeek(Date today) throws Exception
+	{
+		SimpleDateFormat formatter;
+		formatter = new SimpleDateFormat("yyyyMMdd");
+
+		Date firstDate = DateTimeUtils.getFirstDayOfCurrentWeek(today);
+
+		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + ConstantsDatabase.TABLE_INGRESOS + " WHERE substr(Fecha,7)||substr(Fecha,1,2)||substr(Fecha,4,2) " +
+				"BETWEEN '" + formatter.format(firstDate) + "' AND '" + formatter.format(today) + "'");
+
+		ArrayList<IngresoDiario> list = new ArrayList<>();
+
+		if (cursor != null)
+		{
+			cursor.moveToFirst();
+
+			if (cursor.getCount() > 0)
+			{
+				do {
+					Long idIngreso = Long.parseLong(cursor.getString(cursor.getColumnIndex("IdIngreso")));
+					IngresoDiario ingreso = Factory.build(IngresoDiario.class, appConfig);
+
+					if (ingreso.setIngresoById(String.valueOf(idIngreso)))
+						list.add(ingreso);
+
+				} while (cursor.moveToNext());
+			}
+
+			cursor.close();
+		}
+
+		return list;
+	}
+
+	public double getQuantityIngresosOfDate(Date date) throws Exception
+	{
+		SimpleDateFormat formatter;
+		formatter = new SimpleDateFormat("yyyyMMdd");
+
+		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT ifnull(sum(Cantidad),0) as cantidadIngresada FROM " + ConstantsDatabase.TABLE_INGRESOS + " WHERE substr(Fecha,7)||substr(Fecha,1,2)||substr(Fecha,4,2) " +
+				"BETWEEN '" + formatter.format(date) + "' AND '" + formatter.format(date) + "'");
+
+
+		double cantidad = 0;
+		if (cursor != null) {
+			do {
+				cursor.moveToFirst();
+
+				if (cursor.getCount() > 0) {
+					cantidad = Double.parseDouble(cursor.getString(cursor.getColumnIndex("cantidadIngresada")));
+				}
+
+			} while (cursor.moveToNext());
+
+			cursor.close();
+		}
+
+		return cantidad ;
 	}
 
 }

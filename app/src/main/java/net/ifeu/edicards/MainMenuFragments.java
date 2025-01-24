@@ -33,8 +33,6 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener, 
 	public static final String TAB_DEPOSITOS_CAPTION = "Depósito";
 	public static final String TAB_CLOSE = "cerrar";
 	public static final String TAB_CLOSE_CAPTION = "Cerrar";
-	public static final String TAB_INGRESOS = "ingresos";
-	public static final String TAB_INGRESOS_CAPTION = "Ingresos";
 	public static final String TAB_SINCRO = "sincro";
 	public static final String TAB_SINCRO_CAPTION = "Herramientas";
 
@@ -77,7 +75,6 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener, 
 		_tabHost.addTab(newTab(TAB_DEPOSITOS, TAB_DEPOSITOS_CAPTION, R.id.tab_7));
 		_tabHost.addTab(newTab(TAB_INFORMES, TAB_INFORMES_CAPTION, R.id.tab_3));
 		_tabHost.addTab(newTab(TAB_DIETAS, TAB_DIETAS_CAPTION, R.id.tab_2));
-		_tabHost.addTab(newTab(TAB_INGRESOS, TAB_INGRESOS_CAPTION, R.id.tab_10));
 		_tabHost.addTab(newTab(TAB_CLIENTES, TAB_CLIENTES_CAPTION, R.id.tab_4));
 		_tabHost.addTab(newTab(TAB_ARTICULOS, TAB_ARTICULOS_CAPTION, R.id.tab_5));
 		_tabHost.addTab(newTab(TAB_SINCRO, TAB_SINCRO_CAPTION, R.id.tab_11));
@@ -141,11 +138,6 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener, 
 		if (TAB_CLOSE.equals(tabId)) {
 			updateTab(tabId, null);
 			_currentTab = 8;
-			return;
-		}
-		if (TAB_INGRESOS.equals(tabId)) {
-			updateTab(tabId, IngresoData.class);
-			_currentTab = 10;
 			return;
 		}
 

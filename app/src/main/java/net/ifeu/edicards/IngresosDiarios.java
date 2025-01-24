@@ -1,34 +1,23 @@
 package net.ifeu.edicards;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-
-import android.app.ActionBar;
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsTypes;
-import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Incidencia;
 import net.ifeu.edicards.DataTier.IncidenciaType;
-import net.ifeu.edicards.DataTier.IngresoDiario;
-import net.ifeu.edicards.DataTier.Ingresos;
 import net.ifeu.edicards.Pdf.incident.IncidentPdfCreator;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
+import net.ifeu.library.Utils.Number.NumberDecimal;
 import net.ifeu.library.Utils.Screen.ScreenManager;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -80,7 +69,8 @@ public class IngresosDiarios extends Activity {
 
 		EditText txtTotal = findViewById(R.id.txtTotalIngresar);
 		txtTotal.setEnabled(false);
-		txtTotal.setText(String.valueOf(_appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos));
+		final double ingresoReal = NumberDecimal.roundToNearestFive(_appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos);
+		txtTotal.setText(String.valueOf(ingresoReal));
 
 		EditText txtGasto = findViewById(R.id.txtGastosDiarios);
 		txtGasto.setText("0");
@@ -174,7 +164,6 @@ public class IngresosDiarios extends Activity {
 		incidencia.create(new IncidentPdfCreator(_appConfig));
 
 		finish();
-
 	}
 
 	@Override

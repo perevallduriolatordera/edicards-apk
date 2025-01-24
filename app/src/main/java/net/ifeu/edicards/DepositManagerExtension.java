@@ -31,7 +31,6 @@ import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.Incidencia;
 import net.ifeu.edicards.DataTier.IncidenciaType;
 import net.ifeu.edicards.DataTier.IngresoDiario;
-import net.ifeu.edicards.DataTier.Ingresos;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.Pdf.document.IPdfDocumentGenerator;
 import net.ifeu.edicards.Pdf.document.PdfAlmacenCreator;
@@ -43,7 +42,6 @@ import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.ComboBox;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
-import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -67,10 +65,10 @@ public class DepositManagerExtension {
 
 // ******************************** DATA TIER **********************	
 	static class DataTier {
-		public static double getCantidadPagada(AppConfig config) throws Exception {
+		public static Optional<Double> getCantidadPagadaHoy(AppConfig config) throws Exception {
 	
 			Historico historico = Factory.build(Historico.class, config);
-			return historico.getCantidadPagadaOfThisWeek(new Date());
+			return historico.getCantidadPagadaToday();
 		}
 
 		public static Optional<Double> getCantidadPagadaDiaria(AppConfig config) throws Exception {
@@ -78,18 +76,26 @@ public class DepositManagerExtension {
 			return historico.getCantidadPagadaLastDay();
 		}
 		
-		public static double getIngresos(AppConfig config) throws Exception {
-			Ingresos ingresos = Factory.build(Ingresos.class, config);
-			return  ingresos.getTotalIngresosThisWeek(new Date());
+		public static double getIngresosHoy(AppConfig config) throws Exception {
+			IngresoDiario ingresos = Factory.build(IngresoDiario.class, config);
+			return  ingresos.getQuantityIngresosOfDate(new Date());
 		}
-		
-		public static boolean calculateCantidadIngresos(AppConfig config) throws Exception {
-	
-			double cantidadPagada = DepositManagerExtension.DataTier.getCantidadPagada(config);
-			double ingresos = getIngresos(config);
 
-			return ConstantsTypes.MAXIMO_SIN_INGRESAR <= (cantidadPagada - ingresos);
+		public static boolean isTodayIngresosBiggerThanMax(AppConfig config) throws Exception {
+			return ConstantsTypes.MAXIMO_SIN_INGRESAR <=calculateCantidadIngresos(config);
+
 		}
+		public static double calculateCantidadIngresos(AppConfig config) throws Exception {
+			Optional<Double> cantidadPagada = getCantidadPagadaHoy(config);
+			double ingresos = getIngresosHoy(config);
+
+			if (cantidadPagada.isPresent()) {
+				return cantidadPagada.get() - ingresos;
+			} else {
+				return 0;
+			}
+	}
+
 
 		public static Optional<Double> getIngresosDiarios(AppConfig config) throws Exception {
 			return DepositManagerExtension.DataTier.getCantidadPagadaDiaria(config);
@@ -198,17 +204,15 @@ public class DepositManagerExtension {
 				if (cantidad.isPresent() && cantidad.get() > 0) {
 
 					IngresoDiario ingresoDiario = Factory.build(IngresoDiario.class, appConfig);
-					IngresoDiario ingresoDiarioFromDate = ingresoDiario.getIngresosDiariosFromDate();
-					appConfig.getWorkingArea().CurrentIngresoDiario = ingresoDiarioFromDate;
+					ArrayList<IngresoDiario> ingresoDiarioFromDate = ingresoDiario.getIngresosDiariosFromDate();
 
-					if (ingresoDiarioFromDate == null) {
+					if (ingresoDiarioFromDate.isEmpty()) {
 						appConfig.getWorkingArea().CurrentIngresoDiario = Factory.build(IngresoDiario.class, appConfig);
 						appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = IngresoDiario.getDateOfLastMovement(appConfig);
 						appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = IngresoDiario.getIngresosDiariosFromDate(appConfig).get();
-						return true;
-					} else {
-						return false;
 					}
+
+					return ingresoDiarioFromDate.isEmpty();
 				}
 
 			} catch (Exception e) {
@@ -217,24 +221,22 @@ public class DepositManagerExtension {
 			return false;
 		}
 
-	public static boolean RestriccionIngresosFromCantidad(AppConfig appConfig) {
-		try {
-			if (DepositManagerExtension.DataTier.calculateCantidadIngresos(appConfig)) {
+		public static boolean RestriccionIngresosHoyFromCantidad(AppConfig appConfig) {
 
-				appConfig.getMessageBox().Show("Atención",
-						"Ha superado los " + ConstantsTypes.MAXIMO_SIN_INGRESAR
-								+ " € pendientes de ingresar. Realice un ingreso para poder seguir trabajando",
-						appConfig, MessageBoxType.Error);
+            try {
+				boolean result =  DataTier.isTodayIngresosBiggerThanMax(appConfig);
+				if (result) {
+					appConfig.getWorkingArea().CurrentIngresoDiario = Factory.build(IngresoDiario.class, appConfig);
+					appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = new Date();
+					appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = calculateCantidadIngresos(appConfig);
+				}
 
-				return true;
-
+				return result;
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 
-		return false;
-	}
+		}
 	}
 	// ************************** FORMAT *************************************
 	

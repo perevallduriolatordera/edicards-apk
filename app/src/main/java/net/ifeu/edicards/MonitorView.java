@@ -19,6 +19,7 @@ import net.ifeu.edicards.Constants.ConstantsEvents;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.DataTier.Factories.Factory;
+import net.ifeu.edicards.DataTier.IngresoDiario;
 import net.ifeu.edicards.Excel.LogBookCreator;
 import net.ifeu.edicards.Services.ParserMonitor;
 import net.ifeu.edicards.Services.ServiceMonitor;
@@ -383,6 +384,21 @@ public class MonitorView extends Fragment {
 		});
 
 		layout.addView(restoreBackup);
+
+		ButtonColor voluntaryContribution = new ButtonColor(getActivity(), Color.RED);
+
+		voluntaryContribution.setText("Ingreso de efectivo voluntario");
+		voluntaryContribution.setTextSize(TEXT_SIZE_BUTTON);
+		params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+		params.setMargins(0, 0, BUTTON_MARGIN, 0);
+		voluntaryContribution.setLayoutParams(params);
+
+		voluntaryContribution.setOnClickListener(view -> {
+			_appConfig.getWorkingArea().CurrentIngresoDiario = null;
+			DepositManagerExtension.Dialogs.StartIngresoDiarioDialog(this);
+		});
+
+		layout.addView(voluntaryContribution);
 
 	}
 

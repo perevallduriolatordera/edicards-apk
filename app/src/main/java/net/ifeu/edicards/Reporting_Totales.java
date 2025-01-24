@@ -6,7 +6,7 @@ import java.util.Date;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.Factories.Factory;
-import net.ifeu.edicards.DataTier.Ingresos;
+import net.ifeu.edicards.DataTier.IngresoDiario;
 import net.ifeu.edicards.DataTier.Reporting;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Utils.Screen.ScreenManager;
@@ -198,10 +198,10 @@ public class Reporting_Totales extends Activity {
     	double IngresosTotales = 0;
     	
     	try {
-    		Ingresos ingresos = Factory.build(Ingresos.class, _appConfig);
-    		ArrayList<Ingresos> list = ingresos.getIngresosOfThisWeek(new Date());
+    		IngresoDiario ingresos = Factory.build(IngresoDiario.class, _appConfig);
+    		ArrayList<IngresoDiario> list = ingresos.getListIngresosOfThisWeek(new Date());
 
-    		for (Ingresos ingreso : list) {
+    		for (IngresoDiario ingreso : list) {
 
     			if (ingreso.Cantidad != 0)
     				IngresosTotales += ingreso.Cantidad;
@@ -214,6 +214,4 @@ public class Reporting_Totales extends Activity {
     	return IngresosTotales;
     	
 	}
-
-    
 }

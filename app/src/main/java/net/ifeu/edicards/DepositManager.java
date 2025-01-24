@@ -55,20 +55,17 @@ import net.ifeu.library.Utils.MessageBox.AdvancedMessageBox;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 import net.ifeu.library.Utils.Screen.ScreenManager;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 public class DepositManager extends Fragment implements  IMediator {
 
@@ -351,6 +348,8 @@ public class DepositManager extends Fragment implements  IMediator {
 				this._checkPagado.setChecked(false);
 				_deposito.Pagado = false;
 			}
+			_deposito.FormaPago = DepositManagerExtension.DataTier.getFormaPagoByDescripcion(_comboPago.getText(), this._appConfig);
+			_deposito.PagoDescripcion = _comboPago.getText();
 		});
 		_comboSerie.addObserver("SERIE", (String id, String text) -> {
 			try {
@@ -564,10 +563,11 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		_appConfig.getWorkingArea().CurrentTransactionMetadata = new TransactionMetadata();
 
- 		if (DepositManagerExtension.DataTier.RestriccionIngresosFromCantidad(_appConfig)) return;
+ 		if (DepositManagerExtension.DataTier.RestriccionIngresosHoyFromCantidad(_appConfig)) {
+			DepositManagerExtension.Dialogs.StartIngresoDiarioDialog(this);
+		};
 		if (DepositManagerExtension.DataTier.RestriccionIngresosDiaria(_appConfig)) {
 			DepositManagerExtension.Dialogs.StartIngresoDiarioDialog(this);
-			//return;
 		}
 
 		this.prepareScreenRegions(true);
@@ -1081,10 +1081,8 @@ public class DepositManager extends Fragment implements  IMediator {
 
 	private void SaveHistorico() {
 
-		_deposito.PagoDescripcion = _comboPago.getText();
 		_deposito.Filiacion = DepositManagerExtension.DataTier.getFiliacionCode(_comboFiliacion.getText());
 		_deposito.Pagado = _checkPagado.isChecked();
-		_deposito.FormaPago = DepositManagerExtension.DataTier.getFormaPagoByDescripcion(_comboPago.getText(), this._appConfig);
 
 		if (_deposito.isAlbaran()) {
 			Contador contador = Factory.build(Contador.class, _appConfig);

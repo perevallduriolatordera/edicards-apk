@@ -99,16 +99,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-         <activity
-            android:name=".IngresoData"
-            android:label="@string/title_activity_customer_data"
-            android:theme="@android:style/Theme.Dialog" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
         <activity
             android:name=".Reporting_Potenciados"
             android:label="@string/title_activity_reporting__potenciados"
