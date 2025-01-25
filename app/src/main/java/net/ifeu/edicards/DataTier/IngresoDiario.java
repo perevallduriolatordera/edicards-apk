@@ -147,7 +147,7 @@ public class IngresoDiario extends Persistent implements IPersistable {
 
 		Date firstDate = DateTimeUtils.getFirstDayOfCurrentWeek(today);
 
-		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + ConstantsDatabase.TABLE_INGRESOS + " WHERE substr(Fecha,7)||substr(Fecha,1,2)||substr(Fecha,4,2) " +
+		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + ConstantsDatabase.TABLE_INGRESOS_DIARIOS + " WHERE substr(Fecha,7)||substr(Fecha,1,2)||substr(Fecha,4,2) " +
 				"BETWEEN '" + formatter.format(firstDate) + "' AND '" + formatter.format(today) + "'");
 
 		ArrayList<IngresoDiario> list = new ArrayList<>();
@@ -179,7 +179,7 @@ public class IngresoDiario extends Persistent implements IPersistable {
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("yyyyMMdd");
 
-		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT ifnull(sum(Cantidad),0) as cantidadIngresada FROM " + ConstantsDatabase.TABLE_INGRESOS + " WHERE substr(Fecha,7)||substr(Fecha,1,2)||substr(Fecha,4,2) " +
+		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT ifnull(sum(Cantidad),0) as cantidadIngresada FROM " + ConstantsDatabase.TABLE_INGRESOS_DIARIOS + " WHERE substr(Fecha,7)||substr(Fecha,1,2)||substr(Fecha,4,2) " +
 				"BETWEEN '" + formatter.format(date) + "' AND '" + formatter.format(date) + "'");
 
 

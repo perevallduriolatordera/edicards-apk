@@ -42,8 +42,10 @@ import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.ComboBox;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
+import net.ifeu.library.Utils.Number.NumberDecimal;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -204,15 +206,21 @@ public class DepositManagerExtension {
 				if (cantidad.isPresent() && cantidad.get() > 0) {
 
 					IngresoDiario ingresoDiario = Factory.build(IngresoDiario.class, appConfig);
-					ArrayList<IngresoDiario> ingresoDiarioFromDate = ingresoDiario.getIngresosDiariosFromDate();
+					ArrayList<IngresoDiario> ingresosDiariosFromDate = ingresoDiario.getIngresosDiariosFromDate();
+					double totalIngresos = 0;
 
-					if (ingresoDiarioFromDate.isEmpty()) {
-						appConfig.getWorkingArea().CurrentIngresoDiario = Factory.build(IngresoDiario.class, appConfig);
-						appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = IngresoDiario.getDateOfLastMovement(appConfig);
-						appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = IngresoDiario.getIngresosDiariosFromDate(appConfig).get();
+					for (IngresoDiario id : ingresosDiariosFromDate) {
+						totalIngresos += id.Cantidad;
 					}
 
-					return ingresoDiarioFromDate.isEmpty();
+					if (cantidad.get() > totalIngresos) {
+						appConfig.getWorkingArea().CurrentIngresoDiario = Factory.build(IngresoDiario.class, appConfig);
+						appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = IngresoDiario.getDateOfLastMovement(appConfig);
+						appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = NumberDecimal.roundToNearestFive(cantidad.get() - totalIngresos);
+						return true;
+					}
+
+					return false;
 				}
 
 			} catch (Exception e) {

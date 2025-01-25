@@ -9,8 +9,10 @@ import android.widget.TextView;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Incidencia;
 import net.ifeu.edicards.DataTier.IncidenciaType;
+import net.ifeu.edicards.DataTier.IngresoDiario;
 import net.ifeu.edicards.Pdf.incident.IncidentPdfCreator;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
@@ -62,6 +64,18 @@ public class IngresosDiarios extends Activity {
 	}
 
 	private void assignValues() {
+
+		boolean isCalculated = _appConfig.getWorkingArea().CurrentIngresoDiario != null;
+
+		if (_appConfig.getWorkingArea().CurrentIngresoDiario == null) {
+			_appConfig.getWorkingArea().CurrentIngresoDiario = Factory.build(IngresoDiario.class, _appConfig);
+			_appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = new Date();
+			_appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = 0;
+			_appConfig.getWorkingArea().CurrentIngresoDiario.Gastos = 0;
+			_appConfig.getWorkingArea().CurrentIngresoDiario.Cantidad = 0;
+
+		}
+
 		TextView txtFecha = findViewById(R.id.txtFechaIngresosDiarios);
 		SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 		String formattedDate = formato.format(_appConfig.getWorkingArea().CurrentIngresoDiario.Fecha);
@@ -69,22 +83,25 @@ public class IngresosDiarios extends Activity {
 
 		EditText txtTotal = findViewById(R.id.txtTotalIngresar);
 		txtTotal.setEnabled(false);
+
 		final double ingresoReal = NumberDecimal.roundToNearestFive(_appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos);
 		txtTotal.setText(String.valueOf(ingresoReal));
 
 		EditText txtGasto = findViewById(R.id.txtGastosDiarios);
 		txtGasto.setText("0");
+		txtGasto.setOnFocusChangeListener((v, hasFocus) -> {
+			// Cuando pierde el foco
+			if (!hasFocus) {
+				updateIngresos();
+			}
+		});
 
 		EditText txtIngreso = findViewById(R.id.txtIngresosDiarios);
 		txtIngreso.setText(String.valueOf(_appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos));
-		txtIngreso.setEnabled(false);
-
-		txtGasto.setOnFocusChangeListener((v, hasFocus) -> {
-            // Cuando pierde el foco
-            if (!hasFocus) {
-				updateIngresos();
-            }
-        });
+		txtIngreso.setEnabled(!isCalculated);
+		txtIngreso.setFocusable(!isCalculated);
+		txtIngreso.setFocusableInTouchMode(!isCalculated);
+		txtIngreso.setCursorVisible(!isCalculated);
 
 	}
 
@@ -97,8 +114,10 @@ public class IngresosDiarios extends Activity {
 		Double gasto = Double.parseDouble(txtGasto.getText().toString());
 		double total = ingreso - gasto;
 		txtTotal.setText(String.valueOf(total));
+		_appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = ingreso;
 		_appConfig.getWorkingArea().CurrentIngresoDiario.Gastos = gasto;
 		_appConfig.getWorkingArea().CurrentIngresoDiario.Cantidad = total;
+		_appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = new Date();
 	}
 
 	private void showIngresosDiariosDialog() {
@@ -140,9 +159,6 @@ public class IngresosDiarios extends Activity {
 			return;
 		}
 
-		_appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = Double.parseDouble(ingresos);
-		_appConfig.getWorkingArea().CurrentIngresoDiario.Gastos = Double.parseDouble(gastos);
-		_appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = Double.parseDouble(cantidad);
 		_appConfig.getWorkingArea().CurrentIngresoDiario.save();
 
 		_appConfig.getMessageBox().Show("Ingreso", "El ingreso se ha realizado correctamente", IngresosDiarios.this,

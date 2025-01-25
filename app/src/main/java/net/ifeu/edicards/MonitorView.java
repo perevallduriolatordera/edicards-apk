@@ -285,8 +285,8 @@ public class MonitorView extends Fragment {
 
 	private void createButtonsHeader() {
 
-		int TEXT_SIZE_BUTTON = 18;
-		int BUTTON_MARGIN = 50;
+		int TEXT_SIZE_BUTTON = 16;
+		int BUTTON_MARGIN = 25;
 		final MonitorView that = this;
 		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
