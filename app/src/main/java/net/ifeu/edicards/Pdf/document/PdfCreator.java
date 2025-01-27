@@ -222,7 +222,7 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 				String formaPagoText = "\nForma de pago: "
 						+ _deposito.PagoDescripcion + "\n";
 
-				_document.add(new Paragraph(formaPagoText, _fontBold));
+				_document.add(new Paragraph(formaPagoText, _fontBoldExtra));
 
 				if (_deposito.Pagado) {
 

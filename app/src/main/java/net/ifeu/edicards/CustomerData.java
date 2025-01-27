@@ -128,8 +128,8 @@ public class CustomerData extends Activity {
 		_appConfig.getWorkingArea().CurrentDeposito.FaxPrevious = _appConfig.getWorkingArea().CurrentDeposito.Fax;
 		_appConfig.getWorkingArea().CurrentDeposito.MailPrevious = _appConfig.getWorkingArea().CurrentDeposito.Mail;
 		_appConfig.getWorkingArea().CurrentDeposito.CCCPrevious = _appConfig.getWorkingArea().CurrentDeposito.ClienteInfo.CCC;
-		
-		
+
+
 		_appConfig.getWorkingArea().CurrentDeposito.DatosFiscalesUpdated = this.isUpdated() && 
 				!_appConfig.getWorkingArea().CurrentDeposito.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE);
 		
@@ -271,6 +271,10 @@ public class CustomerData extends Activity {
 			return true;
 		
 		if (!_appConfig.getWorkingArea().CurrentDeposito.CodigoPostal.trim().equals(((EditText) findViewById(R.id.lblCodigoPostalCliente))
+				.getText().toString().trim()))
+			return true;
+
+		if (!_appConfig.getWorkingArea().CurrentDeposito.Mail.trim().equals(((EditText) findViewById(R.id.lblMailCliente))
 				.getText().toString().trim()))
 			return true;
 		
