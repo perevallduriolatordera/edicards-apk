@@ -298,11 +298,14 @@ public class DepositManager extends Fragment implements  IMediator {
 			if (_deposito == null) return;
 			_deposito.Pagado = isChecked;
 
-			if (isChecked)
+			if (isChecked) {
 				_textBoxCantidadPagada.setFocusableInTouchMode(true);
-			else
+				_textBoxCantidadPagada.setText(String.valueOf(DepositManagerExtension.Format.RoundTo2Decimals(_deposito.Totales.Total)));
+			}
+			else {
 				_textBoxCantidadPagada.setFocusable(false);
-
+				_textBoxCantidadPagada.setText("");
+			}
 		});
 		
 		if (_deposito.Cliente.FormaPago != null && _deposito.Cliente.FormaPago.Descripcion != null) {

@@ -320,14 +320,12 @@ public class ServiceWorker extends ServiceBase {
 
 				if (fileInfo.getName().subSequence(0, 1).toString().equals("I"))
 					mail = new EdicardsMailSender(ConstantsMail.MAIL_ADMINISTRACION_2, title, content, file);
+				else if (fileInfo.getName().subSequence(0, 1).toString().equals("E"))
+					mail = new EdicardsMailSender(ConstantsMail.MAIL_FACTURACION, title,  content, file);
+				else if (fileInfo.getName().subSequence(0, 1).toString().equals("W"))
+					mail = new EdicardsMailSender(ConstantsMail.MAIL_INGRESOS_EDICARDS, title,  content, file);
 				else
 					mail = new EdicardsMailSender(ConstantsMail.MAIL_ADMINISTRACION, title,  content, file);
-
-				if (fileInfo.getName().subSequence(0, 1).toString().equals("E"))
-					mail = new EdicardsMailSender(ConstantsMail.MAIL_FACTURACION, title,  content, file);
-
-				if (fileInfo.getName().subSequence(0, 1).toString().equals("W"))
-					mail = new EdicardsMailSender(ConstantsMail.MAIL_INGRESOS_EDICARDS, title,  content, file);
 
 				try {
 					mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
