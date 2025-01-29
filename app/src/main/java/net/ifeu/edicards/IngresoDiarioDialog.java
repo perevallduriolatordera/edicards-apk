@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsFolders;
+import net.ifeu.edicards.DataTier.TransactionMetadata;
 import net.ifeu.library.Controls.ButtonColor;
 
 import org.apache.commons.lang3.StringUtils;
@@ -43,7 +44,6 @@ public class IngresoDiarioDialog extends Activity {
         ButtonColor close = findViewById(R.id.btnClose);
         close.changeAspect(this, R.color.Black, getResources().getDrawable(R.drawable.ic_close));
 
-
         takePhoto.setOnClickListener( (View v) -> {
             dispatchTakePictureIntent();
         });
@@ -58,9 +58,11 @@ public class IngresoDiarioDialog extends Activity {
             finish();
         });
 
+        if (_appConfig.getWorkingArea().CurrentTransactionMetadata == null) {
+            _appConfig.getWorkingArea().CurrentTransactionMetadata = new TransactionMetadata();
+        }
+
     }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

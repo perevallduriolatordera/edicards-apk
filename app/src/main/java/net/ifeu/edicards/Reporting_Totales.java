@@ -181,9 +181,14 @@ public class Reporting_Totales extends Activity {
     	
     	double ingresos = this.getIngresos();
     	layout2.addView(this.addCounter("Total INGRESADO", df.format(ingresos) + " €", Color.BLACK, false));
+
+		// Cantidad Gastos
+
+		double gastos = this.getGastos();
+		layout2.addView(this.addCounter("Total GASTOS", df.format(gastos) + " €", Color.BLACK, false));
+
 		
     	// 	Cantidad Pendiente a ingresar
-    	
     	double pendiente = cantidad - ingresos;
     	layout2.addView(this.addCounter("Total PENDIENTE INGRESAR", df.format(pendiente) + " €", Color.BLACK, true));
     	
@@ -213,5 +218,26 @@ public class Reporting_Totales extends Activity {
     	
     	return IngresosTotales;
     	
+	}
+
+	private double getGastos()  {
+
+		double GastosTotales = 0;
+
+		try {
+			IngresoDiario ingresos = Factory.build(IngresoDiario.class, _appConfig);
+			ArrayList<IngresoDiario> list = ingresos.getListIngresosOfThisWeek(new Date());
+
+			for (IngresoDiario ingreso : list) {
+
+				if (ingreso.Cantidad != 0)
+					GastosTotales += ingreso.Gastos;
+			}
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		return GastosTotales;
 	}
 }

@@ -153,7 +153,7 @@ public class IngresosDiarios extends Activity {
 			return;
 		}
 
-		if (_appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument == null || _appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument.equals(ConstantsTypes.EMPTY_STRING)) {
+		if (_appConfig.getWorkingArea().CurrentTransactionMetadata == null || _appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument == null || _appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument.equals(ConstantsTypes.EMPTY_STRING)) {
 			_appConfig.getMessageBox().Show("Ingreso", "Tiene que adjuntar una imagen del ingreso", IngresosDiarios.this,
 					MessageBoxType.Information);
 			return;
