@@ -515,7 +515,6 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			try {
 				_appConfig.getWorkingArea().TransferMode = TransferMode.None;
-				//_isOperationClosed = false;
 				resetDepositData();
 				showCustomerSearchDialog();
 
@@ -795,8 +794,6 @@ public class DepositManager extends Fragment implements  IMediator {
 		});
 
 		_articlesListView.setAdapter(_adapter);
-
-
 		_isRendered = true;
 	}
 	
@@ -884,23 +881,10 @@ public class DepositManager extends Fragment implements  IMediator {
 	}
 	
 	private void SaveDeposito() throws Exception {
-
 		_deposito.saveChangesToDeposito();
 
 		if (_deposito.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
-
-			Deposito depositoNuevoCliente = Factory.build(Deposito.class, _appConfig);
-			depositoNuevoCliente.assingFromDeposito(_deposito);
-			depositoNuevoCliente.save();
-
-			depositoNuevoCliente.DeleteAllLines();
-			depositoNuevoCliente.update();
-
-			_deposito.IdDeposito = depositoNuevoCliente.IdDeposito;
-
-			// Generamos la incidencia de nuevo cliente
-
-			DepositManagerExtension.Incidencias.createIncidenciaNuevoCliente(_appConfig, _deposito);
+			_deposito.IdDeposito = DepositManagerExtension.DataTier.assignDepositoToNuevoCliente(_deposito, _appConfig);
 		}
 	}
 
@@ -2040,5 +2024,4 @@ public class DepositManager extends Fragment implements  IMediator {
 			}
 		}
 	}
-
 }

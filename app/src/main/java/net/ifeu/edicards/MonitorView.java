@@ -19,7 +19,6 @@ import net.ifeu.edicards.Constants.ConstantsEvents;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.DataTier.Factories.Factory;
-import net.ifeu.edicards.DataTier.IngresoDiario;
 import net.ifeu.edicards.Excel.LogBookCreator;
 import net.ifeu.edicards.Services.ParserMonitor;
 import net.ifeu.edicards.Services.ServiceMonitor;

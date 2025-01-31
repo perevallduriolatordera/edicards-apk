@@ -308,8 +308,6 @@ public class ServiceWorker extends ServiceBase {
 					title = "Datos de cuenta corriente introducidos/modificados enviado por " + app.getUser().User;
 				else if (fileInfo.getName().subSequence(0, 1).toString().equals("F"))
 					title = "Datos de filiación de cliente modificados enviado por " + app.getUser().User;
-				else if (fileInfo.getName().subSequence(0, 1).toString().equals("I"))
-					title = "Ingreso por cantidad realizado enviado por " + app.getUser().User;
 				else if (fileInfo.getName().subSequence(0, 1).toString().equals("W"))
 					title = "Ingreso diario realizado enviado por " + app.getUser().User;
 				else if (fileInfo.getName().subSequence(0, 1).toString().equals("P"))
@@ -318,9 +316,7 @@ public class ServiceWorker extends ServiceBase {
 				String content = "Este mensaje se ha generado automáticamente desde el dispositivo móvil.";
 				EdicardsMailSender mail;
 
-				if (fileInfo.getName().subSequence(0, 1).toString().equals("I"))
-					mail = new EdicardsMailSender(ConstantsMail.MAIL_ADMINISTRACION_2, title, content, file);
-				else if (fileInfo.getName().subSequence(0, 1).toString().equals("E"))
+				if (fileInfo.getName().subSequence(0, 1).toString().equals("E"))
 					mail = new EdicardsMailSender(ConstantsMail.MAIL_FACTURACION, title,  content, file);
 				else if (fileInfo.getName().subSequence(0, 1).toString().equals("W"))
 					mail = new EdicardsMailSender(ConstantsMail.MAIL_INGRESOS_EDICARDS, title,  content, file);
@@ -336,7 +332,7 @@ public class ServiceWorker extends ServiceBase {
 
 				this.Monitor().IncidenciasSend++;
 			} catch (Exception e) {
-			}
+            }
 		}
 
 		// * * * * * * * * * ENVIAMOS INFORMACIÓN DE PEDIDOS A CLIENTES * * * * * * * * * * * *
@@ -391,7 +387,7 @@ public class ServiceWorker extends ServiceBase {
 
 				this.Monitor().EnviosClienteSend++;
 			} catch (Exception e) {
-			}
+            }
 		}
 
 

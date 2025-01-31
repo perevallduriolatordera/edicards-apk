@@ -69,10 +69,6 @@ public class IncidentPdfCreator extends pdfBase implements Incidencia.IIncidenci
                 tipoInc = "Filiación de Cliente modificada";
                 prefix = "F";
                 break;
-            case Ingreso:
-                tipoInc = "Ingreso realizado por comercial";
-                prefix = "I";
-                break;
             case ErrorDocumento:
                 tipoInc = "Error de generación de documento pdf";
                 prefix = "P";

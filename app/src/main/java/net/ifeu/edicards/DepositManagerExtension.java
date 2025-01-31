@@ -221,12 +221,12 @@ public class DepositManagerExtension {
 					}
 
 					return false;
-				}
+				} else
+					return false;
 
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
-			return false;
 		}
 
 		public static boolean RestriccionIngresosHoyFromCantidad(AppConfig appConfig) {
@@ -243,6 +243,25 @@ public class DepositManagerExtension {
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
+
+		}
+
+		public static Long assignDepositoToNuevoCliente(Deposito deposito, AppConfig appConfig) {
+			Deposito depositoNuevoCliente = Factory.build(Deposito.class, appConfig);
+			depositoNuevoCliente.assingFromDeposito(deposito);
+            try {
+                depositoNuevoCliente.save();
+				depositoNuevoCliente.DeleteAllLines();
+				depositoNuevoCliente.update();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+			// Generamos la incidencia de nuevo cliente
+
+			DepositManagerExtension.Incidencias.createIncidenciaNuevoCliente(appConfig, deposito);
+
+			return depositoNuevoCliente.IdDeposito;
 
 		}
 	}
