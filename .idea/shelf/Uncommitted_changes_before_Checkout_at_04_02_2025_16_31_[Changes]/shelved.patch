@@ -1,0 +1,15 @@
+Index: .gradle/config.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>#Thu Apr 25 00:42:19 CEST 2024\r\njava.home=C\\:\\\\Users\\\\valld\\\\.jdks\\\\corretto-1.8.0_412\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>ISO-8859-1
+===================================================================
+diff --git a/.gradle/config.properties b/.gradle/config.properties
+--- a/.gradle/config.properties	(revision 4cd20a19abc5db58328cb29a124db6b0b87f8ef4)
++++ b/.gradle/config.properties	(date 1738683016256)
+@@ -1,2 +1,2 @@
+-#Thu Apr 25 00:42:19 CEST 2024
+-java.home=C\:\\Users\\valld\\.jdks\\corretto-1.8.0_412
++#Tue Feb 04 16:30:16 CET 2025
++java.home=C\:\\Program Files\\Java\\jdk-11

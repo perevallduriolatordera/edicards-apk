@@ -1,5 +1,7 @@
 package net.ifeu.library.Mail;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.text.Normalizer;
 import java.util.Properties;
@@ -77,16 +79,20 @@ public class EdicardsMailSender {
           MimeMessage mm = new MimeMessage(session);
 
           //Setting sender address
-          mm.setFrom(new InternetAddress(accountType == AccountType.OPERACIONES_TABLET ? ConstantsMail.MAIL_OPERACIONES_TABLET_USER : ConstantsMail.MAIL_CLIENTES_TABLET_USER));
+          InternetAddress sender = new InternetAddress(accountType == AccountType.OPERACIONES_TABLET ? ConstantsMail.MAIL_OPERACIONES_TABLET_USER.trim() : ConstantsMail.MAIL_CLIENTES_TABLET_USER.trim());
+          sender.validate();
+          mm.setFrom(sender);
           //Adding receiver
-          mm.addRecipient(Message.RecipientType.TO, new InternetAddress(this.email));
+          InternetAddress receiver = new InternetAddress(this.email.trim());
+          receiver.validate();
+          mm.addRecipient(Message.RecipientType.TO, receiver);
           //Adding subject
           mm.setSubject(this.subject, "UTF-8");
           
           // creates message part
           
           MimeBodyPart messageBodyPart = new MimeBodyPart();
-          messageBodyPart.setContent(this.message, format.equals(FormatType.TEXT) ? "UTF-8" : "text/html");
+          messageBodyPart.setText(this.message, format.equals(FormatType.TEXT) ? "UTF-8" : "text/html");
    
           // creates multi-part
           Multipart multipart = new MimeMultipart();
@@ -112,6 +118,12 @@ public class EdicardsMailSender {
           Transport.send(mm);
 
       } catch (MessagingException e) {
+          Throwable cause = e.getCause();
+          if (cause != null) {
+              Log.e("ErrorSendingMail", "Causa exacta: " + cause.getClass().getName() + " - " + cause.getMessage());
+              cause.printStackTrace();
+          }
+          e.printStackTrace();
           throw new RuntimeException(e);
       }
   }

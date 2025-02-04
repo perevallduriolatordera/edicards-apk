@@ -174,7 +174,8 @@ public class MainActivity extends Activity {
 				public void run() {
 
 					try {
-						getData();
+						//PVT
+						//	getData();
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
