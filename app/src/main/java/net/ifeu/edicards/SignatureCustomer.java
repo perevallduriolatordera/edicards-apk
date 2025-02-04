@@ -31,10 +31,13 @@ public class SignatureCustomer extends Activity {
         params.width  = 1000;
         getWindow().setAttributes(params);
 
-		TextView formaPago = this.findViewById(R.id.txtFormaDePago);
-		formaPago.setText("La forma de pago elegida por el cliente " + _app.getWorkingArea().CurrentCliente.Razon +
-				" es: " + _app.getWorkingArea().CurrentDeposito.FormaPago.Descripcion);
 
+		TextView lblFormaPago = this.findViewById(R.id.lblFormaDePago);
+		lblFormaPago.setText("La forma de pago elegida por el cliente " + _app.getWorkingArea().CurrentCliente.Razon +
+				" es: ");
+
+		TextView txtFormaPago = this.findViewById(R.id.txtFormaDePago);
+		txtFormaPago.setText(_app.getWorkingArea().CurrentDeposito.FormaPago.Descripcion);
 		_bundle = savedInstanceState;
 	}
 

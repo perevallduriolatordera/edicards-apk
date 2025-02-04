@@ -206,10 +206,10 @@ public class DepositManagerExtension {
 				if (cantidad.isPresent() && cantidad.get() > 0) {
 
 					IngresoDiario ingresoDiario = Factory.build(IngresoDiario.class, appConfig);
-					ArrayList<IngresoDiario> ingresosDiariosFromDate = ingresoDiario.getIngresosDiariosFromDate();
+					ArrayList<IngresoDiario> ingresosDiariosToday = ingresoDiario.getIngresosDiariosFromToday();
 					double totalIngresos = 0;
 
-					for (IngresoDiario id : ingresosDiariosFromDate) {
+					for (IngresoDiario id : ingresosDiariosToday) {
 						totalIngresos += id.Cantidad;
 					}
 

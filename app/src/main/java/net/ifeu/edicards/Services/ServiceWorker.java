@@ -390,7 +390,6 @@ public class ServiceWorker extends ServiceBase {
             }
 		}
 
-
 		// * * * * * * * * * ENVIAMOS ARTICULOS * * * * * * * * * * * *                                                              
 
 		directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"                         

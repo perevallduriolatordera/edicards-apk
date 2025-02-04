@@ -311,6 +311,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		if (_deposito.Cliente.FormaPago != null && _deposito.Cliente.FormaPago.Descripcion != null) {
 			if (_deposito.Cliente.FormaPago.Descripcion.trim().equalsIgnoreCase("CONTADO")) {
 				this._checkPagado.setChecked(true);
+				_textBoxCantidadPagada.setText(String.valueOf(DepositManagerExtension.Format.RoundTo2Decimals(_deposito.Totales.Total)));
 				_deposito.Pagado = true;
 			}
 			else
@@ -344,6 +345,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		_comboPago.addObserver("PAGADO", (String id, String text)-> {
 			if (((CharSequence) text).toString().trim().equalsIgnoreCase("CONTADO")) {
 				this._checkPagado.setChecked(true);
+				_textBoxCantidadPagada.setText(String.valueOf(DepositManagerExtension.Format.RoundTo2Decimals(_deposito.Totales.Total)));
 				_deposito.Pagado = true;
 			}
 			else
@@ -1209,6 +1211,7 @@ public class DepositManager extends Fragment implements  IMediator {
 			if (_deposito.Serie.equals(_appConfig.getUser().SerialInvoiceA)) {
 				if (DepositManagerExtension.DataTier.IsCustomerEmailFilled(_appConfig.getWorkingArea().CurrentDeposito)) {
 					_deposito.Cliente.Mail = _appConfig.getWorkingArea().CurrentDeposito.Mail;
+					_deposito.PagoDescripcion = _comboPago.getText();
 					ICustomerNotification<Deposito> notification = new HtmlCustomerNotification();
 					notification.notify(_deposito);
 				}

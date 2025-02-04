@@ -191,12 +191,12 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
 					outputByteBuffer = ("\u0009" + "Rec eq: " + padRight(" ",10) + padRight(df.format(base.RecargoPerc) + "%",10)  + padRight(df.format(base.Recargo)+ " Euros " ,16)  + "\n").getBytes();
 					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
-					
-					port.writePort(new byte[]{0x1b, 0x45, 0x00}, 0, 3);                 //Set Emphasized Printing OFF (same command as on)
-					
+
 					outputByteBuffer = ("\nForma de pago: " + deposito.PagoDescripcion+ "\n").getBytes();
 					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
-										
+
+					port.writePort(new byte[]{0x1b, 0x45, 0x00}, 0, 3);                 //Set Emphasized Printing OFF (same command as on)
+
 				}
 				
 				if (deposito.Pagado)
