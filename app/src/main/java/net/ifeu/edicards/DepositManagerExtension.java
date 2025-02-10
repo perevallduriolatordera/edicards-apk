@@ -100,7 +100,21 @@ public class DepositManagerExtension {
 
 
 		public static Optional<Double> getIngresosDiarios(AppConfig config) throws Exception {
-			return DepositManagerExtension.DataTier.getCantidadPagadaDiaria(config);
+
+			Optional<Double> diaria = DataTier.getCantidadPagadaDiaria(config);
+			Optional<Double> hoy = DataTier.getCantidadPagadaHoy(config);
+			Optional<Double> total = Optional.empty();
+
+			if (diaria.isPresent())
+				total = diaria;
+			if (hoy.isPresent()) {
+				if (total.isPresent())
+					total = Optional.of(total.get() + hoy.get());
+				else
+					total = hoy;
+			}
+
+			return total;
 		}
 		
 		public static FormaPago getFormaPagoByDescripcion(String descripcion, AppConfig config) {
@@ -202,7 +216,7 @@ public class DepositManagerExtension {
 
 		public static boolean RestriccionIngresosDiaria(AppConfig appConfig) {
 			try {
-				Optional<Double> cantidad = DepositManagerExtension.DataTier.getIngresosDiarios(appConfig);
+				Optional<Double> cantidad = DataTier.getIngresosDiarios(appConfig);
 				if (cantidad.isPresent() && cantidad.get() > 0) {
 
 					IngresoDiario ingresoDiario = Factory.build(IngresoDiario.class, appConfig);
@@ -259,7 +273,7 @@ public class DepositManagerExtension {
 
 			// Generamos la incidencia de nuevo cliente
 
-			DepositManagerExtension.Incidencias.createIncidenciaNuevoCliente(appConfig, deposito);
+			Incidencias.createIncidenciaNuevoCliente(appConfig, deposito);
 
 			return depositoNuevoCliente.IdDeposito;
 
