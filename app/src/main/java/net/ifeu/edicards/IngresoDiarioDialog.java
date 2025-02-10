@@ -93,6 +93,8 @@ public class IngresoDiarioDialog extends Activity {
 
     private File createImageFile() throws IOException {
         String imageFileName = _appConfig.getWorkingArea().CurrentTransactionMetadata.GUID;
+        File ingresoDiario = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_INGRESO_DIARIO + "/");
+        ingresoDiario.mkdirs();
         File storageDir = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_INGRESO_DIARIO + "/");
         File image = File.createTempFile(imageFileName, ".jpg", storageDir);
         _appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument = image.getAbsolutePath();
