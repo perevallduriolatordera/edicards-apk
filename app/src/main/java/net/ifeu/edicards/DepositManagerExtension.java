@@ -100,21 +100,7 @@ public class DepositManagerExtension {
 
 
 		public static Optional<Double> getIngresosDiarios(AppConfig config) throws Exception {
-
-			Optional<Double> diaria = DataTier.getCantidadPagadaDiaria(config);
-			Optional<Double> hoy = DataTier.getCantidadPagadaHoy(config);
-			Optional<Double> total = Optional.empty();
-
-			if (diaria.isPresent())
-				total = diaria;
-			if (hoy.isPresent()) {
-				if (total.isPresent())
-					total = Optional.of(total.get() + hoy.get());
-				else
-					total = hoy;
-			}
-
-			return total;
+			return DataTier.getCantidadPagadaDiaria(config);
 		}
 		
 		public static FormaPago getFormaPagoByDescripcion(String descripcion, AppConfig config) {
@@ -221,6 +207,9 @@ public class DepositManagerExtension {
 
 					IngresoDiario ingresoDiario = Factory.build(IngresoDiario.class, appConfig);
 					ArrayList<IngresoDiario> ingresosDiariosToday = ingresoDiario.getIngresosDiariosFromToday();
+					ArrayList<IngresoDiario> ingresosDiariosLastDay= ingresoDiario.getIngresosDiariosFromDate();
+					ingresosDiariosToday.addAll(ingresosDiariosLastDay);
+
 					double totalIngresos = 0;
 
 					for (IngresoDiario id : ingresosDiariosToday) {
