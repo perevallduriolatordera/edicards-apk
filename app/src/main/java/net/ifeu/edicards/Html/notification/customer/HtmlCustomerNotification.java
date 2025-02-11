@@ -18,6 +18,9 @@ public class HtmlCustomerNotification implements ICustomerNotification<Deposito>
        String content = loadEmailTemplate();
        content = replaceData(deposito, content);
 
+       File enviosCliente = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_ENVIOS_CLIENTE + "/");
+       enviosCliente.mkdirs();
+
        String path = "/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_ENVIOS_CLIENTE + "/"
                + deposito.Cliente.Mail + "#" + deposito.NumeroAlbaran + ".html";
 
