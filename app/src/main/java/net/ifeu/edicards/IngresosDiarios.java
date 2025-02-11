@@ -147,16 +147,19 @@ public class IngresosDiarios extends Activity {
 			return;
 		}
 
-		if (Double.parseDouble(gastos) > Double.parseDouble(ingresos)) {
+		/*if (Double.parseDouble(gastos) > Double.parseDouble(ingresos)) {
 			_appConfig.getMessageBox().Show("Ingreso", "La cantidad de gastos no puede ser mayor que la de ingresos", IngresosDiarios.this,
 					MessageBoxType.Information);
 			return;
-		}
+		}*/
 
 		if (_appConfig.getWorkingArea().CurrentTransactionMetadata == null || _appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument == null || _appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument.equals(ConstantsTypes.EMPTY_STRING)) {
-			_appConfig.getMessageBox().Show("Ingreso", "Tiene que adjuntar una imagen del ingreso", IngresosDiarios.this,
-					MessageBoxType.Information);
-			return;
+			if (Double.parseDouble(ingresos) > Double.parseDouble(gastos)) {
+
+				_appConfig.getMessageBox().Show("Ingreso", "Tiene que adjuntar una imagen del ingreso", IngresosDiarios.this,
+						MessageBoxType.Information);
+				return;
+			}
 		}
 
 		_appConfig.getWorkingArea().CurrentIngresoDiario.save();
@@ -174,7 +177,10 @@ public class IngresosDiarios extends Activity {
 
 		Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(), IncidenciaType.IngresoDiario,
 				text);
-		incidencia.Attachments.put("INGRESO",
+
+		if (_appConfig.getWorkingArea().CurrentTransactionMetadata != null && _appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument != null && !_appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument.equals(ConstantsTypes.EMPTY_STRING)) {
+
+			incidencia.Attachments.put("INGRESO",
 				_appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument);
 
 		incidencia.create(new IncidentPdfCreator(_appConfig));

@@ -108,45 +108,14 @@ public class IngresoDiario extends Persistent implements IPersistable {
 		}
 	}
 
-	public ArrayList<IngresoDiario> getIngresosDiariosFromDate() throws Exception
-	{
-		Historico historico = Factory.build(Historico.class, appConfig);
-		String date = historico.getDateOfLastMovementFormatted();
-
-		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + ConstantsDatabase.TABLE_INGRESOS_DIARIOS + " WHERE substr(Fecha,7)||substr(Fecha,1,2)||substr(Fecha,4,2) " +
-				"BETWEEN '" + date + "' AND '" + date + "'");
-
-		ArrayList<IngresoDiario> list = new ArrayList<>();
-		
-		if (cursor != null)
-		{
-			cursor.moveToFirst();
-			
-			if (cursor.getCount() > 0)
-			{
-				do {
-					Long idIngreso = Long.parseLong(cursor.getString(cursor.getColumnIndex("IdIngreso")));
-					IngresoDiario ingreso = Factory.build(IngresoDiario.class, appConfig);
-					
-					if (ingreso.setIngresoById(String.valueOf(idIngreso)))
-						list.add(ingreso);
-									
-				} while (cursor.moveToNext());
-			}
-			
-			cursor.close();
-		}
-
-		return list ;
-	}
-
 	public ArrayList<IngresoDiario> getIngresosDiariosFromToday() throws Exception
 	{
 		Historico historico = Factory.build(Historico.class, appConfig);
-		String date = historico.getDateFormatted(new Date());
+		String firstDate = historico.getDateOfLastMovementFormatted();
+		String lastDate = historico.getDateFormatted(new Date());
 
 		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + ConstantsDatabase.TABLE_INGRESOS_DIARIOS + " WHERE substr(Fecha,7)||substr(Fecha,1,2)||substr(Fecha,4,2) " +
-				"BETWEEN '" + date + "' AND '" + date + "'");
+				"BETWEEN '" + firstDate + "' AND '" + lastDate + "'");
 
 		ArrayList<IngresoDiario> list = new ArrayList<>();
 

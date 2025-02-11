@@ -2,6 +2,8 @@ package net.ifeu.edicards;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.library.Signature.SignatureView;
+import net.ifeu.library.Utils.Screen.FontSizeManager;
+
 import android.app.Activity;
 import android.app.ActionBar.LayoutParams;
 import android.content.Intent;
@@ -31,13 +33,14 @@ public class SignatureCustomer extends Activity {
         params.width  = 1000;
         getWindow().setAttributes(params);
 
-
 		TextView lblFormaPago = this.findViewById(R.id.lblFormaDePago);
 		lblFormaPago.setText("La forma de pago elegida por el cliente " + _app.getWorkingArea().CurrentCliente.Razon +
 				" es: ");
+		FontSizeManager.adjustFontSize(lblFormaPago, 12);
 
 		TextView txtFormaPago = this.findViewById(R.id.txtFormaDePago);
 		txtFormaPago.setText(_app.getWorkingArea().CurrentDeposito.FormaPago.Descripcion);
+		FontSizeManager.adjustFontSize(txtFormaPago, 16);
 		_bundle = savedInstanceState;
 	}
 

@@ -207,8 +207,6 @@ public class DepositManagerExtension {
 
 					IngresoDiario ingresoDiario = Factory.build(IngresoDiario.class, appConfig);
 					ArrayList<IngresoDiario> ingresosDiariosToday = ingresoDiario.getIngresosDiariosFromToday();
-					ArrayList<IngresoDiario> ingresosDiariosLastDay= ingresoDiario.getIngresosDiariosFromDate();
-					ingresosDiariosToday.addAll(ingresosDiariosLastDay);
 
 					double totalIngresos = 0;
 
@@ -216,7 +214,8 @@ public class DepositManagerExtension {
 						totalIngresos += id.Cantidad;
 					}
 
-					if (cantidad.get() > totalIngresos) {
+					//if (cantidad.get() > totalIngresos) {
+					if (totalIngresos == 0) {
 						appConfig.getWorkingArea().CurrentIngresoDiario = Factory.build(IngresoDiario.class, appConfig);
 						appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = IngresoDiario.getDateOfLastMovement(appConfig);
 						appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = NumberDecimal.roundToNearestFive(cantidad.get() - totalIngresos);
