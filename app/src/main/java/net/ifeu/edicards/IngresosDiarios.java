@@ -179,10 +179,9 @@ public class IngresosDiarios extends Activity {
 				text);
 
 		if (_appConfig.getWorkingArea().CurrentTransactionMetadata != null && _appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument != null && !_appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument.equals(ConstantsTypes.EMPTY_STRING)) {
-
 			incidencia.Attachments.put("INGRESO",
-				_appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument);
-
+					_appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument);
+		}
 		incidencia.create(new IncidentPdfCreator(_appConfig));
 
 		finish();
