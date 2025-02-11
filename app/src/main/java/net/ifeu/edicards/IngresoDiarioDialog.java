@@ -43,6 +43,9 @@ public class IngresoDiarioDialog extends Activity {
             dispatchTakePictureIntent();
         });
 
+        if (_appConfig.getWorkingArea().CurrentTransactionMetadata == null) {
+            _appConfig.getWorkingArea().CurrentTransactionMetadata = new TransactionMetadata();
+        }
 
         if (!StringUtils.isEmpty(_appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument)) {
             ImageView imageView = (ImageView) findViewById(R.id.imgPhoto);
@@ -52,10 +55,6 @@ public class IngresoDiarioDialog extends Activity {
         close.setOnClickListener( (View v)-> {
             finish();
         });
-
-        if (_appConfig.getWorkingArea().CurrentTransactionMetadata == null) {
-            _appConfig.getWorkingArea().CurrentTransactionMetadata = new TransactionMetadata();
-        }
 
     }
 
