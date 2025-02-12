@@ -209,7 +209,7 @@ public class Reporting_Totales extends Activity {
     		for (IngresoDiario ingreso : list) {
 
     			if (ingreso.Cantidad != 0)
-    				IngresosTotales += ingreso.Cantidad;
+    				IngresosTotales += ingreso.Ingresos;
     		}
 
     	} catch (Exception e) {

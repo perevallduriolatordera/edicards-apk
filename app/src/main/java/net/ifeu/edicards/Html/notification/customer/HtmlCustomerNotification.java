@@ -18,6 +18,10 @@ public class HtmlCustomerNotification implements ICustomerNotification<Deposito>
        String content = loadEmailTemplate();
        content = replaceData(deposito, content);
 
+       if (content == null) {
+           return;
+       }
+
        File enviosCliente = new File("/sdcard/" + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_ENVIOS_CLIENTE + "/");
        enviosCliente.mkdirs();
 
@@ -47,7 +51,8 @@ public class HtmlCustomerNotification implements ICustomerNotification<Deposito>
 
             return reader.lines().collect(Collectors.joining("\n"));
         } catch (Exception e) {
-            throw new RuntimeException("Error al cargar la plantilla de email", e);
+            //throw new RuntimeException("Error al cargar la plantilla de email", e);
+            return null;
         }
     }
 
