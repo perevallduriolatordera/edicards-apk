@@ -1213,7 +1213,7 @@ public class DepositManager extends Fragment implements  IMediator {
 					_deposito.Cliente.Mail = _appConfig.getWorkingArea().CurrentDeposito.Mail;
 					_deposito.PagoDescripcion = _comboPago.getText();
 					ICustomerNotification<Deposito> notification = new HtmlCustomerNotification();
-					notification.notify(_deposito);
+					notification.notify(_deposito, _appConfig);
 				}
 			}
 

@@ -1,5 +1,8 @@
 package net.ifeu.edicards.Html.notification.customer;
 
+import android.content.res.AssetManager;
+
+import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.DataTier.Deposito;
 
@@ -13,8 +16,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
 public class HtmlCustomerNotification implements ICustomerNotification<Deposito> {
+
+    private static AppConfig _appConfig;
     @Override
-    public void notify(Deposito deposito) {
+    public void notify(Deposito deposito, AppConfig appConfig) {
+       _appConfig = appConfig;
        String content = loadEmailTemplate();
        content = replaceData(deposito, content);
 
@@ -52,6 +58,21 @@ public class HtmlCustomerNotification implements ICustomerNotification<Deposito>
             return reader.lines().collect(Collectors.joining("\n"));
         } catch (Exception e) {
             //throw new RuntimeException("Error al cargar la plantilla de email", e);
+            return loadEmailTemplateByAsset();
+        }
+    }
+
+    private static String loadEmailTemplateByAsset() {
+        AssetManager assetManager = _appConfig.getAssets();
+        try (InputStream inputStream = assetManager.open("customer_notification.html")) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            StringBuilder content = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append("\n");
+            }
+            return content.toString();
+        } catch (IOException e) {
             return null;
         }
     }
