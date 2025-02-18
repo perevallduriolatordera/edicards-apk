@@ -394,6 +394,7 @@ public class MonitorView extends Fragment {
 
 		voluntaryContribution.setOnClickListener(view -> {
 			_appConfig.getWorkingArea().CurrentIngresoDiario = null;
+			_appConfig.getWorkingArea().IsIngresoDiarioVoluntario = true;
 			DepositManagerExtension.Dialogs.StartIngresoDiarioDialog(this);
 		});
 

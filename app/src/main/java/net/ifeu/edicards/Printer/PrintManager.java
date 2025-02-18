@@ -3,6 +3,8 @@ package net.ifeu.edicards.Printer;
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.DTODeposito;
 import net.ifeu.edicards.DataTier.Deposito;
+import net.ifeu.library.Errors.ResultResponse;
+
 import android.content.Context;
 
 public class PrintManager {
@@ -70,8 +72,8 @@ public class PrintManager {
 		return _print.printDeposito(deposito, context, app, guid);
 	}
 	
-	public boolean printAlbaran(DTODeposito deposito, Context context,
-			AppConfig app, String guid, boolean isTransferPayment) throws Exception {
+	public ResultResponse printAlbaran(DTODeposito deposito, Context context,
+									   AppConfig app, String guid, boolean isTransferPayment) throws Exception {
 		if (_printDTO == null)
 			throw new Exception("No se ha encontrado impresora");
 

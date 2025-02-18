@@ -14,11 +14,14 @@ import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.DTODeposito;
 import net.ifeu.edicards.DataTier.DTOLineaDeposito;
 import net.ifeu.edicards.DataTier.Totales;
+import net.ifeu.library.Errors.ResultResponse;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
+import android.provider.SyncStateContract;
 
 import com.starmicronics.stario.StarIOPort;
 import com.starmicronics.stario.StarIOPortException;
@@ -192,10 +195,10 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 					outputByteBuffer = ("\u0009" + "Rec eq: " + padRight(" ",10) + padRight(df.format(base.RecargoPerc) + "%",10)  + padRight(df.format(base.Recargo)+ " Euros " ,16)  + "\n").getBytes();
 					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
 
+					port.writePort(new byte[]{0x1b, 0x45, 0x00}, 0, 3);                 //Set Emphasized Printing OFF (same command as on)
+
 					outputByteBuffer = ("\nForma de pago: " + deposito.PagoDescripcion+ "\n").getBytes();
 					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
-
-					port.writePort(new byte[]{0x1b, 0x45, 0x00}, 0, 3);                 //Set Emphasized Printing OFF (same command as on)
 
 				}
 				
@@ -366,8 +369,8 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 		}
 	}
 	
-	public boolean printAlbaran(DTODeposito deposito, Context context, AppConfig app,
-								String guid, boolean isTransferPayment)
+	public ResultResponse printAlbaran(DTODeposito deposito, Context context, AppConfig app,
+									   String guid, boolean isTransferPayment)
 	{
 		_GUID = guid;
 		StarIOPort port = null;
@@ -408,12 +411,10 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 			closePage(port);
 			
     	}
-		catch (StarIOPortException e)
-    	{
-    		return false;
-    	}
-		
-		finally
+
+		catch (Exception ex) {
+			return new ResultResponse(false, ex.getMessage());
+		} finally
 		{
 			if(port != null)
 			{
@@ -424,7 +425,7 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 			}
 		}
 		
-		return true;
+		return new ResultResponse(true, ConstantsTypes.EMPTY_STRING);
 	}
 	
 	public boolean printDeposito(DTODeposito deposito, Context context, AppConfig app, String guid)

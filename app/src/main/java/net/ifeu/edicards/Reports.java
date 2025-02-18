@@ -42,6 +42,7 @@ import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
+import net.ifeu.library.Errors.ResultResponse;
 import net.ifeu.library.LogBook.LogBook;
 import net.ifeu.library.Utils.Inactivate;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
@@ -549,20 +550,26 @@ public class Reports extends Fragment {
 
 					if (dto.isAlbaran()) {
 						do {
+
+							ResultResponse resultResponse;
 							try {
 
-								result = printManager.printAlbaran(dto,
+								resultResponse = printManager.printAlbaran(dto,
 										getActivity(), _appConfig,
 										hist.GUID, DepositManagerExtension.DataTier.isTransferPayment(dto.PagoDescripcion));
+								result = resultResponse.Success;
+
 							} catch (Exception e) {
-								e.printStackTrace();
+								resultResponse = new ResultResponse(false, e.getMessage());
+								result = false;
 							}
 							if (!result)
 								cancel = _appConfig
 										.getMessageBox()
 										.ShowWithResult(
 												"Impresión de albarán",
-												"No se pudo imprimir el albarán. Desea volverlo a intentar?",
+												"No se pudo imprimir el albarán. \n Motivo: " + resultResponse.Message +
+												"\n Desea volverlo a intentar?",
 												getActivity(),
 												MessageBoxType.Information);
 						} while (cancel);

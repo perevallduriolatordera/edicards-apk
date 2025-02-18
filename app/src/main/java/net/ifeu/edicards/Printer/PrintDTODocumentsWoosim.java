@@ -15,6 +15,8 @@ import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.DTODeposito;
 import net.ifeu.edicards.DataTier.DTOLineaDeposito;
 import net.ifeu.edicards.DataTier.Totales;
+import net.ifeu.library.Errors.ResultResponse;
+
 import android.content.Context;
 
 
@@ -410,8 +412,8 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 
 	}
 
-	public boolean printAlbaran(DTODeposito deposito, Context context,
-			AppConfig app, String guid, boolean isTransferPayment) {
+	public ResultResponse printAlbaran(DTODeposito deposito, Context context,
+									   AppConfig app, String guid, boolean isTransferPayment) {
 
 		_GUID = guid;
 
@@ -457,10 +459,10 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 		} catch (Exception e) {
 			StringWriter errors = new StringWriter();
 			e.printStackTrace(new PrintWriter(errors));
-			return false;
+			return new ResultResponse(false, e.getMessage());
 		}
 
-		return true;
+		return new ResultResponse(true, ConstantsTypes.EMPTY_STRING);
 
 	}
 

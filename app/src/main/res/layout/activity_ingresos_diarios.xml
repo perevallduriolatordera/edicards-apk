@@ -161,6 +161,22 @@
                 android:onClick="OnApply"
                 android:text="Guardar cambios"/>
 
+            <net.ifeu.library.Controls.ButtonColor
+                android:id="@+id/btnCloseIngresoDiario"
+                android:layout_marginLeft="20px"
+                android:layout_marginRight="20px"
+                android:paddingLeft="15px"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_height="80px"
+                android:background="@drawable/background_button"
+                android:textColor="@color/Black"
+                android:onClick="OnClose"
+                android:text="Cerrar Pantalla"/>
+
+
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

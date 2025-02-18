@@ -19,6 +19,7 @@ import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 import net.ifeu.library.Utils.Number.NumberDecimal;
 import net.ifeu.library.Utils.Screen.ScreenManager;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -60,6 +61,14 @@ public class IngresosDiarios extends Activity {
 			this.showIngresosDiariosDialog();
 		});
 
+		ButtonColor close = findViewById(R.id.btnCloseIngresoDiario);
+		close.setVisibility(_appConfig.getWorkingArea().IsIngresoDiarioVoluntario ? View.VISIBLE : View.GONE);
+
+		close.setOnClickListener( (View v)-> {
+			finish();
+		});
+
+
 		this.assignValues();
 	}
 
@@ -77,8 +86,8 @@ public class IngresosDiarios extends Activity {
 		}
 
 		TextView txtFecha = findViewById(R.id.txtFechaIngresosDiarios);
-		SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-		String formattedDate = formato.format(_appConfig.getWorkingArea().CurrentIngresoDiario.Fecha);
+		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+		String formattedDate = format.format(_appConfig.getWorkingArea().CurrentIngresoDiario.Fecha);
 		txtFecha.setText(formattedDate);
 
 		EditText txtTotal = findViewById(R.id.txtTotalIngresar);
@@ -92,7 +101,7 @@ public class IngresosDiarios extends Activity {
 		txtGasto.setOnFocusChangeListener((v, hasFocus) -> {
 			// Cuando pierde el foco
 			if (!hasFocus) {
-				updateIngresos();
+				updateIngresos(format, formattedDate);
 			}
 		});
 
@@ -105,7 +114,7 @@ public class IngresosDiarios extends Activity {
 
 	}
 
-	private void updateIngresos() {
+	private void updateIngresos(SimpleDateFormat format, String date) {
 		EditText txtTotal = findViewById(R.id.txtTotalIngresar);
 		EditText txtGasto = findViewById(R.id.txtGastosDiarios);
 		EditText txtIngreso = findViewById(R.id.txtIngresosDiarios);
@@ -117,8 +126,12 @@ public class IngresosDiarios extends Activity {
 		_appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = ingreso;
 		_appConfig.getWorkingArea().CurrentIngresoDiario.Gastos = gasto;
 		_appConfig.getWorkingArea().CurrentIngresoDiario.Cantidad = total;
-		_appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = new Date();
-	}
+        try {
+            _appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = format.parse(date);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 	private void showIngresosDiariosDialog() {
 		DepositManagerExtension.Dialogs.StartIngresoDiarioDialog(this);
@@ -132,11 +145,12 @@ public class IngresosDiarios extends Activity {
 
 	public void OnSaveIngreso() throws Exception {
 
-		_appConfig = (AppConfig) this.getApplicationContext();
-		updateIngresos();
-
 		SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 		String formattedDate = formato.format(_appConfig.getWorkingArea().CurrentIngresoDiario.Fecha);
+
+		_appConfig = (AppConfig) this.getApplicationContext();
+		updateIngresos(formato, formattedDate);
+
 		String ingresos = ((EditText) findViewById(R.id.txtIngresosDiarios)).getText().toString();
 		String gastos = ((EditText) findViewById(R.id.txtGastosDiarios)).getText().toString();
 		String cantidad = ((EditText) findViewById(R.id.txtTotalIngresar)).getText().toString();

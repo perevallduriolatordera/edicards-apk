@@ -189,7 +189,7 @@ public class Reporting_Totales extends Activity {
 
 		
     	// 	Cantidad Pendiente a ingresar
-    	double pendiente = cantidad - gastos;
+    	double pendiente = cantidad - ingresos - gastos;
     	layout2.addView(this.addCounter("Total PENDIENTE INGRESAR", df.format(pendiente) + " €", Color.BLACK, true));
     	
     	layout.addView(layout2);

@@ -25,6 +25,7 @@ public class WorkingArea {
 	public ServiceMonitor Monitor;
 	public DepositoModalidad CurrentDepositoModalidad;
 	public IngresoDiario CurrentIngresoDiario;
+	public boolean IsIngresoDiarioVoluntario;
 
 	public TransactionMetadata CurrentTransactionMetadata;
 

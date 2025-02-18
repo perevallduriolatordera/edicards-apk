@@ -311,6 +311,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		if (_deposito.Cliente.FormaPago != null && _deposito.Cliente.FormaPago.Descripcion != null) {
 			if (_deposito.Cliente.FormaPago.Descripcion.trim().equalsIgnoreCase("CONTADO")) {
 				this._checkPagado.setChecked(true);
+				_deposito.CalculateDeposito();
 				_textBoxCantidadPagada.setText(String.valueOf(DepositManagerExtension.Format.RoundTo2Decimals(_deposito.Totales.Total)));
 				_deposito.Pagado = true;
 			}
@@ -345,7 +346,12 @@ public class DepositManager extends Fragment implements  IMediator {
 		_comboPago.addObserver("PAGADO", (String id, String text)-> {
 			if (((CharSequence) text).toString().trim().equalsIgnoreCase("CONTADO")) {
 				this._checkPagado.setChecked(true);
-				_textBoxCantidadPagada.setText(String.valueOf(DepositManagerExtension.Format.RoundTo2Decimals(_deposito.Totales.Total)));
+                try {
+                    _deposito.CalculateDeposito();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                _textBoxCantidadPagada.setText(String.valueOf(DepositManagerExtension.Format.RoundTo2Decimals(_deposito.Totales.Total)));
 				_deposito.Pagado = true;
 			}
 			else
@@ -568,9 +574,11 @@ public class DepositManager extends Fragment implements  IMediator {
 		_appConfig.getWorkingArea().CurrentTransactionMetadata = new TransactionMetadata();
 
  		if (DepositManagerExtension.DataTier.RestriccionIngresosHoyFromCantidad(_appConfig)) {
+			 _appConfig.getWorkingArea().IsIngresoDiarioVoluntario = false;
 			DepositManagerExtension.Dialogs.StartIngresoDiarioDialog(this);
 		};
 		if (DepositManagerExtension.DataTier.RestriccionIngresosDiaria(_appConfig)) {
+			_appConfig.getWorkingArea().IsIngresoDiarioVoluntario = false;
 			DepositManagerExtension.Dialogs.StartIngresoDiarioDialog(this);
 		}
 
@@ -883,6 +891,7 @@ public class DepositManager extends Fragment implements  IMediator {
 	}
 	
 	private void SaveDeposito() throws Exception {
+		_deposito.PagoDescripcion = _comboPago.getText();
 		_deposito.saveChangesToDeposito();
 
 		if (_deposito.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
@@ -895,7 +904,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		String GUID;
 
 		double cantidadPagada;
-		String cantidadPagadaText = _textBoxCantidadPagada.getText().toString();
+		String cantidadPagadaText = _textBoxCantidadPagada.getText().toString().replace("€", ConstantsTypes.EMPTY_STRING);
 
 		if (_textBoxCantidadPagada.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
 			cantidadPagada = Double.parseDouble("0");
@@ -1072,6 +1081,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		_deposito.Filiacion = DepositManagerExtension.DataTier.getFiliacionCode(_comboFiliacion.getText());
 		_deposito.Pagado = _checkPagado.isChecked();
+		_deposito.PagoDescripcion = _comboPago.getText();
 
 		if (_deposito.isAlbaran()) {
 			Contador contador = Factory.build(Contador.class, _appConfig);
@@ -1211,7 +1221,6 @@ public class DepositManager extends Fragment implements  IMediator {
 			if (_deposito.Serie.equals(_appConfig.getUser().SerialInvoiceA)) {
 				if (DepositManagerExtension.DataTier.IsCustomerEmailFilled(_appConfig.getWorkingArea().CurrentDeposito)) {
 					_deposito.Cliente.Mail = _appConfig.getWorkingArea().CurrentDeposito.Mail;
-					_deposito.PagoDescripcion = _comboPago.getText();
 					ICustomerNotification<Deposito> notification = new HtmlCustomerNotification();
 					notification.notify(_deposito, _appConfig);
 				}
@@ -1903,6 +1912,14 @@ public class DepositManager extends Fragment implements  IMediator {
 			}
 
 			((TextView) getActivity().findViewById(R.id.lblTipoEntrega)).setText(_appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
+
+			if (_checkPagado.isChecked()) {
+				if (DepositManagerExtension.DataTier.IsSerieA(this._comboSerie, this._appConfig)) {
+					_textBoxCantidadPagada.setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.Total) + " €");
+				} else {
+					_textBoxCantidadPagada.setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.TotalBase) + " €");
+				}
+			}
 		} else {
 			((TextView) getActivity().findViewById(R.id.lblBase)).setText(ConstantsTypes.EMPTY_STRING);
 			((TextView) getActivity().findViewById(R.id.lblTotalFactura)).setText(ConstantsTypes.EMPTY_STRING);

@@ -326,10 +326,6 @@ public class PrintDocumentsStar implements IPrint {
 							.getBytes();
 					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
 
-					outputByteBuffer = ("\nForma de pago: "
-							+ deposito.PagoDescripcion + "\n").getBytes();
-					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
-
 					port.writePort(new byte[] { 0x1b, 0x45, 0x00 }, 0, 3); // Set
 																			// Emphasized
 																			// Printing
@@ -338,6 +334,10 @@ public class PrintDocumentsStar implements IPrint {
 																			// command
 																			// as
 																			// on)
+
+					outputByteBuffer = ("\nForma de pago: "
+							+ deposito.PagoDescripcion + "\n").getBytes();
+					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
 
 				}
 				
