@@ -576,10 +576,12 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		_appConfig.getWorkingArea().CurrentTransactionMetadata = new TransactionMetadata();
 
- 		if (DepositManagerExtension.DataTier.RestriccionIngresosHoyFromCantidad(_appConfig)) {
+		// * * * * Comentem a petició del Fernando * * * *
+ 		/*if (DepositManagerExtension.DataTier.RestriccionIngresosHoyFromCantidad(_appConfig)) {
 			 _appConfig.getWorkingArea().IsIngresoDiarioVoluntario = false;
 			DepositManagerExtension.Dialogs.StartIngresoDiarioDialog(this);
-		};
+		};*/
+
 		if (DepositManagerExtension.DataTier.RestriccionIngresosDiaria(_appConfig)) {
 			_appConfig.getWorkingArea().IsIngresoDiarioVoluntario = false;
 			DepositManagerExtension.Dialogs.StartIngresoDiarioDialog(this);
@@ -881,7 +883,6 @@ public class DepositManager extends Fragment implements  IMediator {
 				linea.UnidadesFacturadas = ntvDepositoDTO.Lineas.get(articuloInCatalgo.CodigoArticulo).cantidad;
 				linea.UnidadesInicialesFijas = 0;
 				linea.PVPAnterior = linea.PVP;
-
 				linea.PVPInicial = linea.PVPAnterior;
 
 				linea.Descuento1 = ntvDepositoDTO.Lineas.get(articuloInCatalgo.CodigoArticulo).dto1;

@@ -384,7 +384,8 @@ public class MonitorView extends Fragment {
 
 		layout.addView(restoreBackup);
 
-		ButtonColor voluntaryContribution = new ButtonColor(getActivity(), Color.RED);
+		// * * * * Comentem a peticiói del Fernando * * * *
+		/*ButtonColor voluntaryContribution = new ButtonColor(getActivity(), Color.RED);
 
 		voluntaryContribution.setText("Ingreso de efectivo voluntario");
 		voluntaryContribution.setTextSize(TEXT_SIZE_BUTTON);
@@ -398,7 +399,7 @@ public class MonitorView extends Fragment {
 			DepositManagerExtension.Dialogs.StartIngresoDiarioDialog(this);
 		});
 
-		layout.addView(voluntaryContribution);
+		layout.addView(voluntaryContribution);*/
 
 	}
 

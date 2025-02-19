@@ -210,17 +210,21 @@ public class DepositManagerExtension {
 					IngresoDiario ingresoDiario = Factory.build(IngresoDiario.class, appConfig);
 					ArrayList<IngresoDiario> ingresosDiariosToday = ingresoDiario.getIngresosDiariosFromToday();
 
-					double totalIngresos = 0;
+					double totalCantidad = 0;
 
 					for (IngresoDiario id : ingresosDiariosToday) {
-						totalIngresos += id.Cantidad;
+						if (id.Fecha.equals(new Date())) return false;
+						totalCantidad += id.Cantidad;
 					}
 
-					//if (cantidad.get() > totalIngresos) {
-					if (totalIngresos == 0) {
+					double efectivo = cantidad.get();
+					if (totalCantidad < 0)
+						efectivo = efectivo + totalCantidad;
+
+					if (efectivo > 0) {
 						appConfig.getWorkingArea().CurrentIngresoDiario = Factory.build(IngresoDiario.class, appConfig);
 						appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = IngresoDiario.getDateOfLastMovement(appConfig);
-						appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = NumberDecimal.roundToNearestFive(cantidad.get() - totalIngresos);
+						appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = NumberDecimal.roundToNearestFive(efectivo);
 						return true;
 					}
 

@@ -101,7 +101,7 @@ public class IngresosDiarios extends Activity {
 		txtGasto.setOnFocusChangeListener((v, hasFocus) -> {
 			// Cuando pierde el foco
 			if (!hasFocus) {
-				updateIngresos(format, formattedDate);
+				updateIngresos();
 			}
 		});
 
@@ -114,7 +114,7 @@ public class IngresosDiarios extends Activity {
 
 	}
 
-	private void updateIngresos(SimpleDateFormat format, String date) {
+	private void updateIngresos() {
 		EditText txtTotal = findViewById(R.id.txtTotalIngresar);
 		EditText txtGasto = findViewById(R.id.txtGastosDiarios);
 		EditText txtIngreso = findViewById(R.id.txtIngresosDiarios);
@@ -127,8 +127,8 @@ public class IngresosDiarios extends Activity {
 		_appConfig.getWorkingArea().CurrentIngresoDiario.Gastos = gasto;
 		_appConfig.getWorkingArea().CurrentIngresoDiario.Cantidad = total;
         try {
-            _appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = format.parse(date);
-        } catch (ParseException e) {
+            _appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = new Date();
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
@@ -149,7 +149,7 @@ public class IngresosDiarios extends Activity {
 		String formattedDate = formato.format(_appConfig.getWorkingArea().CurrentIngresoDiario.Fecha);
 
 		_appConfig = (AppConfig) this.getApplicationContext();
-		updateIngresos(formato, formattedDate);
+		updateIngresos();
 
 		String ingresos = ((EditText) findViewById(R.id.txtIngresosDiarios)).getText().toString();
 		String gastos = ((EditText) findViewById(R.id.txtGastosDiarios)).getText().toString();
