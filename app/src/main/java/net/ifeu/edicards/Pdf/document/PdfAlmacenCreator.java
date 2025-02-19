@@ -182,7 +182,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
     }
 
 
-    private void printTotals(boolean isTransferPayment) throws DocumentException {
+    private void printTotals(boolean isTransferPayment, DepositoModalidad modalidad) throws DocumentException {
         DecimalFormat df = new DecimalFormat("0.00");
 
         try {
@@ -311,7 +311,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
             }
         }
 
-        if (this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
+        if (modalidad == DepositoModalidad.Edicards) {
             String pendienteEnvioText = "MERCANCIA PENDIENTE DE ENVIO"
                     + "\n";
 
@@ -430,7 +430,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
 
     }
 
-    public void createAlbaran(String guid, boolean isTransferPayment)
+    public void createAlbaran(String guid, boolean isTransferPayment, DepositoModalidad modalidad)
     {
         try {
 
@@ -438,7 +438,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
             _GUID = guid;
 
             _document = new Document();
-            String tipoEnvio = this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "E" : "F";
+            String tipoEnvio = modalidad == DepositoModalidad.Edicards ? "E" : "F";
 
             _pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
                     + ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_PDF + "/"
@@ -476,7 +476,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
             printHeaderData();
             printHeaderFields();
             printHeaderDetail();
-            printTotals(isTransferPayment);
+            printTotals(isTransferPayment, modalidad);
             printSignatureBoxesAlmacen();
             closePage();
 
@@ -494,7 +494,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
         }
     }
 
-    public void createDeposito(String guid)
+    public void createDeposito(String guid, DepositoModalidad modalidad)
     {
         throw new NotImplementedException("Esta opción aún no ha sido implementada");
     }

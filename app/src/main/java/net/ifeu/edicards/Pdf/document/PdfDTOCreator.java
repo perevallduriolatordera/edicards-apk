@@ -12,6 +12,7 @@ import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.DTODeposito;
 import net.ifeu.edicards.DataTier.DTOLineaDeposito;
+import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.DataTier.Totales;
 import net.ifeu.edicards.Pdf.pdfBase;
 
@@ -371,7 +372,7 @@ public class PdfDTOCreator extends pdfBase implements IPdfDocumentGenerator {
 
 	}
 
-	public void createAlbaran(String guid, boolean envioEdicards) {
+	public void createAlbaran(String guid, boolean envioEdicards, DepositoModalidad modalidad) {
 
 		try {
 			_GUID = guid;
@@ -426,7 +427,7 @@ public class PdfDTOCreator extends pdfBase implements IPdfDocumentGenerator {
 		}
 	}
 
-	public void createDeposito(String guid) {
+	public void createDeposito(String guid, DepositoModalidad modalidad) {
 
 		_GUID = guid;
 

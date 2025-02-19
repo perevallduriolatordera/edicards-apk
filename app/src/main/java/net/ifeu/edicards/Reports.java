@@ -470,7 +470,7 @@ public class Reports extends Fragment {
 					throw new RuntimeException(e1);
 				}
 
-				_appConfig.getWorkingArea().CurrentDepositoModalidad = hist.ActualizarStock ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
+				DepositoModalidad modalidad = hist.getModalidad();
 				boolean printDeposito = true;
 
 				if (!dto.isDepositoUpdated()) {
@@ -528,7 +528,7 @@ public class Reports extends Fragment {
 						do {
 							try {
 								result = printManager.printDeposito(dto,
-										_appConfig, _appConfig, hist.GUID);
+										_appConfig, _appConfig, hist.GUID, modalidad);
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
@@ -556,7 +556,9 @@ public class Reports extends Fragment {
 
 								resultResponse = printManager.printAlbaran(dto,
 										getActivity(), _appConfig,
-										hist.GUID, DepositManagerExtension.DataTier.isTransferPayment(dto.PagoDescripcion));
+										hist.GUID,
+										DepositManagerExtension.DataTier.isTransferPayment(dto.PagoDescripcion),
+										modalidad);
 								result = resultResponse.Success;
 
 							} catch (Exception e) {
@@ -594,6 +596,7 @@ public class Reports extends Fragment {
 			anular.setOnClickListener(arg0 -> {
 				try {
 
+					DepositoModalidad modalidad = hist.getModalidad();
 					boolean drop = _appConfig
 							.getMessageBox()
 							.ShowWithResult(
@@ -635,15 +638,13 @@ public class Reports extends Fragment {
 							throw new RuntimeException(e1);
 						}
 
-						that.GenerateAlbaran(dto, hist);
+						that.GenerateAlbaran(dto, hist, modalidad);
 						hist.delete();
 						getHistoricos();
 						
 					}
 				} catch (Exception e) {
-						_appConfig.getMessageBox().Show("Atención",
-							_appConfig.getStackTrace(e),
-							getActivity(), MessageBoxType.Error);		
+					throw new RuntimeException(e);
 				}
 
 			});
@@ -772,9 +773,7 @@ public class Reports extends Fragment {
 				linea.Articulo.update();
 			}
 		} catch (Exception ex) {
-			_appConfig.getMessageBox().Show("Atención",
-					_appConfig.getStackTrace(ex),
-					getActivity(), MessageBoxType.Error);
+			throw new RuntimeException(ex);
 		}
 	}
 	
@@ -816,14 +815,11 @@ public class Reports extends Fragment {
 			}
 
 		} catch (Exception e) {
-			_appConfig.getMessageBox().Show("Atención",
-					_appConfig.getStackTrace(e),
-					getActivity(), MessageBoxType.Error);		
-				
+			throw new RuntimeException(e);
 		}
 	}
 	
-	private void GenerateAlbaran(DTODeposito deposito, Historico historico) throws Exception {
+	private void GenerateAlbaran(DTODeposito deposito, Historico historico, DepositoModalidad modalidad) throws Exception {
 		
 		Contador contador = Factory.build(Contador.class, _appConfig);
 		contador.getContadores();
@@ -845,7 +841,7 @@ public class Reports extends Fragment {
 
 		IPdfDocumentGenerator pdf = new PdfDTOCreator(deposito, _appConfig);
 		try {
-			pdf.createAlbaran(historico.GUID, !historico.ActualizarStock);
+			pdf.createAlbaran(historico.GUID, DepositManagerExtension.DataTier.isTransferPayment(deposito.PagoDescripcion), modalidad);
 		} catch (Exception e) {
 			DepositManagerExtension.Incidencias.createErrorPdfDocument(_appConfig, deposito.getDeposito(), e);
 		}
@@ -853,9 +849,7 @@ public class Reports extends Fragment {
 		try {
 			this.sendData();	
 		} catch (Exception e) {
-			_appConfig.getMessageBox().Show("Atención",
-					_appConfig.getStackTrace(e),
-					getActivity(), MessageBoxType.Error);		
+			throw new RuntimeException(e);
 		}
 		
 	}

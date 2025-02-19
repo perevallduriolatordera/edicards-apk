@@ -44,9 +44,15 @@ public class HtmlCustomerNotification implements ICustomerNotification<Deposito>
     }
 
     private static String replaceData(Deposito deposito, String content) {
-        content = content.replace("{{NombreCliente}}", deposito.Cliente.Razon);
-        content = content.replace("{{idAlbaran}}", deposito.NumeroAlbaran);
-        content = content.replace("{{formaPago}}", deposito.PagoDescripcion);
+
+        try {
+            content = content.replace("{{NombreCliente}}", deposito.Cliente.Razon);
+            content = content.replace("{{idAlbaran}}", deposito.NumeroAlbaran);
+            content = content.replace("{{formaPago}}", deposito.PagoDescripcion);
+        } catch (Exception e) {
+            return null;
+        }
+
 
         return content;
     }

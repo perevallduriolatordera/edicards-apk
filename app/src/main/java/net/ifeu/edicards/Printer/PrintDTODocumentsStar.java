@@ -70,7 +70,9 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 	      port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
 	}
 	
-	private void printTotals(StarIOPort port, Context context, AppConfig app, int tipo, DTODeposito deposito, boolean isTransferPayment) throws StarIOPortException
+	private void printTotals(StarIOPort port, Context context, AppConfig app, int tipo,
+							 DTODeposito deposito, boolean isTransferPayment,
+							 DepositoModalidad modalidad) throws StarIOPortException
 	{
 		
 		DecimalFormat df = new DecimalFormat("0.00");
@@ -256,7 +258,7 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 
 			}
 
-			if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN &&  app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
+			if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN &&  modalidad == DepositoModalidad.Edicards) {
 
 				port.writePort(new byte[]{0x1b, 0x45, 0x01}, 0, 3);
 				outputByteBuffer = ("MERCANCIA PENDIENTE DE ENVIO" + "\n").getBytes();
@@ -370,7 +372,7 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 	}
 	
 	public ResultResponse printAlbaran(DTODeposito deposito, Context context, AppConfig app,
-									   String guid, boolean isTransferPayment)
+									   String guid, boolean isTransferPayment, DepositoModalidad modalidad)
 	{
 		_GUID = guid;
 		StarIOPort port = null;
@@ -405,7 +407,8 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 	        
 	        printHeaderFields(port, ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
 	        printHeaderDetail(port, ConstantsTypes.TIPO_DOCUMENTO_ALBARAN, deposito);
-	        printTotals(port,context,app, ConstantsTypes.TIPO_DOCUMENTO_ALBARAN, deposito, isTransferPayment);
+	        printTotals(port,context,app, ConstantsTypes.TIPO_DOCUMENTO_ALBARAN,
+					deposito, isTransferPayment, modalidad);
 			
 			port.writePort(new byte[]{0x1b, 0x45, 0x00}, 0, 3);                 //Set Emphasized Printing OFF (same command as on)
 			closePage(port);
@@ -428,7 +431,7 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 		return new ResultResponse(true, ConstantsTypes.EMPTY_STRING);
 	}
 	
-	public boolean printDeposito(DTODeposito deposito, Context context, AppConfig app, String guid)
+	public boolean printDeposito(DTODeposito deposito, Context context, AppConfig app, String guid, DepositoModalidad modalidad)
 	{
 		
 		_GUID = guid;
@@ -455,7 +458,7 @@ public class PrintDTODocumentsStar extends PrintDocumentsStar implements IPrintD
 	        port.writePort(new byte[]{0x1b, 0x45, 0x01}, 0, 3);                 //Set Emphasized Printing ON
 	        printHeaderFields(port, ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
 	        printHeaderDetail(port, ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO, deposito);
-	        printTotals(port,context,app, ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO, deposito, false);
+	        printTotals(port,context,app, ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO, deposito, false, modalidad);
 			
 			outputByteBuffer = ("\nOPERACION ASEGURADA EN CREDITO Y CAUCION\n\n").getBytes();
 			port.writePort(outputByteBuffer, 0, outputByteBuffer.length);

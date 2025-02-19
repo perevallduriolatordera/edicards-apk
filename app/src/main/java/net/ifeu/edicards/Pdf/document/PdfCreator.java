@@ -91,7 +91,7 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 	}
 
 
-	private void printTotals(int tipo, boolean isTransferPayment) throws DocumentException {
+	private void printTotals(int tipo, boolean isTransferPayment, DepositoModalidad modalidad) throws DocumentException {
 		DecimalFormat df = new DecimalFormat("0.00");
 
 		if (tipo == ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO) {
@@ -280,7 +280,7 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 			}
 		}
 
-		if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN &&  this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
+		if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN &&  modalidad == DepositoModalidad.Edicards) {
 			String pendienteEnvioText = "MERCANCIA PENDIENTE DE ENVIO"
 					+ "\n";
 
@@ -432,7 +432,7 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
         }
     }
 
-	public void createAlbaran(String guid, boolean isTransferPayment)
+	public void createAlbaran(String guid, boolean isTransferPayment, DepositoModalidad modalidad)
 	{
 		try {
 
@@ -440,7 +440,7 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 			_GUID = guid;
 
 			_document = new Document();
-			String tipoEnvio = this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "E" : "F";
+			String tipoEnvio = modalidad == DepositoModalidad.Edicards ? "E" : "F";
 
 			_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
 					+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_PDF + "/"
@@ -478,7 +478,7 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 			this.printHeaderData(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
 			printHeaderFields(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
 			printHeaderDetail(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
-			printTotals(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN, isTransferPayment);
+			printTotals(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN, isTransferPayment, modalidad);
 			closePage();
 
 		} catch (Exception e) {
@@ -495,14 +495,14 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 		}
 	}
 
-	public void createDeposito(String guid)
+	public void createDeposito(String guid, DepositoModalidad modalidad)
 	{
 
 		try {
 			_GUID = guid;
 
 			_document = new Document();
-			String tipoEnvio = this._app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards ? "E" : "F";
+			String tipoEnvio = modalidad == DepositoModalidad.Edicards ? "E" : "F";
 
 			_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
 					+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_PDF + "/"
@@ -527,7 +527,7 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 			this.printHeaderData(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
 			printHeaderFields(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
 			printHeaderDetail(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
-			printTotals(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO, false);
+			printTotals(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO, false, modalidad);
 
 			String firmaCliente = "Conforme - Firma Cliente:\n";
 			_document.add(new Paragraph(firmaCliente, _fontNormal));

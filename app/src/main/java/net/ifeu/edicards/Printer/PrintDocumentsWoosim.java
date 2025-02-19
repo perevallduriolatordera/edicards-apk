@@ -173,7 +173,7 @@ public class PrintDocumentsWoosim implements IPrint {
 	}
 
 	private void printTotals(Context context, AppConfig app, int tipo,
-			Deposito deposito, boolean isTransferPayment) throws Exception {
+			Deposito deposito, boolean isTransferPayment, DepositoModalidad modalidad) throws Exception {
 
 		DecimalFormat df = new DecimalFormat("0.00");
 
@@ -401,7 +401,7 @@ public class PrintDocumentsWoosim implements IPrint {
 
 			}
 
-			if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN &&  app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
+			if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN && modalidad == DepositoModalidad.Edicards) {
 				_woosim.saveSpool (LANGUAGE, "MERCANCIA PENDIENTE DE ENVIO" + "\n", 0, true);
 				this.Print();
 			}
@@ -536,7 +536,7 @@ public class PrintDocumentsWoosim implements IPrint {
 	}
 
 	public boolean printAlbaran(Deposito deposito, Context context,
-			AppConfig app, String guid, boolean istransferPayment) {
+			AppConfig app, String guid, boolean istransferPayment, DepositoModalidad modalidad) {
 
 		_GUID = guid;
 
@@ -576,7 +576,7 @@ public class PrintDocumentsWoosim implements IPrint {
 			this.printHeaderData(deposito, app, ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
 			printHeaderFields(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
 			printHeaderDetail(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN, deposito);
-			printTotals(context, app, ConstantsTypes.TIPO_DOCUMENTO_ALBARAN, deposito, istransferPayment);
+			printTotals(context, app, ConstantsTypes.TIPO_DOCUMENTO_ALBARAN, deposito, istransferPayment, modalidad);
 
 			closePage();
 
@@ -591,7 +591,7 @@ public class PrintDocumentsWoosim implements IPrint {
 	}
 
 	public boolean printDeposito(Deposito deposito, Context context,
-			AppConfig app, String guid) {
+			AppConfig app, String guid, DepositoModalidad modalidad) {
 
 		_GUID = guid;
 
@@ -606,7 +606,7 @@ public class PrintDocumentsWoosim implements IPrint {
 			printHeaderFields(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
 			printHeaderDetail(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO, deposito);
 
-			printTotals(context, app, ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO, deposito, false);
+			printTotals(context, app, ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO, deposito, false, modalidad);
 
 			_woosim.saveSpool(LANGUAGE,
 					"\nOPERACION ASEGURADA EN CREDITO Y CAUCION\n\n", 0, false);

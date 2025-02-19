@@ -74,7 +74,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 	}
 
 	private void printTotals(Context context, AppConfig app, int tipo,
-			DTODeposito deposito, boolean isTransferPayment) throws IOException {
+			DTODeposito deposito, boolean isTransferPayment, DepositoModalidad modalidad) throws IOException {
 
 		DecimalFormat df = new DecimalFormat("0.00");
 
@@ -298,7 +298,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 
 			}
 
-			if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN &&  app.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
+			if (tipo == ConstantsTypes.TIPO_DOCUMENTO_ALBARAN &&  modalidad == DepositoModalidad.Edicards) {
 				_woosim.saveSpool (LANGUAGE, "MERCANCIA PENDIENTE DE ENVIO" + "\n", 0, true);
 				this.Print();
 			}
@@ -413,7 +413,8 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 	}
 
 	public ResultResponse printAlbaran(DTODeposito deposito, Context context,
-									   AppConfig app, String guid, boolean isTransferPayment) {
+									   AppConfig app, String guid, boolean isTransferPayment,
+									   DepositoModalidad modalidad) {
 
 		_GUID = guid;
 
@@ -453,7 +454,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 			this.printHeaderData(deposito, app, ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
 			printHeaderFields(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN);
 			printHeaderDetail(ConstantsTypes.TIPO_DOCUMENTO_ALBARAN, deposito);
-			printTotals(context, app, ConstantsTypes.TIPO_DOCUMENTO_ALBARAN, deposito, isTransferPayment);
+			printTotals(context, app, ConstantsTypes.TIPO_DOCUMENTO_ALBARAN, deposito, isTransferPayment, modalidad);
 			closePage();
 
 		} catch (Exception e) {
@@ -467,7 +468,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 	}
 
 	public boolean printDeposito(DTODeposito deposito, Context context,
-			AppConfig app, String guid) {
+			AppConfig app, String guid, DepositoModalidad modalidad) {
 
 		_GUID = guid;
 
@@ -483,7 +484,7 @@ public class PrintDTODocumentsWoosim extends PrintDocumentsWoosim implements
 			this.printHeaderData(deposito, app, ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
 			printHeaderFields(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO);
 			printHeaderDetail(ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO, deposito);
-			printTotals(context, app, ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO, deposito, false);
+			printTotals(context, app, ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO, deposito, false, modalidad);
 
 			_woosim.saveSpool(LANGUAGE,
 					"\nOPERACION ASEGURADA EN CREDITO Y CAUCION\n\n", 0, false);

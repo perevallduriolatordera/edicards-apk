@@ -42,6 +42,8 @@ import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.ComboBox;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
+import net.ifeu.library.Utils.MessageBox.AdvancedMessageBox;
+import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 import net.ifeu.library.Utils.Number.NumberDecimal;
 
 import org.apache.commons.lang3.StringUtils;
@@ -302,7 +304,7 @@ public class DepositManagerExtension {
 	// ********************************** DOCUMENTS ***********************************
 	
 	static class Documents {
-		public static void GeneratePdf(String GUID, Deposito deposito, AppConfig config) throws IOException, DocumentException {
+		public static void GeneratePdf(String GUID, Deposito deposito, DepositoModalidad modalidad, AppConfig config) throws IOException, DocumentException {
 			// Generamos los archivos pdf
 	
 			IPdfDocumentGenerator pdf = new PdfCreator(deposito, config);
@@ -310,7 +312,7 @@ public class DepositManagerExtension {
 	
 			if (deposito.isDeposito()) { // && _deposito.isDepositoUpdated())
 				try {
-					pdf.createDeposito(GUID);
+					pdf.createDeposito(GUID, modalidad);
 				} catch (Exception e) {
 					Incidencias.createErrorPdfDocument(config, deposito, e);
 				}
@@ -319,14 +321,14 @@ public class DepositManagerExtension {
 			if (!TextUtils.isEmpty(deposito.NumeroAlbaran)) {
 
 				try {
-					pdf.createAlbaran(GUID, DataTier.isTransferPayment(deposito.FormaPago));
+					pdf.createAlbaran(GUID, DataTier.isTransferPayment(deposito.FormaPago), modalidad);
 				} catch (Exception e) {
 					Incidencias.createErrorPdfDocument(config, deposito, e);
 				}
 
-				if (config.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Edicards) {
+				if (modalidad == DepositoModalidad.Edicards) {
 					try {
-						pdfAlmacen.createAlbaran(GUID, DataTier.isTransferPayment(deposito.FormaPago));
+						pdfAlmacen.createAlbaran(GUID, DataTier.isTransferPayment(deposito.FormaPago), modalidad);
 					} catch (Exception e) {
 						Incidencias.createErrorPdfDocument(config, deposito, e);
 					}
@@ -795,6 +797,15 @@ public class DepositManagerExtension {
 			int hSpec = View.MeasureSpec.makeMeasureSpec(displayMetrics.heightPixels, View.MeasureSpec.AT_MOST);
 			textView.measure(wSpec, hSpec);
 			return Math.max(textView.getMeasuredWidth(), textView.getMeasuredHeight());
+		}
+
+		public static DepositoModalidad showModalityMessage(AppConfig appConfig, Activity activity) {
+			AdvancedMessageBox messageBox = new AdvancedMessageBox();
+			boolean resultDepositoModalidad = messageBox.Show("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", appConfig, MessageBoxType.Information);
+			DepositoModalidad modalidad = resultDepositoModalidad ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
+			TextView labelTipoEntrega = activity.findViewById(R.id.lblTipoEntrega);
+			labelTipoEntrega.setText(modalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
+			return modalidad;
 		}
 
 	}

@@ -375,7 +375,7 @@ public class Historico extends Persistent implements IPersistable {
 				&& (dateValueFormatted.compareTo(date2Formatted) < 0 || dateValueFormatted.compareTo(date2Formatted) == 0);
 	}
 
-	public void saveChangesToHistorico(Deposito deposito) {
+	public void saveChangesToHistorico(Deposito deposito, DepositoModalidad modalidad) {
 		this.Cliente = deposito.Cliente;
 		this.NombrePresentacion = deposito.Nombre;
 		this.PoblacionPresentacion = deposito.Poblacion;
@@ -402,7 +402,7 @@ public class Historico extends Persistent implements IPersistable {
 		else if (deposito.Retirado)
 			this.Tipo = ConstantsTypes.TIPO_HISTORICO_CLIENTE_BAJA;
 
-		this.ActualizarStock = appConfig.getWorkingArea().CurrentDepositoModalidad != DepositoModalidad.Edicards;
+		this.ActualizarStock = modalidad == DepositoModalidad.Furgoneta;
 
 		// Serializamos el objeto deposito a JSON
 		try {
@@ -486,6 +486,10 @@ public class Historico extends Persistent implements IPersistable {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	public DepositoModalidad getModalidad() {
+		return this.ActualizarStock ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
 	}
 				
 }

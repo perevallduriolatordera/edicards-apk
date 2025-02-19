@@ -23,7 +23,7 @@ public class WorkingArea {
 	public boolean UpgradeDataPost;
 	public TransferMode TransferMode;
 	public ServiceMonitor Monitor;
-	public DepositoModalidad CurrentDepositoModalidad;
+
 	public IngresoDiario CurrentIngresoDiario;
 	public boolean IsIngresoDiarioVoluntario;
 

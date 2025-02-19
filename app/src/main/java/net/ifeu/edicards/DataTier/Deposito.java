@@ -1020,7 +1020,7 @@ public class Deposito extends Cliente implements IPersistable {
 
 	}
 
-	public void saveChangesToDeposito() {
+	public void saveChangesToDeposito(DepositoModalidad modalidad) {
 		this.FechaDeposito = new Date();
 
 		if (this.IdDeposito == null) {
@@ -1052,7 +1052,7 @@ public class Deposito extends Cliente implements IPersistable {
 						throw new RuntimeException(e);
 					}
 
-					if (appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Furgoneta) {
+					if (modalidad == DepositoModalidad.Furgoneta) {
 						linea.Articulo.Activo = true;
 
 						if (linea.IsVentaDirecta) {
@@ -1107,7 +1107,7 @@ public class Deposito extends Cliente implements IPersistable {
 					}
 				} else {
 
-					if (appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Furgoneta) {
+					if (modalidad == DepositoModalidad.Furgoneta) {
 
 						linea.Articulo.Activo = true;
 
@@ -1175,7 +1175,7 @@ public class Deposito extends Cliente implements IPersistable {
 					}
 				}
 
-				if (linea.UnidadesAbono > 0 && appConfig.getWorkingArea().CurrentDepositoModalidad == DepositoModalidad.Furgoneta) {
+				if (linea.UnidadesAbono > 0 && modalidad == DepositoModalidad.Furgoneta) {
 					linea.Articulo.Activo = true;
 
 					int stockInicial = linea.Articulo.Stock;
