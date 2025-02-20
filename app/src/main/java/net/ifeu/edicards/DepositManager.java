@@ -1944,15 +1944,17 @@ public class DepositManager extends Fragment implements  IMediator {
 	@Override
 	public void notify(String event, Object payload) {
 
-		final Activity that = this.getActivity();
-
 		switch (event) {
 			case "EventCustomerSelected": {
 				try {
 					_appConfig.getWorkingArea().CurrentCliente = (Cliente) payload;
 					this.CreateDepositView( null);
 
-					_modalidad = DepositManagerExtension.UI.showModalityMessage(_appConfig, that);
+					this._dialogDepositoModalidad = new AdvancedMessageBox();
+					boolean resultDepositoModalidad = _dialogDepositoModalidad.Show("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", DepositManager.this.getContext(), MessageBoxType.Information);
+					_modalidad = resultDepositoModalidad ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
+					TextView labelTipoEntrega = getActivity().findViewById(R.id.lblTipoEntrega);
+					labelTipoEntrega.setText(_modalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
 
 				} catch (Exception e) {
 					throw new RuntimeException(e);
@@ -1965,7 +1967,13 @@ public class DepositManager extends Fragment implements  IMediator {
 				try {
 					_appConfig.getWorkingArea().CurrentCliente = (Cliente) payload;
 					this.CreateDepositView(null);
-					_modalidad = DepositManagerExtension.UI.showModalityMessage(_appConfig, this.getActivity());
+
+					this._dialogDepositoModalidad = new AdvancedMessageBox();
+					boolean resultDepositoModalidad = _dialogDepositoModalidad.Show("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", DepositManager.this.getContext(), MessageBoxType.Information);
+					_modalidad = resultDepositoModalidad ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
+					TextView labelTipoEntrega = getActivity().findViewById(R.id.lblTipoEntrega);
+					labelTipoEntrega.setText(_modalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
+
 				} catch (Exception e) {
 					throw new RuntimeException(e);
 				}
@@ -2024,7 +2032,12 @@ public class DepositManager extends Fragment implements  IMediator {
 					throw new RuntimeException(e);
 				}
 
-				_modalidad = DepositManagerExtension.UI.showModalityMessage(_appConfig, this.getActivity());
+				this._dialogDepositoModalidad = new AdvancedMessageBox();
+				boolean resultDepositoModalidad = _dialogDepositoModalidad.Show("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", DepositManager.this.getContext(), MessageBoxType.Information);
+				_modalidad = resultDepositoModalidad ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
+				TextView labelTipoEntrega = getActivity().findViewById(R.id.lblTipoEntrega);
+				labelTipoEntrega.setText(_modalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
+
 				try {
 					this.refreshTotals();
 				} catch (Exception e) {

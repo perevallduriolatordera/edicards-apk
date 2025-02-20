@@ -42,6 +42,7 @@ import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.ComboBox;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
+import net.ifeu.library.Utils.DateTime.DateTimeUtils;
 import net.ifeu.library.Utils.MessageBox.AdvancedMessageBox;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 import net.ifeu.library.Utils.Number.NumberDecimal;
@@ -213,7 +214,7 @@ public class DepositManagerExtension {
 					double totalCantidad = 0;
 
 					for (IngresoDiario id : ingresosDiariosToday) {
-						if (id.Fecha.equals(new Date())) return false;
+						if (DateTimeUtils.isDateEquals(id.Fecha, new Date())) return false;
 						totalCantidad += id.Cantidad;
 					}
 
@@ -801,15 +802,6 @@ public class DepositManagerExtension {
 			int hSpec = View.MeasureSpec.makeMeasureSpec(displayMetrics.heightPixels, View.MeasureSpec.AT_MOST);
 			textView.measure(wSpec, hSpec);
 			return Math.max(textView.getMeasuredWidth(), textView.getMeasuredHeight());
-		}
-
-		public static DepositoModalidad showModalityMessage(AppConfig appConfig, Activity activity) {
-			AdvancedMessageBox messageBox = new AdvancedMessageBox();
-			boolean resultDepositoModalidad = messageBox.Show("Gestión de Depósito", "Qué tipo de albarán Deseas ?", "Entregar mercancía físicamente", "Enviar desde Edicards", appConfig, MessageBoxType.Information);
-			DepositoModalidad modalidad = resultDepositoModalidad ? DepositoModalidad.Furgoneta : DepositoModalidad.Edicards;
-			TextView labelTipoEntrega = activity.findViewById(R.id.lblTipoEntrega);
-			labelTipoEntrega.setText(modalidad == DepositoModalidad.Edicards ? "Enviar desde Edicards" : "Entregar mercancia físicamente");
-			return modalidad;
 		}
 
 	}

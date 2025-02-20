@@ -51,7 +51,7 @@
                 android:layout_weight="1"
                 android:layout_marginLeft="25px"
                 android:layout_marginRight="25px"
-                android:text="Ingresos Diarios del dia anterior"
+                android:text="Saldo en efectivo"
                 android:textColor="#FFFFFF"
                 android:textSize="@dimen/text_small" />
 

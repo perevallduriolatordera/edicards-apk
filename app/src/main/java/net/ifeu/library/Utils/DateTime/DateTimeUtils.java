@@ -1,5 +1,6 @@
 package net.ifeu.library.Utils.DateTime;
 
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -38,6 +39,19 @@ public class DateTimeUtils {
 
         calendar.add( Calendar.DAY_OF_YEAR, daysToSubstract);
         return calendar.getTime();
+
+    }
+
+    public static boolean isDateEquals(Date date1, Date date2) {
+
+        Calendar cal1 = Calendar.getInstance();
+        Calendar cal2 = Calendar.getInstance();
+        cal1.setTime(date1);
+        cal2.setTime(date2);
+
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                cal1.get(Calendar.MONTH) == cal2.get(Calendar.MONTH) &&
+                cal1.get(Calendar.DAY_OF_MONTH) == cal2.get(Calendar.DAY_OF_MONTH);
 
     }
 }
