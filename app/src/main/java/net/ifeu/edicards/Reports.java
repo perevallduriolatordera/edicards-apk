@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import android.app.ActionBar.LayoutParams;
 import android.app.ProgressDialog;
@@ -781,15 +782,28 @@ public class Reports extends Fragment {
 		
 		try {
 			Deposito deposito = Factory.build(Deposito.class, _appConfig);
-			deposito.setFirstDepositoByCliente(historico.Cliente.CodigoCliente);
-			
-			deposito.DeleteAllLines();
-			
+			List<Deposito> deps = deposito.getDepositosByCodigoCliente(historico.Cliente.CodigoCliente);
+
+			if (deps.size() > 1) {
+				_appConfig.getMessageBox().Show("Atención",
+						"Se ha encontrado mas de un depósito para este cliente: " + hist.NombrePresentacion,
+						getActivity(), MessageBoxType.Error);
+			}
+			else {
+				deposito = deps.stream().findFirst().get();
+				int records = deposito.DeleteAllLines();
+				if (records > 0) {
+					_appConfig.getMessageBox().Show("Atención",
+							"Se ha producido un error al intentar restaurar el depósito"
+							getActivity(), MessageBoxType.Error);
+				}
+			}
+
 			for (LineaHistorico historicoLinea : historico.Lineas.values()) {
 				
-				switch (historicoLinea.Tipo) {
+				switch (historicoLinea.Tipo) {F
 					case ConstantsTypes.TIPO_LINEA_HISTORICO_UNIDADES_INICIALES: {
-						
+
 						LineaDeposito linea = Factory.build(LineaDeposito.class, _appConfig);
 
 						linea.Articulo = historicoLinea.Articulo;

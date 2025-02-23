@@ -207,9 +207,7 @@ public class Reporting_Totales extends Activity {
     		ArrayList<IngresoDiario> list = ingresos.getListIngresosOfThisWeek(new Date());
 
     		for (IngresoDiario ingreso : list) {
-
-    			if (ingreso.Cantidad != 0)
-    				IngresosTotales += ingreso.Ingresos;
+				IngresosTotales += ingreso.Ingresos;
     		}
 
     	} catch (Exception e) {
@@ -229,9 +227,7 @@ public class Reporting_Totales extends Activity {
 			ArrayList<IngresoDiario> list = ingresos.getListIngresosOfThisWeek(new Date());
 
 			for (IngresoDiario ingreso : list) {
-
-				if (ingreso.Cantidad != 0)
-					GastosTotales += ingreso.Gastos;
+				GastosTotales += ingreso.Gastos;
 			}
 
 		} catch (Exception e) {

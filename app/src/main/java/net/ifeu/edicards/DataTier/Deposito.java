@@ -796,13 +796,15 @@ public class Deposito extends Cliente implements IPersistable {
 			cursor.close();
 	}
 	
-	public void DeleteAllLines() throws Exception {
+	public int DeleteAllLines() throws Exception {
 		Cursor cursor = super.getDatabaseOperations().executeSentence(
 				"DELETE FROM " + ConstantsDatabase.TABLE_LINEAS_DEPOSITO + " WHERE IdDeposito = "
 						+ this.IdDeposito);
 		
 		if (cursor != null)
 			cursor.close();
+
+		return super.getDatabaseOperations().getRecordsCount(ConstantsDatabase.TABLE_LINEAS_DEPOSITO);
 
 	}
 
@@ -1151,7 +1153,7 @@ public class Deposito extends Cliente implements IPersistable {
 							int stockInicial = linea.Articulo.Stock;
 							linea.calculateStock();
 
-							if (stockInicial != linea.Articulo.Stock) {
+							if (linea.UnidadesInicialesFijas > 0) {
 
 								logBookTrace.setData("RETIRADA DE ARTÍCULO", this.Cliente.CodigoCliente,
 										this.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
