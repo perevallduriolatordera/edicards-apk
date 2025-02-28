@@ -38,10 +38,17 @@ public class LogBookExceptions extends Persistent implements IPersistable, ITrac
     }
 
     private static String getStackTraceAsString(Exception e) {
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        e.printStackTrace(pw);
-        return sw.toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append(e.getClass().getName()).append(": ").append(e.getMessage()).append("\n");
+
+        StackTraceElement[] stackTrace = e.getStackTrace();
+        int limit = Math.min(stackTrace.length, 10); // Máximo 3 líneas del stack
+
+        for (int i = 0; i < limit; i++) {
+            sb.append("    at ").append(stackTrace[i]).append("\n");
+        }
+
+        return sb.toString();
     }
 
     public void setData(String message)

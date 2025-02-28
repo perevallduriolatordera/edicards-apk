@@ -38,8 +38,8 @@ public class LogBookExceptionsCreator implements ILogCreator {
 
         Date today = new Date();
 
-        LogBookStock logBook = Factory.build(LogBookExceptions.class, _app);
-        ArrayList<LogBookStock> trace = logBook.getLogBookLastPeriod(today);
+        LogBookExceptions logBook = Factory.build(LogBookExceptions.class, _app);
+        ArrayList<LogBookExceptions> trace = logBook.getLogBookLastPeriod(today);
 
         if (this.createExcel(trace)) {
             logBook.purge(today);
@@ -52,7 +52,7 @@ public class LogBookExceptionsCreator implements ILogCreator {
         }
     }
 
-    private boolean createExcel(ArrayList<LogBookStock> list) {
+    private boolean createExcel(ArrayList<LogBookExceptions> list) {
 
         if (list.size() == 0) return false;
 
@@ -67,7 +67,7 @@ public class LogBookExceptionsCreator implements ILogCreator {
 
             this.createHeader(workbook, row);
 
-            for (LogBookStock logBook : list) {
+            for (LogBookExceptions logBook : list) {
                 row = sheet.createRow(++rowCount);
                 this.createRow(row, logBook);
             }
