@@ -19,7 +19,9 @@ import net.ifeu.edicards.Constants.ConstantsEvents;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.DataTier.Factories.Factory;
+import net.ifeu.edicards.Excel.ILogCreator;
 import net.ifeu.edicards.Excel.LogBookCreator;
+import net.ifeu.edicards.Excel.LogBookExceptionsCreator;
 import net.ifeu.edicards.Services.ParserMonitor;
 import net.ifeu.edicards.Services.ServiceMonitor;
 import net.ifeu.edicards.Services.ServiceWorker;
@@ -277,6 +279,16 @@ public class MonitorView extends Fragment {
 
 		layout.addView(layout2);
 
+		layout2 = new LinearLayout(this.getActivity());
+		layout2.removeAllViews();
+		layout2.setOrientation(LinearLayout.HORIZONTAL);
+
+		layout2.addView(this.createLabel("ficheros pendientes de enviar", ServiceWorker.getFilesFromDirectories().stream().reduce((total, item)-> total.concat(item + "\n")).orElse(""), false));
+
+		layout2 = new LinearLayout(this.getActivity());
+		layout2.removeAllViews();
+		layout2.setOrientation(LinearLayout.HORIZONTAL);
+
 		layout.addView(fillPerformanceSummaryMonitor());
 
 		mainLinearLayout.addView(layout);
@@ -383,6 +395,28 @@ public class MonitorView extends Fragment {
 		});
 
 		layout.addView(restoreBackup);
+
+		ButtonColor logBookExceptionsReport = new ButtonColor(getActivity(), Color.RED);
+
+		logBookExceptionsReport.setText("Enviar Errores a soporte");
+		logBookExceptionsReport.setTextSize(TEXT_SIZE_BUTTON);
+		params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+		params.setMargins(0, 0, BUTTON_MARGIN, 0);
+		logBookExceptionsReport.setLayoutParams(params);
+
+		logBookExceptionsReport.setOnClickListener(view -> {
+
+			that.showWaiting("Generando reporte de errores para soporte");
+			ILogCreator logBookCreator = new LogBookExceptionsCreator(_appConfig);
+			try {
+				logBookCreator.createExcel30Days();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+			that.executeSync("Enviar trazabilidad de errores a soporte");
+		});
+
+		layout.addView(logBookExceptionsReport);
 
 		// * * * * Comentem a peticiói del Fernando * * * *
 		/*ButtonColor voluntaryContribution = new ButtonColor(getActivity(), Color.RED);

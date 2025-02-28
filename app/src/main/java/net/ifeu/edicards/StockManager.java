@@ -11,12 +11,10 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,20 +26,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.ConstantsEvents;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.Factories.Factory;
-import net.ifeu.edicards.DataTier.LineaDeposito;
-import net.ifeu.edicards.DataTier.MovimientosAlmacen;
 import net.ifeu.edicards.Pdf.inventory.PdfInventoryRecycled;
 import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Controls.ButtonColor;
-import net.ifeu.library.Controls.LabelColor;
-import net.ifeu.library.Controls.TextBoxColor;
-import net.ifeu.library.LogBook.LogBook;
+import net.ifeu.library.LogBook.LogBookStock;
 import net.ifeu.library.Mediator.IMediator;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
@@ -151,7 +144,7 @@ public class StockManager extends Fragment implements IMediator {
 							EditText textBox = (EditText) view;
 
 							try {
-								LogBook logBookWriter = Factory.build(LogBook.class, _appConfig);
+								LogBookStock logBookWriter = Factory.build(LogBookStock.class, _appConfig);
 
 								if (deposito.getDepositosToday().size() > 0) {
 									_appConfig.getMessageBox().Show(
@@ -259,7 +252,7 @@ public class StockManager extends Fragment implements IMediator {
 		for (Articulo articulo : _articulos.values()) {
 			try {
 
-				LogBook logBookWriter = Factory.build(LogBook.class, _appConfig);
+				LogBookStock logBookWriter = Factory.build(LogBookStock.class, _appConfig);
 
 				if (!onlyReciclado) {
 					articulo.Stock = 0;

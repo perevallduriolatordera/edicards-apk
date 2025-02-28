@@ -9,7 +9,7 @@ import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Totales.Base;
-import net.ifeu.library.LogBook.LogBook;
+import net.ifeu.library.LogBook.LogBookStock;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -1041,7 +1041,7 @@ public class Deposito extends Cliente implements IPersistable {
 			}
 		}
 		// Solo restamos stock, en el caso de que el deposito sea de tipo Furgoneta
-		LogBook logBookTrace = Factory.build(LogBook.class, appConfig);
+		LogBookStock logBookTrace = Factory.build(LogBookStock.class, appConfig);
 
 		for (LineaDeposito linea : this.Lineas.values()) {
 

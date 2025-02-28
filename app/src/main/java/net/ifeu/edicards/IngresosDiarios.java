@@ -93,7 +93,7 @@ public class IngresosDiarios extends Activity {
 		EditText txtTotal = findViewById(R.id.txtTotalIngresar);
 		txtTotal.setEnabled(false);
 
-		final double ingresoReal = NumberDecimal.roundToNearestFive(_appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos);
+		final double ingresoReal = _appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos;
 		txtTotal.setText(String.valueOf(ingresoReal));
 
 		EditText txtGasto = findViewById(R.id.txtGastosDiarios);
@@ -121,7 +121,7 @@ public class IngresosDiarios extends Activity {
 
 		Double ingreso = Double.parseDouble(txtIngreso.getText().toString());
 		Double gasto = Double.parseDouble(txtGasto.getText().toString());
-		double total = ingreso - gasto;
+		double total = NumberDecimal.roundToNearestFive(ingreso - gasto);
 		txtTotal.setText(String.valueOf(total));
 		_appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = ingreso;
 		_appConfig.getWorkingArea().CurrentIngresoDiario.Gastos = gasto;

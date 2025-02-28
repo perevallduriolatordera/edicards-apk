@@ -224,8 +224,9 @@ public class DepositManagerExtension {
 
 					if (efectivo > 0) {
 						appConfig.getWorkingArea().CurrentIngresoDiario = Factory.build(IngresoDiario.class, appConfig);
-						appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = IngresoDiario.getDateOfLastMovement(appConfig);
-						appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = NumberDecimal.roundToNearestFive(efectivo);
+						appConfig.getWorkingArea().CurrentIngresoDiario.FechaRegistro = IngresoDiario.getDateOfLastMovement(appConfig);
+						appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = new Date();
+						appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = efectivo;
 						return true;
 					}
 
@@ -245,6 +246,7 @@ public class DepositManagerExtension {
 				if (result) {
 					appConfig.getWorkingArea().CurrentIngresoDiario = Factory.build(IngresoDiario.class, appConfig);
 					appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = new Date();
+					appConfig.getWorkingArea().CurrentIngresoDiario.FechaRegistro = new Date();
 					appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = calculateCantidadIngresos(appConfig);
 				}
 

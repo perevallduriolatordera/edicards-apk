@@ -31,13 +31,11 @@ import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
 import net.ifeu.library.IO.IOUtils;
-import net.ifeu.library.LogBook.LogBook;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 public class GastosManager extends Fragment {
 

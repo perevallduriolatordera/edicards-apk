@@ -1,6 +1,5 @@
 package net.ifeu.edicards;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -50,7 +49,7 @@ import net.ifeu.library.Controls.ComboBox;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
 import net.ifeu.library.IO.IOUtils;
-import net.ifeu.library.LogBook.LogBook;
+import net.ifeu.library.LogBook.LogBookStock;
 import net.ifeu.library.Mediator.IMediator;
 import net.ifeu.library.Utils.MessageBox.AdvancedMessageBox;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
@@ -979,7 +978,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				for (LineaDeposito linea : _deposito.Lineas.values()) {
 					
 					if (linea.UnidadesDevueltas > 0) {
-						LogBook logBookTrace = Factory.build(LogBook.class, _appConfig);
+						LogBookStock logBookTrace = Factory.build(LogBookStock.class, _appConfig);
 
 						int stockInicial = linea.Articulo.Stock;
 

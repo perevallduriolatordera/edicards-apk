@@ -21,7 +21,7 @@ public class ConstantsDatabase {
     public static final String TABLE_INGRESOS_DIARIOS = "IngresosDiarios";
     public static final String TABLE_GDPR = "GDPR";
     public static final String TABLE_LOGBOOK = "LogBook";
-
+    public static final String TABLE_LOGBOOK_EXCEPTIONS = "LogBookExceptions";
     public static final String INDEX_DEPOSITO_CODIGOCLIENTE = "idx_Deposito_CodigoCliente";
     public static final String INDEX_DEPOSITO_NUMDOC = "idx_Deposito_NumDoc";
     public static final String INDEX_DEPOSITO_IDCLIENTE = "idx_Deposito_IdCliente";

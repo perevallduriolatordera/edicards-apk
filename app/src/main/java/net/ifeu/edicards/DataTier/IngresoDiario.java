@@ -19,6 +19,7 @@ public class IngresoDiario extends Persistent implements IPersistable {
 
 	public long IdIngreso;
 	public Date Fecha;
+	public Date FechaRegistro;
 	public double Cantidad; 
 	public double Ingresos;
 	public double Gastos;
@@ -31,6 +32,7 @@ public class IngresoDiario extends Persistent implements IPersistable {
 		
 		ContentValues values = new ContentValues();
 		values.put("Fecha",formatter.format(this.Fecha));
+		values.put("FechaRegistro",formatter.format(this.FechaRegistro));
 		values.put("Ingresos", this.Ingresos);
 		values.put("Cantidad", this.Cantidad);
 		values.put("Gastos", this.Gastos);
@@ -53,6 +55,7 @@ public class IngresoDiario extends Persistent implements IPersistable {
 		ContentValues values = new ContentValues();
 
 		values.put("Fecha",formatter.format(this.Fecha));
+		values.put("FechaRegistro",formatter.format(this.FechaRegistro));
 		values.put("Ingresos", this.Ingresos);
 		values.put("Cantidad", this.Cantidad);
 		values.put("Gastos", this.Gastos);
@@ -77,7 +80,8 @@ public class IngresoDiario extends Persistent implements IPersistable {
 			SimpleDateFormat formatter;
 			formatter = new SimpleDateFormat("MM/dd/yyyy");
 			
-			this.Fecha = (Date) formatter.parse(cursor.getString(cursor.getColumnIndex("Fecha")));
+			this.Fecha = formatter.parse(cursor.getString(cursor.getColumnIndex("Fecha")));
+			this.FechaRegistro = formatter.parse(cursor.getString(cursor.getColumnIndex("FechaRegistro")));
 			this.Cantidad = Double.parseDouble(cursor.getString(cursor.getColumnIndex("Cantidad")));
 			this.Ingresos = Double.parseDouble(cursor.getString(cursor.getColumnIndex("Ingresos")));
 			this.Gastos = Double.parseDouble(cursor.getString(cursor.getColumnIndex("Gastos")));
@@ -149,7 +153,7 @@ public class IngresoDiario extends Persistent implements IPersistable {
 
 		Date firstDate = DateTimeUtils.getFirstDayOfCurrentWeek(today);
 
-		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + ConstantsDatabase.TABLE_INGRESOS_DIARIOS + " WHERE substr(Fecha,7)||substr(Fecha,1,2)||substr(Fecha,4,2) " +
+		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT * FROM " + ConstantsDatabase.TABLE_INGRESOS_DIARIOS + " WHERE substr(FechaRegistro,7)||substr(FechaRegistro,1,2)||substr(FechaRegistro,4,2) " +
 				"BETWEEN '" + formatter.format(firstDate) + "' AND '" + formatter.format(today) + "'");
 
 		ArrayList<IngresoDiario> list = new ArrayList<>();

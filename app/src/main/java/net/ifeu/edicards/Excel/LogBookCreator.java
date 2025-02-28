@@ -6,7 +6,7 @@ import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.library.Csv.CsvCreator;
-import net.ifeu.library.LogBook.LogBook;
+import net.ifeu.library.LogBook.LogBookStock;
 
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
@@ -25,8 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-
-public class LogBookCreator {
+public class LogBookCreator implements ILogCreator {
 
     private AppConfig _app;
 
@@ -38,8 +37,8 @@ public class LogBookCreator {
 
         Date today = new Date();
 
-        LogBook logBook = Factory.build(LogBook.class, _app);
-        ArrayList<LogBook> trace = logBook.getLogBookLastPeriod(today);
+        LogBookStock logBook = Factory.build(LogBookStock.class, _app);
+        ArrayList<LogBookStock> trace = logBook.getLogBookLastPeriod(today);
 
         if (this.createExcel(trace)) {
             logBook.purge(today);
@@ -52,7 +51,7 @@ public class LogBookCreator {
         }
     }
 
-    private boolean createExcel(ArrayList<LogBook> list) {
+    private boolean createExcel(ArrayList<LogBookStock> list) {
 
         if (list.size() == 0) return false;
 
@@ -67,7 +66,7 @@ public class LogBookCreator {
 
             this.createHeader(workbook, row);
 
-            for (LogBook logBook : list) {
+            for (LogBookStock logBook : list) {
                 row = sheet.createRow(++rowCount);
                 this.createRow(row, logBook);
             }
@@ -79,7 +78,7 @@ public class LogBookCreator {
         return  result;
     }
 
-    private boolean createCSV(ArrayList<LogBook> list) {
+    private boolean createCSV(ArrayList<LogBookStock> list) {
 
         if (list.size() == 0) return false;
 
@@ -93,7 +92,7 @@ public class LogBookCreator {
 
             CsvCreator csvCreator = new CsvCreator(csvFilePath, getCsvHeaders());
 
-            for (LogBook logBook : list) {
+            for (LogBookStock logBook : list) {
                 csvCreator.addLine(logBook.idLogBook, logBook.Fecha, logBook.CodigoCliente, logBook.NombreCliente,
                         logBook.CodigoArticulo, logBook.NombreArticulo, logBook.TipoMovimiento, logBook.UnidadesIniciales,
                         logBook.UnidadesRepuestas, logBook.UnidadesDevueltas, logBook.UnidadesFacturadas,
@@ -209,7 +208,7 @@ public class LogBookCreator {
 
     }
 
-    private void createRow(Row row, LogBook logBook) {
+    private void createRow(Row row, LogBookStock logBook) {
 
         int index = -1;
 

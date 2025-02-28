@@ -375,6 +375,7 @@ public class DatabaseOperations {
 			createGDPRTable();
 			createLogBookTable();
 			createIngresosDiariosTable();
+			createLogBookExceptionsTable();
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -432,6 +433,7 @@ public class DatabaseOperations {
 			dropTable(ConstantsDatabase.TABLE_GDPR);
 			dropTable(ConstantsDatabase.TABLE_LOGBOOK);
 			dropTable(ConstantsDatabase.TABLE_INGRESOS_DIARIOS);
+			dropTable(ConstantsDatabase.TABLE_LOGBOOK_EXCEPTIONS);
 			
 		}
 		catch (Exception e) {
@@ -1011,6 +1013,26 @@ public class DatabaseOperations {
 		}
 
 	}
+
+	private void createLogBookExceptionsTable() throws Exception
+	{
+		if (_databaseConnection.getDatabase().isOpen())
+		{
+			try {
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_LOGBOOK_EXCEPTIONS + " ( IdLogBook integer primary key autoincrement, "
+						+ "Fecha date default CURRENT_DATE,"
+						+ " Message text not null); ");
+			}
+			catch (Exception e) {
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_LOGBOOK + ". Motivo: " + e.getMessage());
+			}
+
+		}
+		else {
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_LOGBOOK + ". Motivo: La Base de datos no ha podido ser abierta.");
+		}
+
+	}
 	
 	private void alterStructure()  {
 		if (_databaseConnection.getDatabase().isOpen())
@@ -1040,6 +1062,14 @@ public class DatabaseOperations {
 			try {
 				_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_ARTICULOS + " ADD COLUMN EAN text  ");
 			} catch (Exception e) {
+				if (!e.getMessage().startsWith("duplicate column name"))
+					throw new RuntimeException(e);
+			}
+
+			try {
+				_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_INGRESOS_DIARIOS + " ADD COLUMN FechaRegistro date default null ");
+			}
+			catch (Exception e) {
 				if (!e.getMessage().startsWith("duplicate column name"))
 					throw new RuntimeException(e);
 			}

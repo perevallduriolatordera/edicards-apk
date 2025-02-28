@@ -24,6 +24,8 @@ import android.widget.RelativeLayout;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.DataTier.Cliente;
+import net.ifeu.edicards.DataTier.ClienteInfo;
 import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.DataTier.DTODeposito;
 import net.ifeu.edicards.DataTier.Deposito;
@@ -44,7 +46,7 @@ import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Errors.ResultResponse;
-import net.ifeu.library.LogBook.LogBook;
+import net.ifeu.library.LogBook.LogBookStock;
 import net.ifeu.library.Utils.Inactivate;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 import net.ifeu.library.Utils.Screen.ScreenManager;
@@ -697,7 +699,7 @@ public class Reports extends Fragment {
 			int lastStock = 0;
 			int lastStockDefectuoso = 0;
 
-			LogBook logBookWriter= Factory.build(LogBook.class, _appConfig);
+			LogBookStock logBookWriter= Factory.build(LogBookStock.class, _appConfig);
 
 			for (LineaHistorico linea : historico.Lineas.values()) {
 
@@ -786,22 +788,33 @@ public class Reports extends Fragment {
 
 			if (deps.size() > 1) {
 				_appConfig.getMessageBox().Show("Atención",
-						"Se ha encontrado mas de un depósito para este cliente: " + hist.NombrePresentacion,
+						"Se ha encontrado mas de un depósito para este cliente: " + historico.NombrePresentacion,
 						getActivity(), MessageBoxType.Error);
+
+				return;
 			}
-			else {
+			if (deps.size() == 0) {
+				Cliente cliente = Factory.build(Cliente.class, _appConfig);
+				cliente.setClienteByCodigo(historico.Cliente.CodigoCliente);
+				deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
+				deposito.assingFromCliente(cliente);
+				deposito.IsNtvDeposit = false;
+
+				deposito.save();
+			} else {
 				deposito = deps.stream().findFirst().get();
-				int records = deposito.DeleteAllLines();
-				if (records > 0) {
-					_appConfig.getMessageBox().Show("Atención",
-							"Se ha producido un error al intentar restaurar el depósito"
-							getActivity(), MessageBoxType.Error);
-				}
+			}
+
+			int records = deposito.DeleteAllLines();
+			if (records > 0) {
+				_appConfig.getMessageBox().Show("Atención",
+						"Se ha producido un error al intentar restaurar el depósito",
+						getActivity(), MessageBoxType.Error);
 			}
 
 			for (LineaHistorico historicoLinea : historico.Lineas.values()) {
 				
-				switch (historicoLinea.Tipo) {F
+				switch (historicoLinea.Tipo) {
 					case ConstantsTypes.TIPO_LINEA_HISTORICO_UNIDADES_INICIALES: {
 
 						LineaDeposito linea = Factory.build(LineaDeposito.class, _appConfig);
@@ -818,9 +831,8 @@ public class Reports extends Fragment {
 						
 						linea.Descuento1 = 0;
 						linea.Descuento2 = 0;
-							
-						if (linea.UnidadesIniciales > 0)
-							linea.save();
+
+						linea.save();
 						
 						break;
 					}

@@ -3,7 +3,7 @@
     package="net.ifeu.edicards"
     android:versionCode="5"
     android:exported="true"
-    android:versionName="5.3.0 (20 Febrero 2025) --> Control de pagos" >
+    android:versionName="5.3.2 (24 Febrero 2025) --> Control de pagos" >
 
     <!--<uses-sdk
         android:minSdkVersion="16"

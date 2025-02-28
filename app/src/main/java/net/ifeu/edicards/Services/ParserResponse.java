@@ -22,7 +22,7 @@ import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.Pactos;
 import net.ifeu.edicards.DataTier.Tarifa;
 import net.ifeu.edicards.DataTier.TipoIVA;
-import net.ifeu.library.LogBook.LogBook;
+import net.ifeu.library.LogBook.LogBookStock;
 
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.DOMException;
@@ -32,7 +32,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import android.annotation.SuppressLint;
-import android.content.Context;
 
 
 @SuppressLint("ShowToast")
@@ -494,7 +493,7 @@ public class ParserResponse extends ParserBase {
 
 					app.getTraspasoAlmacen().put(articulo.CodigoArticulo, stockDouble);
 
-					LogBook logBookTrace = Factory.build(LogBook.class, app);
+					LogBookStock logBookTrace = Factory.build(LogBookStock.class, app);
 					logBookTrace.setData("TRASPASO ALMACÉN", "","",
 							articulo.CodigoArticulo, articulo.Descripcion,
 							stockInicial, articulo.Stock, articulo.Entradas, 0,
@@ -536,7 +535,7 @@ public class ParserResponse extends ParserBase {
 
 					this.Monitor().ArticuloUpdateCounter++;
 
-					LogBook logBookTrace = Factory.build(LogBook.class, app);
+					LogBookStock logBookTrace = Factory.build(LogBookStock.class, app);
 					logBookTrace.setData("DESHACER TRASPASO ALMACÉN", "","",
 							articulo.CodigoArticulo, articulo.Descripcion,
 							stockInicial, articulo.Stock, 0, 0,

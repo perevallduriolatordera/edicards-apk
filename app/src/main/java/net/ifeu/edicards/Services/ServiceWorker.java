@@ -32,7 +32,8 @@ import net.ifeu.library.Firebase.ArticuloStockResponse;
 import net.ifeu.library.Firebase.FireStoreCaller;
 import net.ifeu.library.Ftp.FTPUploader;
 import net.ifeu.library.IO.IOUtils;
-import net.ifeu.library.LogBook.LogBook;
+import net.ifeu.library.LogBook.LogBookExceptions;
+import net.ifeu.library.LogBook.LogBookStock;
 import net.ifeu.library.Mail.Mail;
 import net.ifeu.library.Mail.EdicardsMailSender;
 
@@ -155,9 +156,9 @@ public class ServiceWorker extends ServiceBase {
 					EdicardsMailSender mailEnviosEdicards = new EdicardsMailSender(ConstantsMail.MAIL_ENVIOS_EDICARDS, title, ConstantsMail.MAIL_BODY, file);
 					try {
 						mailEnviosEdicards.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
-						Debugger.Debug(context, app.getUser().User,"Se ha enviado el albarán " + albaran + " al almacén de envios Edicards", file);
 					} catch (Exception e) {
-						this.sendMailToMantenimiento(context,  e, app.getUser().User, albaran);
+						LogBookExceptions.getInstance().setData(e);
+						LogBookExceptions.getInstance().save();
 						continue;
 					}
 				}
@@ -167,9 +168,9 @@ public class ServiceWorker extends ServiceBase {
 						EdicardsMailSender mailEnviosEdicards = new EdicardsMailSender(ConstantsMail.MAIL_ENVIOS_EDICARDS, title, ConstantsMail.MAIL_BODY, file);
 						try {
 							mailEnviosEdicards.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
-							Debugger.Debug(context, app.getUser().User,"Se ha enviado el albarán " + albaran  + " al almacén de envios Edicards", file);
 						} catch (Exception e) {
-							this.sendMailToMantenimiento(context, e, app.getUser().User, albaran);
+							LogBookExceptions.getInstance().setData(e);
+							LogBookExceptions.getInstance().save();
 							continue;
 						}
 					}
@@ -182,9 +183,9 @@ public class ServiceWorker extends ServiceBase {
 						mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 
 					IOUtils.deleteFile(file);
-					Debugger.Debug(context, app.getUser().User,"Se ha enviado el albarán " + albaran + " a la cuenta de gmail de Edicards", file);
 				} catch (Exception e) {
-					this.sendMailToMantenimiento(context, e, app.getUser().User, albaran);
+					LogBookExceptions.getInstance().setData(e);
+					LogBookExceptions.getInstance().save();
 					continue;
 				}
 				this.Monitor().PdfSend++;
@@ -217,6 +218,8 @@ public class ServiceWorker extends ServiceBase {
 					mail.send();
 					IOUtils.deleteFile(file);
 				} catch (Exception e) {
+					LogBookExceptions.getInstance().setData(e);
+					LogBookExceptions.getInstance().save();
 					continue;
 				}
 
@@ -247,6 +250,8 @@ public class ServiceWorker extends ServiceBase {
 				try {
 					mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 				} catch (Exception e) {
+					LogBookExceptions.getInstance().setData(e);
+					LogBookExceptions.getInstance().save();
 					continue;
 				}
 
@@ -275,6 +280,8 @@ public class ServiceWorker extends ServiceBase {
 					mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 					IOUtils.deleteFile(file);
 				} catch (Exception e) {
+					LogBookExceptions.getInstance().setData(e);
+					LogBookExceptions.getInstance().save();
 				}
 
 			} catch (Exception e) {
@@ -327,6 +334,8 @@ public class ServiceWorker extends ServiceBase {
 					mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 					IOUtils.deleteFile(file);
 				} catch (Exception e) {
+					LogBookExceptions.getInstance().setData(e);
+					LogBookExceptions.getInstance().save();
 					continue;
 				}
 
@@ -382,6 +391,8 @@ public class ServiceWorker extends ServiceBase {
 					IOUtils.deleteFile(file);
 					IOUtils.deleteFile(albaranFile);
 				} catch (Exception e) {
+					LogBookExceptions.getInstance().setData(e);
+					LogBookExceptions.getInstance().save();
 					continue;
 				}
 
@@ -418,8 +429,9 @@ public class ServiceWorker extends ServiceBase {
 				}                                                                                                                    
 
 			} catch (Exception e) {
-				continue;                                                              
-			}                                                                                                                        
+				LogBookExceptions.getInstance().setData(e);
+				LogBookExceptions.getInstance().save();
+            }
 
 		}                                                                                                                            
                                                                                                                                      
@@ -441,7 +453,9 @@ public class ServiceWorker extends ServiceBase {
 				http.CallWithoutResult(url + "?contingut=" + content, credentials);                                                  
 				IOUtils.deleteFile(file);
 				this.Monitor().GastosSend++;
-			} catch (Exception e) {                                                                                                  
+			} catch (Exception e) {
+				LogBookExceptions.getInstance().setData(e);
+				LogBookExceptions.getInstance().save();
 			}
 		}                                                                                                                            
 
@@ -474,6 +488,8 @@ public class ServiceWorker extends ServiceBase {
 							mail.send();
 							IOUtils.deleteFile(file);
 						} catch (Exception e) {
+							LogBookExceptions.getInstance().setData(e);
+							LogBookExceptions.getInstance().save();
 							continue;
 						}
 						this.Monitor().InventarioSend++;
@@ -499,6 +515,8 @@ public class ServiceWorker extends ServiceBase {
 						mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 						IOUtils.deleteFile(file);
 					} catch (Exception e) {
+						LogBookExceptions.getInstance().setData(e);
+						LogBookExceptions.getInstance().save();
 						continue;
 					}
 
@@ -535,6 +553,8 @@ public class ServiceWorker extends ServiceBase {
 				}
 
 			} catch (Exception e) {
+				LogBookExceptions.getInstance().setData(e);
+				LogBookExceptions.getInstance().save();
 			}
 
 		}
@@ -569,6 +589,8 @@ public class ServiceWorker extends ServiceBase {
 					this.Monitor().StockDiarioSend++;
 				}                                                                                                                    
 			} catch (Exception e) {
+				LogBookExceptions.getInstance().setData(e);
+				LogBookExceptions.getInstance().save();
 			}
 			                                                                                                                                                                                                                                                                                                                                                                                        
 		}                                                                                                                            
@@ -591,7 +613,9 @@ public class ServiceWorker extends ServiceBase {
 				IOUtils.deleteFile(file);
 				this.Monitor().AlbaranesSend++;
 				
-			} catch (Exception e) {                                                                                                  
+			} catch (Exception e) {
+				LogBookExceptions.getInstance().setData(e);
+				LogBookExceptions.getInstance().save();
 			}
                                                                                                                                      
 		}                                                                                                                            
@@ -612,7 +636,9 @@ public class ServiceWorker extends ServiceBase {
 				http.CallWithoutResult(url + "?contingut=" + content, credentials);                                                  
 				IOUtils.deleteFile(file);
 				this.Monitor().DepositosSend++;
-			} catch (Exception e) {                                                                                                  
+			} catch (Exception e) {
+				LogBookExceptions.getInstance().setData(e);
+				LogBookExceptions.getInstance().save();
 			}
 		}
 	}                                                                                                                                
@@ -917,7 +943,7 @@ public class ServiceWorker extends ServiceBase {
 		// Creamos excel de trazabilidad si es necesario
 
 		try {
-			LogBook logBook = Factory.build(LogBook.class, app);
+			LogBookStock logBook = Factory.build(LogBookStock.class, app);
 
 			if (!logBook.hasLogBookCurrentWeek()) {
 				LogBookCreator logBookCreator = new LogBookCreator(app);
@@ -1073,6 +1099,29 @@ public class ServiceWorker extends ServiceBase {
 		}
 
 		return true;
+	}
+
+	public static List<String> getFilesFromDirectories() {
+		String[] folders = {
+				ConstantsFolders.FOLDER_PDF,
+				ConstantsFolders.FOLDER_AUTORIZACIONES,
+				ConstantsFolders.FOLDER_GDPR,
+				ConstantsFolders.FOLDER_LOGBOOK,
+				ConstantsFolders.FOLDER_INCIDENCIAS,
+				ConstantsFolders.FOLDER_ENVIOS_CLIENTE,
+				ConstantsFolders.FOLDER_ALBARANES,
+				ConstantsFolders.FOLDER_DEPOSITOS
+		};
+
+		List<String> allFiles = new ArrayList<>();
+
+		for (String folder : folders) {
+			String directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/" + folder;
+			List<String> files = IOUtils.getFilesFromDirectory(directory);
+			allFiles.addAll(files);
+		}
+
+		return allFiles;
 	}
 }
                                                                                                                                      
