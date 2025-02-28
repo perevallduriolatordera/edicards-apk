@@ -48,4 +48,7 @@ public final class ConstantsTypes {
 	public static final int TIPO_DOCUMENTO_ALBARAN = 2;
 
 	public static final String AUTHORIZATION_HEADER_SERVICES = "Basic VGFibGV0OnRhYjIwMTJsZXQ=";
+
+	public static final String TRACE_TYPE_STOCK = "Stock";
+	public static final String TRACE_TYPE_EXCEPTION = "Exception";
 }

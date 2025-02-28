@@ -1021,6 +1021,7 @@ public class DatabaseOperations {
 			try {
 				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_LOGBOOK_EXCEPTIONS + " ( IdLogBook integer primary key autoincrement, "
 						+ "Fecha date default CURRENT_DATE,"
+						+ "Label text not null,"
 						+ " Message text not null); ");
 			}
 			catch (Exception e) {

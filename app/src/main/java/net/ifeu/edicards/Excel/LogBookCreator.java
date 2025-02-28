@@ -4,6 +4,7 @@ import android.os.Environment;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsFolders;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.library.Csv.CsvCreator;
 import net.ifeu.library.LogBook.LogBookStock;
@@ -88,7 +89,7 @@ public class LogBookCreator implements ILogCreator {
 
             SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyyHHmmss");
             String csvFilePath = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
-                    + ConstantsFolders.FOLDER_LOGBOOK + "/Stock_" + _app.getUser().User + "_" + formatter.format(new Date()) + ".csv";
+                    + ConstantsFolders.FOLDER_LOGBOOK + "/" + ConstantsTypes.TRACE_TYPE_STOCK + "_" + _app.getUser().User + "_" + formatter.format(new Date()) + ".csv";
 
             CsvCreator csvCreator = new CsvCreator(csvFilePath, getCsvHeaders());
 
@@ -260,7 +261,7 @@ public class LogBookCreator implements ILogCreator {
 
         SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyyyHHmmss");
         String excelFilePath = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
-                + ConstantsFolders.FOLDER_LOGBOOK + "/Stock_" + _app.getUser().User + "_" + formatter.format(new Date()) + ".xlsx";
+                + ConstantsFolders.FOLDER_LOGBOOK +"/" + ConstantsTypes.TRACE_TYPE_STOCK + "_" + _app.getUser().User + "_" + formatter.format(new Date()) + ".xlsx";
 
         try (FileOutputStream outputStream = new FileOutputStream(excelFilePath)) {
             workbook.write(outputStream);

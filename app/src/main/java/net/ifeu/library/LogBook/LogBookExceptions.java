@@ -23,6 +23,7 @@ import java.util.Date;
 public class LogBookExceptions extends Persistent implements IPersistable, ITraceable {
     public long idLogBook;
     public String Fecha;
+    public String Label;
     public String Message;
     private static LogBookExceptions instance;
 
@@ -51,13 +52,15 @@ public class LogBookExceptions extends Persistent implements IPersistable, ITrac
         return sb.toString();
     }
 
-    public void setData(String message)
+    public void setData(String label, String message)
     {
+        this.Label = label;
         this.Message = message;
     }
 
-    public void setData(Exception e)
+    public void setData(String label, Exception e)
     {
+        this.Label = label;
         this.Message = getStackTraceAsString(e);
     }
 
@@ -65,7 +68,8 @@ public class LogBookExceptions extends Persistent implements IPersistable, ITrac
     public void save() throws Exception {
 
         ContentValues values = new ContentValues();
-        values.put("message", this.Message);
+        values.put("Message", this.Message);
+        values.put("Label", this.Label);
         try {
             super.getDatabaseOperations().insert(ConstantsDatabase.TABLE_LOGBOOK_EXCEPTIONS, null , values);
         }
@@ -126,6 +130,7 @@ public class LogBookExceptions extends Persistent implements IPersistable, ITrac
                     logBook.idLogBook = Long.parseLong(cursor.getString(cursor.getColumnIndex("IdLogBook")));
                     logBook.Fecha = cursor.getString(cursor.getColumnIndex("Fecha"));
                     logBook.Message = cursor.getString(cursor.getColumnIndex("Message"));
+                    logBook.Label = cursor.getString(cursor.getColumnIndex("Label"));
 
                     list.add(logBook);
 
