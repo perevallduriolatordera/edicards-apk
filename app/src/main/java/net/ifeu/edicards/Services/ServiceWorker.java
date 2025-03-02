@@ -79,6 +79,7 @@ public class ServiceWorker extends ServiceBase {
 
 		AppConfig app;
 		app = (AppConfig) context;
+		LogBookExceptions logBookExceptions = Factory.build(LogBookExceptions.class, app);
 
 		// Asignamos las credenciales
 
@@ -159,8 +160,8 @@ public class ServiceWorker extends ServiceBase {
 					try {
 						mailEnviosEdicards.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 					} catch (Exception e) {
-						LogBookExceptions.getInstance().setData(file, e);
-						LogBookExceptions.getInstance().save();
+						logBookExceptions.setData(file, e);
+						logBookExceptions.save();
 						continue;
 					}
 				}
@@ -171,8 +172,8 @@ public class ServiceWorker extends ServiceBase {
 						try {
 							mailEnviosEdicards.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 						} catch (Exception e) {
-							LogBookExceptions.getInstance().setData(file, e);
-							LogBookExceptions.getInstance().save();
+							logBookExceptions.setData(file, e);
+							logBookExceptions.save();
 							continue;
 						}
 					}
@@ -186,8 +187,8 @@ public class ServiceWorker extends ServiceBase {
 
 					IOUtils.deleteFile(file);
 				} catch (Exception e) {
-					LogBookExceptions.getInstance().setData(file, e);
-					LogBookExceptions.getInstance().save();
+					logBookExceptions.setData(file, e);
+					logBookExceptions.save();
 					continue;
 				}
 				this.Monitor().PdfSend++;
@@ -220,8 +221,8 @@ public class ServiceWorker extends ServiceBase {
 					mail.send();
 					IOUtils.deleteFile(file);
 				} catch (Exception e) {
-					LogBookExceptions.getInstance().setData(file, e);
-					LogBookExceptions.getInstance().save();
+					logBookExceptions.setData(file, e);
+					logBookExceptions.save();
 					continue;
 				}
 
@@ -252,8 +253,8 @@ public class ServiceWorker extends ServiceBase {
 				try {
 					mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 				} catch (Exception e) {
-					LogBookExceptions.getInstance().setData(file, e);
-					LogBookExceptions.getInstance().save();
+					logBookExceptions.setData(file, e);
+					logBookExceptions.save();
 					continue;
 				}
 
@@ -283,8 +284,8 @@ public class ServiceWorker extends ServiceBase {
 						mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 						IOUtils.deleteFile(file);
 					} catch (Exception e) {
-						LogBookExceptions.getInstance().setData(file, e);
-						LogBookExceptions.getInstance().save();
+						logBookExceptions.setData(file, e);
+						logBookExceptions.save();
 					}
 				} else if (file.contains(ConstantsTypes.TRACE_TYPE_EXCEPTION)) {
 					SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -295,8 +296,8 @@ public class ServiceWorker extends ServiceBase {
 						mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 						IOUtils.deleteFile(file);
 					} catch (Exception e) {
-						LogBookExceptions.getInstance().setData(file, e);
-						LogBookExceptions.getInstance().save();
+						logBookExceptions.setData(file, e);
+						logBookExceptions.save();
 					}
 				}
 
@@ -350,8 +351,8 @@ public class ServiceWorker extends ServiceBase {
 					mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 					IOUtils.deleteFile(file);
 				} catch (Exception e) {
-					LogBookExceptions.getInstance().setData(file, e);
-					LogBookExceptions.getInstance().save();
+					logBookExceptions.setData(file, e);
+					logBookExceptions.save();
 					continue;
 				}
 
@@ -407,8 +408,8 @@ public class ServiceWorker extends ServiceBase {
 					IOUtils.deleteFile(file);
 					IOUtils.deleteFile(albaranFile);
 				} catch (Exception e) {
-					LogBookExceptions.getInstance().setData(file, e);
-					LogBookExceptions.getInstance().save();
+					logBookExceptions.setData(file, e);
+					logBookExceptions.save();
 					continue;
 				}
 
@@ -445,8 +446,8 @@ public class ServiceWorker extends ServiceBase {
 				}                                                                                                                    
 
 			} catch (Exception e) {
-				LogBookExceptions.getInstance().setData(file, e);
-				LogBookExceptions.getInstance().save();
+				logBookExceptions.setData(file, e);
+				logBookExceptions.save();
             }
 
 		}                                                                                                                            
@@ -470,8 +471,8 @@ public class ServiceWorker extends ServiceBase {
 				IOUtils.deleteFile(file);
 				this.Monitor().GastosSend++;
 			} catch (Exception e) {
-				LogBookExceptions.getInstance().setData(file, e);
-				LogBookExceptions.getInstance().save();
+				logBookExceptions.setData(file, e);
+				logBookExceptions.save();
 			}
 		}                                                                                                                            
 
@@ -504,8 +505,8 @@ public class ServiceWorker extends ServiceBase {
 							mail.send();
 							IOUtils.deleteFile(file);
 						} catch (Exception e) {
-							LogBookExceptions.getInstance().setData(file, e);
-							LogBookExceptions.getInstance().save();
+							logBookExceptions.setData(file, e);
+							logBookExceptions.save();
 							continue;
 						}
 						this.Monitor().InventarioSend++;
@@ -531,8 +532,8 @@ public class ServiceWorker extends ServiceBase {
 						mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 						IOUtils.deleteFile(file);
 					} catch (Exception e) {
-						LogBookExceptions.getInstance().setData(file, e);
-						LogBookExceptions.getInstance().save();
+						logBookExceptions.setData(file, e);
+						logBookExceptions.save();
 						continue;
 					}
 
@@ -569,8 +570,8 @@ public class ServiceWorker extends ServiceBase {
 				}
 
 			} catch (Exception e) {
-				LogBookExceptions.getInstance().setData(file, e);
-				LogBookExceptions.getInstance().save();
+				logBookExceptions.setData(file, e);
+				logBookExceptions.save();
 			}
 
 		}
@@ -605,8 +606,8 @@ public class ServiceWorker extends ServiceBase {
 					this.Monitor().StockDiarioSend++;
 				}                                                                                                                    
 			} catch (Exception e) {
-				LogBookExceptions.getInstance().setData(file, e);
-				LogBookExceptions.getInstance().save();
+				logBookExceptions.setData(file, e);
+				logBookExceptions.save();
 			}
 			                                                                                                                                                                                                                                                                                                                                                                                        
 		}                                                                                                                            
@@ -630,8 +631,8 @@ public class ServiceWorker extends ServiceBase {
 				this.Monitor().AlbaranesSend++;
 				
 			} catch (Exception e) {
-				LogBookExceptions.getInstance().setData(file, e);
-				LogBookExceptions.getInstance().save();
+				logBookExceptions.setData(file, e);
+				logBookExceptions.save();
 			}
                                                                                                                                      
 		}                                                                                                                            
@@ -653,8 +654,8 @@ public class ServiceWorker extends ServiceBase {
 				IOUtils.deleteFile(file);
 				this.Monitor().DepositosSend++;
 			} catch (Exception e) {
-				LogBookExceptions.getInstance().setData(file, e);
-				LogBookExceptions.getInstance().save();
+				logBookExceptions.setData(file, e);
+				logBookExceptions.save();
 			}
 		}
 	}                                                                                                                                

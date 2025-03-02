@@ -81,7 +81,10 @@ public class IngresoDiario extends Persistent implements IPersistable {
 			formatter = new SimpleDateFormat("MM/dd/yyyy");
 			
 			this.Fecha = formatter.parse(cursor.getString(cursor.getColumnIndex("Fecha")));
-			this.FechaRegistro = formatter.parse(cursor.getString(cursor.getColumnIndex("FechaRegistro")));
+			if (cursor.getString(cursor.getColumnIndex("FechaRegistro")) == null)
+				this.FechaRegistro = new Date();
+			else
+				this.FechaRegistro = formatter.parse(cursor.getString(cursor.getColumnIndex("FechaRegistro")));
 			this.Cantidad = Double.parseDouble(cursor.getString(cursor.getColumnIndex("Cantidad")));
 			this.Ingresos = Double.parseDouble(cursor.getString(cursor.getColumnIndex("Ingresos")));
 			this.Gastos = Double.parseDouble(cursor.getString(cursor.getColumnIndex("Gastos")));

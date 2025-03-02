@@ -10,6 +10,7 @@ import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
+import net.ifeu.edicards.DatabaseOperations.DatabaseOperations;
 import net.ifeu.library.Utils.DateTime.DateTimeUtils;
 
 import java.io.PrintWriter;
@@ -25,20 +26,9 @@ public class LogBookExceptions extends Persistent implements IPersistable, ITrac
     public String Fecha;
     public String Label;
     public String Message;
-    private static LogBookExceptions instance;
-
     private static final int DAYS_BY_EXTRACT = -60;
 
-    private LogBookExceptions() {}
-
-    public static synchronized LogBookExceptions getInstance() {
-        if (instance == null) {
-            instance = new LogBookExceptions();
-        }
-        return instance;
-    }
-
-    private static String getStackTraceAsString(Exception e) {
+    private String getStackTraceAsString(Exception e) {
         StringBuilder sb = new StringBuilder();
         sb.append(e.getClass().getName()).append(": ").append(e.getMessage()).append("\n");
 

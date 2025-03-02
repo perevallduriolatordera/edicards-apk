@@ -109,6 +109,7 @@ public class LogBookExceptionsCreator implements ILogCreator {
         List<String> headers = new ArrayList<>();
         headers.add("Identificador");
         headers.add("Fecha");
+        headers.add("Etiqueta");
         headers.add("Mensaje");
 
         String[] array = new String[headers.size()];
@@ -146,6 +147,10 @@ public class LogBookExceptionsCreator implements ILogCreator {
         this.setCellHeaderStyle(wb, cell);
 
         cell = row.createCell(++index);
+        cell.setCellValue("Etiqueta");
+        this.setCellHeaderStyle(wb, cell);
+
+        cell = row.createCell(++index);
         cell.setCellValue("Mensaje");
         this.setCellHeaderStyle(wb, cell);
     }
@@ -159,6 +164,9 @@ public class LogBookExceptionsCreator implements ILogCreator {
 
         cell = row.createCell(++index);
         cell.setCellValue(logBook.Fecha);
+
+        cell = row.createCell(++index);
+        cell.setCellValue(logBook.Label);
 
         cell = row.createCell(++index);
         cell.setCellValue(logBook.Message);
