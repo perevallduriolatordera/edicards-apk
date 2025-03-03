@@ -974,36 +974,6 @@ public class DepositManager extends Fragment implements  IMediator {
 				
 				_deposito.MotivoRetirado = motivo;
 
-				Map<String, LineaDeposito> processed =new HashMap<>();
-				for (LineaDeposito linea : _deposito.Lineas.values()) {
-
-					if (!processed.containsKey(linea.Articulo.CodigoArticulo)) {
-
-						int stockInicial = linea.Articulo.Stock;
-						linea.calculateStock();
-
-						if (linea.UnidadesInicialesFijas > 0) {
-							LogBookStock logBookTrace = Factory.build(LogBookStock.class, _appConfig);
-							logBookTrace.setData("DEPOSITO RETIRADO", _deposito.Cliente.CodigoCliente,
-									_deposito.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
-									stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
-									linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
-									linea.UnidadesAbono, linea.UnidadesDefectuosas);
-
-							logBookTrace.save();
-						}
-						linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.UnidadesDefectuosas;
-						linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
-								+ linea.UnidadesDefectuosas;
-
-						linea.Articulo.update();
-					}
-
-					processed.put(linea.Articulo.CodigoArticulo, linea);
-				}	
-				
-				_deposito.DeleteAllLines();
-
 				// Generamos la incidencia de baja de cliente
 
 				DepositManagerExtension.Incidencias.createIncidenciaBajaCliente(_appConfig, _deposito);
@@ -1011,6 +981,35 @@ public class DepositManager extends Fragment implements  IMediator {
 				XmlCreator creator = new XmlCreator(_appConfig);
 				creator.createXmlDeposito(_deposito);
 			}
+
+			Map<String, LineaDeposito> processed =new HashMap<>();
+			for (LineaDeposito linea : _deposito.Lineas.values()) {
+
+				if (!processed.containsKey(linea.Articulo.CodigoArticulo)) {
+
+					int stockInicial = linea.Articulo.Stock;
+					linea.calculateStock();
+
+					if (linea.UnidadesInicialesFijas > 0) {
+						LogBookStock logBookTrace = Factory.build(LogBookStock.class, _appConfig);
+						logBookTrace.setData("DEPOSITO RETIRADO", _deposito.Cliente.CodigoCliente,
+								_deposito.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+								stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+								linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
+								linea.UnidadesAbono, linea.UnidadesDefectuosas);
+
+						logBookTrace.save();
+					}
+					linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.UnidadesDefectuosas;
+					linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
+							+ linea.UnidadesDefectuosas;
+
+					linea.Articulo.update();
+				}
+
+				processed.put(linea.Articulo.CodigoArticulo, linea);
+			}
+			_deposito.DeleteAllLines();
 		}
 
 		if (_deposito.isDeposito() && (!_deposito.isDepositoUpdated() || _deposito.isDepositoUpdatedOnlyVentaDirecta())) {
