@@ -796,16 +796,13 @@ public class Deposito extends Cliente implements IPersistable {
 			cursor.close();
 	}
 	
-	public int DeleteAllLines() throws Exception {
+	public void DeleteAllLines() throws Exception {
 		Cursor cursor = super.getDatabaseOperations().executeSentence(
 				"DELETE FROM " + ConstantsDatabase.TABLE_LINEAS_DEPOSITO + " WHERE IdDeposito = "
 						+ this.IdDeposito);
 		
 		if (cursor != null)
 			cursor.close();
-
-		return super.getDatabaseOperations().getRecordsCount(ConstantsDatabase.TABLE_LINEAS_DEPOSITO);
-
 	}
 
 	public void assingFromCliente(Cliente cliente) {

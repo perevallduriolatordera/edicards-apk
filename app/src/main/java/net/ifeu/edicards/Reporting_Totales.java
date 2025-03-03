@@ -180,7 +180,7 @@ public class Reporting_Totales extends Activity {
     	// Cantidad Ingresos
     	
     	double ingresos = this.getIngresos();
-    	layout2.addView(this.addCounter("Total INGRESADO", df.format(ingresos) + " €", Color.BLACK, false));
+    	layout2.addView(this.addCounter("Total INGRESADO", df.format(ingresos) + " €", Color.BLACK, true));
 
 		// Cantidad Gastos
 
@@ -207,7 +207,7 @@ public class Reporting_Totales extends Activity {
     		ArrayList<IngresoDiario> list = ingresos.getListIngresosOfThisWeek(new Date());
 
     		for (IngresoDiario ingreso : list) {
-				IngresosTotales += ingreso.Ingresos;
+				IngresosTotales += ingreso.Cantidad;
     		}
 
     	} catch (Exception e) {

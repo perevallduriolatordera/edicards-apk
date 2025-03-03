@@ -956,7 +956,7 @@ public class DepositManager extends Fragment implements  IMediator {
 						this.getActivity(), MessageBoxType.Information);
 
 				_deposito.Retirado = result;
-				_deposito.RetirarDeposito();
+				if (result) _deposito.RetirarDeposito();
 			} else {
 				_deposito.Retirado = true;
 				result = true;
@@ -976,16 +976,14 @@ public class DepositManager extends Fragment implements  IMediator {
 
 				Map<String, LineaDeposito> processed =new HashMap<>();
 				for (LineaDeposito linea : _deposito.Lineas.values()) {
-					
-					if (linea.UnidadesDevueltas > 0) {
-						LogBookStock logBookTrace = Factory.build(LogBookStock.class, _appConfig);
+
+					if (!processed.containsKey(linea.Articulo.CodigoArticulo)) {
 
 						int stockInicial = linea.Articulo.Stock;
-
 						linea.calculateStock();
 
-						if (!processed.containsKey(linea.Articulo.CodigoArticulo))
-						{
+						if (linea.UnidadesInicialesFijas > 0) {
+							LogBookStock logBookTrace = Factory.build(LogBookStock.class, _appConfig);
 							logBookTrace.setData("DEPOSITO RETIRADO", _deposito.Cliente.CodigoCliente,
 									_deposito.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
 									stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
@@ -993,15 +991,15 @@ public class DepositManager extends Fragment implements  IMediator {
 									linea.UnidadesAbono, linea.UnidadesDefectuosas);
 
 							logBookTrace.save();
-							processed.put(linea.Articulo.CodigoArticulo, linea);
 						}
-
 						linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.UnidadesDefectuosas;
 						linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
 								+ linea.UnidadesDefectuosas;
 
-						linea.Articulo.update();	
+						linea.Articulo.update();
 					}
+
+					processed.put(linea.Articulo.CodigoArticulo, linea);
 				}	
 				
 				_deposito.DeleteAllLines();

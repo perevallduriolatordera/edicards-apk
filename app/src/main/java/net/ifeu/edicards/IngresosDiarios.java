@@ -94,7 +94,7 @@ public class IngresosDiarios extends Activity {
 		txtTotal.setEnabled(false);
 
 		final double ingresoReal = _appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos;
-		txtTotal.setText(String.valueOf(ingresoReal));
+		txtTotal.setText(String.valueOf(NumberDecimal.roundToNearestFive(ingresoReal)));
 
 		EditText txtGasto = findViewById(R.id.txtGastosDiarios);
 		txtGasto.setText("0");

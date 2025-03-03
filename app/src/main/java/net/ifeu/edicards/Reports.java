@@ -805,12 +805,7 @@ public class Reports extends Fragment {
 				deposito = deps.stream().findFirst().get();
 			}
 
-			int records = deposito.DeleteAllLines();
-			if (records > 0) {
-				_appConfig.getMessageBox().Show("Atención",
-						"Se ha producido un error al intentar restaurar el depósito",
-						getActivity(), MessageBoxType.Error);
-			}
+			deposito.DeleteAllLines();
 
 			for (LineaHistorico historicoLinea : historico.Lineas.values()) {
 				
