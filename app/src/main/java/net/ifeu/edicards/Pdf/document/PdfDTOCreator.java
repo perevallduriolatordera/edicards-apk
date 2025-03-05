@@ -372,7 +372,7 @@ public class PdfDTOCreator extends pdfBase implements IPdfDocumentGenerator {
 
 	}
 
-	public void createAlbaran(String guid, boolean envioEdicards, DepositoModalidad modalidad) {
+	public void createAlbaran(String guid, boolean isTransferPayment, DepositoModalidad modalidad) {
 
 		try {
 			_GUID = guid;
@@ -381,7 +381,7 @@ public class PdfDTOCreator extends pdfBase implements IPdfDocumentGenerator {
 			_pdfName = Environment.getExternalStorageDirectory().getPath() + "/"
 					+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_PDF + "/"
 					+ "REC_A_" + _app.getUser().User + " " + _deposito.NumeroAlbaran
-					+ "_" + this.getDateTimeFormat() + "_" + (envioEdicards ? "E" : "F") + ".pdf";
+					+ "_" + this.getDateTimeFormat() + "_" + (modalidad == DepositoModalidad.Edicards ? "E" : "F") + ".pdf";
 
 			_document.addTitle(_app.getUser().User + "_" + _deposito.NumeroAlbaran
 					+ "_" + new Date(0));

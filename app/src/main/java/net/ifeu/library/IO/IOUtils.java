@@ -3,10 +3,8 @@ package net.ifeu.library.IO;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,7 +48,6 @@ public class IOUtils {
 	public static boolean deleteFile(String path)
 	{
 		File file = new File(path);
-		 
 		return file.delete();
 		
 	}
@@ -60,24 +57,6 @@ public class IOUtils {
 		List<String> documents = IOUtils.getFilesFromDirectory(path);
 		for (String file : documents) {
 			IOUtils.deleteFile(file);
-		}
-	}
-
-	public static boolean writeAllText(String text, String file)
-	{
-		try {
-		    // Create temp file.
-		    File temp = new File(file);
-
-		    // Write to temp file
-		    BufferedWriter out = new BufferedWriter(new FileWriter(temp));
-		    out.write(text);
-		    out.close();
-		    
-		    return true;
-		    
-		} catch (IOException e) {
-			return false;
 		}
 	}
 
@@ -102,5 +81,12 @@ public class IOUtils {
 
 		// Return the most recently modified file
 		return files[0].getAbsolutePath();
+	}
+
+	public static void renameFile(String oldPath, String newPath)
+	{
+		File file = new File(oldPath);
+		File file2 = new File(newPath);
+		file.renameTo(file2);
 	}
 }

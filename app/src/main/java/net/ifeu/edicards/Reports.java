@@ -641,7 +641,7 @@ public class Reports extends Fragment {
 							throw new RuntimeException(e1);
 						}
 
-						that.GenerateAlbaran(dto, hist, modalidad);
+						that.GenerateAlbaran(dto, hist);
 						hist.delete();
 						getHistoricos();
 						
@@ -840,7 +840,7 @@ public class Reports extends Fragment {
 		}
 	}
 	
-	private void GenerateAlbaran(DTODeposito deposito, Historico historico, DepositoModalidad modalidad) throws Exception {
+	private void GenerateAlbaran(DTODeposito deposito, Historico historico) throws Exception {
 		
 		Contador contador = Factory.build(Contador.class, _appConfig);
 		contador.getContadores();
@@ -862,7 +862,7 @@ public class Reports extends Fragment {
 
 		IPdfDocumentGenerator pdf = new PdfDTOCreator(deposito, _appConfig);
 		try {
-			pdf.createAlbaran(historico.GUID, DepositManagerExtension.DataTier.isTransferPayment(deposito.PagoDescripcion), modalidad);
+			pdf.createAlbaran(historico.GUID, DepositManagerExtension.DataTier.isTransferPayment(deposito.PagoDescripcion), historico.getModalidad());
 		} catch (Exception e) {
 			DepositManagerExtension.Incidencias.createErrorPdfDocument(_appConfig, deposito.getDeposito(), e);
 		}

@@ -135,6 +135,9 @@ public class ServiceWorker extends ServiceBase {
 			try {
 				boolean isRectificativo = false;
 				File fileInfo = new File(file);
+
+				if (!fileInfo.getName().endsWith(".pdf")) continue;
+
 				String title = fileInfo.getName().subSequence(0, 1).equals("A") ? "Albaran " : "Deposito ";
 				String albaran;
 
@@ -145,7 +148,6 @@ public class ServiceWorker extends ServiceBase {
 
 				if (!isRectificativo) {
 					albaran = (fileInfo.getName().substring(2).replace(".pdf", ConstantsTypes.EMPTY_STRING));
-
 				} else {
 					albaran = (fileInfo.getName().substring(4).replace(".pdf", ConstantsTypes.EMPTY_STRING));
 				}
@@ -156,8 +158,8 @@ public class ServiceWorker extends ServiceBase {
 
 				String[] parts = file.split("_");
 				if (parts.length > 3 && parts[3].startsWith("E") && fileInfo.getName().subSequence(0, 4).equals("AALM")) {
-					EdicardsMailSender mailEnviosEdicards = new EdicardsMailSender(ConstantsMail.MAIL_ENVIOS_EDICARDS, title, ConstantsMail.MAIL_BODY, file);
 					try {
+						EdicardsMailSender mailEnviosEdicards = new EdicardsMailSender(ConstantsMail.MAIL_ENVIOS_EDICARDS, title, ConstantsMail.MAIL_BODY, file);
 						mailEnviosEdicards.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 					} catch (Exception e) {
 						logBookExceptions.setData(file, e);
@@ -179,13 +181,16 @@ public class ServiceWorker extends ServiceBase {
 					}
 				}
 
-				EdicardsMailSender mail = new EdicardsMailSender(ConstantsMail.MAIL_TO, title, ConstantsMail.MAIL_BODY, file);
-
 				try {
-					if (!fileInfo.getName().subSequence(0, 4).equals("AALM"))
+					if (!fileInfo.getName().subSequence(0, 4).equals("AALM")) {
+						EdicardsMailSender mail = new EdicardsMailSender(ConstantsMail.MAIL_TO, title, ConstantsMail.MAIL_BODY, file);
 						mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
+					}
 
-					IOUtils.deleteFile(file);
+					boolean isDeleted = IOUtils.deleteFile(file);
+					if (!isDeleted)
+						IOUtils.renameFile(file, file.replace(".pdf", ".tmp"));
+
 				} catch (Exception e) {
 					logBookExceptions.setData(file, e);
 					logBookExceptions.save();
