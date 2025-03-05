@@ -92,7 +92,12 @@ public class EdicardsMailSender {
           // creates message part
           
           MimeBodyPart messageBodyPart = new MimeBodyPart();
-          messageBodyPart.setText(this.message, format.equals(FormatType.TEXT) ? "UTF-8" : "text/html");
+
+          if (format.equals(FormatType.TEXT)) {
+              messageBodyPart.setText(this.message, "UTF-8");
+          } else {
+              messageBodyPart.setContent(this.message, "text/html; charset=UTF-8");
+          }
    
           // creates multi-part
           Multipart multipart = new MimeMultipart();
