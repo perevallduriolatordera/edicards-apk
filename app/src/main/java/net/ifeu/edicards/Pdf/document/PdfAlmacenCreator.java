@@ -28,7 +28,6 @@ import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.Totales;
-import net.ifeu.edicards.DepositManagerExtension;
 import net.ifeu.edicards.Pdf.pdfBase;
 import net.ifeu.library.Barcodes.BarcodeGenerator;
 import net.ifeu.library.Debugger.Debugger;

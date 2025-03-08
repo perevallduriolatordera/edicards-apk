@@ -310,10 +310,14 @@ public class Historico extends Persistent implements IPersistable {
         return ConstantsTypes.EMPTY_STRING;
     }
 
-	public Optional<Double> getCantidadPagadaLastDay() throws Exception
+	public Optional<IngresoDiarioCalculated> getCantidadPagadaLastDay() throws Exception
 	{
+		IngresoDiarioCalculated ingresoDiarioCalculated = new IngresoDiarioCalculated();
 
 		String latestDate = getDateOfLastMovementFormatted();
+		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+		Date latestDateObject = format.parse(latestDate);
+
 		double cantidadPagada;
 
 		Cursor cursor = super.getDatabaseOperations().executeSentence("SELECT ifnull(sum(CantidadPagada),0) as CantidadPagada FROM " + ConstantsDatabase.TABLE_HISTORICOS + " WHERE substr(fecha,7)||substr(fecha,1,2)||substr(fecha,4,2) " +
@@ -326,9 +330,11 @@ public class Historico extends Persistent implements IPersistable {
 			if (cursor.getCount() > 0)
 			{
 				cantidadPagada = Double.parseDouble(cursor.getString(cursor.getColumnIndex("CantidadPagada")));
+				ingresoDiarioCalculated.Cantidad = cantidadPagada;
+				ingresoDiarioCalculated.Fecha = latestDateObject;
 
 				cursor.close();
-				return Optional.of(cantidadPagada);
+				return Optional.of(ingresoDiarioCalculated);
 			}
 			else
 			{

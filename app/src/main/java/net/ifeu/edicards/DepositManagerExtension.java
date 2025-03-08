@@ -31,6 +31,7 @@ import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.Incidencia;
 import net.ifeu.edicards.DataTier.IncidenciaType;
 import net.ifeu.edicards.DataTier.IngresoDiario;
+import net.ifeu.edicards.DataTier.IngresoDiarioCalculated;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.Pdf.document.IPdfDocumentGenerator;
 import net.ifeu.edicards.Pdf.document.PdfAlmacenCreator;
@@ -58,6 +59,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -76,7 +78,7 @@ public class DepositManagerExtension {
 			return historico.getCantidadPagadaToday();
 		}
 
-		public static Optional<Double> getCantidadPagadaDiaria(AppConfig config) throws Exception {
+		public static Optional<IngresoDiarioCalculated> getCantidadPagadaDiaria(AppConfig config) throws Exception {
 			Historico historico = Factory.build(Historico.class, config);
 			return historico.getCantidadPagadaLastDay();
 		}
@@ -102,7 +104,7 @@ public class DepositManagerExtension {
 	}
 
 
-		public static Optional<Double> getIngresosDiarios(AppConfig config) throws Exception {
+		public static Optional<IngresoDiarioCalculated> getIngresosDiarios(AppConfig config) throws Exception {
 			return DataTier.getCantidadPagadaDiaria(config);
 		}
 		
@@ -205,8 +207,8 @@ public class DepositManagerExtension {
 
 		public static boolean RestriccionIngresosDiaria(AppConfig appConfig) {
 			try {
-				Optional<Double> cantidad = DataTier.getIngresosDiarios(appConfig);
-				if (cantidad.isPresent() && cantidad.get() > 0) {
+				Optional<IngresoDiarioCalculated> calculated = DataTier.getIngresosDiarios(appConfig);
+				if (calculated.isPresent() && calculated.get().Cantidad > 0) {
 
 					IngresoDiario ingresoDiario = Factory.build(IngresoDiario.class, appConfig);
 					ArrayList<IngresoDiario> ingresosDiariosToday = ingresoDiario.getIngresosDiariosFromToday();
@@ -215,10 +217,11 @@ public class DepositManagerExtension {
 
 					for (IngresoDiario id : ingresosDiariosToday) {
 						if (DateTimeUtils.isDateEquals(id.Fecha, new Date())) return false;
+						if (id.FechaRegistro.equals(calculated.get().Fecha)) return false;
 						totalCantidad += id.Cantidad;
 					}
 
-					double efectivo = cantidad.get();
+					double efectivo = calculated.get().Cantidad;
 					if (totalCantidad < 0)
 						efectivo = efectivo + totalCantidad;
 

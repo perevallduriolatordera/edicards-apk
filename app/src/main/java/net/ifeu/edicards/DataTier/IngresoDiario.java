@@ -97,7 +97,7 @@ public class IngresoDiario extends Persistent implements IPersistable {
 	}
 	
 
-	public static Optional<Double> getIngresosDiariosFromDate(AppConfig appConfig) {
+	public static Optional<IngresoDiarioCalculated> getIngresosDiariosFromDate(AppConfig appConfig) {
 		Historico historico = Factory.build(Historico.class, appConfig);
         try {
             return historico.getCantidadPagadaLastDay();
