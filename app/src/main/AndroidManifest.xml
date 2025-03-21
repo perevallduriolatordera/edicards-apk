@@ -3,7 +3,7 @@
     package="net.ifeu.edicards"
     android:versionCode="5"
     android:exported="true"
-    android:versionName="5.3.7 (10 Marzo 2025) --> Control de pagos y stock en bajas de depósito" >
+    android:versionName="5.3.8 (21 Marzo 2025) --> Control de redondeos de ingresos" >
 
     <!--<uses-sdk
         android:minSdkVersion="16"
