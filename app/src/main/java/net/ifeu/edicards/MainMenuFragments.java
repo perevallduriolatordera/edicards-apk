@@ -161,6 +161,7 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener, 
 
 		if (forceRecreated.length > 0 && forceRecreated[0] && fragment != null) {
 			FragmentTransaction trans = fragmentManager.beginTransaction();
+
 			trans.remove(fragment);
 			trans.commit();
 		}

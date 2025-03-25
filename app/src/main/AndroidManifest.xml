@@ -3,7 +3,7 @@
     package="net.ifeu.edicards"
     android:versionCode="5"
     android:exported="true"
-    android:versionName="5.3.8 (21 Marzo 2025) --> Control de redondeos de ingresos" >
+    android:versionName="5.3.9 (25 Marzo 2025) --> Control de redondeos de ingresos" >
 
     <!--<uses-sdk
         android:minSdkVersion="16"
@@ -21,6 +21,8 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".MainActivity"
+            android:noHistory="true"
+            android:launchMode="singleInstance"
             android:label="@string/title_activity_main"
             android:theme="@android:style/Theme.Holo" >
             <intent-filter>

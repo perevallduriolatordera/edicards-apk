@@ -1,6 +1,7 @@
 package net.ifeu.edicards;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -25,12 +26,6 @@ import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 public class MainActivity extends Activity {
 	private AppConfig _appConfig;
 	private ServiceWorker _serviceWorker;
-
-	@Override
-	public void onBackPressed() {
-		// super.onBackPressed();
-		// Not calling **super**, disables back button in current screen.
-	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)  {
@@ -186,11 +181,8 @@ public class MainActivity extends Activity {
 					}
 					
 					that._appConfig.getWorkingArea().Monitor = that._serviceWorker.Monitor();
-	
 					progressDialog.dismiss();
-	
 					Intent intent = new Intent(MainActivity.this, MainMenu.class);
-	
 					startActivity(intent);
 	
 				}

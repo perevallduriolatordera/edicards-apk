@@ -8,6 +8,11 @@ import android.support.v4.app.FragmentActivity;
 public class MainMenu extends FragmentActivity {
 
     @Override
+    public void onBackPressed() {
+        // No hacer nada, bloquea el botón de "Atrás"
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);

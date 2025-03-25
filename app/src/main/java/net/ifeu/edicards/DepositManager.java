@@ -96,6 +96,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 	private DepositoModalidad _modalidad;
 
+
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		_appConfig = (AppConfig) this.getActivity().getApplicationContext();
