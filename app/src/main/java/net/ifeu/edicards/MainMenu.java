@@ -3,13 +3,20 @@ package net.ifeu.edicards;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+
+import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
 public class MainMenu extends FragmentActivity {
 
     @Override
     public void onBackPressed() {
-        // No hacer nada, bloquea el botón de "Atrás"
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_placeholder);
+        if (!(currentFragment instanceof DepositManager)) {
+                super.onBackPressed();
+        }
     }
 
     @Override

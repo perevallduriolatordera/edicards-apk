@@ -33,9 +33,7 @@ public class MainActivity extends Activity {
 		try {
 
 			 super.onCreate(savedInstanceState);
-
 			 _appConfig = (AppConfig) this.getApplicationContext();
-
 			 this._serviceWorker = new ServiceWorker();
 
 			// Activamos los dipositivos 

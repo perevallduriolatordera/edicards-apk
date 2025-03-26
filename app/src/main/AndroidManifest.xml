@@ -3,7 +3,7 @@
     package="net.ifeu.edicards"
     android:versionCode="5"
     android:exported="true"
-    android:versionName="5.3.9 (25 Marzo 2025) --> Control de redondeos de ingresos" >
+    android:versionName="5.3.10 (26 Marzo 2025) --> Control de redondeos de ingresos" >
 
     <!--<uses-sdk
         android:minSdkVersion="16"

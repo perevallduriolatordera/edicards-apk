@@ -1,5 +1,6 @@
 package net.ifeu.edicards;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -95,7 +96,6 @@ public class DepositManager extends Fragment implements  IMediator {
 	ArrayAdapter<LineaDeposito> _adapter;
 
 	private DepositoModalidad _modalidad;
-
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
