@@ -33,6 +33,7 @@ import net.ifeu.edicards.DataTier.ClienteInfo;
 import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.DepositoModalidad;
+import net.ifeu.edicards.DataTier.Efectivo;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.LineaDeposito;
@@ -576,12 +577,6 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		_appConfig.getWorkingArea().CurrentTransactionMetadata = new TransactionMetadata();
 
-		// * * * * Comentem a petició del Fernando * * * *
- 		/*if (DepositManagerExtension.DataTier.RestriccionIngresosHoyFromCantidad(_appConfig)) {
-			 _appConfig.getWorkingArea().IsIngresoDiarioVoluntario = false;
-			DepositManagerExtension.Dialogs.StartIngresoDiarioDialog(this);
-		};*/
-
 		if (DepositManagerExtension.DataTier.RestriccionIngresosDiaria(_appConfig)) {
 			_appConfig.getWorkingArea().IsIngresoDiarioVoluntario = false;
 			DepositManagerExtension.Dialogs.StartIngresoDiarioDialog(this);
@@ -893,7 +888,22 @@ public class DepositManager extends Fragment implements  IMediator {
 				throw new RuntimeException(e);
 			}
 	}
-	
+
+	private void updateEfectivo() {
+		Efectivo efectivo = Factory.build(Efectivo.class, _appConfig);
+        try {
+            efectivo.getEfectivo();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        efectivo.Efectivo = efectivo.Efectivo + _deposito.CantidadPagada;
+        try {
+            efectivo.update();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 	private void SaveDeposito() {
 		_deposito.PagoDescripcion = _comboPago.getText();
 		_deposito.saveChangesToDeposito(_modalidad);
@@ -1049,6 +1059,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 				SaveDeposito();
 				SaveHistorico();
+				updateEfectivo();
 				generateXML();
 
 				// Generem el consentiment GDPR si és necessari

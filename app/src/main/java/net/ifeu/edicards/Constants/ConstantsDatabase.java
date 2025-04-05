@@ -15,6 +15,7 @@ public class ConstantsDatabase {
     public static final String TABLE_HISTORICOS = "Historicos";
     public static final String TABLE_LINEAS_HISTORICO = "LineaHistorico";
     public static final String TABLE_CONTADORES = "Contadores";
+    public static final String TABLE_EFECTIVO = "Efectivo";
     public static final String TABLE_CLIENTES_INFO = "ClientesInfo";
     public static final String TABLE_GASTOS_INFO = "GastosInfo";
     public static final String TABLE_INGRESOS = "Ingresos";

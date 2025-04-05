@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.DataTier.Efectivo;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Incidencia;
 import net.ifeu.edicards.DataTier.IncidenciaType;
@@ -111,17 +112,17 @@ public class IngresosDiarios extends Activity {
 		txtIngreso.setFocusable(!isCalculated);
 		txtIngreso.setFocusableInTouchMode(!isCalculated);
 		txtIngreso.setCursorVisible(!isCalculated);
-
 	}
 
-	private void updateIngresos() {
+	private float updateIngresos() {
 		EditText txtTotal = findViewById(R.id.txtTotalIngresar);
 		EditText txtGasto = findViewById(R.id.txtGastosDiarios);
 		EditText txtIngreso = findViewById(R.id.txtIngresosDiarios);
 
 		Double ingreso = Double.parseDouble(txtIngreso.getText().toString());
 		Double gasto = Double.parseDouble(txtGasto.getText().toString());
-		double total = NumberDecimal.roundToNearestFive(ingreso - gasto);
+		float total = NumberDecimal.roundToNearestFive(ingreso - gasto);
+
 		txtTotal.setText(String.valueOf(total));
 		_appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = ingreso;
 		_appConfig.getWorkingArea().CurrentIngresoDiario.Gastos = gasto;
@@ -131,6 +132,8 @@ public class IngresosDiarios extends Activity {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
+		return total;
     }
 
 	private void showIngresosDiariosDialog() {
@@ -145,11 +148,8 @@ public class IngresosDiarios extends Activity {
 
 	public void OnSaveIngreso() throws Exception {
 
-		SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-		String formattedDate = formato.format(_appConfig.getWorkingArea().CurrentIngresoDiario.Fecha);
-
 		_appConfig = (AppConfig) this.getApplicationContext();
-		updateIngresos();
+		float total = updateIngresos();
 
 		String ingresos = ((EditText) findViewById(R.id.txtIngresosDiarios)).getText().toString();
 		String gastos = ((EditText) findViewById(R.id.txtGastosDiarios)).getText().toString();
@@ -160,12 +160,6 @@ public class IngresosDiarios extends Activity {
 					MessageBoxType.Information);
 			return;
 		}
-
-		/*if (Double.parseDouble(gastos) > Double.parseDouble(ingresos)) {
-			_appConfig.getMessageBox().Show("Ingreso", "La cantidad de gastos no puede ser mayor que la de ingresos", IngresosDiarios.this,
-					MessageBoxType.Information);
-			return;
-		}*/
 
 		if (_appConfig.getWorkingArea().CurrentTransactionMetadata == null || _appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument == null || _appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument.equals(ConstantsTypes.EMPTY_STRING)) {
 			if (Double.parseDouble(ingresos) > Double.parseDouble(gastos)) {
@@ -181,12 +175,38 @@ public class IngresosDiarios extends Activity {
 		_appConfig.getMessageBox().Show("Ingreso", "El ingreso se ha realizado correctamente", IngresosDiarios.this,
 				MessageBoxType.Information);
 
-				
+		updateEfectivo(Double.parseDouble(ingresos), Double.parseDouble(gastos), Double.parseDouble(cantidad));
+		createIncidencia(cantidad, ingresos, gastos);
+		finish();
+	}
+	private void updateEfectivo(double ingresos, double gastos, double cantidad) {
+		Efectivo efectivo = Factory.build(Efectivo.class, _appConfig);
+        try {
+            efectivo.getEfectivo();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        if (cantidad > 0) {
+			efectivo.Efectivo = efectivo.Efectivo - (cantidad + gastos);
+		} else {
+			efectivo.Efectivo = ingresos - gastos;
+		};
+        try {
+            efectivo.update();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+	private void createIncidencia(String cantidad, String ingresos, String gastos) {
+		SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+		String formattedDate = formato.format(new Date());
+
 		String text = "Se ha efectuado un nuevo ingreso diario con los siguientes datos: " + ConstantsTypes.NEW_LINE
 				+ ConstantsTypes.NEW_LINE + "Comercial: " + this._appConfig.getUser().User + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE + "FECHA: " + formattedDate
 				+ ConstantsTypes.NEW_LINE + "CANTIDAD:" + cantidad
 				+ ConstantsTypes.NEW_LINE + "INGRESOS:" + ingresos
-				+ ConstantsTypes.NEW_LINE + "GASTOS:" + gastos
+				+ ConstantsTypes.NEW_LINE + "GASTOS:" + DepositManagerExtension.Format.RoundTo2Decimals(gastos).toString()
 				+ ConstantsTypes.NEW_LINE;
 
 		Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(), IncidenciaType.IngresoDiario,
@@ -196,10 +216,13 @@ public class IngresosDiarios extends Activity {
 			incidencia.Attachments.put("INGRESO",
 					_appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument);
 		}
-		incidencia.create(new IncidentPdfCreator(_appConfig));
+        try {
+            incidencia.create(new IncidentPdfCreator(_appConfig));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
-		finish();
-	}
+    }
 
 	@Override
 	public void onBackPressed() {

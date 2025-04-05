@@ -209,4 +209,11 @@ public class IngresoDiario extends Persistent implements IPersistable {
 		return cantidad ;
 	}
 
+	public Boolean isDebit() {
+		return this.Gastos > this.Ingresos;
+	}
+
+	public double calculateCantidad() {
+		return this.Ingresos - this.Gastos;
+	}
 }

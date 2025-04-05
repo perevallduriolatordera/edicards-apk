@@ -25,6 +25,7 @@ import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.DepositoModalidad;
+import net.ifeu.edicards.DataTier.Efectivo;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.FormaPago;
 import net.ifeu.edicards.DataTier.Historico;
@@ -60,11 +61,15 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 public class DepositManagerExtension {
@@ -205,25 +210,25 @@ public class DepositManagerExtension {
 			return lines;
 		}
 
-		public static boolean RestriccionIngresosDiaria(AppConfig appConfig) {
+		/*public static boolean RestriccionIngresosDiaria(AppConfig appConfig) {
 			try {
-				Optional<IngresoDiarioCalculated> calculated = DataTier.getIngresosDiarios(appConfig);
-				if (calculated.isPresent() && calculated.get().Cantidad > 0) {
+				Optional<IngresoDiarioCalculated> totalIngresoVentas = DataTier.getIngresosDiarios(appConfig);
+				if (totalIngresoVentas.isPresent() && totalIngresoVentas.get().Cantidad > 0) {
 
 					IngresoDiario ingresoDiario = Factory.build(IngresoDiario.class, appConfig);
 					ArrayList<IngresoDiario> ingresosDiariosToday = ingresoDiario.getIngresosDiariosFromToday();
 
-					double totalCantidad = 0;
+					double totalCantidadIngresada = 0;
 
 					for (IngresoDiario id : ingresosDiariosToday) {
 						if (DateTimeUtils.isDateEquals(id.Fecha, new Date())) return false;
-						if (id.FechaRegistro.equals(calculated.get().Fecha)) return false;
-						totalCantidad += id.Cantidad;
+						if (id.FechaRegistro.equals(totalIngresoVentas.get().Fecha)) return false;
+						totalCantidadIngresada += id.calculateCantidad();
 					}
 
-					double efectivo = calculated.get().Cantidad;
-					if (totalCantidad < 0)
-						efectivo = efectivo + totalCantidad;
+					double efectivo = totalIngresoVentas.get().Cantidad;
+					if (totalCantidadIngresada < 0)
+						efectivo = efectivo + totalCantidadIngresada;
 
 					if (efectivo > 0) {
 						appConfig.getWorkingArea().CurrentIngresoDiario = Factory.build(IngresoDiario.class, appConfig);
@@ -240,7 +245,83 @@ public class DepositManagerExtension {
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
+		}*/
+
+		private static boolean checkUpdateDates(Efectivo efectivo) {
+			// Obtener las fechas actuales y las de efectivo (sin horas)
+			Calendar currentCalendar = Calendar.getInstance();
+			currentCalendar.setTime(new Date());
+			currentCalendar.set(Calendar.HOUR_OF_DAY, 0);
+			currentCalendar.set(Calendar.MINUTE, 0);
+			currentCalendar.set(Calendar.SECOND, 0);
+			currentCalendar.set(Calendar.MILLISECOND, 0);
+
+			Calendar updateCalendarIngreso = Calendar.getInstance();
+			updateCalendarIngreso.setTime(efectivo.UpdateDateIngreso);
+			updateCalendarIngreso.set(Calendar.HOUR_OF_DAY, 0);
+			updateCalendarIngreso.set(Calendar.MINUTE, 0);
+			updateCalendarIngreso.set(Calendar.SECOND, 0);
+			updateCalendarIngreso.set(Calendar.MILLISECOND, 0);
+
+			Calendar updateCalendarEfectivo = Calendar.getInstance();
+			updateCalendarEfectivo.setTime(efectivo.UpdateDateEfectivo);
+			updateCalendarEfectivo.set(Calendar.HOUR_OF_DAY, 0);
+			updateCalendarEfectivo.set(Calendar.MINUTE, 0);
+			updateCalendarEfectivo.set(Calendar.SECOND, 0);
+			updateCalendarEfectivo.set(Calendar.MILLISECOND, 0);
+
+			// Comparar las fechas sin las horas
+			if (updateCalendarIngreso.getTime().equals(currentCalendar.getTime())) return false;
+			if (updateCalendarEfectivo.getTime().equals(currentCalendar.getTime())) return false;
+
+			return true;  // O lo que desees que haga si no son iguales
 		}
+		public static boolean RestriccionIngresosDiaria(AppConfig appConfig) {
+			try {
+
+				Efectivo efectivo = Factory.build(Efectivo.class, appConfig);
+				efectivo.getEfectivo();
+
+				if (!checkUpdateDates(efectivo)) return false;
+
+				if (efectivo.Efectivo > 0) {
+					appConfig.getWorkingArea().CurrentIngresoDiario = Factory.build(IngresoDiario.class, appConfig);
+					appConfig.getWorkingArea().CurrentIngresoDiario.FechaRegistro = IngresoDiario.getDateOfLastMovement(appConfig);
+					appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = new Date();
+					appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = efectivo.Efectivo;
+					return true;
+
+				} else {
+					efectivo.UpdateDateEfectivo = new Date();
+					efectivo.update();
+					createIngresoIncidencia(efectivo, appConfig);
+					return false;
+				}
+
+
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		private static void createIngresoIncidencia(Efectivo efectivo, AppConfig appConfig) {
+			SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+			String formattedDate = formato.format(new Date());
+
+			String text = "Edicards adeula la siguiente cantidad: " + ConstantsTypes.NEW_LINE
+					+ ConstantsTypes.NEW_LINE + "Comercial: " + appConfig.getUser().User + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE + "FECHA: " + formattedDate
+					+ ConstantsTypes.NEW_LINE + "CANTIDAD:" + efectivo.Efectivo * -1
+					+ ConstantsTypes.NEW_LINE;
+
+			Incidencia incidencia = new Incidencia(appConfig.getUser().User, new Date(), IncidenciaType.IngresoDiario,
+					text);
+            try {
+                incidencia.create(new IncidentPdfCreator(appConfig));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+        }
 
 		public static boolean RestriccionIngresosHoyFromCantidad(AppConfig appConfig) {
 
@@ -301,6 +382,16 @@ public class DepositManagerExtension {
 		public static double RoundTo2Decimals(double val) {
 			DecimalFormat df2 = new DecimalFormat("0.00");
 			return Double.parseDouble(df2.format(val).replace(",", "."));
+		}
+
+		public static String RoundTo2Decimals(String val) {
+			try {
+				double value = Double.parseDouble(val);
+				DecimalFormat format = new DecimalFormat("0.00");
+				return format.format(value);
+			} catch (NumberFormatException e) {
+				return "0.00"; // o puedes lanzar una excepción, según prefieras
+			}
 		}
 
 		public static boolean isEmailFormat(String email) {

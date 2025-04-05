@@ -369,6 +369,7 @@ public class DatabaseOperations {
 			createHistoricosTable();
 			createLineasHistoricoTable();
 			createContadoresTable();
+			createEfectivoTable();
 			createClientesInfoTable();
 			createGastosInfoTable();
 			createIngresosTable();
@@ -427,6 +428,7 @@ public class DatabaseOperations {
 			dropTable(ConstantsDatabase.TABLE_HISTORICOS);
 			dropTable(ConstantsDatabase.TABLE_LINEAS_HISTORICO);
 			dropTable(ConstantsDatabase.TABLE_CONTADORES);
+			dropTable(ConstantsDatabase.TABLE_EFECTIVO);
 			dropTable(ConstantsDatabase.TABLE_CLIENTES_INFO);
 			dropTable(ConstantsDatabase.TABLE_GASTOS_INFO);
 			dropTable(ConstantsDatabase.TABLE_INGRESOS);
@@ -869,6 +871,28 @@ public class DatabaseOperations {
 			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_CONTADORES + ". Motivo: La Base de datos no ha podido ser abierta.");
 		}
 		
+	}
+
+	private void createEfectivoTable() throws Exception
+	{
+		if (_databaseConnection.getDatabase().isOpen())
+		{
+			try {
+				_databaseConnection.getDatabase().execSQL("create table if not exists " + ConstantsDatabase.TABLE_EFECTIVO + " ( IdEfectivo integer primary key autoincrement, "
+						+ "Efectivo real not null, "
+						+ "UpdateDateIngreso date not null, "
+						+ "UpdateDateEfectivo date not null); ");
+
+			}
+			catch (Exception e) {
+				throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_EFECTIVO + ". Motivo: " + e.getMessage());
+			}
+
+		}
+		else {
+			throw new Exception("Error creando la tabla " + ConstantsDatabase.TABLE_CONTADORES + ". Motivo: La Base de datos no ha podido ser abierta.");
+		}
+
 	}
 	
 	private void createClientesInfoTable() throws Exception
