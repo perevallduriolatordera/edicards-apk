@@ -289,22 +289,27 @@ public class DepositManagerExtension {
 					appConfig.getWorkingArea().CurrentIngresoDiario.FechaRegistro = IngresoDiario.getDateOfLastMovement(appConfig);
 					appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = new Date();
 					appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = efectivo.Efectivo;
-					return true;
 
+					if (efectivo.Efectivo < 5) {
+						efectivo.UpdateDateIngreso = new Date();
+						efectivo.update();
+						createRedondeoIngresoIncidencia(efectivo, appConfig);
+					}
+
+					return efectivo.Efectivo >= 5;
 				} else {
 					efectivo.UpdateDateEfectivo = new Date();
 					efectivo.update();
-					createIngresoIncidencia(efectivo, appConfig);
+					createAdeudoIngresoIncidencia(efectivo, appConfig);
 					return false;
 				}
-
 
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 		}
 
-		private static void createIngresoIncidencia(Efectivo efectivo, AppConfig appConfig) {
+		private static void createAdeudoIngresoIncidencia(Efectivo efectivo, AppConfig appConfig) {
 			SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 			String formattedDate = formato.format(new Date());
 
@@ -322,6 +327,25 @@ public class DepositManagerExtension {
             }
 
         }
+
+	private static void createRedondeoIngresoIncidencia(Efectivo efectivo, AppConfig appConfig) {
+		SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+		String formattedDate = formato.format(new Date());
+
+		String text = "El comercial adeuda la siguiente cantidad (No ingresable por ser inferior a 5€): " + ConstantsTypes.NEW_LINE
+				+ ConstantsTypes.NEW_LINE + "Comercial: " + appConfig.getUser().User + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE + "FECHA: " + formattedDate
+				+ ConstantsTypes.NEW_LINE + "CANTIDAD:" + efectivo.Efectivo * -1
+				+ ConstantsTypes.NEW_LINE;
+
+		Incidencia incidencia = new Incidencia(appConfig.getUser().User, new Date(), IncidenciaType.IngresoDiario,
+				text);
+		try {
+			incidencia.create(new IncidentPdfCreator(appConfig));
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+	}
 
 		public static boolean RestriccionIngresosHoyFromCantidad(AppConfig appConfig) {
 
