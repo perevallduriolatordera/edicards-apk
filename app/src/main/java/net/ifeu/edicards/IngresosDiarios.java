@@ -192,6 +192,7 @@ public class IngresosDiarios extends Activity {
 			efectivo.Efectivo = ingresos - gastos;
 		};
         try {
+			efectivo.UpdateDateIngreso = new Date();
             efectivo.update();
         } catch (Exception e) {
             throw new RuntimeException(e);

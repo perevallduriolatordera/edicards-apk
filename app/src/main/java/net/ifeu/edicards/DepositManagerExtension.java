@@ -247,7 +247,7 @@ public class DepositManagerExtension {
 			}
 		}*/
 
-		private static boolean checkUpdateDates(Efectivo efectivo) {
+		private static boolean checkUpdateTodayDates(Efectivo efectivo) {
 			// Obtener las fechas actuales y las de efectivo (sin horas)
 			Calendar currentCalendar = Calendar.getInstance();
 			currentCalendar.setTime(new Date());
@@ -271,8 +271,8 @@ public class DepositManagerExtension {
 			updateCalendarEfectivo.set(Calendar.MILLISECOND, 0);
 
 			// Comparar las fechas sin las horas
-			if (updateCalendarIngreso.getTime().equals(currentCalendar.getTime())) return false;
-			if (updateCalendarEfectivo.getTime().equals(currentCalendar.getTime())) return false;
+			if (updateCalendarIngreso.getTime().equals(currentCalendar.getTime())) return true;
+			if (updateCalendarEfectivo.getTime().equals(currentCalendar.getTime())) return true;
 
 			return true;  // O lo que desees que haga si no son iguales
 		}
@@ -282,7 +282,7 @@ public class DepositManagerExtension {
 				Efectivo efectivo = Factory.build(Efectivo.class, appConfig);
 				efectivo.getEfectivo();
 
-				if (!checkUpdateDates(efectivo)) return false;
+				if (checkUpdateTodayDates(efectivo)) return false;
 
 				if (efectivo.Efectivo > 0) {
 					appConfig.getWorkingArea().CurrentIngresoDiario = Factory.build(IngresoDiario.class, appConfig);
@@ -313,7 +313,7 @@ public class DepositManagerExtension {
 			SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 			String formattedDate = formato.format(new Date());
 
-			String text = "Edicards adeula la siguiente cantidad: " + ConstantsTypes.NEW_LINE
+			String text = "Edicards adeuda la siguiente cantidad: " + ConstantsTypes.NEW_LINE
 					+ ConstantsTypes.NEW_LINE + "Comercial: " + appConfig.getUser().User + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE + "FECHA: " + formattedDate
 					+ ConstantsTypes.NEW_LINE + "CANTIDAD:" + efectivo.Efectivo * -1
 					+ ConstantsTypes.NEW_LINE;

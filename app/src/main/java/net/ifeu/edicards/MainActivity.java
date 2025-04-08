@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsTypes;
@@ -147,7 +148,6 @@ public class MainActivity extends Activity {
 		Intent intent = new Intent(MainActivity.this, NewUser.class);
 
 		startActivityForResult(intent, requestCode);
-
 	}
 
 	// Llencem el menú principal
@@ -158,40 +158,47 @@ public class MainActivity extends Activity {
 			final ProgressDialog progressDialog;
 			progressDialog = ProgressDialog.show(this, "Actualizando Datos de Central", "Cargando...Espere unos instantes",
 					true);
-	
+
 			final MainActivity that = this;
-	
+
 			new Thread() {
-	
+
 				@Override
 				public void run() {
 
 					try {
 						getData();
-					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}
-	
-					try {
 						sendData();
+
+						that._appConfig.getWorkingArea().Monitor = that._serviceWorker.Monitor();
+
+						if (progressDialog != null && progressDialog.isShowing()) {
+							runOnUiThread(() -> {
+								progressDialog.dismiss();
+								Intent intent = new Intent(MainActivity.this, MainMenu.class);
+								startActivity(intent);
+							});
+						}
+
 					} catch (Exception e) {
-						throw new RuntimeException(e);
+						// Manejar el error correctamente o mostrar un mensaje al usuario
+						runOnUiThread(() -> {
+							if (progressDialog.isShowing()) {
+								progressDialog.dismiss();
+							}
+							Toast.makeText(that, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+						});
 					}
-					
-					that._appConfig.getWorkingArea().Monitor = that._serviceWorker.Monitor();
-					progressDialog.dismiss();
-					Intent intent = new Intent(MainActivity.this, MainMenu.class);
-					startActivity(intent);
-	
+
 				}
-	
+
 			}.start();
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}
-
 	}
-	
+
+
 	private void getData() {
 		
 		final Context context = _appConfig;
@@ -259,7 +266,6 @@ public class MainActivity extends Activity {
 		
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
-
 		}
 	}
 
@@ -299,7 +305,6 @@ public class MainActivity extends Activity {
 			this.GoToSync();
 			StartMainMenu();
 		}
-			
 
 	}
 
@@ -311,7 +316,4 @@ public class MainActivity extends Activity {
 		if (result)
 			System.exit(0);
 	}
-
-
-
 }

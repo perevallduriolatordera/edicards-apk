@@ -62,6 +62,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -897,6 +898,7 @@ public class DepositManager extends Fragment implements  IMediator {
             throw new RuntimeException(e);
         }
         efectivo.Efectivo = efectivo.Efectivo + _deposito.CantidadPagada;
+		efectivo.UpdateDateEfectivo = new Date();
         try {
             efectivo.update();
         } catch (Exception e) {
