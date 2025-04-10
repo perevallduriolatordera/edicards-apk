@@ -3,7 +3,7 @@
     package="net.ifeu.edicards"
     android:versionCode="5"
     android:exported="true"
-    android:versionName="5.4.4 (9 Abril 2025) --> Refactor almacenamiento de efectivo" >
+    android:versionName="5.4.6 (10 Abril 2025) --> Refactor almacenamiento de efectivo" >
 
     <!--<uses-sdk
         android:minSdkVersion="16"

@@ -44,13 +44,8 @@ import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.ComboBox;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Controls.TextBoxColor;
-import net.ifeu.library.Utils.DateTime.DateTimeUtils;
-import net.ifeu.library.Utils.MessageBox.AdvancedMessageBox;
-import net.ifeu.library.Utils.MessageBox.MessageBoxType;
-import net.ifeu.library.Utils.Number.NumberDecimal;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -61,8 +56,6 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -210,86 +203,15 @@ public class DepositManagerExtension {
 			return lines;
 		}
 
-		/*public static boolean RestriccionIngresosDiaria(AppConfig appConfig) {
-			try {
-				Optional<IngresoDiarioCalculated> totalIngresoVentas = DataTier.getIngresosDiarios(appConfig);
-				if (totalIngresoVentas.isPresent() && totalIngresoVentas.get().Cantidad > 0) {
-
-					IngresoDiario ingresoDiario = Factory.build(IngresoDiario.class, appConfig);
-					ArrayList<IngresoDiario> ingresosDiariosToday = ingresoDiario.getIngresosDiariosFromToday();
-
-					double totalCantidadIngresada = 0;
-
-					for (IngresoDiario id : ingresosDiariosToday) {
-						if (DateTimeUtils.isDateEquals(id.Fecha, new Date())) return false;
-						if (id.FechaRegistro.equals(totalIngresoVentas.get().Fecha)) return false;
-						totalCantidadIngresada += id.calculateCantidad();
-					}
-
-					double efectivo = totalIngresoVentas.get().Cantidad;
-					if (totalCantidadIngresada < 0)
-						efectivo = efectivo + totalCantidadIngresada;
-
-					if (efectivo > 0) {
-						appConfig.getWorkingArea().CurrentIngresoDiario = Factory.build(IngresoDiario.class, appConfig);
-						appConfig.getWorkingArea().CurrentIngresoDiario.FechaRegistro = IngresoDiario.getDateOfLastMovement(appConfig);
-						appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = new Date();
-						appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = efectivo;
-						return true;
-					}
-
-					return false;
-				} else
-					return false;
-
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		}*/
-
-		private static boolean checkUpdateTodayDates(Efectivo efectivo) {
-			// Obtener las fechas actuales y las de efectivo (sin horas)
-			Calendar currentCalendar = Calendar.getInstance();
-			currentCalendar.setTime(new Date());
-			currentCalendar.set(Calendar.HOUR_OF_DAY, 0);
-			currentCalendar.set(Calendar.MINUTE, 0);
-			currentCalendar.set(Calendar.SECOND, 0);
-			currentCalendar.set(Calendar.MILLISECOND, 0);
-
-			Calendar updateCalendarIngreso = Calendar.getInstance();
-			updateCalendarIngreso.setTime(efectivo.UpdateDateIngreso);
-			updateCalendarIngreso.set(Calendar.HOUR_OF_DAY, 0);
-			updateCalendarIngreso.set(Calendar.MINUTE, 0);
-			updateCalendarIngreso.set(Calendar.SECOND, 0);
-			updateCalendarIngreso.set(Calendar.MILLISECOND, 0);
-
-			Calendar updateCalendarEfectivo = Calendar.getInstance();
-			updateCalendarEfectivo.setTime(efectivo.UpdateDateEfectivo);
-			updateCalendarEfectivo.set(Calendar.HOUR_OF_DAY, 0);
-			updateCalendarEfectivo.set(Calendar.MINUTE, 0);
-			updateCalendarEfectivo.set(Calendar.SECOND, 0);
-			updateCalendarEfectivo.set(Calendar.MILLISECOND, 0);
-
-			// Comparar las fechas sin las horas
-			if (updateCalendarIngreso.getTime().equals(currentCalendar.getTime())) return true;
-			if (updateCalendarEfectivo.getTime().equals(currentCalendar.getTime())) return true;
-
-			return true;  // O lo que desees que haga si no son iguales
-		}
 		public static boolean RestriccionIngresosDiaria(AppConfig appConfig) {
 			try {
 
 				Efectivo efectivo = Factory.build(Efectivo.class, appConfig);
 				efectivo.getEfectivo();
 
-				if (checkUpdateTodayDates(efectivo)) return false;
+				if (efectivo.checkUpdateToday()) return false;
 
 				if (efectivo.Efectivo > 0) {
-					appConfig.getWorkingArea().CurrentIngresoDiario = Factory.build(IngresoDiario.class, appConfig);
-					appConfig.getWorkingArea().CurrentIngresoDiario.FechaRegistro = IngresoDiario.getDateOfLastMovement(appConfig);
-					appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = new Date();
-					appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = efectivo.Efectivo;
-
 					if (efectivo.Efectivo < 5) {
 						efectivo.UpdateDateIngreso = new Date();
 						efectivo.update();
@@ -315,7 +237,7 @@ public class DepositManagerExtension {
 
 			String text = "Edicards adeuda la siguiente cantidad: " + ConstantsTypes.NEW_LINE
 					+ ConstantsTypes.NEW_LINE + "Comercial: " + appConfig.getUser().User + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE + "FECHA: " + formattedDate
-					+ ConstantsTypes.NEW_LINE + "CANTIDAD:" + efectivo.Efectivo * -1
+					+ ConstantsTypes.NEW_LINE + "CANTIDAD: " + efectivo.Efectivo * -1
 					+ ConstantsTypes.NEW_LINE;
 
 			Incidencia incidencia = new Incidencia(appConfig.getUser().User, new Date(), IncidenciaType.IngresoDiario,
@@ -334,7 +256,7 @@ public class DepositManagerExtension {
 
 		String text = "El comercial adeuda la siguiente cantidad (No ingresable por ser inferior a 5€): " + ConstantsTypes.NEW_LINE
 				+ ConstantsTypes.NEW_LINE + "Comercial: " + appConfig.getUser().User + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE + "FECHA: " + formattedDate
-				+ ConstantsTypes.NEW_LINE + "CANTIDAD:" + efectivo.Efectivo * -1
+				+ ConstantsTypes.NEW_LINE + "CANTIDAD: " + efectivo.Efectivo
 				+ ConstantsTypes.NEW_LINE;
 
 		Incidencia incidencia = new Incidencia(appConfig.getUser().User, new Date(), IncidenciaType.IngresoDiario,
@@ -347,25 +269,7 @@ public class DepositManagerExtension {
 
 	}
 
-		public static boolean RestriccionIngresosHoyFromCantidad(AppConfig appConfig) {
-
-            try {
-				boolean result =  DataTier.isTodayIngresosBiggerThanMax(appConfig);
-				if (result) {
-					appConfig.getWorkingArea().CurrentIngresoDiario = Factory.build(IngresoDiario.class, appConfig);
-					appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = new Date();
-					appConfig.getWorkingArea().CurrentIngresoDiario.FechaRegistro = new Date();
-					appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = calculateCantidadIngresos(appConfig);
-				}
-
-				return result;
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-
-		}
-
-		public static Long assignDepositoToNuevoCliente(Deposito deposito, AppConfig appConfig) {
+	public static Long assignDepositoToNuevoCliente(Deposito deposito, AppConfig appConfig) {
 			Deposito depositoNuevoCliente = Factory.build(Deposito.class, appConfig);
 			depositoNuevoCliente.assingFromDeposito(deposito);
             try {

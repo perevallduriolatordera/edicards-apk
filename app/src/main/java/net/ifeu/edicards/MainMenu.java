@@ -6,18 +6,16 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 
-import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.library.Utils.MessageBox.MessageBoxType;
-
 public class MainMenu extends FragmentActivity {
 
-    @Override
+    // Deshabilitat provisionalment
+    /*@Override
     public void onBackPressed() {
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragment_placeholder);
         if (!(currentFragment instanceof DepositManager)) {
                 super.onBackPressed();
         }
-    }
+    }*/
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

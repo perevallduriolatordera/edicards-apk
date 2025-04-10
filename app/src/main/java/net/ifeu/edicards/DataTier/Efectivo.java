@@ -8,6 +8,7 @@ import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 public class Efectivo extends Persistent implements IPersistable {
@@ -25,7 +26,7 @@ public class Efectivo extends Persistent implements IPersistable {
 
 		ContentValues values = new ContentValues();
 		values.put("Efectivo", this.Efectivo);
-		values.put("UpdateDateIngreso", formatter.format(this.UpdateDateEfectivo));
+		values.put("UpdateDateIngreso", formatter.format(this.UpdateDateIngreso));
 		values.put("UpdateDateEfectivo", formatter.format(this.UpdateDateEfectivo));
 
 		try {
@@ -46,7 +47,7 @@ public class Efectivo extends Persistent implements IPersistable {
 		formatter = new SimpleDateFormat("MM/dd/yyyy");
 
 		values.put("Efectivo", this.Efectivo);
-		values.put("UpdateDateIngreso", formatter.format(this.UpdateDateEfectivo));
+		values.put("UpdateDateIngreso", formatter.format(this.UpdateDateIngreso));
 		values.put("UpdateDateEfectivo", formatter.format(this.UpdateDateEfectivo));
 
 		String[] whereArgs = { String.valueOf(this.IdEfectivo) };
@@ -90,6 +91,35 @@ public class Efectivo extends Persistent implements IPersistable {
 			this.save();
 		}
 
+	}
+
+	public boolean checkUpdateToday() {
+		// Obtener las fechas actuales y las de efectivo (sin horas)
+		Calendar currentCalendar = Calendar.getInstance();
+		currentCalendar.setTime(new Date());
+		currentCalendar.set(Calendar.HOUR_OF_DAY, 0);
+		currentCalendar.set(Calendar.MINUTE, 0);
+		currentCalendar.set(Calendar.SECOND, 0);
+		currentCalendar.set(Calendar.MILLISECOND, 0);
+
+		Calendar updateCalendarIngreso = Calendar.getInstance();
+		updateCalendarIngreso.setTime(this.UpdateDateIngreso);
+		updateCalendarIngreso.set(Calendar.HOUR_OF_DAY, 0);
+		updateCalendarIngreso.set(Calendar.MINUTE, 0);
+		updateCalendarIngreso.set(Calendar.SECOND, 0);
+		updateCalendarIngreso.set(Calendar.MILLISECOND, 0);
+
+		Calendar updateCalendarEfectivo = Calendar.getInstance();
+		updateCalendarEfectivo.setTime(this.UpdateDateEfectivo);
+		updateCalendarEfectivo.set(Calendar.HOUR_OF_DAY, 0);
+		updateCalendarEfectivo.set(Calendar.MINUTE, 0);
+		updateCalendarEfectivo.set(Calendar.SECOND, 0);
+		updateCalendarEfectivo.set(Calendar.MILLISECOND, 0);
+
+		if (updateCalendarIngreso.getTime().equals(currentCalendar.getTime())) return true;
+		if (updateCalendarEfectivo.getTime().equals(currentCalendar.getTime())) return true;
+
+		return false;
 	}
 
 }

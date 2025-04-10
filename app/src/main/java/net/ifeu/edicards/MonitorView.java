@@ -417,24 +417,6 @@ public class MonitorView extends Fragment {
 		});
 
 		layout.addView(logBookExceptionsReport);
-
-		// * * * * Comentem a peticiói del Fernando * * * *
-		/*ButtonColor voluntaryContribution = new ButtonColor(getActivity(), Color.RED);
-
-		voluntaryContribution.setText("Ingreso de efectivo voluntario");
-		voluntaryContribution.setTextSize(TEXT_SIZE_BUTTON);
-		params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-		params.setMargins(0, 0, BUTTON_MARGIN, 0);
-		voluntaryContribution.setLayoutParams(params);
-
-		voluntaryContribution.setOnClickListener(view -> {
-			_appConfig.getWorkingArea().CurrentIngresoDiario = null;
-			_appConfig.getWorkingArea().IsIngresoDiarioVoluntario = true;
-			DepositManagerExtension.Dialogs.StartIngresoDiarioDialog(this);
-		});
-
-		layout.addView(voluntaryContribution);*/
-
 	}
 
     private LinearLayout createLabel(String text, String value, boolean compress) {

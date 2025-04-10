@@ -75,26 +75,24 @@ public class IngresosDiarios extends Activity {
 
 	private void assignValues() {
 
-		boolean isCalculated = _appConfig.getWorkingArea().CurrentIngresoDiario != null;
+		Efectivo efectivo = Factory.build(Efectivo.class, _appConfig);
+        try {
+            efectivo.getEfectivo();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
-		if (_appConfig.getWorkingArea().CurrentIngresoDiario == null) {
-			_appConfig.getWorkingArea().CurrentIngresoDiario = Factory.build(IngresoDiario.class, _appConfig);
-			_appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = new Date();
-			_appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = 0;
-			_appConfig.getWorkingArea().CurrentIngresoDiario.Gastos = 0;
-			_appConfig.getWorkingArea().CurrentIngresoDiario.Cantidad = 0;
-
-		}
+		boolean isCalculated = efectivo.checkUpdateToday();
 
 		TextView txtFecha = findViewById(R.id.txtFechaIngresosDiarios);
 		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-		String formattedDate = format.format(_appConfig.getWorkingArea().CurrentIngresoDiario.Fecha);
+		String formattedDate = format.format(efectivo.UpdateDateEfectivo);
 		txtFecha.setText(formattedDate);
 
 		EditText txtTotal = findViewById(R.id.txtTotalIngresar);
 		txtTotal.setEnabled(false);
 
-		final double ingresoReal = _appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos;
+		final double ingresoReal = efectivo.Efectivo;
 		txtTotal.setText(String.valueOf(NumberDecimal.roundToNearestFive(ingresoReal)));
 
 		EditText txtGasto = findViewById(R.id.txtGastosDiarios);
@@ -107,14 +105,14 @@ public class IngresosDiarios extends Activity {
 		});
 
 		EditText txtIngreso = findViewById(R.id.txtIngresosDiarios);
-		txtIngreso.setText(String.valueOf(_appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos));
+		txtIngreso.setText(String.valueOf(efectivo.Efectivo));
 		txtIngreso.setEnabled(!isCalculated);
 		txtIngreso.setFocusable(!isCalculated);
 		txtIngreso.setFocusableInTouchMode(!isCalculated);
 		txtIngreso.setCursorVisible(!isCalculated);
 	}
 
-	private float updateIngresos() {
+	private IngresoDiario updateIngresos() {
 		EditText txtTotal = findViewById(R.id.txtTotalIngresar);
 		EditText txtGasto = findViewById(R.id.txtGastosDiarios);
 		EditText txtIngreso = findViewById(R.id.txtIngresosDiarios);
@@ -124,16 +122,15 @@ public class IngresosDiarios extends Activity {
 		float total = NumberDecimal.roundToNearestFive(ingreso - gasto);
 
 		txtTotal.setText(String.valueOf(total));
-		_appConfig.getWorkingArea().CurrentIngresoDiario.Ingresos = ingreso;
-		_appConfig.getWorkingArea().CurrentIngresoDiario.Gastos = gasto;
-		_appConfig.getWorkingArea().CurrentIngresoDiario.Cantidad = total;
-        try {
-            _appConfig.getWorkingArea().CurrentIngresoDiario.Fecha = new Date();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
 
-		return total;
+		IngresoDiario ingresoDiario = Factory.build(IngresoDiario.class, _appConfig);
+		ingresoDiario.Ingresos = ingreso;
+		ingresoDiario.Gastos = gasto;
+		ingresoDiario.Cantidad = total;
+		ingresoDiario.Fecha = new Date();
+		ingresoDiario.FechaRegistro = new Date();
+
+		return ingresoDiario;
     }
 
 	private void showIngresosDiariosDialog() {
@@ -149,7 +146,7 @@ public class IngresosDiarios extends Activity {
 	public void OnSaveIngreso() throws Exception {
 
 		_appConfig = (AppConfig) this.getApplicationContext();
-		float total = updateIngresos();
+		IngresoDiario ingresoDiario = updateIngresos();
 
 		String ingresos = ((EditText) findViewById(R.id.txtIngresosDiarios)).getText().toString();
 		String gastos = ((EditText) findViewById(R.id.txtGastosDiarios)).getText().toString();
@@ -170,7 +167,7 @@ public class IngresosDiarios extends Activity {
 			}
 		}
 
-		_appConfig.getWorkingArea().CurrentIngresoDiario.save();
+		ingresoDiario.save();
 
 		_appConfig.getMessageBox().Show("Ingreso", "El ingreso se ha realizado correctamente", IngresosDiarios.this,
 				MessageBoxType.Information);
@@ -180,12 +177,14 @@ public class IngresosDiarios extends Activity {
 		finish();
 	}
 	private void updateEfectivo(double ingresos, double gastos, double cantidad) {
+
 		Efectivo efectivo = Factory.build(Efectivo.class, _appConfig);
         try {
             efectivo.getEfectivo();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
         if (cantidad > 0) {
 			efectivo.Efectivo = efectivo.Efectivo - (cantidad + gastos);
 		} else {
@@ -205,9 +204,9 @@ public class IngresosDiarios extends Activity {
 
 		String text = "Se ha efectuado un nuevo ingreso diario con los siguientes datos: " + ConstantsTypes.NEW_LINE
 				+ ConstantsTypes.NEW_LINE + "Comercial: " + this._appConfig.getUser().User + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE + "FECHA: " + formattedDate
-				+ ConstantsTypes.NEW_LINE + "CANTIDAD:" + cantidad
-				+ ConstantsTypes.NEW_LINE + "INGRESOS:" + ingresos
-				+ ConstantsTypes.NEW_LINE + "GASTOS:" + DepositManagerExtension.Format.RoundTo2Decimals(gastos).toString()
+				+ ConstantsTypes.NEW_LINE + "CANTIDAD: " + cantidad
+				+ ConstantsTypes.NEW_LINE + "INGRESOS: " + ingresos
+				+ ConstantsTypes.NEW_LINE + "GASTOS: " + DepositManagerExtension.Format.RoundTo2Decimals(gastos).toString()
 				+ ConstantsTypes.NEW_LINE;
 
 		Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(), IncidenciaType.IngresoDiario,

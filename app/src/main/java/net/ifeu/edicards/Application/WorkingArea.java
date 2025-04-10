@@ -24,7 +24,6 @@ public class WorkingArea {
 	public TransferMode TransferMode;
 	public ServiceMonitor Monitor;
 
-	public IngresoDiario CurrentIngresoDiario;
 	public boolean IsIngresoDiarioVoluntario;
 
 	public TransactionMetadata CurrentTransactionMetadata;
@@ -40,7 +39,6 @@ public class WorkingArea {
 		this.CurrentCliente = null;
 		this.CurrentArticulo = null;
 		this.CurrentTransactionMetadata = null;
-		this.CurrentIngresoDiario = null;
 	}
 	
 }
