@@ -123,12 +123,19 @@ public class IngresosDiarios extends Activity {
 
 		txtTotal.setText(String.valueOf(total));
 
+		Efectivo efectivo = Factory.build(Efectivo.class, _appConfig);
+		try {
+			efectivo.getEfectivo();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
 		IngresoDiario ingresoDiario = Factory.build(IngresoDiario.class, _appConfig);
 		ingresoDiario.Ingresos = ingreso;
 		ingresoDiario.Gastos = gasto;
 		ingresoDiario.Cantidad = total;
 		ingresoDiario.Fecha = new Date();
-		ingresoDiario.FechaRegistro = new Date();
+		ingresoDiario.FechaRegistro = efectivo.UpdateDateEfectivo;
 
 		return ingresoDiario;
     }
@@ -204,9 +211,9 @@ public class IngresosDiarios extends Activity {
 
 		String text = "Se ha efectuado un nuevo ingreso diario con los siguientes datos: " + ConstantsTypes.NEW_LINE
 				+ ConstantsTypes.NEW_LINE + "Comercial: " + this._appConfig.getUser().User + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE + "FECHA: " + formattedDate
-				+ ConstantsTypes.NEW_LINE + "CANTIDAD: " + cantidad
-				+ ConstantsTypes.NEW_LINE + "INGRESOS: " + ingresos
+				+ ConstantsTypes.NEW_LINE + "RECAUDADO: " + DepositManagerExtension.Format.RoundTo2Decimals(ingresos).toString()
 				+ ConstantsTypes.NEW_LINE + "GASTOS: " + DepositManagerExtension.Format.RoundTo2Decimals(gastos).toString()
+				+ ConstantsTypes.NEW_LINE + "INGRESOS: " + DepositManagerExtension.Format.RoundTo2Decimals(cantidad).toString()
 				+ ConstantsTypes.NEW_LINE;
 
 		Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(), IncidenciaType.IngresoDiario,

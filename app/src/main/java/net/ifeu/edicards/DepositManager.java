@@ -896,7 +896,13 @@ public class DepositManager extends Fragment implements  IMediator {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        efectivo.Efectivo = efectivo.Efectivo + _deposito.CantidadPagada;
+
+		if (_deposito.Totales.Total < 0) {
+			efectivo.Efectivo = efectivo.Efectivo - _deposito.CantidadPagada;
+		} else {
+			efectivo.Efectivo = efectivo.Efectivo + _deposito.CantidadPagada;
+		}
+
 		efectivo.UpdateDateEfectivo = new Date();
         try {
             efectivo.update();
