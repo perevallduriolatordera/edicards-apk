@@ -18,6 +18,7 @@ import net.ifeu.edicards.Constants.ConstantsDatabase;
 import net.ifeu.edicards.Constants.ConstantsEvents;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Contador;
+import net.ifeu.edicards.DataTier.Efectivo;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.Excel.ILogCreator;
 import net.ifeu.edicards.Excel.LogBookCreator;
@@ -416,7 +417,34 @@ public class MonitorView extends Fragment {
 			that.executeSync("Enviar trazabilidad de errores a soporte");
 		});
 
-		layout.addView(logBookExceptionsReport);
+		//layout.addView(logBookExceptionsReport);
+
+		ButtonColor initializeEfectivoButton = new ButtonColor(getActivity(), Color.RED);
+
+		initializeEfectivoButton.setText("Inicializar Ingresos Efectivo");
+		initializeEfectivoButton.setTextSize(TEXT_SIZE_BUTTON);
+		params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+		params.setMargins(0, 0, BUTTON_MARGIN, 0);
+		initializeEfectivoButton.setLayoutParams(params);
+
+		initializeEfectivoButton.setOnClickListener(view -> {
+
+			String restorePassword;
+			do {
+				restorePassword = _appConfig.getMessageBox().InputBox("Restaurar base de datos",
+						"Introduzca la contraseña para inicializar los ingresos de efectivo. Si la operación de realiza con éxito, la app será reiniciada.", getActivity());
+			} while (restorePassword.trim().equals(ConstantsTypes.EMPTY_STRING));
+
+			if (!restorePassword.equals(getPasswordForRestore())) {
+				_appConfig.getMessageBox().Show("Inicializando ingresos de efectivo", "Se ha introducido una contraseña no correcte. Vuelva a intentarlo" ,getActivity(), MessageBoxType.Error);
+				return;
+			}
+
+			initializeEfectivo();
+		});
+
+		layout.addView(initializeEfectivoButton);
+
 	}
 
     private LinearLayout createLabel(String text, String value, boolean compress) {
@@ -615,5 +643,24 @@ public class MonitorView extends Fragment {
 		int dayOfYear = calendar.get(Calendar.DAY_OF_YEAR);
 		int currentYear = calendar.get(Calendar.YEAR);
 		return String.valueOf(dayOfYear) + currentYear;
+	}
+
+	private void initializeEfectivo() {
+		Efectivo efectivo = Factory.build(Efectivo.class, _appConfig);
+		try {
+			efectivo.getEfectivo();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		efectivo.Efectivo = 0;
+		efectivo.UpdateDateEfectivo = new Date();
+		efectivo.UpdateDateIngreso = new Date();
+		try {
+			efectivo.update();
+			_appConfig.getMessageBox().Show("Inicializando ingresos de efectivo", "Se ha inicializado el ingreso de efectivo correctamente" ,getActivity(), MessageBoxType.Error);
+		} catch (Exception e) {
+			_appConfig.getMessageBox().Show("Inicializando ingresos de efectivo", "Se ha producido un error inicializando el ingreso de efectivo" ,getActivity(), MessageBoxType.Error);
+		}
 	}
 }
