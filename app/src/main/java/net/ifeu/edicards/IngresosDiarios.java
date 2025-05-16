@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -100,7 +101,9 @@ public class IngresosDiarios extends Activity {
 		txtGasto.setOnFocusChangeListener((v, hasFocus) -> {
 			// Cuando pierde el foco
 			if (!hasFocus) {
-				updateIngresos();
+				CheckBox checkBox = findViewById(R.id.chkTipoAplicar);
+				boolean applyNearestFive = !checkBox.isChecked();
+				updateIngresos(applyNearestFive);
 			}
 		});
 
@@ -112,14 +115,20 @@ public class IngresosDiarios extends Activity {
 		txtIngreso.setCursorVisible(!isCalculated);
 	}
 
-	private IngresoDiario updateIngresos() {
+	private IngresoDiario updateIngresos(boolean applyNearestFive) {
 		EditText txtTotal = findViewById(R.id.txtTotalIngresar);
 		EditText txtGasto = findViewById(R.id.txtGastosDiarios);
 		EditText txtIngreso = findViewById(R.id.txtIngresosDiarios);
 
 		Double ingreso = Double.parseDouble(txtIngreso.getText().toString());
 		Double gasto = Double.parseDouble(txtGasto.getText().toString());
-		float total = NumberDecimal.roundToNearestFive(ingreso - gasto);
+
+		float total;
+		if (applyNearestFive) {
+			total = NumberDecimal.roundToNearestFive(ingreso - gasto);
+		} else {
+			total = (float) (ingreso - gasto);
+		}
 
 		txtTotal.setText(String.valueOf(total));
 
@@ -152,8 +161,14 @@ public class IngresosDiarios extends Activity {
 
 	public void OnSaveIngreso() throws Exception {
 
+		CheckBox checkBox = findViewById(R.id.chkTipoAplicar);
+		checkBox.setOnCheckedChangeListener( (buttonView, isChecked) -> {
+			// Cuando cambia el estado del CheckBox
+			updateIngresos(!isChecked);
+		});
+
 		_appConfig = (AppConfig) this.getApplicationContext();
-		IngresoDiario ingresoDiario = updateIngresos();
+		IngresoDiario ingresoDiario = updateIngresos(!checkBox.isChecked());
 
 		String ingresos = ((EditText) findViewById(R.id.txtIngresosDiarios)).getText().toString();
 		String gastos = ((EditText) findViewById(R.id.txtGastosDiarios)).getText().toString();

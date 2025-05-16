@@ -21,8 +21,7 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".MainActivity"
-            android:noHistory="true"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTask"
             android:label="@string/title_activity_main"
             android:theme="@android:style/Theme.Holo" >
             <intent-filter>
