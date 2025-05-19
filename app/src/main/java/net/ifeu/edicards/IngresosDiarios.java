@@ -2,6 +2,8 @@ package net.ifeu.edicards;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -25,6 +27,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Timer;
 
 public class IngresosDiarios extends Activity {
 
@@ -76,14 +79,17 @@ public class IngresosDiarios extends Activity {
 
 	private void assignValues() {
 
+		CheckBox checkBox = findViewById(R.id.chkTipoAplicar);
+		checkBox.setOnCheckedChangeListener( (buttonView, isChecked) -> {
+			updateIngresos(!isChecked);
+		});
+
 		Efectivo efectivo = Factory.build(Efectivo.class, _appConfig);
         try {
             efectivo.getEfectivo();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-		boolean isCalculated = efectivo.checkUpdateToday();
 
 		TextView txtFecha = findViewById(R.id.txtFechaIngresosDiarios);
 		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
@@ -93,26 +99,32 @@ public class IngresosDiarios extends Activity {
 		EditText txtTotal = findViewById(R.id.txtTotalIngresar);
 		txtTotal.setEnabled(false);
 
-		final double ingresoReal = efectivo.Efectivo;
+		final double ingresoReal = efectivo.Efectivo;;
 		txtTotal.setText(String.valueOf(NumberDecimal.roundToNearestFive(ingresoReal)));
 
 		EditText txtGasto = findViewById(R.id.txtGastosDiarios);
-		txtGasto.setText("0");
-		txtGasto.setOnFocusChangeListener((v, hasFocus) -> {
-			// Cuando pierde el foco
-			if (!hasFocus) {
+		txtGasto.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				// Se ejecuta con cada tecla que cambia el texto
 				CheckBox checkBox = findViewById(R.id.chkTipoAplicar);
 				boolean applyNearestFive = !checkBox.isChecked();
 				updateIngresos(applyNearestFive);
 			}
+
+			@Override
+			public void afterTextChanged(Editable s) {}
 		});
 
 		EditText txtIngreso = findViewById(R.id.txtIngresosDiarios);
 		txtIngreso.setText(String.valueOf(efectivo.Efectivo));
-		txtIngreso.setEnabled(!isCalculated);
-		txtIngreso.setFocusable(!isCalculated);
-		txtIngreso.setFocusableInTouchMode(!isCalculated);
-		txtIngreso.setCursorVisible(!isCalculated);
+		txtIngreso.setEnabled(false);
+		txtIngreso.setFocusable(false);
+		txtIngreso.setFocusableInTouchMode(false);
+		txtIngreso.setCursorVisible(false);
 	}
 
 	private IngresoDiario updateIngresos(boolean applyNearestFive) {
@@ -121,7 +133,11 @@ public class IngresosDiarios extends Activity {
 		EditText txtIngreso = findViewById(R.id.txtIngresosDiarios);
 
 		Double ingreso = Double.parseDouble(txtIngreso.getText().toString());
-		Double gasto = Double.parseDouble(txtGasto.getText().toString());
+		Double gasto;
+		if (txtGasto.getText().length() == 0)
+			gasto = 0.0;
+		else
+			gasto = Double.parseDouble(txtGasto.getText().toString());
 
 		float total;
 		if (applyNearestFive) {
@@ -162,10 +178,6 @@ public class IngresosDiarios extends Activity {
 	public void OnSaveIngreso() throws Exception {
 
 		CheckBox checkBox = findViewById(R.id.chkTipoAplicar);
-		checkBox.setOnCheckedChangeListener( (buttonView, isChecked) -> {
-			// Cuando cambia el estado del CheckBox
-			updateIngresos(!isChecked);
-		});
 
 		_appConfig = (AppConfig) this.getApplicationContext();
 		IngresoDiario ingresoDiario = updateIngresos(!checkBox.isChecked());
