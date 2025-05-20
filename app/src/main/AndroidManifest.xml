@@ -2,16 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ifeu.edicards"
     android:versionCode="5"
-    android:exported="true"
-    android:versionName="5.4.11 (19 Mayo 2025) --> Refactor almacenamiento de efectivo" >
+    android:versionName="5.4.12 (20 Mayo 2025) --> Control de duplicidad de instancias">
 
-    <!--<uses-sdk
-        android:minSdkVersion="16"
-        android:targetSdkVersion="19" />-->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="false" />
     <application
         android:name=".Application.AppConfig"
         android:icon="@drawable/ic_launcher"
@@ -19,222 +13,136 @@
         android:largeHeap="true"
         android:hardwareAccelerated="true"
         android:theme="@style/AppTheme" >
+
         <activity
             android:name=".MainActivity"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:label="@string/title_activity_main"
-            android:theme="@android:style/Theme.Holo" >
+            android:theme="@android:style/Theme.Holo"
+            android:exported="true">
             <intent-filter>
-
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".NewUser"
+
+        <!-- Actividades sin filtros MAIN redundantes -->
+        <activity android:name=".NewUser"
             android:label="@string/title_activity_new_user"
-            android:theme="@android:style/Theme.Dialog" >
-            <intent-filter>
-                <action android:name="android.intent.action.EDIT" />
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".MainMenu"
+        <activity android:name=".MainMenu"
             android:label="@string/title_activity_main_menu"
-            android:theme="@android:style/Theme.Holo" >
-            <intent-filter>
-                <action android:name="android.intent.action.EDIT" />
+            android:theme="@android:style/Theme.Holo"
+            android:exported="false" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".CustomerSearchListDialog"
+        <activity android:name=".CustomerSearchListDialog"
             android:label="@string/title_activity_customer_search_list_dialog"
-            android:theme="@android:style/Theme.Dialog" >
-            <intent-filter>
-                <action android:name="android.intent.action.EDIT" />
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".AlbaranCustomerSearch"
+        <activity android:name=".AlbaranCustomerSearch"
             android:label="@string/title_activity_albaran_customer_search_dialog"
-            android:theme="@android:style/Theme.Dialog" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".ArticleDialog"
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
+
+        <activity android:name=".ArticleDialog"
             android:label="@string/title_activity_articulo_dialog"
-            android:theme="@android:style/Theme.Dialog" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".Totals"
+        <activity android:name=".Totals"
             android:label="@string/title_activity_totals"
-            android:theme="@android:style/Theme.Dialog" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".CustomerData"
+        <activity android:name=".CustomerData"
             android:label="@string/title_activity_customer_data"
-            android:theme="@android:style/Theme.Dialog" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".Reporting_Potenciados"
+        <activity android:name=".Reporting_Potenciados"
             android:label="@string/title_activity_reporting__potenciados"
-            android:theme="@android:style/Theme.Dialog" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".Reporting_Piezas"
+        <activity android:name=".Reporting_Piezas"
             android:label="@string/title_activity_reporting__piezas"
-            android:theme="@android:style/Theme.Dialog" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".Reporting_Totales"
+        <activity android:name=".Reporting_Totales"
             android:label="@string/title_activity_reporting__totales"
-            android:theme="@android:style/Theme.Dialog" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".Reporting_Retirados"
+        <activity android:name=".Reporting_Retirados"
             android:label="@string/title_activity_reporting__retirados"
-            android:theme="@android:style/Theme.Dialog" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".SignatureCustomer"
+        <activity android:name=".SignatureCustomer"
             android:label="@string/title_activity_signature_customer"
-            android:theme="@android:style/Theme.Dialog" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".SignatureVendor"
+        <activity android:name=".SignatureVendor"
             android:label="@string/title_activity_signature_vendor"
-            android:theme="@android:style/Theme.Dialog" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".SelectDeposit"
+        <activity android:name=".SelectDeposit"
             android:label="@string/title_activity_select_deposit"
-            android:theme="@android:style/Theme.Dialog" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        
         <activity
             android:name="net.ifeu.library.UCE.UCEDefaultActivity"
-            android:label="@string/title_activity_UCE">
-            <intent-filter>
-                <action android:name="android.intent.action.EDIT" />
+            android:label="@string/title_activity_UCE"
+            android:exported="false" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".Upgrade_App"
+        <activity android:name=".Upgrade_App"
             android:label="@string/title_activity_upgrade__app"
-            android:theme="@android:style/Theme.Dialog" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".IngresosDiarios"
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
+
+        <activity android:name=".IngresosDiarios"
             android:label="Ingresos diarios"
-            android:theme="@android:style/Theme.Dialog" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".DepositView"
+        <activity android:name=".DepositView"
             android:label="@string/title_activity_deposit_view"
-            android:theme="@android:style/Theme.Dialog" >
-        </activity>
-        <activity
-            android:name=".AttachmentsDialog"
-            android:label="Adjuntos"
-            android:theme="@android:style/Theme.Dialog" >
-        </activity>
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
 
-        <activity
-            android:name=".AlbaranView"
+        <activity android:name=".AttachmentsDialog"
+            android:label="Adjuntos"
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
+
+        <activity android:name=".AlbaranView"
             android:label="@string/title_activity_albaran_view"
-            android:theme="@android:style/Theme.Dialog" >
-        </activity>
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
 
-        <activity
-            android:name=".IngresoDiarioDialog"
+        <activity android:name=".IngresoDiarioDialog"
             android:label="Adjuntos"
-            android:theme="@android:style/Theme.Dialog" >
-        </activity>
-        
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
     </application>
 
+    <!-- Permisos -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.CAMERA" />
-
 </manifest>
