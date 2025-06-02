@@ -23,6 +23,10 @@ import android.view.View;
 
 public class SignatureView extends View {
 
+	public enum SignatureType {
+		CUSTOMER, VENDOR
+	}
+
 	private Bitmap mBitmap;
 	private Canvas mCanvas;
 	private Path mPath;
@@ -121,65 +125,44 @@ public class SignatureView extends View {
 		mPath.reset();// kill this so we don't double draw
 	}
 
-	@SuppressLint("WrongThread")
-	public void save(int tipo, String name) {
+	public void saveAsync(SignatureType tipo, String name, Context context) {
+		new Thread(() -> {
+			try {
+				File dir = new File(context.getExternalFilesDir(null),
+						ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_FIRMAS);
+				if (!dir.exists()) dir.mkdirs();
 
-		String path;
+				File file = new File(dir, (tipo == SignatureType.CUSTOMER ? "C_" : "V_") + name + ".png");
 
-		try {
-			path = Environment.getExternalStorageDirectory().toString() + "/"
-					+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_FIRMAS
-					+ "/"; // this is the sd card
+				try (OutputStream fOut = new FileOutputStream(file)) {
+					mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+					fOut.flush();
+				}
 
-			OutputStream fOut;
-
-			File file;
-
-			if (tipo == 1) {
-				file = new File(path, "C_" + name + ".png");
-			} else {
-				file = new File(path, "V_" + name + ".png");
+			} catch (IOException e) {
+				e.printStackTrace(); // Aquí podrías también notificar con un Toast usando un Handler si quieres
 			}
-
-			fOut = new FileOutputStream(file);
-			mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
-
-			fOut.flush();
-			fOut.close();
-
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		}).start();
 	}
 
-	public void saveBitmap1Color(int tipo, String name) {
+	public void saveBitmap1ColorAsync(SignatureType tipo, String name, Context context) {
+		new Thread(() -> {
+			try {
+				File dir = new File(context.getExternalFilesDir(null),
+						ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_FIRMAS);
+				if (!dir.exists()) dir.mkdirs();
 
-		String path;
+				String filename = (tipo == SignatureType.CUSTOMER ? "C1_" : "V1_") + name + ".bmp";
+				File outputFile = new File(dir, filename);
 
-		try {
-			path = Environment.getExternalStorageDirectory().toString() + "/"
-					+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_FIRMAS
-					+ "/"; // this is the sd card
+				BitmapConvertor converter = new BitmapConvertor();
+				converter.convertBitmap(mBitmap, outputFile.getAbsolutePath(),
+						mBitmap.getWidth() / 4, mBitmap.getHeight() / 4);
 
-			String file;
-
-			if (tipo == 1) {
-				file = path + "C1_" + name + ".bmp";
-			} else {
-				file = path + "V1_" + name + ".bmp";
+			} catch (Exception e) {
+				e.printStackTrace(); // Puedes notificar al usuario con Toast si quieres, usando un Handler
 			}
-
-			BitmapConvertor converter = new BitmapConvertor();
-			String result = converter.convertBitmap(mBitmap, file, mBitmap.getWidth() / 4, mBitmap.getHeight() / 4);
-
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-
+		}).start();
 	}
 
 }

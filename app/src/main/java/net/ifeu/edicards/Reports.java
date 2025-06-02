@@ -30,6 +30,7 @@ import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.DataTier.DTODeposito;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.DepositoModalidad;
+import net.ifeu.edicards.DataTier.Efectivo;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.Incidencia;
@@ -614,6 +615,7 @@ public class Reports extends Fragment {
 						dto.deserialize(hist.Serializacion);
 
 						that.upgradeStock(hist);
+						that.restoreEfectivo(dto);
 
 						if (!dto.isNTV) {
 							that.upgradeDeposito(hist);
@@ -839,7 +841,18 @@ public class Reports extends Fragment {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
+	private void restoreEfectivo(DTODeposito deposito) throws Exception {
+
+		if (deposito.CantidadPagada > 0) {
+			Efectivo efectivo = Factory.build(Efectivo.class, _appConfig);
+			efectivo.getEfectivo();
+			efectivo.Efectivo = efectivo.Efectivo - deposito.CantidadPagada;
+			efectivo.UpdateDateEfectivo = new Date();
+
+			efectivo.update();
+		}
+	}
 	private void GenerateAlbaran(DTODeposito deposito, Historico historico) throws Exception {
 		
 		Contador contador = Factory.build(Contador.class, _appConfig);
@@ -1073,5 +1086,4 @@ public class Reports extends Fragment {
 			throw new RuntimeException(e);
 		}
 	}
-
 }

@@ -26,11 +26,9 @@ public class SignatureVendor extends Activity {
 	}
 
 	public void OnClick(View v) {
-		// final SignatureView signature = (SignatureView)
-		// this.findViewById(R.id.signatureView);
 		SignatureView signature = (SignatureView) this.findViewById(R.id.signatureView);
-		signature.save(2, _app.getWorkingArea().CurrentHistorico.GUID);
-		signature.saveBitmap1Color(2, _app.getWorkingArea().CurrentHistorico.GUID);
+		signature.saveAsync(SignatureView.SignatureType.VENDOR, _app.getWorkingArea().CurrentHistorico.GUID, _app);
+		signature.saveBitmap1ColorAsync(SignatureView.SignatureType.VENDOR, _app.getWorkingArea().CurrentHistorico.GUID, _app);
 		_isSaved = true;
 
 		finish();

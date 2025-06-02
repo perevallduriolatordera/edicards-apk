@@ -45,8 +45,8 @@ public class SignatureCustomer extends Activity {
 
 	public void OnClick(View v) {
 		SignatureView signature = this.findViewById(R.id.signatureView);
-		signature.save(1, _app.getWorkingArea().CurrentHistorico.GUID);
-		signature.saveBitmap1Color(1, _app.getWorkingArea().CurrentHistorico.GUID);
+		signature.saveAsync(SignatureView.SignatureType.CUSTOMER, _app.getWorkingArea().CurrentHistorico.GUID, _app);
+		signature.saveBitmap1ColorAsync(SignatureView.SignatureType.CUSTOMER, _app.getWorkingArea().CurrentHistorico.GUID, _app);
 		_isSaved = true;
 
 		finish();

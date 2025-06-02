@@ -608,27 +608,29 @@ public class DepositManager extends Fragment implements  IMediator {
 				ArrayList<Deposito> depositos = deposito
 						.getDepositosByCodigoCliente(String.valueOf(cliente.CodigoCliente));
 
-				if (_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
+				if (_cliente != null && _cliente.CodigoCliente != null) {
+					if  (_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
 
-					if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
-						_appConfig.getMessageBox().Show("Información", "Se va a proceder a crear un cliente nuevo.",
-								this.getActivity(), MessageBoxType.Information);
+						if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
+							_appConfig.getMessageBox().Show("Información", "Se va a proceder a crear un cliente nuevo.",
+									this.getActivity(), MessageBoxType.Information);
 
-						_deposito = Factory.build(Deposito.class, _appConfig);
-						_deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
-						_deposito.assingFromCliente(_cliente);
-						_deposito.Lineas.clear();
-						_deposito.IsNtvDeposit = isNTV;
-						this.addPotentialArticles();
+							_deposito = Factory.build(Deposito.class, _appConfig);
+							_deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
+							_deposito.assingFromCliente(_cliente);
+							_deposito.Lineas.clear();
+							_deposito.IsNtvDeposit = isNTV;
+							this.addPotentialArticles();
 
-					} else {
-						_appConfig.getMessageBox().Show("Advertencia",
-								"No se puede hacer un traspaso de un cliente nuevo. La operación va a ser cancelada",
-								this.getActivity(), MessageBoxType.Information);
+						} else {
+							_appConfig.getMessageBox().Show("Advertencia",
+									"No se puede hacer un traspaso de un cliente nuevo. La operación va a ser cancelada",
+									this.getActivity(), MessageBoxType.Information);
 
-						_appConfig.getWorkingArea().TransferMode = TransferMode.None;
+							_appConfig.getWorkingArea().TransferMode = TransferMode.None;
 
-						return;
+							return;
+						}
 					}
 				}
 
@@ -925,12 +927,12 @@ public class DepositManager extends Fragment implements  IMediator {
 		String GUID;
 
 		double cantidadPagada;
-		String cantidadPagadaText = _textBoxCantidadPagada.getText().toString().replace("€", ConstantsTypes.EMPTY_STRING);
+		String cantidadPagadaText = _textBoxCantidadPagada.getText().toString();
 
 		if (_textBoxCantidadPagada.getText().toString().equals(ConstantsTypes.EMPTY_STRING))
-			cantidadPagada = Double.parseDouble("0");
+			cantidadPagada = 0;
 		else
-			cantidadPagada = Double.parseDouble(cantidadPagadaText);
+			cantidadPagada = Double.parseDouble(cantidadPagadaText.replace(",", "."));
 
 		_deposito.CantidadPagada = cantidadPagada;
 		if ((_checkPagado.isChecked())
@@ -1836,6 +1838,7 @@ public class DepositManager extends Fragment implements  IMediator {
 	}
 
 	private void showHeader(boolean visible) {
+		if (this.getActivity().findViewById(R.id.headerMainLinearLayout) == null) return;
 		(this.getActivity().findViewById(R.id.headerMainLinearLayout)).setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
 	}
 
@@ -1902,14 +1905,16 @@ public class DepositManager extends Fragment implements  IMediator {
 				addLineHeader(linea);
 		}
 
-		linea.StockInicial = linea.Articulo.Stock + linea.UnidadesDevueltas - linea.UnidadesRepuestas;
+		if (!_deposito.IsNtvDeposit) {
+			linea.StockInicial = linea.Articulo.Stock + linea.UnidadesDevueltas - linea.UnidadesRepuestas;
 
-		if (!linea.IsVentaDirecta) {
-			linea.UnidadesFacturadas = linea.UnidadesInicialesFijas - linea.UnidadesDevueltas;
-			linea.UnidadesIniciales = linea.UnidadesInicialesFijas + linea.UnidadesRepuestas - linea.UnidadesFacturadas
-					- linea.UnidadesDevueltas;
-		} else {
-			linea.UnidadesIniciales = linea.UnidadesRepuestas;
+			if (!linea.IsVentaDirecta) {
+				linea.UnidadesFacturadas = linea.UnidadesInicialesFijas - linea.UnidadesDevueltas;
+				linea.UnidadesIniciales = linea.UnidadesInicialesFijas + linea.UnidadesRepuestas - linea.UnidadesFacturadas
+						- linea.UnidadesDevueltas;
+			} else {
+				linea.UnidadesIniciales = linea.UnidadesRepuestas;
+			}
 		}
 
 		refreshTotals();
@@ -1935,9 +1940,9 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			if (_checkPagado.isChecked()) {
 				if (DepositManagerExtension.DataTier.IsSerieA(this._comboSerie, this._appConfig)) {
-					_textBoxCantidadPagada.setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.Total) + " €");
+					_textBoxCantidadPagada.setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.Total));
 				} else {
-					_textBoxCantidadPagada.setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.TotalBase) + " €");
+					_textBoxCantidadPagada.setText(DepositManagerExtension.Format.CurrencyFormat(_deposito.Totales.TotalBase));
 				}
 			}
 		} else {

@@ -47,12 +47,12 @@ public class Reporting {
 		public String FinalSeriaA = ConstantsTypes.EMPTY_STRING;
 		public String InicialSerieB = ConstantsTypes.EMPTY_STRING;
 		public String FinalSerieB = ConstantsTypes.EMPTY_STRING;
-		public double TotalSerieA;
-		public double TotalSerieB;
-		public double CantidadPagadaSerieA;
-		public double CantidadPagadaSerieB;
-		public int NumeroSerieA;
-		public int NumeroSerieB;
-		public double Facturado;
+		public double TotalSerieA = 0;
+		public double TotalSerieB = 0;
+		public double CantidadPagadaSerieA = 0;
+		public double CantidadPagadaSerieB = 0;
+		public int NumeroSerieA = 0;
+		public int NumeroSerieB = 0;
+		public double Facturado  = 0;
 	}
 }
