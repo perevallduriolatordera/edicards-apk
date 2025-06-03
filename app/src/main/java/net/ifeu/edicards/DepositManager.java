@@ -1905,18 +1905,19 @@ public class DepositManager extends Fragment implements  IMediator {
 				addLineHeader(linea);
 		}
 
-		if (!_deposito.IsNtvDeposit) {
-			linea.StockInicial = linea.Articulo.Stock + linea.UnidadesDevueltas - linea.UnidadesRepuestas;
+		if (_deposito != null) {
+			if (!_deposito.IsNtvDeposit) {
+				linea.StockInicial = linea.Articulo.Stock + linea.UnidadesDevueltas - linea.UnidadesRepuestas;
 
-			if (!linea.IsVentaDirecta) {
-				linea.UnidadesFacturadas = linea.UnidadesInicialesFijas - linea.UnidadesDevueltas;
-				linea.UnidadesIniciales = linea.UnidadesInicialesFijas + linea.UnidadesRepuestas - linea.UnidadesFacturadas
-						- linea.UnidadesDevueltas;
-			} else {
-				linea.UnidadesIniciales = linea.UnidadesRepuestas;
+				if (!linea.IsVentaDirecta) {
+					linea.UnidadesFacturadas = linea.UnidadesInicialesFijas - linea.UnidadesDevueltas;
+					linea.UnidadesIniciales = linea.UnidadesInicialesFijas + linea.UnidadesRepuestas - linea.UnidadesFacturadas
+							- linea.UnidadesDevueltas;
+				} else {
+					linea.UnidadesIniciales = linea.UnidadesRepuestas;
+				}
 			}
 		}
-
 		refreshTotals();
 		linea.TotalAbono = DepositManagerExtension.Format.round((linea.UnidadesAbono * linea.PVPAbono * -1), 2);
 

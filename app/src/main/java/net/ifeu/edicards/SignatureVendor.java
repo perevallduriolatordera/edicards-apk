@@ -8,6 +8,9 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class SignatureVendor extends Activity {
 
 	private Bundle _bundle;
@@ -26,11 +29,14 @@ public class SignatureVendor extends Activity {
 	}
 
 	public void OnClick(View v) {
-		SignatureView signature = (SignatureView) this.findViewById(R.id.signatureView);
-		signature.saveAsync(SignatureView.SignatureType.VENDOR, _app.getWorkingArea().CurrentHistorico.GUID, _app);
-		signature.saveBitmap1ColorAsync(SignatureView.SignatureType.VENDOR, _app.getWorkingArea().CurrentHistorico.GUID, _app);
-		_isSaved = true;
 
+		SignatureView signature = this.findViewById(R.id.signatureView);
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		executor.execute(() -> {
+			signature.save(2, _app.getWorkingArea().CurrentHistorico.GUID);
+			signature.saveBitmap1Color(2, _app.getWorkingArea().CurrentHistorico.GUID);
+			_isSaved = true;
+		});
 		finish();
 		_app.getMediator().notify(EVENT_CLOSE_OPERATION, _app.getWorkingArea().CurrentHistorico.GUID);
 

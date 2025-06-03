@@ -11,6 +11,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class SignatureCustomer extends Activity {
 
 	private Bundle _bundle;
@@ -45,10 +48,12 @@ public class SignatureCustomer extends Activity {
 
 	public void OnClick(View v) {
 		SignatureView signature = this.findViewById(R.id.signatureView);
-		signature.saveAsync(SignatureView.SignatureType.CUSTOMER, _app.getWorkingArea().CurrentHistorico.GUID, _app);
-		signature.saveBitmap1ColorAsync(SignatureView.SignatureType.CUSTOMER, _app.getWorkingArea().CurrentHistorico.GUID, _app);
-		_isSaved = true;
-
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		executor.execute(() -> {
+			signature.save(1, _app.getWorkingArea().CurrentHistorico.GUID);
+			signature.saveBitmap1Color(1, _app.getWorkingArea().CurrentHistorico.GUID);
+			_isSaved = true;
+		});
 		finish();
 
 	}

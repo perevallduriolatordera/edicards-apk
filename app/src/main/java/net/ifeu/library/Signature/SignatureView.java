@@ -8,8 +8,6 @@ import java.io.OutputStream;
 
 import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.library.Imaging.BitmapConvertor;
-
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -22,10 +20,6 @@ import android.view.MotionEvent;
 import android.view.View;
 
 public class SignatureView extends View {
-
-	public enum SignatureType {
-		CUSTOMER, VENDOR
-	}
 
 	private Bitmap mBitmap;
 	private Canvas mCanvas;
@@ -73,7 +67,7 @@ public class SignatureView extends View {
 		}
 		canvas.drawColor(Color.WHITE);
 		canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint); // draw offscreen
-														// changes
+		// changes
 		canvas.drawPath(mPath, mPaint); // draw current path
 	}
 
@@ -83,18 +77,18 @@ public class SignatureView extends View {
 		float y = event.getY();
 
 		switch (event.getAction()) {
-		case MotionEvent.ACTION_DOWN:
-			touch_start(x, y);
-			invalidate();
-			break;
-		case MotionEvent.ACTION_MOVE:
-			touch_move(x, y);
-			invalidate();
-			break;
-		case MotionEvent.ACTION_UP:
-			touch_up();
-			invalidate();
-			break;
+			case MotionEvent.ACTION_DOWN:
+				touch_start(x, y);
+				invalidate();
+				break;
+			case MotionEvent.ACTION_MOVE:
+				touch_move(x, y);
+				invalidate();
+				break;
+			case MotionEvent.ACTION_UP:
+				touch_up();
+				invalidate();
+				break;
 		}
 		return true;
 	}
@@ -125,44 +119,64 @@ public class SignatureView extends View {
 		mPath.reset();// kill this so we don't double draw
 	}
 
-	public void saveAsync(SignatureType tipo, String name, Context context) {
-		new Thread(() -> {
-			try {
-				File dir = new File(context.getExternalFilesDir(null),
-						ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_FIRMAS);
-				if (!dir.exists()) dir.mkdirs();
+	public void save(int tipo, String name) {
 
-				File file = new File(dir, (tipo == SignatureType.CUSTOMER ? "C_" : "V_") + name + ".png");
+		String path;
 
-				try (OutputStream fOut = new FileOutputStream(file)) {
-					mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
-					fOut.flush();
-				}
+		try {
+			path = Environment.getExternalStorageDirectory().toString() + "/"
+					+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_FIRMAS
+					+ "/"; // this is the sd card
 
-			} catch (IOException e) {
-				e.printStackTrace(); // Aquí podrías también notificar con un Toast usando un Handler si quieres
+			OutputStream fOut;
+
+			File file;
+
+			if (tipo == 1) {
+				file = new File(path, "C_" + name + ".png");
+			} else {
+				file = new File(path, "V_" + name + ".png");
 			}
-		}).start();
+
+			fOut = new FileOutputStream(file);
+			mBitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+
+			fOut.flush();
+			fOut.close();
+
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
-	public void saveBitmap1ColorAsync(SignatureType tipo, String name, Context context) {
-		new Thread(() -> {
-			try {
-				File dir = new File(context.getExternalFilesDir(null),
-						ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_FIRMAS);
-				if (!dir.exists()) dir.mkdirs();
+	public void saveBitmap1Color(int tipo, String name) {
 
-				String filename = (tipo == SignatureType.CUSTOMER ? "C1_" : "V1_") + name + ".bmp";
-				File outputFile = new File(dir, filename);
+		String path;
 
-				BitmapConvertor converter = new BitmapConvertor();
-				converter.convertBitmap(mBitmap, outputFile.getAbsolutePath(),
-						mBitmap.getWidth() / 4, mBitmap.getHeight() / 4);
+		try {
+			path = Environment.getExternalStorageDirectory().toString() + "/"
+					+ ConstantsFolders.FOLDER_ROOT + "/" + ConstantsFolders.FOLDER_FIRMAS
+					+ "/"; // this is the sd card
 
-			} catch (Exception e) {
-				e.printStackTrace(); // Puedes notificar al usuario con Toast si quieres, usando un Handler
+			String file;
+
+			if (tipo == 1) {
+				file = path + "C1_" + name + ".bmp";
+			} else {
+				file = path + "V1_" + name + ".bmp";
 			}
-		}).start();
+
+			BitmapConvertor converter = new BitmapConvertor();
+			String result = converter.convertBitmap(mBitmap, file, mBitmap.getWidth() / 4, mBitmap.getHeight() / 4);
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
 	}
 
 }
