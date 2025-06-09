@@ -1147,9 +1147,13 @@ public class DepositManager extends Fragment implements  IMediator {
 			try {
 				DepositManagerExtension.Documents.GeneratePdf(GUID, _deposito, _modalidad, _appConfig);
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				_appConfig.getMessageBox().Show("Impresión de documentos",
+						"NO SE HA PODIDO GENERAR LOS DOCUMENTOS PDF. Revise el dispositivo. Motivo: " + e.getMessage(),
+						this.getActivity(), MessageBoxType.Error);
 			} catch (DocumentException e) {
-				throw new RuntimeException(e);
+				_appConfig.getMessageBox().Show("Impresión de documentos",
+						"NO SE HA PODIDO GENERAR LOS DOCUMENTOS PDF. Revise el dispositivo. Motivo: " + e.getMessage(),
+						this.getActivity(), MessageBoxType.Error);
 			}
 
 			boolean resultImp = _appConfig.getMessageBox().ShowWithResult("Impresión de documentos",

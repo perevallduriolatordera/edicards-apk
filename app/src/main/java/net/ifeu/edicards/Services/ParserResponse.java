@@ -513,10 +513,7 @@ public class ParserResponse extends ParserBase {
 	}
 	
 	public boolean  UndoTraspasoAlmacen(AppConfig app)
-			throws Exception // throws ParserConfigurationException,
-								// DOMException, SAXException, IOException
 	{
-
 		Articulo articulo = Factory.build(Articulo.class, app);
 		
 		try {
@@ -548,7 +545,7 @@ public class ParserResponse extends ParserBase {
 
 			return true;
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			return false;
 		}
 	}
 

@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ifeu.edicards"
     android:versionCode="5"
-    android:versionName="5.4.14 (03 Junio 2025) --> Control de duplicidad de instancias">
+    android:versionName="5.4.15 (09 Junio 2025) --> Control de duplicidad de instancias">
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
@@ -20,10 +20,10 @@
             android:label="@string/title_activity_main"
             android:theme="@android:style/Theme.Holo"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+                <intent-filter>
+                    <action android:name="android.intent.action.MAIN" />
+                    <category android:name="android.intent.category.LAUNCHER" />
+                </intent-filter>
         </activity>
 
         <!-- Actividades sin filtros MAIN redundantes -->

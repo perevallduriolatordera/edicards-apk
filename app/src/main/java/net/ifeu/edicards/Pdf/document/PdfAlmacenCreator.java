@@ -499,13 +499,16 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
     }
 
     private List<String> getBarcodeList(String barcode) {
+        if (barcode == null || barcode.isEmpty()) {
+            return Collections.emptyList();
+        }
         return Arrays.asList(barcode.split(","));
     }
 
 
     private void createBitmap(String ean) {
 
-        if (StringUtils.isEmpty(ean)) return;
+        if (StringUtils.isEmpty(ean) || ean == null) return;
 
         String barcodeName = getBarcodeFileName(ean);
         File barcodeFile = new File(barcodeName);
