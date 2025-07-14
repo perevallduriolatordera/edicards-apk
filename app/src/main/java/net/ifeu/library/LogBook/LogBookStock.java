@@ -65,36 +65,6 @@ public class LogBookStock extends Persistent implements IPersistable, ITraceable
     @Override
     public void save() throws Exception {
 
-        Articulo articuloHomonimo = Factory.build(Articulo.class, appConfig);
-        Deposito depositoHomonimo = Factory.build(Deposito.class, appConfig);
-        boolean existsDeposito = depositoHomonimo.setFirstDepositoByCliente(this.CodigoCliente);
-
-        boolean isChineseArticle = false;
-        boolean isFound;
-        if (this.CodigoArticulo.startsWith("CH")) {
-            isFound = articuloHomonimo.setArticuloByCodigo(this.CodigoArticulo.substring(2));
-            isChineseArticle = true;
-        } else {
-            isFound = articuloHomonimo.setArticuloByCodigo("CH" + this.CodigoArticulo);
-        }
-
-        if (isFound) {
-            if (isChineseArticle) {
-                this.CodigoArticulo = articuloHomonimo.CodigoArticulo;
-                this.NombreArticulo = articuloHomonimo.Descripcion;
-            }
-
-            if (existsDeposito) {
-                if (depositoHomonimo.Lineas.containsKey(articuloHomonimo.CodigoArticulo)) {
-                    LineaDeposito lineaDeposito = depositoHomonimo.Lineas.get(articuloHomonimo.CodigoArticulo);
-                    this.UnidadesIniciales+= lineaDeposito.UnidadesIniciales;
-                    this.UnidadesRepuestas+= lineaDeposito.UnidadesRepuestas;
-                }
-            }
-            this.StockInicial += articuloHomonimo.Stock;
-            this.StockFinal += articuloHomonimo.Stock;
-        }
-
         ContentValues values = new ContentValues();
         values.put("TipoMovimiento", this.TipoMovimiento);
         values.put("NombreCliente", this.NombreCliente);
