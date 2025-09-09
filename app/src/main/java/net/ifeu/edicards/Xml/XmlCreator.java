@@ -19,12 +19,15 @@ import net.ifeu.edicards.DataTier.DTODeposito;
 import net.ifeu.edicards.DataTier.DTOLineaDeposito;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.Factories.Factory;
+import net.ifeu.edicards.DataTier.FormaPago;
 import net.ifeu.edicards.DataTier.Gasto;
 import net.ifeu.edicards.DataTier.GastosInfo;
 import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.LineaHistorico;
 import net.ifeu.edicards.DataTier.LineaMovimientos;
+import net.ifeu.edicards.DepositManagerExtension;
+
 import android.content.Context;
 import android.os.Environment;
 
@@ -1083,7 +1086,189 @@ public class XmlCreator {
 		
 		this.createXmlDailyStock();
 	}
-	
+
+	public void createXmlDeposito(DTODeposito deposito) throws Exception {
+
+		File newxmlfile = new File(Environment.getExternalStorageDirectory()
+				.toString()
+				+ "/"
+				+ ConstantsFolders.FOLDER_ROOT
+				+ "/"
+				+ ConstantsFolders.FOLDER_DEPOSITOS
+				+ "/"
+				+ deposito.IdDeposito + ".xml");
+		try {
+			newxmlfile.createNewFile();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		FileOutputStream fileos = null;
+		try {
+			fileos = new FileOutputStream(newxmlfile);
+
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+
+		fileos.write("<Deposito>".getBytes());
+
+		fileos.write("<Empresa>".getBytes());
+		fileos.write(_appConfig.getUser().Company.getBytes());
+		fileos.write("</Empresa>".getBytes());
+
+		fileos.write("<Usuario>".getBytes());
+		fileos.write(_appConfig.getUser().User.getBytes());
+		fileos.write("</Usuario>".getBytes());
+
+		fileos.write("<CodigoDeposito>".getBytes());
+		fileos.write(String.valueOf(deposito.IdDeposito).getBytes());
+		fileos.write("</CodigoDeposito>".getBytes());
+
+		SimpleDateFormat formatter;
+		formatter = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
+
+		fileos.write("<FechaDeposito>".getBytes());
+		fileos.write(formatter.format(deposito.FechaDeposito).getBytes());
+		fileos.write("</FechaDeposito>".getBytes());
+
+		fileos.write("<Ejercicio>".getBytes());
+		fileos.write(deposito.Ejercicio.getBytes());
+		fileos.write("</Ejercicio>".getBytes());
+
+		fileos.write("<CodigoCliente>".getBytes());
+		fileos.write(deposito.CodigoCliente.getBytes());
+		fileos.write("</CodigoCliente>".getBytes());
+
+		fileos.write("<Nombre>".getBytes());
+		fileos.write(this.getWithCDATA(deposito.Nombre).getBytes());
+		fileos.write("</Nombre>".getBytes());
+
+		fileos.write("<NIF>".getBytes());
+		fileos.write(deposito.NIF.getBytes());
+		fileos.write("</NIF>".getBytes());
+
+		fileos.write("<Razon>".getBytes());
+		fileos.write(this.getWithCDATA(deposito.Razon).getBytes());
+		fileos.write("</Razon>".getBytes());
+
+		fileos.write("<Direccion1>".getBytes());
+		fileos.write(this.getWithCDATA(deposito.Direccion1).getBytes());
+		fileos.write("</Direccion1>".getBytes());
+
+		fileos.write("<Direccion2>".getBytes());
+		fileos.write(this.getWithCDATA(deposito.Direccion2).getBytes());
+		fileos.write("</Direccion2>".getBytes());
+
+		fileos.write("<CodigoPostal>".getBytes());
+		fileos.write(deposito.CodigoPostal.getBytes());
+		fileos.write("</CodigoPostal>".getBytes());
+
+		fileos.write("<Poblacion>".getBytes());
+		fileos.write(deposito.Poblacion.getBytes());
+		fileos.write("</Poblacion>".getBytes());
+
+		fileos.write("<Provincia>".getBytes());
+		fileos.write(deposito.Provincia.getBytes());
+		fileos.write("</Provincia>".getBytes());
+
+		fileos.write("<Telefono1>".getBytes());
+		fileos.write(deposito.Telefono1.getBytes());
+		fileos.write("</Telefono1>".getBytes());
+
+		fileos.write("<Telefono2>".getBytes());
+		fileos.write(deposito.Telefono2.getBytes());
+		fileos.write("</Telefono2>".getBytes());
+
+		fileos.write("<Fax>".getBytes());
+		fileos.write(deposito.Fax.getBytes());
+		fileos.write("</Fax>".getBytes());
+
+		fileos.write("<Mail>".getBytes());
+		fileos.write(this.getWithCDATA(deposito.Mail).getBytes());
+		fileos.write("</Mail>".getBytes());
+
+		fileos.write("<Web>".getBytes());
+		fileos.write(this.getWithCDATA(deposito.Web).getBytes());
+		fileos.write("</Web>".getBytes());
+
+		if (deposito.NumDoc == null) {
+			fileos.write("<NumDoc>".getBytes());
+			fileos.write(ConstantsTypes.EMPTY_STRING.getBytes());
+			fileos.write("</NumDoc>".getBytes());
+		} else {
+			fileos.write("<NumDoc>".getBytes());
+			fileos.write(deposito.NumDoc.getBytes());
+			fileos.write("</NumDoc>".getBytes());
+		}
+
+		fileos.write("<FormaPago>".getBytes());
+		FormaPago formaPago = DepositManagerExtension.DataTier.getFormaPagoByDescripcion(deposito.PagoDescripcion, this._appConfig);
+
+		if (formaPago != null)
+			fileos.write(formaPago.CodigoFormaPago.getBytes());
+		else
+			fileos.write(ConstantsTypes.EMPTY_STRING.getBytes());
+
+		fileos.write("</FormaPago>".getBytes());
+
+		fileos.write("<Filiacion>".getBytes());
+		fileos.write(deposito.Filiacion.getBytes());
+		fileos.write("</Filiacion>".getBytes());
+
+		fileos.write("<Retirado>".getBytes());
+		fileos.write(String.valueOf(false).getBytes());
+		fileos.write("</Retirado>".getBytes());
+
+		fileos.write("<MotivoRetirado>".getBytes());
+		fileos.write(ConstantsTypes.EMPTY_STRING.getBytes());
+		fileos.write("</MotivoRetirado>".getBytes());
+
+		fileos.write("<Lineas>".getBytes());
+
+		for (DTOLineaDeposito linea : deposito.Lineas.values()) {
+			try {
+				if (linea.UnidadesRepuestas > 0) {
+
+					LineaMovimientos movimientos = linea.getMovimientos();
+
+					fileos.write("<Linea>".getBytes());
+
+					fileos.write("<CodigoArticulo>".getBytes());
+					fileos.write(linea.CodigoArticulo.getBytes());
+					fileos.write("</CodigoArticulo>".getBytes());
+
+					fileos.write("<Unidades>".getBytes());
+					fileos.write(String.valueOf(linea.UnidadesIniciales).getBytes());
+					fileos.write("</Unidades>".getBytes());
+
+					fileos.write("<PVP>".getBytes());
+					fileos.write(String.valueOf(linea.PVPAnterior).getBytes());
+					fileos.write("</PVP>".getBytes());
+
+					fileos.write("<MovimientoStock>".getBytes());
+					fileos.write(String.valueOf(movimientos.TotalMovimientoDeposito).getBytes());
+					fileos.write("</MovimientoStock>".getBytes());
+
+					fileos.write("<MovimientoStockAbono>".getBytes());
+					fileos.write(String.valueOf(movimientos.TotalAbono).getBytes());
+					fileos.write("</MovimientoStockAbono>".getBytes());
+
+					fileos.write("</Linea>".getBytes());
+				}
+
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		fileos.write("</Lineas>".getBytes());
+		fileos.write("</Deposito>".getBytes());
+
+		fileos.close();
+
+		this.createXmlDailyStock();
+	}
 
 
 	private Calendar setWeekStart(Calendar calendar) {
@@ -1106,7 +1291,7 @@ public class XmlCreator {
 
 						result.put(linea.Articulo.CodigoArticulo, report);
 					} else {
-						Reports report = (Reports) result
+						Reports report = result
 								.get(linea.Articulo.CodigoArticulo);
 						report.Potenciados += linea.Unidades;
 					}
@@ -1119,7 +1304,7 @@ public class XmlCreator {
 
 						result.put(linea.Articulo.CodigoArticulo, report);
 					} else {
-						Reports report = (Reports) result
+						Reports report = result
 								.get(linea.Articulo.CodigoArticulo);
 						report.Retirados += linea.Unidades;
 					}

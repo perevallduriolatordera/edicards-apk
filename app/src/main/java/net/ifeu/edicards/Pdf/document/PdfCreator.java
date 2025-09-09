@@ -95,20 +95,9 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 		DecimalFormat df = new DecimalFormat("0.00");
 
 		if (tipo == ConstantsTypes.TIPO_DOCUMENTO_DEPOSITO) {
-			try {
-				_deposito.CalculateDeposito();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-
 			this.insertSeparators();
 
 		} else {
-			try {
-				_deposito.Calculate();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
 
 			if ((_deposito.Totales.DescuentoFinanciero != 0 || _deposito.Totales.DescuentoProntoPago != 0)
 					&& (_deposito.Serie.equals(_app.getUser().SerialInvoiceA))) {

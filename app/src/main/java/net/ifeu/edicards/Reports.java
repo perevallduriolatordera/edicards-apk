@@ -643,7 +643,7 @@ public class Reports extends Fragment {
 							throw new RuntimeException(e1);
 						}
 
-						that.GenerateAlbaran(dto, hist);
+						that.generateXML(dto, hist);
 						hist.delete();
 						getHistoricos();
 						
@@ -853,7 +853,23 @@ public class Reports extends Fragment {
 			efectivo.update();
 		}
 	}
-	private void GenerateAlbaran(DTODeposito deposito, Historico historico) throws Exception {
+
+
+	private void generateXML(DTODeposito deposito, Historico historico) {
+
+		try {
+			XmlCreator creator = new XmlCreator(_appConfig);
+			creator.createXmlArticulos();
+
+			generateAlbaran(deposito, historico);
+
+			if (deposito.isDeposito())
+				creator.createXmlDeposito(deposito);
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+	private void generateAlbaran(DTODeposito deposito, Historico historico) throws Exception {
 		
 		Contador contador = Factory.build(Contador.class, _appConfig);
 		contador.getContadores();

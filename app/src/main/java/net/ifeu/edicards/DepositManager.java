@@ -1013,44 +1013,7 @@ public class DepositManager extends Fragment implements  IMediator {
 					linea.calculateStock();
 
 					if (linea.UnidadesInicialesFijas > 0) {
-						// Merge logic for LogBookTrace only
-						String codigoArticulo = linea.Articulo.CodigoArticulo;
-						String baseCode = codigoArticulo.startsWith("CH") ? codigoArticulo.substring(2) : codigoArticulo;
-						
-						if (logBookProcessed.containsKey(baseCode)) {
-							// Merge with existing Spanish article for LogBook
-							LineaDeposito existingLinea = logBookProcessed.get(baseCode);
-							existingLinea.UnidadesInicialesFijas += linea.UnidadesInicialesFijas;
-							existingLinea.UnidadesDevueltas += linea.UnidadesDevueltas;
-							existingLinea.UnidadesDefectuosas += linea.UnidadesDefectuosas;
-							existingLinea.UnidadesRepuestas += linea.UnidadesRepuestas;
-							existingLinea.UnidadesFacturadas += linea.UnidadesFacturadas;
-							existingLinea.UnidadesAbono += linea.UnidadesAbono;
-						} else {
-							// Create entry for LogBook with Spanish code
-							LineaDeposito logBookLinea = new LineaDeposito();
-							logBookLinea.Articulo = new Articulo();
-							logBookLinea.Articulo.CodigoArticulo = baseCode;
-							logBookLinea.Articulo.Descripcion = linea.Articulo.Descripcion;
-							logBookLinea.Articulo.Stock = stockInicial;
-							logBookLinea.UnidadesInicialesFijas = linea.UnidadesInicialesFijas;
-							logBookLinea.UnidadesDevueltas = linea.UnidadesDevueltas;
-							logBookLinea.UnidadesDefectuosas = linea.UnidadesDefectuosas;
-							logBookLinea.UnidadesRepuestas = linea.UnidadesRepuestas;
-							logBookLinea.UnidadesFacturadas = linea.UnidadesFacturadas;
-							logBookLinea.UnidadesAbono = linea.UnidadesAbono;
-							
-							logBookProcessed.put(baseCode, logBookLinea);
-							
-							LogBookStock logBookTrace = Factory.build(LogBookStock.class, _appConfig);
-							logBookTrace.setData("DEPOSITO RETIRADO", _deposito.Cliente.CodigoCliente,
-									_deposito.Cliente.Razon, baseCode, linea.Articulo.Descripcion,
-									stockInicial, linea.Articulo.Stock, logBookLinea.UnidadesDevueltas, logBookLinea.UnidadesDefectuosas,
-									logBookLinea.UnidadesRepuestas, logBookLinea.UnidadesFacturadas, logBookLinea.UnidadesInicialesFijas,
-									logBookLinea.UnidadesAbono, logBookLinea.UnidadesDefectuosas);
-
-							logBookTrace.save();
-						}
+						createLogBookEntries(logBookProcessed, linea, stockInicial);
 					}
 					linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.UnidadesDefectuosas;
 					linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
@@ -1153,9 +1116,62 @@ public class DepositManager extends Fragment implements  IMediator {
 				creator.createXmlAlbaran(_deposito);
 
 			if (_deposito.isDeposito() || (!_deposito.isDeposito() && _deposito.isDepositoUpdated()))
-				creator.createXmlDeposito(_deposito);
+				creator.createXmlDeposito(_deposito);C
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
+		}
+	}
+
+	private void createLogBookEntries(Map<String, LineaDeposito> logBookProcessed, LineaDeposito linea, int stockInicial) {
+		// Merge logic for LogBookTrace only
+		String codigoArticulo = linea.Articulo.CodigoArticulo;
+		String baseCode = codigoArticulo.startsWith("CH") ? codigoArticulo.substring(2) : codigoArticulo;
+		
+		if (logBookProcessed.containsKey(baseCode)) {
+			// Merge with existing Spanish article for LogBook
+			LineaDeposito existingLinea = logBookProcessed.get(baseCode);
+			existingLinea.UnidadesInicialesFijas += linea.UnidadesInicialesFijas;
+			existingLinea.UnidadesDevueltas += linea.UnidadesDevueltas;
+			existingLinea.UnidadesDefectuosas += linea.UnidadesDefectuosas;
+			existingLinea.UnidadesRepuestas += linea.UnidadesRepuestas;
+			existingLinea.UnidadesFacturadas += linea.UnidadesFacturadas;
+			existingLinea.UnidadesAbono += linea.UnidadesAbono;
+
+			try {
+				existingLinea.update();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+
+		} else {
+			// Create entry for LogBook with Spanish code
+			LineaDeposito logBookLinea = new LineaDeposito();
+			logBookLinea.Articulo = new Articulo();
+			logBookLinea.Articulo.CodigoArticulo = baseCode;
+			logBookLinea.Articulo.Descripcion = linea.Articulo.Descripcion;
+			logBookLinea.Articulo.Stock = stockInicial;
+			logBookLinea.UnidadesInicialesFijas = linea.UnidadesInicialesFijas;
+			logBookLinea.UnidadesDevueltas = linea.UnidadesDevueltas;
+			logBookLinea.UnidadesDefectuosas = linea.UnidadesDefectuosas;
+			logBookLinea.UnidadesRepuestas = linea.UnidadesRepuestas;
+			logBookLinea.UnidadesFacturadas = linea.UnidadesFacturadas;
+			logBookLinea.UnidadesAbono = linea.UnidadesAbono;
+
+			logBookProcessed.put(baseCode, logBookLinea);
+			
+			LogBookStock logBookTrace = Factory.build(LogBookStock.class, _appConfig);
+			logBookTrace.setData("DEPOSITO RETIRADO", _deposito.Cliente.CodigoCliente,
+					_deposito.Cliente.Razon, baseCode, linea.Articulo.Descripcion,
+					stockInicial, linea.Articulo.Stock, logBookLinea.UnidadesDevueltas, logBookLinea.UnidadesDefectuosas,
+					logBookLinea.UnidadesRepuestas, logBookLinea.UnidadesFacturadas, logBookLinea.UnidadesInicialesFijas,
+					logBookLinea.UnidadesAbono, logBookLinea.UnidadesDefectuosas);
+
+			try {
+				logBookTrace.save();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+
 		}
 	}
 

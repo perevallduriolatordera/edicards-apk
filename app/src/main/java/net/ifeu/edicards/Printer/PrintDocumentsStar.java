@@ -186,11 +186,6 @@ public class PrintDocumentsStar implements IPrint {
 			port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
 
 		} else {
-			try {
-				deposito.Calculate();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
 
 			if ((deposito.Totales.DescuentoFinanciero != 0 || deposito.Totales.DescuentoProntoPago != 0)) {
 				String total = padLeft(" ", 38)
@@ -286,9 +281,13 @@ public class PrintDocumentsStar implements IPrint {
 				outputByteBuffer = ("\nIVA NO INCLUIDO\n").getBytes();
 				port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
 
+				// Set double width and height for forma de pago
+				port.writePort(new byte[] { 0x1b, 0x21, 0x30 }, 0, 3); // Double width and height
 				outputByteBuffer = ("Forma de pago: "
 						+ deposito.PagoDescripcion + "\n").getBytes();
 				port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
+				// Reset font size to normal
+				port.writePort(new byte[] { 0x1b, 0x21, 0x00 }, 0, 3);
 
 				if (isMadeInSpain(deposito.CodigoPostal))
 					this.PrintBitmapImage(context, PORT, SETTINGS,
@@ -335,9 +334,13 @@ public class PrintDocumentsStar implements IPrint {
 																			// as
 																			// on)
 
+					// Set double width and height for forma de pago
+					port.writePort(new byte[] { 0x1b, 0x21, 0x30 }, 0, 3); // Double width and height
 					outputByteBuffer = ("\nForma de pago: "
 							+ deposito.PagoDescripcion + "\n").getBytes();
 					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
+					// Reset font size to normal
+					port.writePort(new byte[] { 0x1b, 0x21, 0x00 }, 0, 3);
 
 				}
 				

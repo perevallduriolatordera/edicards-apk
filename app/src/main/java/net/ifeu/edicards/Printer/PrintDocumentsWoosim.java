@@ -192,11 +192,6 @@ public class PrintDocumentsWoosim implements IPrint {
 			this.Print();
 
 		} else {
-			try {
-				deposito.Calculate();
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
 
 			if ((deposito.Totales.DescuentoFinanciero != 0 || deposito.Totales.DescuentoProntoPago != 0)) {
 				String total = padLeft(" ", 38)
@@ -288,7 +283,7 @@ public class PrintDocumentsWoosim implements IPrint {
 				this.Print();
 
 				_woosim.saveSpool(LANGUAGE, "Forma de pago: "
-						+ deposito.PagoDescripcion + "\n", 0, true);
+						+ deposito.PagoDescripcion + "\n", 1, true);
 				this.Print();
 
 				if (isMadeInSpain(deposito.CodigoPostal))
@@ -320,7 +315,7 @@ public class PrintDocumentsWoosim implements IPrint {
 					String formaPago = ("\nForma de pago: "
 							+ deposito.PagoDescripcion + "\n");
 
-					_woosim.saveSpool(LANGUAGE, formaPago, 0, true);
+					_woosim.saveSpool(LANGUAGE, formaPago, 1, true);
 					this.Print();
 
 				}

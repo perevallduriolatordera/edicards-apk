@@ -56,8 +56,65 @@ public class DTOLineaDeposito {
 	public double PVPAbono;
 	@Expose
 	public double TotalAbono;
-	
-	 public class ArticuloComparator implements Comparator<DTOLineaDeposito> {
+
+	public LineaMovimientos getMovimientos() {
+
+		int total;
+		int totalAlmacen;
+		int totalDefectuoso = 0;
+		int totalDeposito;
+		DTOLineaDeposito linea = this;
+
+		if (linea.UnidadesRepuestas > 0) {
+
+			if (linea.IsVentaDirecta) {
+				total =  linea.UnidadesDevueltas - linea.UnidadesDefectuosas
+						- linea.UnidadesRepuestas
+						- (linea.UnidadesFacturadas - (linea.UnidadesInicialesFijas - linea.UnidadesDevueltas));
+			} else {
+				total = linea.UnidadesDevueltas - linea.UnidadesDefectuosas
+						- linea.UnidadesRepuestas;
+			}
+			totalDefectuoso = linea.UnidadesDefectuosas;
+
+		} else {
+
+			if (linea.IsVentaDirecta) {
+				total = linea.UnidadesFacturadas;
+
+			} else {
+				total = linea.UnidadesDevueltas - linea.UnidadesDefectuosas
+						- linea.UnidadesRepuestas;
+			}
+		}
+
+		if (linea.UnidadesAbono > 0) {
+			total = total + linea.UnidadesAbono - linea.DefectuosasAbono;
+			totalDefectuoso = totalDefectuoso + linea.DefectuosasAbono;
+		}
+
+		totalAlmacen = linea.UnidadesRepuestas - linea.UnidadesDevueltas;
+		totalDeposito = linea.UnidadesInicialesFijas - linea.UnidadesDevueltas + linea.UnidadesRepuestas;
+
+		LineaMovimientos movimientos = new LineaMovimientos();
+		movimientos.Total = total;
+		movimientos.TotalDefectuoso = linea.UnidadesDefectuosas;
+		movimientos.TotalMovimientoDeposito = totalAlmacen;
+		movimientos.TotalAbono = linea.UnidadesAbono;
+		movimientos.TotalAbonoDefectuoso = linea.DefectuosasAbono;
+		movimientos.TotalDeposito = totalDeposito;
+
+		movimientos.TotalVentaDirecta = linea.UnidadesFacturadas - (linea.UnidadesInicialesFijas
+				- linea.UnidadesDevueltas);
+
+		movimientos.TotalVentaDeposito = (linea.UnidadesInicialesFijas
+				- linea.UnidadesDevueltas) + linea.UnidadesAbono;
+
+		return movimientos;
+	}
+
+
+	public class ArticuloComparator implements Comparator<DTOLineaDeposito> {
 		    @Override
 		    public int compare(DTOLineaDeposito linea1, DTOLineaDeposito linea2) {
 		    	
