@@ -164,7 +164,7 @@ public class StockManager extends Fragment implements IMediator {
 
 										((Articulo) editText.getTag()).Stock = unidades;
 										logBookWriter.setData("ASIGNACION DE ALMACÉN", ConstantsTypes.EMPTY_STRING,
-												ConstantsTypes.EMPTY_STRING, articulo.CodigoArticulo, articulo.Descripcion,
+												ConstantsTypes.EMPTY_STRING, LogBookStock.normalizeArticleCode(articulo.CodigoArticulo), articulo.Descripcion,
 												articulo.Stock, unidades, 0, 0, 0, 0, 0, 0,0);
 
 										logBookWriter.save();
@@ -181,7 +181,7 @@ public class StockManager extends Fragment implements IMediator {
 											articulo.Stock = unidades;
 
 											logBookWriter.setData("ASIGNACION DE ALMACÉN", ConstantsTypes.EMPTY_STRING,
-													ConstantsTypes.EMPTY_STRING, articulo.CodigoArticulo, articulo.Descripcion,
+													ConstantsTypes.EMPTY_STRING, LogBookStock.normalizeArticleCode(articulo.CodigoArticulo), articulo.Descripcion,
 													articulo.Stock, unidades, 0, 0, 0, 0, 0, 0,0);
 
 											logBookWriter.save();
@@ -257,7 +257,7 @@ public class StockManager extends Fragment implements IMediator {
 				if (!onlyReciclado) {
 					articulo.Stock = 0;
 					logBookWriter.setData("INICIALIZACIÓN DE ALMACÉN", ConstantsTypes.EMPTY_STRING,
-							ConstantsTypes.EMPTY_STRING, articulo.CodigoArticulo, articulo.Descripcion,
+							ConstantsTypes.EMPTY_STRING, LogBookStock.normalizeArticleCode(articulo.CodigoArticulo), articulo.Descripcion,
 							articulo.Stock, 0, 0, 0, 0, 0, 0, 0,0);
 
 					logBookWriter.save();

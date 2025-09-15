@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ifeu.edicards"
     android:versionCode="5"
-    android:versionName="5.4.17 (14 Julio 2025) --> Control de duplicidad de instancias">
+    android:versionName="5.4.18 (09 Septiembre 2025) --> Control de duplicidad de instancias">
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 

@@ -718,7 +718,7 @@ public class Reports extends Fragment {
 						if (stockInicial != linea.Articulo.Stock) {
 
 							logBookWriter.setData("ANULACIÓN DE ARTÍCULO FACTURADO", historico.Cliente.CodigoCliente,
-									historico.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+									historico.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
 									stockInicial, linea.Articulo.Stock, linea.Unidades, 0,
 									0, 0, 0,
 									0, 0);
@@ -735,7 +735,7 @@ public class Reports extends Fragment {
 						if (stockInicial != linea.Articulo.Stock) {
 
 							logBookWriter.setData("ANULACIÓN DE ARTÍCULO POTENCIADO", historico.Cliente.CodigoCliente,
-									historico.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+									historico.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
 									stockInicial, linea.Articulo.Stock, linea.Unidades, 0,
 									0, 0, 0,
 									0, 0);
@@ -753,7 +753,7 @@ public class Reports extends Fragment {
 						if (stockInicial != linea.Articulo.Stock) {
 
 							logBookWriter.setData("ANULACIÓN DE ARTÍCULO BAJA", historico.Cliente.CodigoCliente,
-									historico.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+									historico.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
 									stockInicial, linea.Articulo.Stock, 0, 0,
 									linea.Unidades, 0, 0,
 									0, 0);

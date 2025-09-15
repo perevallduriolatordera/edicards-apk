@@ -495,7 +495,7 @@ public class ParserResponse extends ParserBase {
 
 					LogBookStock logBookTrace = Factory.build(LogBookStock.class, app);
 					logBookTrace.setData("TRASPASO ALMACÉN", "","",
-							articulo.CodigoArticulo, articulo.Descripcion,
+							LogBookStock.normalizeArticleCode(articulo.CodigoArticulo), articulo.Descripcion,
 							stockInicial, articulo.Stock, articulo.Entradas, 0,
 							0, 0, 0,
 							0,0);
@@ -534,7 +534,7 @@ public class ParserResponse extends ParserBase {
 
 					LogBookStock logBookTrace = Factory.build(LogBookStock.class, app);
 					logBookTrace.setData("DESHACER TRASPASO ALMACÉN", "","",
-							articulo.CodigoArticulo, articulo.Descripcion,
+							LogBookStock.normalizeArticleCode(articulo.CodigoArticulo), articulo.Descripcion,
 							stockInicial, articulo.Stock, 0, 0,
 							articulo.Entradas, 0, 0,
 							0,0);

@@ -40,6 +40,12 @@ public class LogBookStock extends Persistent implements IPersistable, ITraceable
 
     private static final int DAYS_BY_EXTRACT = -60;
 
+    public static String normalizeArticleCode(String codigoArticulo) {
+        return codigoArticulo != null && codigoArticulo.startsWith("CH") 
+               ? codigoArticulo.substring(2) 
+               : codigoArticulo;
+    }
+
     public void setData(String tipoMovimiento, String codigoCliente, String nombreCliente,
                      String codigoArticulo, String nombreArticulo,
                      int stockInicial, int stockFinal, int unidadesDevueltas,
