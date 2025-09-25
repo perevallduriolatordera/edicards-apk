@@ -583,9 +583,12 @@ public class Deposito extends Cliente implements IPersistable {
 		for (LineaDeposito linea : this.Lineas.values()) {
 
 			if (linea.UnidadesFacturadas > 0 || linea.UnidadesAbono > 0) {
-				// Calculamos el precio bruto inicial
-				double bruto = round(linea.UnidadesFacturadas * linea.PVP
-						+ linea.TotalAbono,3);
+				double bruto = round(linea.UnidadesFacturadas * linea.PVP,3);
+				
+				if (linea.UnidadesAbono > 0) {
+					double abonoValue = Math.abs(linea.TotalAbono);
+					bruto = round(bruto - abonoValue, 3);
+				}
 				
 				double neto;
 
@@ -1059,7 +1062,7 @@ public class Deposito extends Cliente implements IPersistable {
 
 							if (stockInicial != linea.Articulo.Stock) {
 								logBookTrace.setData("VENTA DIRECTA CON UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
-										this.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+										this.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
 										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
 										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
 										linea.UnidadesAbono, linea.UnidadesDefectuosas);
@@ -1079,7 +1082,7 @@ public class Deposito extends Cliente implements IPersistable {
 							if (stockInicial != linea.Articulo.Stock) {
 
 								logBookTrace.setData("VENTA CONVENCIONAL (NO DIRECTA) CON UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
-										this.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+										this.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
 										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
 										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
 										linea.UnidadesAbono, linea.UnidadesDefectuosas);
@@ -1116,7 +1119,7 @@ public class Deposito extends Cliente implements IPersistable {
 
 							if (stockInicial != linea.Articulo.Stock) {
 								logBookTrace.setData("VENTA DIRECTA SIN UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
-										this.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+										this.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
 										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
 										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
 										linea.UnidadesAbono, linea.UnidadesDefectuosas);
@@ -1135,7 +1138,7 @@ public class Deposito extends Cliente implements IPersistable {
 							if (stockInicial != linea.Articulo.Stock) {
 
 								logBookTrace.setData("VENTA CONVENCIONAL (NO DIRECTA) SIN UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
-										this.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+										this.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
 										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
 										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
 										linea.UnidadesAbono, linea.UnidadesDefectuosas);
@@ -1153,7 +1156,7 @@ public class Deposito extends Cliente implements IPersistable {
 							if (linea.UnidadesInicialesFijas > 0) {
 
 								logBookTrace.setData("RETIRADA DE ARTÍCULO", this.Cliente.CodigoCliente,
-										this.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+										this.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
 										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
 										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
 										linea.UnidadesAbono, linea.UnidadesDefectuosas);
@@ -1184,7 +1187,7 @@ public class Deposito extends Cliente implements IPersistable {
 					if (stockInicial != linea.Articulo.Stock) {
 
 						logBookTrace.setData("VENTA ABONO", this.Cliente.CodigoCliente,
-								this.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+								this.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
 								stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
 								linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
 								linea.UnidadesAbono, linea.UnidadesDefectuosas);

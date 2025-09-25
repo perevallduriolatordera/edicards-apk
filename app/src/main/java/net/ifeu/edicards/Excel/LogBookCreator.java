@@ -24,7 +24,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class LogBookCreator implements ILogCreator {
 
@@ -52,9 +54,48 @@ public class LogBookCreator implements ILogCreator {
         }
     }
 
+    private ArrayList<LogBookStock> accumulateStocksByBaseCode(ArrayList<LogBookStock> originalList) {
+        Map<String, LogBookStock> accumulatedMap = new HashMap<>();
+        
+        for (LogBookStock logBook : originalList) {
+            String baseCode = LogBookStock.normalizeArticleCode(logBook.CodigoArticulo);
+            String groupKey = baseCode + "|" + logBook.CodigoCliente + "|" + logBook.Fecha + "|" + logBook.TipoMovimiento;
+            
+            if (accumulatedMap.containsKey(groupKey)) {
+                LogBookStock existing = accumulatedMap.get(groupKey);
+                existing.StockInicial += logBook.StockInicial;
+                existing.StockFinal += logBook.StockFinal;
+            } else {
+                LogBookStock newEntry = Factory.build(LogBookStock.class, _app);
+                newEntry.idLogBook = logBook.idLogBook;
+                newEntry.Fecha = logBook.Fecha;
+                newEntry.TipoMovimiento = logBook.TipoMovimiento;
+                newEntry.CodigoCliente = logBook.CodigoCliente;
+                newEntry.NombreCliente = logBook.NombreCliente;
+                newEntry.CodigoArticulo = baseCode;
+                newEntry.NombreArticulo = logBook.NombreArticulo;
+                newEntry.StockInicial = logBook.StockInicial;
+                newEntry.StockFinal = logBook.StockFinal;
+                newEntry.UnidadesDevueltas = logBook.UnidadesDevueltas;
+                newEntry.UnidadesDefectuosas = logBook.UnidadesDefectuosas;
+                newEntry.UnidadesRepuestas = logBook.UnidadesRepuestas;
+                newEntry.UnidadesFacturadas = logBook.UnidadesFacturadas;
+                newEntry.UnidadesIniciales = logBook.UnidadesIniciales;
+                newEntry.UnidadesAbono = logBook.UnidadesAbono;
+                newEntry.UnidadesDefectuosasAbono = logBook.UnidadesDefectuosasAbono;
+                
+                accumulatedMap.put(groupKey, newEntry);
+            }
+        }
+        
+        return new ArrayList<>(accumulatedMap.values());
+    }
+
     private boolean createExcel(ArrayList<LogBookStock> list) {
 
         if (list.size() == 0) return false;
+        
+        ArrayList<LogBookStock> processedList = accumulateStocksByBaseCode(list);
 
         boolean result = true;
 
@@ -67,7 +108,7 @@ public class LogBookCreator implements ILogCreator {
 
             this.createHeader(workbook, row);
 
-            for (LogBookStock logBook : list) {
+            for (LogBookStock logBook : processedList) {
                 row = sheet.createRow(++rowCount);
                 this.createRow(row, logBook);
             }
@@ -82,6 +123,8 @@ public class LogBookCreator implements ILogCreator {
     private boolean createCSV(ArrayList<LogBookStock> list) {
 
         if (list.size() == 0) return false;
+        
+        ArrayList<LogBookStock> processedList = accumulateStocksByBaseCode(list);
 
         boolean result = true;
 
@@ -93,7 +136,7 @@ public class LogBookCreator implements ILogCreator {
 
             CsvCreator csvCreator = new CsvCreator(csvFilePath, getCsvHeaders());
 
-            for (LogBookStock logBook : list) {
+            for (LogBookStock logBook : processedList) {
                 csvCreator.addLine(logBook.idLogBook, logBook.Fecha, logBook.CodigoCliente, logBook.NombreCliente,
                         logBook.CodigoArticulo, logBook.NombreArticulo, logBook.TipoMovimiento, logBook.UnidadesIniciales,
                         logBook.UnidadesRepuestas, logBook.UnidadesDevueltas, logBook.UnidadesFacturadas,

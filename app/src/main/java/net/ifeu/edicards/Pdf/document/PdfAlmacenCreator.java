@@ -184,12 +184,6 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
     private void printTotals(boolean isTransferPayment, DepositoModalidad modalidad) throws DocumentException {
         DecimalFormat df = new DecimalFormat("0.00");
 
-        try {
-            _deposito.Calculate();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
         if ((_deposito.Totales.DescuentoFinanciero != 0 || _deposito.Totales.DescuentoProntoPago != 0)
                 && (_deposito.Serie.equals(_app.getUser().SerialInvoiceA))) {
             printTotalsFooter("TOTAL", df.format(_deposito.Totales.TotalBaseSinDte));
@@ -256,7 +250,7 @@ public class PdfAlmacenCreator extends pdfBase implements IPdfDocumentGenerator{
             String formaPagoText = "\nForma de pago: "
                     + _deposito.PagoDescripcion + "\n";
 
-            _document.add(new Paragraph(formaPagoText, _fontBold));
+            _document.add(new Paragraph(formaPagoText, _fontBoldExtra));
 
             if (_deposito.Pagado) {
 

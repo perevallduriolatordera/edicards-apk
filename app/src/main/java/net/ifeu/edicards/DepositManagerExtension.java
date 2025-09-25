@@ -69,7 +69,7 @@ public class DepositManagerExtension {
 
 
 // ******************************** DATA TIER **********************	
-	static class DataTier {
+	public static class DataTier {
 		public static Optional<Double> getCantidadPagadaHoy(AppConfig config) throws Exception {
 	
 			Historico historico = Factory.build(Historico.class, config);

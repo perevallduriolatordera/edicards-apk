@@ -643,7 +643,7 @@ public class Reports extends Fragment {
 							throw new RuntimeException(e1);
 						}
 
-						that.GenerateAlbaran(dto, hist);
+						that.generateXML(dto, hist);
 						hist.delete();
 						getHistoricos();
 						
@@ -718,7 +718,7 @@ public class Reports extends Fragment {
 						if (stockInicial != linea.Articulo.Stock) {
 
 							logBookWriter.setData("ANULACIÓN DE ARTÍCULO FACTURADO", historico.Cliente.CodigoCliente,
-									historico.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+									historico.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
 									stockInicial, linea.Articulo.Stock, linea.Unidades, 0,
 									0, 0, 0,
 									0, 0);
@@ -735,7 +735,7 @@ public class Reports extends Fragment {
 						if (stockInicial != linea.Articulo.Stock) {
 
 							logBookWriter.setData("ANULACIÓN DE ARTÍCULO POTENCIADO", historico.Cliente.CodigoCliente,
-									historico.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+									historico.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
 									stockInicial, linea.Articulo.Stock, linea.Unidades, 0,
 									0, 0, 0,
 									0, 0);
@@ -753,7 +753,7 @@ public class Reports extends Fragment {
 						if (stockInicial != linea.Articulo.Stock) {
 
 							logBookWriter.setData("ANULACIÓN DE ARTÍCULO BAJA", historico.Cliente.CodigoCliente,
-									historico.Cliente.Razon, linea.Articulo.CodigoArticulo, linea.Articulo.Descripcion,
+									historico.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
 									stockInicial, linea.Articulo.Stock, 0, 0,
 									linea.Unidades, 0, 0,
 									0, 0);
@@ -858,7 +858,23 @@ public class Reports extends Fragment {
 			efectivo.update();
 		}
 	}
-	private void GenerateAlbaran(DTODeposito deposito, Historico historico) throws Exception {
+
+
+	private void generateXML(DTODeposito deposito, Historico historico) {
+
+		try {
+			XmlCreator creator = new XmlCreator(_appConfig);
+			creator.createXmlArticulos();
+
+			generateAlbaran(deposito, historico);
+
+			if (deposito.isDeposito())
+				creator.createXmlDeposito(deposito);
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+	private void generateAlbaran(DTODeposito deposito, Historico historico) throws Exception {
 		
 		Contador contador = Factory.build(Contador.class, _appConfig);
 		contador.getContadores();
