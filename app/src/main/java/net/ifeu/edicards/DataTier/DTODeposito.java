@@ -164,7 +164,7 @@ public class DTODeposito {
 
 	private void assign(DTODeposito dto) {
 
-		this.Activo = dto.Activo;
+		this.Activo = true;
 		this.CantidadPagada = dto.CantidadPagada;
 		this.Clave = dto.Clave;
 		this.CodigoCliente = dto.CodigoCliente;
@@ -342,7 +342,7 @@ public class DTODeposito {
 
 				if (iva.setTipoIVAByClienteArticulo(cliente,
 						articulo)
-						&& _appConfig.getUser().SerialInvoiceB
+						&& !_appConfig.getUser().SerialInvoiceB
 								.equals(this.Serie)) {
 
 				
@@ -435,7 +435,7 @@ public class DTODeposito {
 
 				if (iva.setTipoIVAByClienteArticulo(cliente,
 						articulo)
-						&& _appConfig.getUser().SerialInvoiceB
+						&& !_appConfig.getUser().SerialInvoiceB
 								.equals(this.Serie)) {
 
 					double base = bruto;

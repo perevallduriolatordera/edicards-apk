@@ -1,5 +1,6 @@
 package net.ifeu.edicards;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.ProgressDialog;
@@ -9,6 +10,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
@@ -27,6 +30,12 @@ import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 public class MainActivity extends Activity {
 	private AppConfig _appConfig;
 	private ServiceWorker _serviceWorker;
+	
+	private static final int REQUEST_EXTERNAL_STORAGE = 1;
+	private static String[] PERMISSIONS_STORAGE = {
+		Manifest.permission.READ_EXTERNAL_STORAGE,
+		Manifest.permission.WRITE_EXTERNAL_STORAGE
+	};
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)  {
@@ -53,6 +62,9 @@ public class MainActivity extends Activity {
 			_appConfig.getConnectivity().WIFI = Wifi.IsEnabled(_appConfig);
 			_appConfig.getConnectivity().DataMobile = _3G.IsEnabled(_appConfig);
 			_appConfig.getConnectivity().Bluetooth = BlueTooth.IsEnabled();
+	
+			// Solicitar permisos de almacenamiento
+			checkStoragePermission();
 	
 			// Obtenim les dades de l'usuari
 			getUserData();
@@ -315,5 +327,35 @@ public class MainActivity extends Activity {
 
 		if (result)
 			System.exit(0);
+	}
+	
+	private void checkStoragePermission() {
+		int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+		
+		if (permission != PackageManager.PERMISSION_GRANTED) {
+			ActivityCompat.requestPermissions(
+				this,
+				PERMISSIONS_STORAGE,
+				REQUEST_EXTERNAL_STORAGE
+			);
+		}
+	}
+	
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		
+		switch (requestCode) {
+			case REQUEST_EXTERNAL_STORAGE: {
+				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					// Permiso otorgado
+					Toast.makeText(this, "Permisos de almacenamiento otorgados", Toast.LENGTH_SHORT).show();
+				} else {
+					// Permiso denegado
+					Toast.makeText(this, "Se necesitan permisos de almacenamiento para algunas funciones de la app", Toast.LENGTH_LONG).show();
+				}
+				return;
+			}
+		}
 	}
 }

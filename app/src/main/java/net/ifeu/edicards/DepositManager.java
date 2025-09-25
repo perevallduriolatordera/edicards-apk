@@ -843,7 +843,6 @@ public class DepositManager extends Fragment implements  IMediator {
 
 				LineaDeposito linea = Factory.build(LineaDeposito.class, _appConfig);
 				linea.Articulo = articuloInCatalgo;
-				linea.Deposito = _deposito;
 				linea.StockInicial = 0;
 				linea.UnidadesIniciales = 0;
 				linea.UnidadesInicialesFijas = linea.UnidadesIniciales;
@@ -899,13 +898,9 @@ public class DepositManager extends Fragment implements  IMediator {
             throw new RuntimeException(e);
         }
 
-		if (_deposito.Totales.Total < 0) {
-			efectivo.Efectivo = efectivo.Efectivo - _deposito.CantidadPagada;
-		} else {
-			efectivo.Efectivo = efectivo.Efectivo + _deposito.CantidadPagada;
-		}
-
+		efectivo.Efectivo = efectivo.Efectivo + _deposito.CantidadPagada;
 		efectivo.UpdateDateEfectivo = new Date();
+
         try {
             efectivo.update();
         } catch (Exception e) {
@@ -1003,7 +998,6 @@ public class DepositManager extends Fragment implements  IMediator {
 			}
 
 			Map<String, LineaDeposito> processed =new HashMap<>();
-			Map<String, LineaDeposito> logBookProcessed = new HashMap<>();
 			
 			for (LineaDeposito linea : _deposito.Lineas.values()) {
 
@@ -1013,49 +1007,33 @@ public class DepositManager extends Fragment implements  IMediator {
 					linea.calculateStock();
 
 					if (linea.UnidadesInicialesFijas > 0) {
-						// Merge logic for LogBookTrace only
 						String codigoArticulo = linea.Articulo.CodigoArticulo;
-						String baseCode = codigoArticulo.startsWith("CH") ? codigoArticulo.substring(2) : codigoArticulo;
-						
-						if (logBookProcessed.containsKey(baseCode)) {
-							// Merge with existing Spanish article for LogBook
-							LineaDeposito existingLinea = logBookProcessed.get(baseCode);
-							existingLinea.UnidadesInicialesFijas += linea.UnidadesInicialesFijas;
-							existingLinea.UnidadesDevueltas += linea.UnidadesDevueltas;
-							existingLinea.UnidadesDefectuosas += linea.UnidadesDefectuosas;
-							existingLinea.UnidadesRepuestas += linea.UnidadesRepuestas;
-							existingLinea.UnidadesFacturadas += linea.UnidadesFacturadas;
-							existingLinea.UnidadesAbono += linea.UnidadesAbono;
-						} else {
-							// Create entry for LogBook with Spanish code
-							LineaDeposito logBookLinea = new LineaDeposito();
-							logBookLinea.Articulo = new Articulo();
-							logBookLinea.Articulo.CodigoArticulo = baseCode;
-							logBookLinea.Articulo.Descripcion = linea.Articulo.Descripcion;
-							logBookLinea.Articulo.Stock = stockInicial;
-							logBookLinea.UnidadesInicialesFijas = linea.UnidadesInicialesFijas;
-							logBookLinea.UnidadesDevueltas = linea.UnidadesDevueltas;
-							logBookLinea.UnidadesDefectuosas = linea.UnidadesDefectuosas;
-							logBookLinea.UnidadesRepuestas = linea.UnidadesRepuestas;
-							logBookLinea.UnidadesFacturadas = linea.UnidadesFacturadas;
-							logBookLinea.UnidadesAbono = linea.UnidadesAbono;
+						LineaDeposito logBookLinea = new LineaDeposito();
+						logBookLinea.Articulo = new Articulo();
+						logBookLinea.Articulo.CodigoArticulo = codigoArticulo;
+						logBookLinea.Articulo.Descripcion = linea.Articulo.Descripcion;
+						logBookLinea.Articulo.Stock = stockInicial;
+						logBookLinea.UnidadesInicialesFijas = linea.UnidadesInicialesFijas;
+						logBookLinea.UnidadesDevueltas = linea.UnidadesDevueltas;
+						logBookLinea.UnidadesDefectuosas = linea.UnidadesDefectuosas;
+						logBookLinea.UnidadesRepuestas = linea.UnidadesRepuestas;
+						logBookLinea.UnidadesFacturadas = linea.UnidadesFacturadas;
+						logBookLinea.UnidadesAbono = linea.UnidadesAbono;
 							
-							logBookProcessed.put(baseCode, logBookLinea);
-							
-							LogBookStock logBookTrace = Factory.build(LogBookStock.class, _appConfig);
-							logBookTrace.setData("DEPOSITO RETIRADO", _deposito.Cliente.CodigoCliente,
-									_deposito.Cliente.Razon, baseCode, linea.Articulo.Descripcion,
-									stockInicial, linea.Articulo.Stock, logBookLinea.UnidadesDevueltas, logBookLinea.UnidadesDefectuosas,
-									logBookLinea.UnidadesRepuestas, logBookLinea.UnidadesFacturadas, logBookLinea.UnidadesInicialesFijas,
-									logBookLinea.UnidadesAbono, logBookLinea.UnidadesDefectuosas);
+						LogBookStock logBookTrace = Factory.build(LogBookStock.class, _appConfig);
+						logBookTrace.setData("DEPOSITO RETIRADO", _deposito.Cliente.CodigoCliente,
+								_deposito.Cliente.Razon, codigoArticulo, linea.Articulo.Descripcion,
+								stockInicial, linea.Articulo.Stock, logBookLinea.UnidadesDevueltas, logBookLinea.UnidadesDefectuosas,
+								logBookLinea.UnidadesRepuestas, logBookLinea.UnidadesFacturadas, logBookLinea.UnidadesInicialesFijas,
+								logBookLinea.UnidadesAbono, logBookLinea.UnidadesDefectuosas);
 
-							logBookTrace.save();
-						}
+						logBookTrace.save();
 					}
 					linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.UnidadesDefectuosas;
 					linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
 							+ linea.UnidadesDefectuosas;
 
+					linea.Articulo.Activo = true;
 					linea.Articulo.update();
 				}
 

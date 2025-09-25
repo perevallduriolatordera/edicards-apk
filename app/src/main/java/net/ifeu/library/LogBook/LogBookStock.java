@@ -4,10 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 import net.ifeu.edicards.Constants.ConstantsDatabase;
-import net.ifeu.edicards.DataTier.Articulo;
-import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.Factories.Factory;
-import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 import net.ifeu.library.Utils.DateTime.DateTimeUtils;
@@ -16,8 +13,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-
-
 
 public class LogBookStock extends Persistent implements IPersistable, ITraceable {
 
@@ -64,15 +59,45 @@ public class LogBookStock extends Persistent implements IPersistable, ITraceable
 
     @Override
     public void save() throws Exception {
+        
+        String codigoFinal;
+        String nombreFinal;
+        int stockInicialFinal = this.StockInicial;
+        int stockFinalFinal = this.StockFinal;
+        
+        if (this.CodigoArticulo.startsWith("CH")) {
+            // Es artículo chino, convertir a español
+            codigoFinal = this.CodigoArticulo.substring(2);
+            nombreFinal = getNombreArticuloEspanol(codigoFinal);
+            if (nombreFinal == null || nombreFinal.isEmpty()) {
+                nombreFinal = this.NombreArticulo;
+            }
+            
+            // Obtener stock actual del artículo español homólogo
+            int stockEspanol = getStockActualArticulo(codigoFinal);
+            stockInicialFinal += stockEspanol;
+            stockFinalFinal += stockEspanol;
+            
+        } else {
+            // Es artículo español, mantener código
+            codigoFinal = this.CodigoArticulo;
+            nombreFinal = this.NombreArticulo;
+            
+            // Obtener stock actual del artículo chino homólogo
+            String codigoChino = "CH" + this.CodigoArticulo;
+            int stockChino = getStockActualArticulo(codigoChino);
+            stockInicialFinal += stockChino;
+            stockFinalFinal += stockChino;
+        }
 
         ContentValues values = new ContentValues();
         values.put("TipoMovimiento", this.TipoMovimiento);
         values.put("NombreCliente", this.NombreCliente);
         values.put("CodigoCliente", this.CodigoCliente);
-        values.put("CodigoArticulo", this.CodigoArticulo);
-        values.put("NombreArticulo", this.NombreArticulo);
-        values.put("StockInicial", this.StockInicial);
-        values.put("StockFinal", this.StockFinal);
+        values.put("CodigoArticulo", codigoFinal);
+        values.put("NombreArticulo", nombreFinal);
+        values.put("StockInicial", stockInicialFinal);
+        values.put("StockFinal", stockFinalFinal);
         values.put("UnidadesDevueltas",this.UnidadesDevueltas);
         values.put("UnidadesDefectuosas", this.UnidadesDefectuosas);
         values.put("UnidadesRepuestas", this.UnidadesRepuestas);
@@ -165,6 +190,48 @@ public class LogBookStock extends Persistent implements IPersistable, ITraceable
         }
 
         return list ;
+    }
+
+    private String getNombreArticuloEspanol(String codigoEspanol) {
+        try {
+            Cursor cursor = super.getDatabaseOperations().executeSentence(
+                "SELECT Descripcion FROM " + ConstantsDatabase.TABLE_ARTICULOS + 
+                " WHERE CodigoArticulo = '" + codigoEspanol + "' AND Activo = 1");
+            
+            if (cursor != null && cursor.moveToFirst() && cursor.getCount() > 0) {
+                String descripcion = cursor.getString(cursor.getColumnIndex("Descripcion"));
+                cursor.close();
+                return descripcion;
+            }
+            
+            if (cursor != null) {
+                cursor.close();
+            }
+        } catch (Exception e) {
+            // Si hay error, devolver null
+        }
+        return null;
+    }
+    
+    private int getStockActualArticulo(String codigoArticulo) {
+        try {
+            Cursor cursor = super.getDatabaseOperations().executeSentence(
+                "SELECT Stock FROM " + ConstantsDatabase.TABLE_ARTICULOS + 
+                " WHERE CodigoArticulo = '" + codigoArticulo + "' AND Activo = 1");
+            
+            if (cursor != null && cursor.moveToFirst() && cursor.getCount() > 0) {
+                int stock = cursor.getInt(cursor.getColumnIndex("Stock"));
+                cursor.close();
+                return stock;
+            }
+            
+            if (cursor != null) {
+                cursor.close();
+            }
+        } catch (Exception e) {
+            // Si hay error, devolver 0
+        }
+        return 0;
     }
 
     public void purge(Date today) throws Exception

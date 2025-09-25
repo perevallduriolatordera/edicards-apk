@@ -55,9 +55,7 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 
 		SimpleDateFormat formatter;
 		formatter = new SimpleDateFormat("dd/MM/yyyy");
-		String pago = (Tipo == 1) ? "\n" : "Pago: " + _deposito.PagoDescripcion
-				+ "\n";
-
+		
 		String text = "Fecha: " + formatter.format(_deposito.FechaDeposito)
 				+ "  Vendedor: " + _app.getUser().Name + "\n"
 				+ "Codigo Cliente: " + _deposito.Cliente.CodigoCliente
@@ -67,9 +65,16 @@ public class PdfCreator extends pdfBase implements IPdfDocumentGenerator{
 				+ _deposito.CodigoPostal + "  Poblacion:  "
 				+ _deposito.Poblacion + "\n" + "Telefono 1: "
 				+ _deposito.Telefono1 + "  Telefono 2: " + _deposito.Telefono2
-				+ "  Mail:" + _deposito.Mail + "\n" + pago;
+				+ "  Mail:" + _deposito.Mail + "\n";
 
 		_document.add(new Paragraph(text, _fontNormal));
+		
+		if (Tipo != 1 && _deposito.PagoDescripcion != null) {
+			Paragraph pagoParagraph = new Paragraph();
+			pagoParagraph.add(new com.itextpdf.text.Chunk("Pago: ", _fontBold));
+			pagoParagraph.add(new com.itextpdf.text.Chunk(_deposito.PagoDescripcion + "\n", _fontNormal));
+			_document.add(pagoParagraph);
+		}
 
 	}
 

@@ -1014,7 +1014,7 @@ public class XmlCreator {
 
 		fileos.write("<FormaPago>".getBytes());
 
-		if (deposito.FormaPago != null)
+		if (deposito.FormaPago != null && deposito.FormaPago.CodigoFormaPago != null)
 			fileos.write(deposito.FormaPago.CodigoFormaPago.getBytes());
 		else
 			fileos.write(ConstantsTypes.EMPTY_STRING.getBytes());
@@ -1022,7 +1022,11 @@ public class XmlCreator {
 		fileos.write("</FormaPago>".getBytes());
 
 		fileos.write("<Filiacion>".getBytes());
-		fileos.write(deposito.Filiacion.getBytes());
+		if (deposito.Filiacion == null)
+			deposito.Filiacion = ConstantsTypes.EMPTY_STRING;
+		else
+			fileos.write(deposito.Filiacion.getBytes());
+
 		fileos.write("</Filiacion>".getBytes());
 		
 		fileos.write("<Retirado>".getBytes());

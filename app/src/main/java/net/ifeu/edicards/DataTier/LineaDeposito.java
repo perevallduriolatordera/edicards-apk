@@ -18,7 +18,6 @@ public class LineaDeposito extends Persistent implements IPersistable {
 	public long IdLineaDeposito;
 	public long IdDeposito;
 	public long IdArticulo;
-	public Deposito Deposito;
 	public Articulo Articulo;
 	public int StockInicial;
 	public int UnidadesIniciales;
@@ -45,14 +44,13 @@ public class LineaDeposito extends Persistent implements IPersistable {
 	@Override
 	public void InitializePersistance(AppConfig appConfigParam) {
 		super.InitializePersistance(appConfigParam);
-		this.Deposito = Factory.build(Deposito.class, appConfigParam);
 		this.Articulo = Factory.build(Articulo.class, appConfigParam);
 	}
 	@Override
 	public void save() throws Exception {
 		
 		ContentValues values = new ContentValues();
-		values.put("IdDeposito", this.Deposito.IdDeposito);
+		values.put("IdDeposito", this.IdDeposito);
 		values.put("IdArticulo", this.Articulo.IdArticulo);
 		values.put("UnidadesIniciales", this.UnidadesIniciales);
 		values.put("PVP", this.PVP);
@@ -109,7 +107,6 @@ public class LineaDeposito extends Persistent implements IPersistable {
 						Articulo articulo = Factory.build(Articulo.class, appConfig);
 						LineaDeposito linea = Factory.build(LineaDeposito.class, appConfig);
 						
-						linea.Deposito = deposito; 
 						linea.IdLineaDeposito = Integer.parseInt(cursor.getString(cursor.getColumnIndex("IdLineaDeposito")));
 						linea.IdArticulo = Integer.parseInt(cursor.getString(cursor.getColumnIndex("IdArticulo")));
 						linea.IdDeposito = Integer.parseInt(cursor.getString(cursor.getColumnIndex("IdDeposito")));

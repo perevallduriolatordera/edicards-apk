@@ -420,6 +420,7 @@ public class ParserResponse extends ParserBase {
 					//articulo.Entradas = stockDouble.intValue();
 					//articulo.Stock = articulo.Stock + articulo.Entradas; 
 
+					articulo.Activo = true;
 					articulo.update();
 					this.Monitor().ArticuloUpdateCounter++;
 
@@ -489,6 +490,7 @@ public class ParserResponse extends ParserBase {
 					int stockInicial = articulo.Stock;
 					articulo.Stock = stockInicial + articulo.Entradas;
 
+					articulo.Activo = true;
 					articulo.update();
 
 					app.getTraspasoAlmacen().put(articulo.CodigoArticulo, stockDouble);
@@ -855,7 +857,6 @@ public class ParserResponse extends ParserBase {
 					LineaDeposito linea = Factory.build(LineaDeposito.class, app);
 
 					linea.Articulo = art;
-					linea.Deposito = depo;
 					linea.UnidadesIniciales = Math.round(intUnidades);
 					linea.PVPAnterior = dblPVP;
 
@@ -874,8 +875,7 @@ public class ParserResponse extends ParserBase {
 	}
 
 	public Long parseTotalDepositos(Document document) throws IllegalArgumentException,
-			IllegalStateException, IOException, DOMException,
-			ParserConfigurationException, SAXException {
+			IllegalStateException, DOMException {
 
 		String strTotal = getValue(document);
 		return Long.parseLong(strTotal);

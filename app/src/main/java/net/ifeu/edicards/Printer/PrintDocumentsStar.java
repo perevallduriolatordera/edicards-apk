@@ -286,8 +286,18 @@ public class PrintDocumentsStar implements IPrint {
 				outputByteBuffer = ("\nIVA NO INCLUIDO\n").getBytes();
 				port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
 
-				outputByteBuffer = ("Forma de pago: "
-						+ deposito.PagoDescripcion + "\n").getBytes();
+				// Activar negrita para "Forma de pago:"
+				outputByteBuffer = new byte[]{0x1B, 0x45, 0x01}; // ESC E 1 (negrita ON)
+				port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
+				
+				outputByteBuffer = ("Forma de pago: ").getBytes();
+				port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
+				
+				// Desactivar negrita
+				outputByteBuffer = new byte[]{0x1B, 0x45, 0x00}; // ESC E 0 (negrita OFF)
+				port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
+				
+				outputByteBuffer = (deposito.PagoDescripcion + "\n").getBytes();
 				port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
 
 				if (isMadeInSpain(deposito.CodigoPostal))
@@ -335,8 +345,21 @@ public class PrintDocumentsStar implements IPrint {
 																			// as
 																			// on)
 
-					outputByteBuffer = ("\nForma de pago: "
-							+ deposito.PagoDescripcion + "\n").getBytes();
+					outputByteBuffer = ("\n").getBytes();
+					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
+					
+					// Activar negrita para "Forma de pago:"
+					outputByteBuffer = new byte[]{0x1B, 0x45, 0x01}; // ESC E 1 (negrita ON)
+					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
+					
+					outputByteBuffer = ("Forma de pago: ").getBytes();
+					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
+					
+					// Desactivar negrita
+					outputByteBuffer = new byte[]{0x1B, 0x45, 0x00}; // ESC E 0 (negrita OFF)
+					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
+					
+					outputByteBuffer = (deposito.PagoDescripcion + "\n").getBytes();
 					port.writePort(outputByteBuffer, 0, outputByteBuffer.length);
 
 				}

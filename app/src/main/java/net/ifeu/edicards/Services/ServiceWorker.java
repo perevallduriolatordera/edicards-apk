@@ -103,7 +103,6 @@ public class ServiceWorker extends ServiceBase {
                 + ConstantsFolders.FOLDER_STOCK_NTV + "/" + ConstantsFolders.FILE_STOCK_NTV;
 
         CsvCreator csvCreator = new CsvCreator(ntvFile, "IdArticulo", "Semaforo");
-
         LinkedHashMap<String, Articulo> articulos = app.getCache().getAllArticulos();
 
         for (Articulo articuloInCatalgo : articulos.values()) {

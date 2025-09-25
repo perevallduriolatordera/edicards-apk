@@ -775,6 +775,7 @@ public class Reports extends Fragment {
 				lastStock = linea.Articulo.Stock;
 				lastStockDefectuoso = linea.Articulo.StockDefectuoso;
 
+				linea.Articulo.Activo = true;
 				linea.Articulo.update();
 			}
 		} catch (Exception ex) {
@@ -788,6 +789,9 @@ public class Reports extends Fragment {
 			Deposito deposito = Factory.build(Deposito.class, _appConfig);
 			List<Deposito> deps = deposito.getDepositosByCodigoCliente(historico.Cliente.CodigoCliente);
 
+			Cliente cliente = Factory.build(Cliente.class, _appConfig);
+			cliente.setClienteById(historico.Cliente.CodigoCliente);
+
 			if (deps.size() > 1) {
 				_appConfig.getMessageBox().Show("Atención",
 						"Se ha encontrado mas de un depósito para este cliente: " + historico.NombrePresentacion,
@@ -796,8 +800,6 @@ public class Reports extends Fragment {
 				return;
 			}
 			if (deps.size() == 0) {
-				Cliente cliente = Factory.build(Cliente.class, _appConfig);
-				cliente.setClienteByCodigo(historico.Cliente.CodigoCliente);
 				deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
 				deposito.assingFromCliente(cliente);
 				deposito.IsNtvDeposit = false;
@@ -805,6 +807,8 @@ public class Reports extends Fragment {
 				deposito.save();
 			} else {
 				deposito = deps.stream().findFirst().get();
+				deposito.FormaPago = cliente.FormaPago;
+				deposito.Filiacion = cliente.Filiacion;
 			}
 
 			deposito.DeleteAllLines();
@@ -817,8 +821,7 @@ public class Reports extends Fragment {
 						LineaDeposito linea = Factory.build(LineaDeposito.class, _appConfig);
 
 						linea.Articulo = historicoLinea.Articulo;
-						linea.Deposito = deposito;
-						
+
 						linea.UnidadesIniciales = historicoLinea.Unidades;
 						linea.UnidadesInicialesFijas = linea.UnidadesIniciales;
 	
@@ -830,12 +833,14 @@ public class Reports extends Fragment {
 						linea.Descuento2 = 0;
 
 						linea.save();
-						
 						break;
 					}
 					
 				}			
 			}
+
+			XmlCreator creator = new XmlCreator(_appConfig);
+			creator.createXmlDeposito(deposito);
 
 		} catch (Exception e) {
 			throw new RuntimeException(e);

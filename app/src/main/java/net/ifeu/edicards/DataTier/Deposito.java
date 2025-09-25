@@ -943,7 +943,6 @@ public class Deposito extends Cliente implements IPersistable {
 
 	public DTODeposito getDTO() {
 		DTODeposito dto = new DTODeposito();
-
 		dto.Activo = this.Activo;
 		dto.CantidadPagada = this.CantidadPagada;
 		dto.Clave = this.Clave;
@@ -1099,6 +1098,7 @@ public class Deposito extends Cliente implements IPersistable {
 								+ linea.UnidadesDefectuosas;
 
 						try {
+							linea.Articulo.Activo = true;
 							linea.Articulo.update();
 						} catch (Exception e) {
 							throw new RuntimeException(e);
@@ -1167,6 +1167,7 @@ public class Deposito extends Cliente implements IPersistable {
 						}
 
 						try {
+							linea.Articulo.Activo = true;
 							linea.Articulo.update();
 						} catch (Exception e) {
 							throw new RuntimeException(e);
@@ -1204,6 +1205,7 @@ public class Deposito extends Cliente implements IPersistable {
 							+ linea.Articulo.MovimientoStockDefectuosas + linea.DefectuosasAbono;
 
 					try {
+						linea.Articulo.Activo = true;
 						linea.Articulo.update();
 					} catch (Exception e) {
 						throw new RuntimeException(e);
