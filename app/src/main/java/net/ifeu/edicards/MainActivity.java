@@ -21,6 +21,7 @@ import android.widget.Toast;
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.Services.ServiceWorker;
+import net.ifeu.edicards.Services.ImportResult;
 import net.ifeu.library.Devices.BlueTooth;
 import net.ifeu.library.Devices.Wifi;
 import net.ifeu.library.Devices._3G;
@@ -30,6 +31,7 @@ import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 public class MainActivity extends Activity {
 	private AppConfig _appConfig;
 	private ServiceWorker _serviceWorker;
+	private ImportResult _importResult;
 	
 	private static final int REQUEST_EXTERNAL_STORAGE = 1;
 	private static String[] PERMISSIONS_STORAGE = {
@@ -187,6 +189,20 @@ public class MainActivity extends Activity {
 						if (progressDialog != null && progressDialog.isShowing()) {
 							runOnUiThread(() -> {
 								progressDialog.dismiss();
+								
+								// Mostrar errores si los hay, pero continuar al menú principal
+								if (that._importResult != null && !that._importResult.isSuccess()) {
+									StringBuilder errorMsg = new StringBuilder("La importación se completó con errores:\n\n");
+									for (String error : that._importResult.getErrorMessages()) {
+										errorMsg.append("• ").append(error).append("\n");
+									}
+									errorMsg.append("\nLa aplicación funcionará normalmente pero algunos datos pueden no estar actualizados.");
+									
+									boolean result = that._appConfig.getMessageBox().ShowWithResult("Advertencia - Errores de Importación",
+											errorMsg.toString(),
+											that, MessageBoxType.Error);
+								}
+								
 								Intent intent = new Intent(MainActivity.this, MainMenu.class);
 								startActivity(intent);
 							});
@@ -216,9 +232,12 @@ public class MainActivity extends Activity {
 		final Context context = _appConfig;
 
 		try {
-			this._serviceWorker.RunImport(context, false);
+			_importResult = this._serviceWorker.RunImport(context, false);
 		} catch (Exception e) {
-			throw new RuntimeException(e);		}
+			// Si hay una excepción durante la importación, creamos un ImportResult con el error
+			_importResult = new ImportResult(false);
+			_importResult.addErrorMessage("Error durante la importación: " + e.getMessage());
+		}
 	}
 
 	private void sendData() {

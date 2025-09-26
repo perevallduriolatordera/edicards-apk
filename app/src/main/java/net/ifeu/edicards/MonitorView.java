@@ -26,6 +26,7 @@ import net.ifeu.edicards.Excel.LogBookExceptionsCreator;
 import net.ifeu.edicards.Services.ParserMonitor;
 import net.ifeu.edicards.Services.ServiceMonitor;
 import net.ifeu.edicards.Services.ServiceWorker;
+import net.ifeu.edicards.Services.ImportResult;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Performance.CpuInfo;
@@ -43,7 +44,7 @@ import java.util.Date;
 public class MonitorView extends Fragment {
 
 	AppConfig _appConfig;
-	public boolean SyncResult;
+	public ImportResult SyncResult;
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -609,14 +610,20 @@ public class MonitorView extends Fragment {
 				_appConfig.getWorkingArea().Monitor = worker.Monitor();
 				that.fillDataMonitor(_appConfig.getWorkingArea().Monitor);
 
-				if (that.SyncResult) {
+				if (that.SyncResult.isSuccess()) {
 					_appConfig.getMessageBox().Show("Sincronización",
 							"El proceso de sincronizacón ha finalizado CORRECTAMENTE. Revise los indicadores para comprobar si se ha realizado correctamente",
 							getActivity(), MessageBoxType.Information);
 				} else {
+					StringBuilder errorMsg = new StringBuilder("El proceso de sincronizacón ha finalizado CON ERRORES:\n\n");
+					for (String error : that.SyncResult.getErrorMessages()) {
+						errorMsg.append("• ").append(error).append("\n");
+					}
+					errorMsg.append("\nRevise los indicadores para más detalles.");
+					
 					_appConfig.getMessageBox().Show("Sincronización",
-							"El proceso de sincronizacón ha finalizado CON ERRORES. Revise los indicadores para comprobar si se ha realizado correctamente",
-							getActivity(), MessageBoxType.Information);
+							errorMsg.toString(),
+							getActivity(), MessageBoxType.Error);
 
 				}
 

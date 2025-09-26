@@ -664,11 +664,11 @@ public class ServiceWorker extends ServiceBase {
 		}
 	}                                                                                                                                
                                                                                                                                      
-	public boolean RunImport(Context context, boolean compress) {
+	public ImportResult RunImport(Context context, boolean compress) {
 
 		AppConfig app;                                                                                                               
 		app = (AppConfig) context;                                                                                                   
-		boolean result = true;
+		ImportResult importResult = new ImportResult();
 		ParserResponse parser = new ParserResponse();              
                                                                                                                                      
 		// Habilitamos la conexión Wifi y 3G                                                                                         
@@ -682,7 +682,7 @@ public class ServiceWorker extends ServiceBase {
 			try {
 				app.getDatabaseOperations().openDB(context);
 			} catch (Exception e) {                                                                                                  
-				result = false;                                                                                                      
+				importResult.addErrorMessage("Error abriendo la base de datos: " + e.getMessage());                                                                                                     
 			}                                                                                                                        
                                                                                                                                      
 			boolean all;                                                                                                             
@@ -706,7 +706,7 @@ public class ServiceWorker extends ServiceBase {
 				try {                                                                                                                
 					contador.save();                                                                                                 
 				} catch (Exception e) {                                                                                              
-					result = false;                                                                                                  
+					importResult.addErrorMessage("Error guardando contadores iniciales: " + e.getMessage());                                                                                                  
 				}
 			}                                                                                                                        
 
@@ -724,7 +724,7 @@ public class ServiceWorker extends ServiceBase {
 
 				parser.parseFormasPago(document, formaPago, compress);
 			} catch (Exception e) {                                                                                                  
-				result = false;                                                                                                     				
+				importResult.addErrorMessage("Error obteniendo formas de pago: " + e.getMessage());                                                                                                    				
 			}                                                                                                                        
 
 			// * * * * * * * * * * LLAMADA A TIPOS DE IVA * * * * * * * * * *                                                        
@@ -743,7 +743,7 @@ public class ServiceWorker extends ServiceBase {
 				parser.parseTiposIva(document, iva, compress);
                                                                                                                                      
 			} catch (Exception e) {                                                                                                  
-				result = false;                                                                                                                                                                         
+				importResult.addErrorMessage("Error obteniendo tipos de IVA: " + e.getMessage());                                                                                                                                                                        
 			}                                                                                                                        
 
 			// * * * * * * * * * * LLAMADA A ARTICULOS * * * * * * * * * *                                                           
@@ -760,7 +760,7 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 				parser.parseArticulos(document, app, articulo, compress);
 			} catch (Exception e) {                                                                                                  
-				result = false;                                                                                                                                                                         
+				importResult.addErrorMessage("Error obteniendo artículos: " + e.getMessage());                                                                                                                                                                         
 			}                                                                                                                        
 
 			// * * * * * * * * * * LLAMADA A ARTICULOS-STOCK DE FIRECLOUD * * * * * * * * * *
@@ -795,11 +795,15 @@ public class ServiceWorker extends ServiceBase {
 					}
 				}
 
-				if (hasNew)
-					result = fireStoreServices.createStock(idToken, stock.name, stock.articulos);
+				if (hasNew) {
+					boolean stockResult = fireStoreServices.createStock(idToken, stock.name, stock.articulos);
+					if (!stockResult) {
+						importResult.addErrorMessage("Error actualizando stock en Firebase");
+					}
+				}
 
 			} catch (Exception e) {
-				result = false;
+				importResult.addErrorMessage("Error procesando stock de Firebase: " + e.getMessage());
 			}
 			// * * * * * * * * * * LLAMADA A TRASPASO ALMACEN * * * * * * * * *                                                                                                                                                                        
 
@@ -816,7 +820,7 @@ public class ServiceWorker extends ServiceBase {
 				this.saveDocumentToFile(this.DocumentToString(document), "TraspasoStock.xml");
 				resultTraspaso = parser.ParserTraspasoAlmacen(document, app, articulo, compress);
 			} catch (Exception e) {                                                                                                  
-				result = false;                                                                                                      
+				importResult.addErrorMessage("Error obteniendo traspaso de stock: " + e.getMessage());                                                                                                     
 				resultTraspaso = false;                                                                                              
 			}                                                                                                                        
 
@@ -832,11 +836,11 @@ public class ServiceWorker extends ServiceBase {
 
 				} catch (Exception e) {                                                                                              
 					parser.UndoTraspasoAlmacen(app);
-					result = false;                                                                                                  
+					importResult.addErrorMessage("Error validando traspaso de almacén: " + e.getMessage());                                                                                                  
 				}	                                                                                                                 
 			} else {
 				parser.UndoTraspasoAlmacen(app);
-				result = false;
+				importResult.addErrorMessage("Error en traspaso de almacén, operación deshecha");
 			}
 			                                                                                                                         
 			app.getTraspasoAlmacen().clear();
@@ -855,7 +859,7 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 				parser.parseClientes(document, app, cliente, compress);
 			} catch (Exception e) {                                                                                                  
-				result = false;                                                                                                      
+				importResult.addErrorMessage("Error obteniendo clientes: " + e.getMessage());                                                                                                     
 			}                                                                                                                        
 
 			// * * * * * * * * * * LLAMADA A TARIFAS * * * * * * * * * *                                                             
@@ -872,7 +876,7 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 				parser.parseTarifas(document, app, tarifa, compress);
 			} catch (Exception e) {                                                                                                  
-				result = false;                                                                                                      
+				importResult.addErrorMessage("Error obteniendo tarifas: " + e.getMessage());                                                                                                     
 			}                                                                                                                        
 
 			// * * * * * * * * * * LLAMADA A PACTOS * * * * * * * * * *                                                              
@@ -889,7 +893,7 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 				parser.parsePactos(document, app, pacto, compress);
 			} catch (Exception e) {                                                                                                  
-				result = false;                                                                                                      
+				importResult.addErrorMessage("Error obteniendo pactos: " + e.getMessage());                                                                                                     
 			}                                                                                                                        
 
 			// * * * * * * * * * * LLAMADA A DEPOSITOS * * * * * * * * * *                                                           
@@ -907,7 +911,7 @@ public class ServiceWorker extends ServiceBase {
 				totalLineasDeposito = parser.parseTotalDepositos(document);
                                                                                                                                      
 			} catch (Exception e) {                                                                                                  
-				result = false;                                                                                                      
+				importResult.addErrorMessage("Error obteniendo total de depósitos: " + e.getMessage());                                                                                                     
 			}                                                                                                                        
                                                                                                                                      
 			// Obtenemos los depósitos                                                                                               
@@ -945,7 +949,7 @@ public class ServiceWorker extends ServiceBase {
 						}                                                                                                            
 					}                                                                                                                
 				} catch (Exception e) {                                                                                              
-					result = false;                                                                                                  
+					importResult.addErrorMessage("Error obteniendo depósitos: " + e.getMessage());                                                                                                  
 				}                                                                                                                    
                                                                                                                                               
 			}
@@ -958,7 +962,7 @@ public class ServiceWorker extends ServiceBase {
 			app.getDatabaseOperations().openDB(context);
                                                                                                                                      
 		} catch (Exception e) {                                                                                                      
-			result = false;                                                                                                          
+			importResult.addErrorMessage("Error general durante la importación: " + e.getMessage());                                                                                                          
 		}
 
 		// Creamos excel de trazabilidad si es necesario
@@ -971,7 +975,7 @@ public class ServiceWorker extends ServiceBase {
 				logBookCreator.createExcel30Days();
 			}
 		} catch (Exception e) {
-			result = false;
+			importResult.addErrorMessage("Error creando excel de trazabilidad: " + e.getMessage());
 		}
 
 		// Creamos excel de excepciones si es necesario
@@ -984,11 +988,11 @@ public class ServiceWorker extends ServiceBase {
 				logBookCreator.createExcel30Days();
 			}
 		} catch (Exception e) {
-			result = false;
+			importResult.addErrorMessage("Error creando excel de excepciones: " + e.getMessage());
 		}
 
 		this.Monitor().ParserMonitor = parser.Monitor();
-		return result;                                                                                                               
+		return importResult;                                                                                                               
 	}                                                                                                                                
                                                                                                                                      
 	private void createFolders() {                                                                                                   

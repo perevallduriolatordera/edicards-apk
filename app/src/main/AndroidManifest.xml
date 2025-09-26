@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ifeu.edicards"
     android:versionCode="5"
-    android:versionName="5.4.18 (25 Septiembre 2025) --> Corrección de errores varios">
+    android:versionName="5.4.19 (26 Septiembre 2025) --> Corrección de errores varios">
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
