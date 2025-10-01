@@ -75,10 +75,11 @@ public class ServiceWorker extends ServiceBase {
 	}
 
 	@SuppressLint("SimpleDateFormat")
-	public void RunExport(Context context) throws Exception {
+	public ExportResult RunExport(Context context) {
 
 		AppConfig app;
 		app = (AppConfig) context;
+		ExportResult exportResult = new ExportResult();
 		LogBookExceptions logBookExceptions = Factory.build(LogBookExceptions.class, app);
 
 		// Asignamos las credenciales
@@ -99,28 +100,32 @@ public class ServiceWorker extends ServiceBase {
 
 		// * * * * * * * * * ENVIAMOS SEMÁFORO STOCK NTV * * * * * * * * * * * *
 
-        String ntvFile = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
-                + ConstantsFolders.FOLDER_STOCK_NTV + "/" + ConstantsFolders.FILE_STOCK_NTV;
+        try {
+            String ntvFile = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"
+                    + ConstantsFolders.FOLDER_STOCK_NTV + "/" + ConstantsFolders.FILE_STOCK_NTV;
 
-        CsvCreator csvCreator = new CsvCreator(ntvFile, "IdArticulo", "Semaforo");
-        LinkedHashMap<String, Articulo> articulos = app.getCache().getAllArticulos();
+            CsvCreator csvCreator = new CsvCreator(ntvFile, "IdArticulo", "Semaforo");
+            LinkedHashMap<String, Articulo> articulos = app.getCache().getAllArticulos();
 
-        for (Articulo articuloInCatalgo : articulos.values()) {
-            csvCreator.addLine(articuloInCatalgo.CodigoArticulo, articuloInCatalgo.StockPropio);
+            for (Articulo articuloInCatalgo : articulos.values()) {
+                csvCreator.addLine(articuloInCatalgo.CodigoArticulo, articuloInCatalgo.StockPropio);
+            }
+
+            csvCreator.flush();
+
+            String server = ConstantsFTP.FTP_SERVER;
+            int port = ConstantsFTP.FTP_PORT;
+            String username = ConstantsFTP.FTP_USERNAME;
+            String password = ConstantsFTP.FTP_PASSWORD;
+            String remoteDirectory = ConstantsFTP.FTP_REMOTE_DIRECTORY;
+            String localFilePath = ntvFile;
+
+            // Pendent d'activació compte ftp
+            FTPUploader ftpUploader = new FTPUploader();
+            ftpUploader.uploadFile(server, port, username, password, remoteDirectory, localFilePath);
+        } catch (Exception e) {
+            exportResult.addErrorMessage("No se ha podido exportar el semáforo stock NTV");
         }
-
-        csvCreator.flush();
-
-        String server = ConstantsFTP.FTP_SERVER;
-        int port = ConstantsFTP.FTP_PORT;
-        String username = ConstantsFTP.FTP_USERNAME;
-        String password = ConstantsFTP.FTP_PASSWORD;
-        String remoteDirectory = ConstantsFTP.FTP_REMOTE_DIRECTORY;
-        String localFilePath = ntvFile;
-
-        // Pendent d'activació compte ftp
-        FTPUploader ftpUploader = new FTPUploader();
-        ftpUploader.uploadFile(server, port, username, password, remoteDirectory, localFilePath);
 
         // * * * * * * * * * ENVIAMOS PDF * * * * * * * * * * * *
 
@@ -161,8 +166,13 @@ public class ServiceWorker extends ServiceBase {
 						EdicardsMailSender mailEnviosEdicards = new EdicardsMailSender(ConstantsMail.MAIL_ENVIOS_EDICARDS, title, ConstantsMail.MAIL_BODY, file);
 						mailEnviosEdicards.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 					} catch (Exception e) {
-						logBookExceptions.setData(file, e);
-						logBookExceptions.save();
+						try {
+							logBookExceptions.setData(file, e);
+							logBookExceptions.save();
+						} catch (Exception logException) {
+							// Error saving to log book, but continue processing
+						}
+						exportResult.addErrorMessage("No se ha podido exportar el email de envío especial para archivo " + fileInfo.getName());
 						continue;
 					}
 				}
@@ -175,6 +185,7 @@ public class ServiceWorker extends ServiceBase {
 						} catch (Exception e) {
 							logBookExceptions.setData(file, e);
 							logBookExceptions.save();
+							exportResult.addErrorMessage("No se ha podido exportar el email rectificativo para archivo " + fileInfo.getName());
 							continue;
 						}
 					}
@@ -191,8 +202,17 @@ public class ServiceWorker extends ServiceBase {
 						IOUtils.renameFile(file, file.replace(".pdf", ".tmp"));
 
 				} catch (Exception e) {
-					logBookExceptions.setData(file, e);
-					logBookExceptions.save();
+					try {
+						try {
+							logBookExceptions.setData(file, e);
+							logBookExceptions.save();
+						} catch (Exception logException) {
+							// Error saving to log book, but continue processing
+						}
+					} catch (Exception logException) {
+						// Error saving to log book, but continue processing
+					}
+					exportResult.addErrorMessage("No se ha podido exportar el PDF " + fileInfo.getName());
 					continue;
 				}
 				this.Monitor().PdfSend++;
@@ -225,8 +245,16 @@ public class ServiceWorker extends ServiceBase {
 					mail.send();
 					IOUtils.deleteFile(file);
 				} catch (Exception e) {
-					logBookExceptions.setData(file, e);
-					logBookExceptions.save();
+					try {
+						try {
+							logBookExceptions.setData(file, e);
+							logBookExceptions.save();
+						} catch (Exception logException) {
+							// Error saving to log book, but continue processing
+						}
+					} catch (Exception logException) {
+						// Error saving to log book, but continue processing
+					}
 					continue;
 				}
 
@@ -257,8 +285,16 @@ public class ServiceWorker extends ServiceBase {
 				try {
 					mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 				} catch (Exception e) {
-					logBookExceptions.setData(file, e);
-					logBookExceptions.save();
+					try {
+						try {
+							logBookExceptions.setData(file, e);
+							logBookExceptions.save();
+						} catch (Exception logException) {
+							// Error saving to log book, but continue processing
+						}
+					} catch (Exception logException) {
+						// Error saving to log book, but continue processing
+					}
 					continue;
 				}
 
@@ -288,8 +324,12 @@ public class ServiceWorker extends ServiceBase {
 						mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 						IOUtils.deleteFile(file);
 					} catch (Exception e) {
-						logBookExceptions.setData(file, e);
-						logBookExceptions.save();
+						try {
+							logBookExceptions.setData(file, e);
+							logBookExceptions.save();
+						} catch (Exception logException) {
+							// Error saving to log book, but continue processing
+						}
 					}
 				} else if (file.contains(ConstantsTypes.TRACE_TYPE_EXCEPTION)) {
 					SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -300,8 +340,12 @@ public class ServiceWorker extends ServiceBase {
 						mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 						IOUtils.deleteFile(file);
 					} catch (Exception e) {
-						logBookExceptions.setData(file, e);
-						logBookExceptions.save();
+						try {
+							logBookExceptions.setData(file, e);
+							logBookExceptions.save();
+						} catch (Exception logException) {
+							// Error saving to log book, but continue processing
+						}
 					}
 				}
 
@@ -355,8 +399,16 @@ public class ServiceWorker extends ServiceBase {
 					mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 					IOUtils.deleteFile(file);
 				} catch (Exception e) {
-					logBookExceptions.setData(file, e);
-					logBookExceptions.save();
+					try {
+						try {
+							logBookExceptions.setData(file, e);
+							logBookExceptions.save();
+						} catch (Exception logException) {
+							// Error saving to log book, but continue processing
+						}
+					} catch (Exception logException) {
+						// Error saving to log book, but continue processing
+					}
 					continue;
 				}
 
@@ -412,8 +464,16 @@ public class ServiceWorker extends ServiceBase {
 					IOUtils.deleteFile(file);
 					IOUtils.deleteFile(albaranFile);
 				} catch (Exception e) {
-					logBookExceptions.setData(file, e);
-					logBookExceptions.save();
+					try {
+						try {
+							logBookExceptions.setData(file, e);
+							logBookExceptions.save();
+						} catch (Exception logException) {
+							// Error saving to log book, but continue processing
+						}
+					} catch (Exception logException) {
+						// Error saving to log book, but continue processing
+					}
 					continue;
 				}
 
@@ -431,17 +491,17 @@ public class ServiceWorker extends ServiceBase {
 		String url = ConstantsEndpoints.WS_ENVIAR_ARTICULOS;
                                                                                                                                      
 		for (String file : files) {                                                                                                  
-			String content = IOUtils.getFileContent(file);                                                                           
-                                                                                                                                     
-			RestClient client = new RestClient();                                                                                    
-			ArrayList<NameValuePair> headers = new ArrayList<>();
-			headers.add(new BasicNameValuePair("Authorization", ConstantsTypes.AUTHORIZATION_HEADER_SERVICES));
-			ArrayList<NameValuePair> params = new ArrayList<>();
-			params.add(new BasicNameValuePair("contingut", content));                                                                
-	                                                                                                                                 
-			boolean result;                                                                                                          
-			                                                                                                                         
-			try {                                                                                                                    
+			try {
+				String content = IOUtils.getFileContent(file);                                                                           
+	                                                                                                                                     
+				RestClient client = new RestClient();                                                                                    
+				ArrayList<NameValuePair> headers = new ArrayList<>();
+				headers.add(new BasicNameValuePair("Authorization", ConstantsTypes.AUTHORIZATION_HEADER_SERVICES));
+				ArrayList<NameValuePair> params = new ArrayList<>();
+				params.add(new BasicNameValuePair("contingut", content));                                                                
+		                                                                                                                                 
+				boolean result;                                                                                                          
+				                                                                                                                         
 				result = client.Execute(RequestMethod.POST, url, headers, params);                                                   
 				                                                                                                                     
 				if (result) {                                                                                                        
@@ -450,8 +510,21 @@ public class ServiceWorker extends ServiceBase {
 				}                                                                                                                    
 
 			} catch (Exception e) {
-				logBookExceptions.setData(file, e);
-				logBookExceptions.save();
+				try {
+					try {
+						try {
+							logBookExceptions.setData(file, e);
+							logBookExceptions.save();
+						} catch (Exception logException) {
+							// Error saving to log book, but continue processing
+						}
+					} catch (Exception logException) {
+						// Error saving to log book, but continue processing
+					}
+				} catch (Exception logException) {
+					// Error saving to log book, but continue processing
+				}
+				exportResult.addErrorMessage("No se ha podido exportar los artículos desde archivo " + file);
             }
 
 		}                                                                                                                            
@@ -466,17 +539,30 @@ public class ServiceWorker extends ServiceBase {
 		anyGastos = (files.size() > 0);                                                                                              
                                                                                                                                      
 		for (String file : files) {                                                                                                  
-			String content = encodeURIComponent(IOUtils.getFileContent(file));
-			HttpService http = new HttpService();
-			url = ConstantsEndpoints.WS_ENVIAR_GASTOS;
-			                                                                                                                         
-			try {                                                                                                                    
+			try {
+				String content = encodeURIComponent(IOUtils.getFileContent(file));
+				HttpService http = new HttpService();
+				url = ConstantsEndpoints.WS_ENVIAR_GASTOS;
+				                                                                                                                         
 				http.CallWithoutResult(url + "?contingut=" + content, credentials);                                                  
 				IOUtils.deleteFile(file);
 				this.Monitor().GastosSend++;
 			} catch (Exception e) {
-				logBookExceptions.setData(file, e);
-				logBookExceptions.save();
+				try {
+					try {
+						try {
+							logBookExceptions.setData(file, e);
+							logBookExceptions.save();
+						} catch (Exception logException) {
+							// Error saving to log book, but continue processing
+						}
+					} catch (Exception logException) {
+						// Error saving to log book, but continue processing
+					}
+				} catch (Exception logException) {
+					// Error saving to log book, but continue processing
+				}
+				exportResult.addErrorMessage("No se ha podido exportar los gastos desde archivo " + file);
 			}
 		}                                                                                                                            
 
@@ -488,8 +574,12 @@ public class ServiceWorker extends ServiceBase {
 		List<String> inventario = IOUtils.getFilesFromDirectory(directory);
 
 		if (anyGastos) {
-			PdfInventory inventory = new PdfInventory(app);
-			inventory.createInventory();
+			try {
+				PdfInventory inventory = new PdfInventory(app);
+				inventory.createInventory();
+			} catch (Exception e) {
+				exportResult.addErrorMessage("No se ha podido exportar el inventario PDF");
+			}
 
 			for (String file : inventario) {
 
@@ -536,8 +626,12 @@ public class ServiceWorker extends ServiceBase {
 						mail.send(EdicardsMailSender.AccountType.OPERACIONES_TABLET, EdicardsMailSender.FormatType.TEXT);
 						IOUtils.deleteFile(file);
 					} catch (Exception e) {
-						logBookExceptions.setData(file, e);
-						logBookExceptions.save();
+						try {
+							logBookExceptions.setData(file, e);
+							logBookExceptions.save();
+						} catch (Exception logException) {
+							// Error saving to log book, but continue processing
+						}
 						continue;
 					}
 
@@ -574,16 +668,32 @@ public class ServiceWorker extends ServiceBase {
 				}
 
 			} catch (Exception e) {
-				logBookExceptions.setData(file, e);
-				logBookExceptions.save();
+				try {
+					try {
+						try {
+							logBookExceptions.setData(file, e);
+							logBookExceptions.save();
+						} catch (Exception logException) {
+							// Error saving to log book, but continue processing
+						}
+					} catch (Exception logException) {
+						// Error saving to log book, but continue processing
+					}
+				} catch (Exception logException) {
+					// Error saving to log book, but continue processing
+				}
 			}
 
 		}
 		                                                                                                                             
 		// * * * * * * * * * ENVIAMOS STOCK DIARIO * * * * * * * * * * * *                                                           
                                                                                                                                      
-		XmlCreator creator = new XmlCreator(app);
-		creator.createXmlDailyStock();                                                                                               
+		try {
+			XmlCreator creator = new XmlCreator(app);
+			creator.createXmlDailyStock();                                                                                               
+		} catch (Exception e) {
+			exportResult.addErrorMessage("No se ha podido exportar el XML de stock diario");
+		}
 
 		directory = Environment.getExternalStorageDirectory().toString() + "/" + ConstantsFolders.FOLDER_ROOT + "/"                         
 				+ ConstantsFolders.FOLDER_DAILYSTOCK;                                                                                       
@@ -591,27 +701,37 @@ public class ServiceWorker extends ServiceBase {
 		List<String> stockDiario = IOUtils.getFilesFromDirectory(directory);                                                         
                                                                                                                                      
 		for (String file : stockDiario) {   
-                                                                                                                                     
-			String content = IOUtils.getFileContent(file);
-			url = ConstantsEndpoints.WS_ENVIAR_STOCKS;
+			try {                                                                                                                                     
+				String content = IOUtils.getFileContent(file);
+				url = ConstantsEndpoints.WS_ENVIAR_STOCKS;
 
-			RestClient client = new RestClient();                                                                                    
-			ArrayList<NameValuePair> headers = new ArrayList<>();
-			headers.add(new BasicNameValuePair("Authorization", ConstantsTypes.AUTHORIZATION_HEADER_SERVICES));
-			ArrayList<NameValuePair> params = new ArrayList<>();
-			params.add(new BasicNameValuePair("contingut", content));                                                                
-			                                                                                                                         
-			boolean result;                                                                                                          
-			                                                                                                                         
-			try {                                                                                                                    
-				result = client.Execute(RequestMethod.POST, url, headers, params);
+				RestClient client = new RestClient();                                                                                    
+				ArrayList<NameValuePair> headers = new ArrayList<>();
+				headers.add(new BasicNameValuePair("Authorization", ConstantsTypes.AUTHORIZATION_HEADER_SERVICES));
+				ArrayList<NameValuePair> params = new ArrayList<>();
+				params.add(new BasicNameValuePair("contingut", content));                                                                
+				                                                                                                                         
+				boolean result = client.Execute(RequestMethod.POST, url, headers, params);
 				if (result) {                                                                                                        
 					IOUtils.deleteFile(file);                                                                                                                             
 					this.Monitor().StockDiarioSend++;
 				}                                                                                                                    
 			} catch (Exception e) {
-				logBookExceptions.setData(file, e);
-				logBookExceptions.save();
+				try {
+					try {
+						try {
+							logBookExceptions.setData(file, e);
+							logBookExceptions.save();
+						} catch (Exception logException) {
+							// Error saving to log book, but continue processing
+						}
+					} catch (Exception logException) {
+						// Error saving to log book, but continue processing
+					}
+				} catch (Exception logException) {
+					// Error saving to log book, but continue processing
+				}
+				exportResult.addErrorMessage("No se ha podido exportar el stock diario desde archivo " + file);
 			}
 			                                                                                                                                                                                                                                                                                                                                                                                        
 		}                                                                                                                            
@@ -624,19 +744,32 @@ public class ServiceWorker extends ServiceBase {
 		files = IOUtils.getFilesFromDirectory(directory);                                                                            
                                                                                                                                      
 		for (String file : files) {                                                                                                  
-			String content = encodeURIComponent(IOUtils.getFileContent(file));
+			try {
+				String content = encodeURIComponent(IOUtils.getFileContent(file));
 
-			HttpService http = new HttpService();
-			url = ConstantsEndpoints.WS_ENVIAR_ALBARANES;
+				HttpService http = new HttpService();
+				url = ConstantsEndpoints.WS_ENVIAR_ALBARANES;
 
-			try {                                                                                                                    
 				http.CallWithoutResult(url + "?contingut=" + content, credentials);                                                  
 				IOUtils.deleteFile(file);
 				this.Monitor().AlbaranesSend++;
 				
 			} catch (Exception e) {
-				logBookExceptions.setData(file, e);
-				logBookExceptions.save();
+				try {
+					try {
+						try {
+							logBookExceptions.setData(file, e);
+							logBookExceptions.save();
+						} catch (Exception logException) {
+							// Error saving to log book, but continue processing
+						}
+					} catch (Exception logException) {
+						// Error saving to log book, but continue processing
+					}
+				} catch (Exception logException) {
+					// Error saving to log book, but continue processing
+				}
+				exportResult.addErrorMessage("No se ha podido exportar los albaranes desde archivo " + file);
 			}
                                                                                                                                      
 		}                                                                                                                            
@@ -649,19 +782,34 @@ public class ServiceWorker extends ServiceBase {
 		files = IOUtils.getFilesFromDirectory(directory);                                                                            
                                                                                                                                      
 		for (String file : files) {                                                                                                  
-			String content = encodeURIComponent(IOUtils.getFileContent(file));
-			HttpService http = new HttpService();
-			url = ConstantsEndpoints.WS_ENVIAR_DEPOSITOS;
+			try {
+				String content = encodeURIComponent(IOUtils.getFileContent(file));
+				HttpService http = new HttpService();
+				url = ConstantsEndpoints.WS_ENVIAR_DEPOSITOS;
 
-			try {                                                                                                                    
 				http.CallWithoutResult(url + "?contingut=" + content, credentials);                                                  
 				IOUtils.deleteFile(file);
 				this.Monitor().DepositosSend++;
 			} catch (Exception e) {
-				logBookExceptions.setData(file, e);
-				logBookExceptions.save();
+				try {
+					try {
+						try {
+							logBookExceptions.setData(file, e);
+							logBookExceptions.save();
+						} catch (Exception logException) {
+							// Error saving to log book, but continue processing
+						}
+					} catch (Exception logException) {
+						// Error saving to log book, but continue processing
+					}
+				} catch (Exception logException) {
+					// Error saving to log book, but continue processing
+				}
+				exportResult.addErrorMessage("No se ha podido exportar los depósitos desde archivo " + file);
 			}
 		}
+		
+		return exportResult;
 	}                                                                                                                                
                                                                                                                                      
 	public ImportResult RunImport(Context context, boolean compress) {
@@ -682,7 +830,7 @@ public class ServiceWorker extends ServiceBase {
 			try {
 				app.getDatabaseOperations().openDB(context);
 			} catch (Exception e) {                                                                                                  
-				importResult.addErrorMessage("Error abriendo la base de datos: " + e.getMessage());                                                                                                     
+				importResult.addErrorMessage("No se ha podido importar - Error abriendo la base de datos");                                                                                                     
 			}                                                                                                                        
                                                                                                                                      
 			boolean all;                                                                                                             
@@ -706,7 +854,7 @@ public class ServiceWorker extends ServiceBase {
 				try {                                                                                                                
 					contador.save();                                                                                                 
 				} catch (Exception e) {                                                                                              
-					importResult.addErrorMessage("Error guardando contadores iniciales: " + e.getMessage());                                                                                                  
+					importResult.addErrorMessage("No se ha podido importar - Error guardando contadores iniciales");                                                                                                  
 				}
 			}                                                                                                                        
 
@@ -724,7 +872,7 @@ public class ServiceWorker extends ServiceBase {
 
 				parser.parseFormasPago(document, formaPago, compress);
 			} catch (Exception e) {                                                                                                  
-				importResult.addErrorMessage("Error obteniendo formas de pago: " + e.getMessage());                                                                                                    				
+				importResult.addErrorMessage("No se ha podido importar las formas de pago");                                                                                                    				
 			}                                                                                                                        
 
 			// * * * * * * * * * * LLAMADA A TIPOS DE IVA * * * * * * * * * *                                                        
@@ -743,7 +891,7 @@ public class ServiceWorker extends ServiceBase {
 				parser.parseTiposIva(document, iva, compress);
                                                                                                                                      
 			} catch (Exception e) {                                                                                                  
-				importResult.addErrorMessage("Error obteniendo tipos de IVA: " + e.getMessage());                                                                                                                                                                        
+				importResult.addErrorMessage("No se ha podido importar los tipos de IVA");                                                                                                                                                                        
 			}                                                                                                                        
 
 			// * * * * * * * * * * LLAMADA A ARTICULOS * * * * * * * * * *                                                           
@@ -760,7 +908,7 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 				parser.parseArticulos(document, app, articulo, compress);
 			} catch (Exception e) {                                                                                                  
-				importResult.addErrorMessage("Error obteniendo artículos: " + e.getMessage());                                                                                                                                                                         
+				importResult.addErrorMessage("No se ha podido importar los artículos");                                                                                                                                                                         
 			}                                                                                                                        
 
 			// * * * * * * * * * * LLAMADA A ARTICULOS-STOCK DE FIRECLOUD * * * * * * * * * *
@@ -796,14 +944,11 @@ public class ServiceWorker extends ServiceBase {
 				}
 
 				if (hasNew) {
-					boolean stockResult = fireStoreServices.createStock(idToken, stock.name, stock.articulos);
-					if (!stockResult) {
-						importResult.addErrorMessage("Error actualizando stock en Firebase");
-					}
+					fireStoreServices.createStock(idToken, stock.name, stock.articulos);
 				}
 
 			} catch (Exception e) {
-				importResult.addErrorMessage("Error procesando stock de Firebase: " + e.getMessage());
+				importResult.addErrorMessage("No se ha podido importar el stock de Firebase");
 			}
 			// * * * * * * * * * * LLAMADA A TRASPASO ALMACEN * * * * * * * * *                                                                                                                                                                        
 
@@ -820,7 +965,7 @@ public class ServiceWorker extends ServiceBase {
 				this.saveDocumentToFile(this.DocumentToString(document), "TraspasoStock.xml");
 				resultTraspaso = parser.ParserTraspasoAlmacen(document, app, articulo, compress);
 			} catch (Exception e) {                                                                                                  
-				importResult.addErrorMessage("Error obteniendo traspaso de stock: " + e.getMessage());                                                                                                     
+				importResult.addErrorMessage("No se ha podido importar el traspaso de stock");                                                                                                     
 				resultTraspaso = false;                                                                                              
 			}                                                                                                                        
 
@@ -836,11 +981,11 @@ public class ServiceWorker extends ServiceBase {
 
 				} catch (Exception e) {                                                                                              
 					parser.UndoTraspasoAlmacen(app);
-					importResult.addErrorMessage("Error validando traspaso de almacén: " + e.getMessage());                                                                                                  
+					importResult.addErrorMessage("No se ha podido importar - Error validando traspaso de almacén");                                                                                                  
 				}	                                                                                                                 
 			} else {
 				parser.UndoTraspasoAlmacen(app);
-				importResult.addErrorMessage("Error en traspaso de almacén, operación deshecha");
+				importResult.addErrorMessage("No se ha podido importar - Error en traspaso de almacén, operación deshecha");
 			}
 			                                                                                                                         
 			app.getTraspasoAlmacen().clear();
@@ -859,7 +1004,7 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 				parser.parseClientes(document, app, cliente, compress);
 			} catch (Exception e) {                                                                                                  
-				importResult.addErrorMessage("Error obteniendo clientes: " + e.getMessage());                                                                                                     
+				importResult.addErrorMessage("No se ha podido importar los clientes");                                                                                                     
 			}                                                                                                                        
 
 			// * * * * * * * * * * LLAMADA A TARIFAS * * * * * * * * * *                                                             
@@ -876,7 +1021,7 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 				parser.parseTarifas(document, app, tarifa, compress);
 			} catch (Exception e) {                                                                                                  
-				importResult.addErrorMessage("Error obteniendo tarifas: " + e.getMessage());                                                                                                     
+				importResult.addErrorMessage("No se ha podido importar las tarifas");                                                                                                     
 			}                                                                                                                        
 
 			// * * * * * * * * * * LLAMADA A PACTOS * * * * * * * * * *                                                              
@@ -893,7 +1038,7 @@ public class ServiceWorker extends ServiceBase {
                                                                                                                                      
 				parser.parsePactos(document, app, pacto, compress);
 			} catch (Exception e) {                                                                                                  
-				importResult.addErrorMessage("Error obteniendo pactos: " + e.getMessage());                                                                                                     
+				importResult.addErrorMessage("No se ha podido importar los pactos");                                                                                                     
 			}                                                                                                                        
 
 			// * * * * * * * * * * LLAMADA A DEPOSITOS * * * * * * * * * *                                                           
@@ -911,7 +1056,7 @@ public class ServiceWorker extends ServiceBase {
 				totalLineasDeposito = parser.parseTotalDepositos(document);
                                                                                                                                      
 			} catch (Exception e) {                                                                                                  
-				importResult.addErrorMessage("Error obteniendo total de depósitos: " + e.getMessage());                                                                                                     
+				importResult.addErrorMessage("No se ha podido importar el total de depósitos");                                                                                                     
 			}                                                                                                                        
                                                                                                                                      
 			// Obtenemos los depósitos                                                                                               
@@ -949,7 +1094,7 @@ public class ServiceWorker extends ServiceBase {
 						}                                                                                                            
 					}                                                                                                                
 				} catch (Exception e) {                                                                                              
-					importResult.addErrorMessage("Error obteniendo depósitos: " + e.getMessage());                                                                                                  
+					importResult.addErrorMessage("No se ha podido importar los depósitos");                                                                                                  
 				}                                                                                                                    
                                                                                                                                               
 			}
@@ -962,7 +1107,7 @@ public class ServiceWorker extends ServiceBase {
 			app.getDatabaseOperations().openDB(context);
                                                                                                                                      
 		} catch (Exception e) {                                                                                                      
-			importResult.addErrorMessage("Error general durante la importación: " + e.getMessage());                                                                                                          
+			importResult.addErrorMessage("No se ha podido importar los datos");                                                                                                          
 		}
 
 		// Creamos excel de trazabilidad si es necesario
@@ -975,7 +1120,7 @@ public class ServiceWorker extends ServiceBase {
 				logBookCreator.createExcel30Days();
 			}
 		} catch (Exception e) {
-			importResult.addErrorMessage("Error creando excel de trazabilidad: " + e.getMessage());
+			importResult.addErrorMessage("No se ha podido importar - Error creando excel de trazabilidad");
 		}
 
 		// Creamos excel de excepciones si es necesario
@@ -988,7 +1133,7 @@ public class ServiceWorker extends ServiceBase {
 				logBookCreator.createExcel30Days();
 			}
 		} catch (Exception e) {
-			importResult.addErrorMessage("Error creando excel de excepciones: " + e.getMessage());
+			importResult.addErrorMessage("No se ha podido importar - Error creando excel de excepciones");
 		}
 
 		this.Monitor().ParserMonitor = parser.Monitor();

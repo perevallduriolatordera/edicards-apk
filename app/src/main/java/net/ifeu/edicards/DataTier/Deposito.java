@@ -946,6 +946,7 @@ public class Deposito extends Cliente implements IPersistable {
 
 	public DTODeposito getDTO() {
 		DTODeposito dto = new DTODeposito();
+
 		dto.Activo = this.Activo;
 		dto.CantidadPagada = this.CantidadPagada;
 		dto.Clave = this.Clave;

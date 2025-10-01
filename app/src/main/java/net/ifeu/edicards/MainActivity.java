@@ -22,6 +22,7 @@ import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.edicards.Services.ImportResult;
+import net.ifeu.edicards.Services.ExportResult;
 import net.ifeu.library.Devices.BlueTooth;
 import net.ifeu.library.Devices.Wifi;
 import net.ifeu.library.Devices._3G;
@@ -32,6 +33,7 @@ public class MainActivity extends Activity {
 	private AppConfig _appConfig;
 	private ServiceWorker _serviceWorker;
 	private ImportResult _importResult;
+	private ExportResult _exportResult;
 	
 	private static final int REQUEST_EXTERNAL_STORAGE = 1;
 	private static String[] PERMISSIONS_STORAGE = {
@@ -92,7 +94,7 @@ public class MainActivity extends Activity {
 
 	}
 
-	public void ShowAppVersion() {
+	private void ShowAppVersion() {
 
 		PackageInfo pInfo;
 		try {
@@ -191,15 +193,31 @@ public class MainActivity extends Activity {
 								progressDialog.dismiss();
 								
 								// Mostrar errores si los hay, pero continuar al menú principal
-								if (that._importResult != null && !that._importResult.isSuccess()) {
-									StringBuilder errorMsg = new StringBuilder("La importación se completó con errores:\n\n");
-									for (String error : that._importResult.getErrorMessages()) {
-										errorMsg.append("• ").append(error).append("\n");
+								StringBuilder allErrors = new StringBuilder();
+								boolean hasImportErrors = that._importResult != null && !that._importResult.isSuccess();
+								boolean hasExportErrors = that._exportResult != null && !that._exportResult.isSuccess();
+								
+								if (hasImportErrors || hasExportErrors) {
+									if (hasImportErrors) {
+										allErrors.append("ERRORES DE IMPORTACIÓN:\n");
+										for (String error : that._importResult.getErrorMessages()) {
+											allErrors.append("• ").append(error).append("\n");
+										}
+										allErrors.append("\n");
 									}
-									errorMsg.append("\nLa aplicación funcionará normalmente pero algunos datos pueden no estar actualizados.");
 									
-									boolean result = that._appConfig.getMessageBox().ShowWithResult("Advertencia - Errores de Importación",
-											errorMsg.toString(),
+									if (hasExportErrors) {
+										allErrors.append("ERRORES DE EXPORTACIÓN:\n");
+										for (String error : that._exportResult.getErrorMessages()) {
+											allErrors.append("• ").append(error).append("\n");
+										}
+										allErrors.append("\n");
+									}
+									
+									allErrors.append("La aplicación funcionará normalmente pero algunos procesos pueden no haberse completado correctamente.");
+									
+									that._appConfig.getMessageBox().ShowModalWithOk("Advertencia - Errores de Sincronización",
+											allErrors.toString(),
 											that, MessageBoxType.Error);
 								}
 								
@@ -245,9 +263,11 @@ public class MainActivity extends Activity {
 		final Context context = _appConfig;
 
 		try {
-			this._serviceWorker.RunExport(context);
+			_exportResult = this._serviceWorker.RunExport(context);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			// Si hay una excepción durante la exportación, creamos un ExportResult con el error
+			_exportResult = new ExportResult(false);
+			_exportResult.addErrorMessage("Error durante la exportación: " + e.getMessage());
 		}
 	}
 

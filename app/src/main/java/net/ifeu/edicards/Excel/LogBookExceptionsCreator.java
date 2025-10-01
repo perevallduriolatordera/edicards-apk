@@ -55,7 +55,7 @@ public class LogBookExceptionsCreator implements ILogCreator {
 
     private boolean createExcel(ArrayList<LogBookExceptions> list) {
 
-        if (list.size() == 0) return false;
+        if (list.size() == 0) return true;
 
         boolean result = true;
 
@@ -82,7 +82,7 @@ public class LogBookExceptionsCreator implements ILogCreator {
 
     private boolean createCSV(ArrayList<LogBookExceptions> list) {
 
-        if (list.size() == 0) return false;
+        if (list.size() == 0) return true;
 
         boolean result = true;
 

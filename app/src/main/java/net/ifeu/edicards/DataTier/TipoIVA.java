@@ -59,11 +59,6 @@ public class TipoIVA extends Persistent implements IPersistable {
 	public boolean setTipoIVAByClienteArticulo(Cliente cliente,
 			Articulo articulo) throws Exception {
 
-		// Cursor cursor =
-		// super.getDatabaseOperations().getRecordsFromField(ConstantsDatabase.TABLE_TIPOS_IVA,
-		// "Articulo", String.valueOf(articulo.TipoIVA), false,
-		// "AND Filiacion = '" + cliente.Filiacion + "'",null);
-
 		Cursor cursor = super.getDatabaseOperations().executeSentence(
 				"SELECT * FROM " + ConstantsDatabase.TABLE_TIPOS_IVA
 						+ " WHERE Articulo='"

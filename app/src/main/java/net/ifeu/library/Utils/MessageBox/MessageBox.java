@@ -86,6 +86,51 @@ public class MessageBox {
 
         return _result;
 	}
+	
+	public void ShowModalWithOk(String title, String text, Context context, MessageBoxType type)
+	{
+		 final Handler handler = new Handler() {
+		        @Override
+		        public void handleMessage(Message mesg) {
+		            throw new RuntimeException("@Custom");
+		        }  
+		    };
+		    
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(context, R.style.AppTheme));
+        alertDialog.setTitle(title);
+        alertDialog.setMessage(text);
+        alertDialog.setPositiveButton("Aceptar", (dialog, arg1) -> {
+            handler.sendMessage(handler.obtainMessage());
+            dialog.dismiss();
+        });
+        
+        alertDialog.setCancelable(false);
+        
+        switch (type)
+		{
+		case Error:
+			{
+				alertDialog.setIcon(R.drawable.ic_error);
+				break;
+			}
+		case Information:
+			{
+				alertDialog.setIcon(R.drawable.ic_information);
+				break;
+			}
+		case Ok:
+			{
+				alertDialog.setIcon(R.drawable.ic_ok);
+				break;
+			}
+		}
+        
+        alertDialog.create().show();
+        
+        // loop till a runtime exception is triggered.
+        try { Looper.loop(); }
+        catch(RuntimeException e2) {}
+	}
 
 	private void setResult(boolean value)
 	{

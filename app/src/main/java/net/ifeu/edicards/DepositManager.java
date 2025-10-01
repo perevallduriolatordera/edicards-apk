@@ -60,6 +60,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -908,6 +909,29 @@ public class DepositManager extends Fragment implements  IMediator {
         }
     }
 
+    private void showCashStatus() {
+        try {
+            Efectivo efectivo = Factory.build(Efectivo.class, _appConfig);
+            efectivo.getEfectivo();
+            
+            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy", java.util.Locale.getDefault());
+            String lastUpdateTime = timeFormat.format(efectivo.UpdateDateEfectivo);
+            
+            String message = String.format(
+                "INFORMACIÓN DE EFECTIVO:\n\n" +
+                "💰 Cantidad actual: %.2f €\n\n" +
+                "🕒 Última actualización: %s",
+                efectivo.Efectivo,
+                lastUpdateTime
+            );
+            
+            _appConfig.getMessageBox().Show("Estado del Efectivo", message, this.getActivity(), MessageBoxType.Information);
+            
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 	private void SaveDeposito() {
 		_deposito.PagoDescripcion = _comboPago.getText();
 		_deposito.saveChangesToDeposito(_modalidad);
@@ -930,6 +954,15 @@ public class DepositManager extends Fragment implements  IMediator {
 			cantidadPagada = Double.parseDouble(cantidadPagadaText.replace(",", "."));
 
 		_deposito.CantidadPagada = cantidadPagada;
+
+		if (_deposito.Totales.Total < 0 && cantidadPagada > 0) {
+			_appConfig.getMessageBox().Show("Atención",
+					"no se puede ingresar cantidad positiva en devolución. Revíselo y vuelva a cerrer la operación",
+					this.getActivity(), MessageBoxType.Error);
+
+			return false;
+		}
+
 		if ((_checkPagado.isChecked())
 				&& (DepositManagerExtension.Format.RoundTo2Decimals(_deposito.CantidadPagada) > DepositManagerExtension.Format.RoundTo2Decimals(_deposito.Totales.Total))
 				&& (_deposito.Totales.Total > 0)) {
@@ -1078,8 +1111,14 @@ public class DepositManager extends Fragment implements  IMediator {
 
 				SaveDeposito();
 				SaveHistorico();
-				updateEfectivo();
+
+				if (_deposito.Pagado && _deposito.CantidadPagada != 0)
+					updateEfectivo();
+
 				generateXML();
+
+				// Mostrar estado actual del efectivo después de completar la operación
+				showCashStatus();
 
 				// Generem el consentiment GDPR si és necessari
 
@@ -1109,8 +1148,14 @@ public class DepositManager extends Fragment implements  IMediator {
 	}
 
 	private void SaveHistorico() {
+		_deposito.Cliente.Filiacion = DepositManagerExtension.DataTier.getFiliacionCode(_comboFiliacion.getText()).trim();
+        try {
+            _deposito.Cliente.update();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
-		_deposito.Filiacion = DepositManagerExtension.DataTier.getFiliacionCode(_comboFiliacion.getText());
+        _deposito.Filiacion = DepositManagerExtension.DataTier.getFiliacionCode(_comboFiliacion.getText());
 		_deposito.Pagado = _checkPagado.isChecked();
 		_deposito.PagoDescripcion = _comboPago.getText();
 

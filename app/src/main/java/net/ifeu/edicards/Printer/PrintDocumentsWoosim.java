@@ -318,11 +318,12 @@ public class PrintDocumentsWoosim implements IPrint {
 					this.Print();
 
 					_woosim.saveSpool(LANGUAGE, "\n", 0, true);
-					_woosim.saveSpool(LANGUAGE, "Forma de pago: "
-							+ deposito.PagoDescripcion + "\n", 1, true); // Usar estilo 1 (negrita)
-					this.Print();
 
 				}
+				
+				_woosim.saveSpool(LANGUAGE, "Forma de pago: "
+						+ deposito.PagoDescripcion + "\n", 1, true); // Usar estilo 1 (negrita)
+				this.Print();
 				
 				if (deposito.Pagado) {
 

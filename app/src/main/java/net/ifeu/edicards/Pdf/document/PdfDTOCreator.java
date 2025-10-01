@@ -197,11 +197,6 @@ public class PdfDTOCreator extends pdfBase implements IPdfDocumentGenerator {
 
 					_document.add(new Paragraph(reqEqvText, _fontBold));
 
-					String formaPagoText = "\nForma de pago: "
-							+ _deposito.PagoDescripcion + "\n";
-
-					_document.add(new Paragraph(formaPagoText, _fontBoldExtra));
-
 					if (_deposito.Pagado) {
 
 						_document.add(new Paragraph(
@@ -258,6 +253,11 @@ public class PdfDTOCreator extends pdfBase implements IPdfDocumentGenerator {
 						this.addSignature(1);
 					}
 				}
+				
+				String formaPagoText = "\nForma de pago: "
+						+ _deposito.PagoDescripcion + "\n";
+
+				_document.add(new Paragraph(formaPagoText, _fontBoldExtra));
 			}
 		}
 	}

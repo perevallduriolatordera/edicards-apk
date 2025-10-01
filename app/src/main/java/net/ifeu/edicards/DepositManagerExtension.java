@@ -40,6 +40,7 @@ import net.ifeu.edicards.Pdf.authorization.PdfAuthorization;
 import net.ifeu.edicards.Pdf.document.PdfCreator;
 import net.ifeu.edicards.Pdf.incident.IncidentPdfCreator;
 import net.ifeu.edicards.Services.ServiceWorker;
+import net.ifeu.edicards.Services.ExportResult;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.ComboBox;
 import net.ifeu.library.Controls.LabelColor;
@@ -147,7 +148,7 @@ public class DepositManagerExtension {
 			int position = value.indexOf("-");
 	
 			if (position >= 0)
-				return value.substring(0, position);
+				return value.substring(0, position).trim();
 			else
 				return ConstantsTypes.EMPTY_STRING;
 		}
@@ -387,12 +388,40 @@ public class DepositManagerExtension {
 				public void run() {
 					
 					ServiceWorker worker = new ServiceWorker();
+					ExportResult exportResult;
+					
 					try {
-						worker.RunExport(config);
+						exportResult = worker.RunExport(config);
 					} catch (Exception e) {
-						throw new RuntimeException(e);
-					}new ServiceWorker();
-					progressDialog.dismiss();
+						// Si hay una excepción durante la exportación, creamos un ExportResult con el error
+						exportResult = new ExportResult(false);
+						exportResult.addErrorMessage("Error durante la exportación: " + e.getMessage());
+					}
+					
+					final ExportResult finalResult = exportResult;
+					
+					activity.runOnUiThread(() -> {
+						progressDialog.dismiss();
+						
+						// Mostrar errores si los hay
+						if (finalResult != null && !finalResult.isSuccess()) {
+							StringBuilder errorMsg = new StringBuilder("La exportación se completó con errores:\n\n");
+							for (String error : finalResult.getErrorMessages()) {
+								errorMsg.append("• ").append(error).append("\n");
+							}
+							errorMsg.append("\nAlgunos datos pueden no haberse enviado correctamente.");
+							
+							config.getMessageBox().ShowModalWithOk("Advertencia - Errores de Exportación",
+									errorMsg.toString(),
+									activity, net.ifeu.library.Utils.MessageBox.MessageBoxType.Error);
+						} else {
+							// Mostrar mensaje de
+							// éxito si no hay errores
+							config.getMessageBox().Show("Exportación",
+									"Los datos se han enviado correctamente a la central.",
+									activity, net.ifeu.library.Utils.MessageBox.MessageBoxType.Information);
+						}
+					});
 
 				}
 

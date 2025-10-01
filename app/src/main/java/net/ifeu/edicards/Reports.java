@@ -42,6 +42,7 @@ import net.ifeu.edicards.Pdf.document.IPdfDocumentGenerator;
 import net.ifeu.edicards.Pdf.document.PdfDTOCreator;
 import net.ifeu.edicards.Pdf.incident.IncidentPdfCreator;
 import net.ifeu.edicards.Printer.PrintManager;
+import net.ifeu.edicards.Services.ExportResult;
 import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Controls.ButtonColor;
@@ -465,7 +466,6 @@ public class Reports extends Fragment {
 				try {
 					dto.Calculate();
 				} catch (Exception e1) {
-
 					throw new RuntimeException(e1);
 				}
 				try {
@@ -600,8 +600,7 @@ public class Reports extends Fragment {
 			anular.setOnClickListener(arg0 -> {
 				try {
 
-					DepositoModalidad modalidad = hist.getModalidad();
-					boolean drop = _appConfig
+                    boolean drop = _appConfig
 							.getMessageBox()
 							.ShowWithResult(
 									"Anular operación",
@@ -775,7 +774,6 @@ public class Reports extends Fragment {
 				lastStock = linea.Articulo.Stock;
 				lastStockDefectuoso = linea.Articulo.StockDefectuoso;
 
-				linea.Articulo.Activo = true;
 				linea.Articulo.update();
 			}
 		} catch (Exception ex) {
@@ -786,6 +784,35 @@ public class Reports extends Fragment {
 	private void upgradeDeposito(Historico historico) {
 		
 		try {
+			// Crear lista de artículos a restablecer para mostrar al usuario
+			StringBuilder articulosInfo = new StringBuilder();
+			articulosInfo.append("Se van a restablecer los siguientes artículos en el depósito:\n\n");
+			
+			for (LineaHistorico historicoLinea : historico.Lineas.values()) {
+				if (historicoLinea.Tipo == ConstantsTypes.TIPO_LINEA_HISTORICO_UNIDADES_INICIALES) {
+					articulosInfo.append("• ")
+						.append(historicoLinea.Articulo.CodigoArticulo)
+						.append(" - ")
+						.append(historicoLinea.Articulo.Descripcion)
+						.append(" (")
+						.append(historicoLinea.Unidades)
+						.append(" unidades)\n");
+				}
+			}
+			
+			articulosInfo.append("\n¿Desea continuar con el restablecimiento del depósito?");
+			
+			// Mostrar diálogo de confirmación con la lista de artículos
+			boolean confirmar = _appConfig.getMessageBox().ShowWithResult(
+				"Restablecimiento de Depósito",
+				articulosInfo.toString(),
+				getActivity(), 
+				MessageBoxType.Information);
+				
+			if (!confirmar) {
+				return; // El usuario canceló la operación
+			}
+			
 			Deposito deposito = Factory.build(Deposito.class, _appConfig);
 			List<Deposito> deps = deposito.getDepositosByCodigoCliente(historico.Cliente.CodigoCliente);
 
@@ -807,8 +834,6 @@ public class Reports extends Fragment {
 				deposito.save();
 			} else {
 				deposito = deps.stream().findFirst().get();
-				deposito.FormaPago = cliente.FormaPago;
-				deposito.Filiacion = cliente.Filiacion;
 			}
 
 			deposito.DeleteAllLines();
@@ -820,6 +845,7 @@ public class Reports extends Fragment {
 
 						LineaDeposito linea = Factory.build(LineaDeposito.class, _appConfig);
 
+						linea.IdDeposito = deposito.IdDeposito;
 						linea.Articulo = historicoLinea.Articulo;
 
 						linea.UnidadesIniciales = historicoLinea.Unidades;
@@ -833,10 +859,11 @@ public class Reports extends Fragment {
 						linea.Descuento2 = 0;
 
 						linea.save();
+						deposito.Lineas.put(linea.Articulo.CodigoArticulo, linea);
 						break;
 					}
-					
-				}			
+
+				}
 			}
 
 			XmlCreator creator = new XmlCreator(_appConfig);
@@ -868,8 +895,8 @@ public class Reports extends Fragment {
 
 			generateAlbaran(deposito, historico);
 
-			if (deposito.isDeposito())
-				creator.createXmlDeposito(deposito);
+			DepositManagerExtension.Documents.sendData(this.getActivity(), this._appConfig);
+
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}

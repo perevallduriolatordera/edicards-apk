@@ -93,7 +93,7 @@ public class LogBookCreator implements ILogCreator {
 
     private boolean createExcel(ArrayList<LogBookStock> list) {
 
-        if (list.size() == 0) return false;
+        if (list.size() == 0) return true;
         
         ArrayList<LogBookStock> processedList = accumulateStocksByBaseCode(list);
 
@@ -122,7 +122,7 @@ public class LogBookCreator implements ILogCreator {
 
     private boolean createCSV(ArrayList<LogBookStock> list) {
 
-        if (list.size() == 0) return false;
+        if (list.size() == 0) return true;
         
         ArrayList<LogBookStock> processedList = accumulateStocksByBaseCode(list);
 

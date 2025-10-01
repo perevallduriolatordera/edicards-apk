@@ -27,6 +27,7 @@ import net.ifeu.edicards.Services.ParserMonitor;
 import net.ifeu.edicards.Services.ServiceMonitor;
 import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.edicards.Services.ImportResult;
+import net.ifeu.edicards.Services.ExportResult;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Performance.CpuInfo;
@@ -45,6 +46,7 @@ public class MonitorView extends Fragment {
 
 	AppConfig _appConfig;
 	public ImportResult SyncResult;
+	public ExportResult ExportSyncResult;
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -591,7 +593,7 @@ public class MonitorView extends Fragment {
 					try {
 
 						that.SyncResult = worker.RunImport(context, false);
-						worker.RunExport(context);
+						that.ExportSyncResult = worker.RunExport(context);
 						_appConfig = (AppConfig) that.getActivity().getApplicationContext();
 						_appConfig.getWorkingArea().Monitor = worker.Monitor();
 
@@ -610,16 +612,33 @@ public class MonitorView extends Fragment {
 				_appConfig.getWorkingArea().Monitor = worker.Monitor();
 				that.fillDataMonitor(_appConfig.getWorkingArea().Monitor);
 
-				if (that.SyncResult.isSuccess()) {
+				boolean importSuccess = that.SyncResult.isSuccess();
+				boolean exportSuccess = that.ExportSyncResult.isSuccess();
+				
+				if (importSuccess && exportSuccess) {
 					_appConfig.getMessageBox().Show("Sincronización",
 							"El proceso de sincronizacón ha finalizado CORRECTAMENTE. Revise los indicadores para comprobar si se ha realizado correctamente",
 							getActivity(), MessageBoxType.Information);
 				} else {
 					StringBuilder errorMsg = new StringBuilder("El proceso de sincronizacón ha finalizado CON ERRORES:\n\n");
-					for (String error : that.SyncResult.getErrorMessages()) {
-						errorMsg.append("• ").append(error).append("\n");
+					
+					if (!importSuccess) {
+						errorMsg.append("ERRORES DE IMPORTACIÓN:\n");
+						for (String error : that.SyncResult.getErrorMessages()) {
+							errorMsg.append("• ").append(error).append("\n");
+						}
+						errorMsg.append("\n");
 					}
-					errorMsg.append("\nRevise los indicadores para más detalles.");
+					
+					if (!exportSuccess) {
+						errorMsg.append("ERRORES DE EXPORTACIÓN:\n");
+						for (String error : that.ExportSyncResult.getErrorMessages()) {
+							errorMsg.append("• ").append(error).append("\n");
+						}
+						errorMsg.append("\n");
+					}
+					
+					errorMsg.append("Revise los indicadores para más detalles.");
 					
 					_appConfig.getMessageBox().Show("Sincronización",
 							errorMsg.toString(),

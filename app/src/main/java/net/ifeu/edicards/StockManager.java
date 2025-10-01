@@ -264,7 +264,6 @@ public class StockManager extends Fragment implements IMediator {
 				}
 
 				articulo.StockDefectuoso = 0;
-				articulo.Activo = true;
 				articulo.update();
 				
 			} catch (Exception e) {
