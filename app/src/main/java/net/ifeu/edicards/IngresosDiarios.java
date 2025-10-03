@@ -199,6 +199,13 @@ public class IngresosDiarios extends Activity {
 						MessageBoxType.Information);
 				return;
 			}
+
+			if (Double.parseDouble(ingresos) < Double.parseDouble(gastos)) {
+
+				_appConfig.getMessageBox().Show("Ingreso", "Tiene que adjuntar una imagen del gasto", IngresosDiarios.this,
+						MessageBoxType.Information);
+				return;
+			}
 		}
 
 		ingresoDiario.save();

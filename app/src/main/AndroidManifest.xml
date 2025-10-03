@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ifeu.edicards"
     android:versionCode="5"
-    android:versionName="5.4.24 (30 Septiembre 2025) --> Corrección de importación de depósitos">
+    android:versionName="5.4.25 (2 Octubre 2025) --> Monitorización Efectivo">
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 

@@ -914,7 +914,7 @@ public class DepositManager extends Fragment implements  IMediator {
             Efectivo efectivo = Factory.build(Efectivo.class, _appConfig);
             efectivo.getEfectivo();
             
-            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy", java.util.Locale.getDefault());
+            SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault());
             String lastUpdateTime = timeFormat.format(efectivo.UpdateDateEfectivo);
             
             String message = String.format(
