@@ -193,16 +193,8 @@ public class IngresosDiarios extends Activity {
 		}
 
 		if (_appConfig.getWorkingArea().CurrentTransactionMetadata == null || _appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument == null || _appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument.equals(ConstantsTypes.EMPTY_STRING)) {
-			if (Double.parseDouble(ingresos) > Double.parseDouble(gastos)) {
-
-				_appConfig.getMessageBox().Show("Ingreso", "Tiene que adjuntar una imagen del ingreso", IngresosDiarios.this,
-						MessageBoxType.Information);
-				return;
-			}
-
-			if (Double.parseDouble(ingresos) < Double.parseDouble(gastos)) {
-
-				_appConfig.getMessageBox().Show("Ingreso", "Tiene que adjuntar una imagen del gasto", IngresosDiarios.this,
+			if (Double.parseDouble(ingresos) != Double.parseDouble(gastos)) {
+				_appConfig.getMessageBox().Show("Ingreso", "Debe adjuntar una fotografía obligatoriamente", IngresosDiarios.this,
 						MessageBoxType.Information);
 				return;
 			}
@@ -243,18 +235,28 @@ public class IngresosDiarios extends Activity {
 		SimpleDateFormat formato = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 		String formattedDate = formato.format(new Date());
 
+		double ingresosDouble = Double.parseDouble(ingresos);
+		double gastosDouble = Double.parseDouble(gastos);
+		
 		String text = "Se ha efectuado un nuevo ingreso diario con los siguientes datos: " + ConstantsTypes.NEW_LINE
 				+ ConstantsTypes.NEW_LINE + "Comercial: " + this._appConfig.getUser().User + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE + "FECHA: " + formattedDate
 				+ ConstantsTypes.NEW_LINE + "RECAUDADO: " + DepositManagerExtension.Format.RoundTo2Decimals(ingresos).toString()
 				+ ConstantsTypes.NEW_LINE + "GASTOS: " + DepositManagerExtension.Format.RoundTo2Decimals(gastos).toString()
-				+ ConstantsTypes.NEW_LINE + "INGRESOS: " + DepositManagerExtension.Format.RoundTo2Decimals(cantidad).toString()
-				+ ConstantsTypes.NEW_LINE;
+				+ ConstantsTypes.NEW_LINE + "INGRESOS: " + DepositManagerExtension.Format.RoundTo2Decimals(cantidad).toString();
+
+		if (gastosDouble > ingresosDouble) {
+			double cantidadAdeudada = gastosDouble - ingresosDouble;
+			text += ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE + "Edicards adeuda al comercial la cantidad de: " + DepositManagerExtension.Format.RoundTo2Decimals(String.valueOf(cantidadAdeudada)).toString() + " €";
+		}
+		
+		text += ConstantsTypes.NEW_LINE;
 
 		Incidencia incidencia = new Incidencia(_appConfig.getUser().User, new Date(), IncidenciaType.IngresoDiario,
 				text);
 
 		if (_appConfig.getWorkingArea().CurrentTransactionMetadata != null && _appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument != null && !_appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument.equals(ConstantsTypes.EMPTY_STRING)) {
-			incidencia.Attachments.put("INGRESO",
+			String attachmentLabel = gastosDouble > ingresosDouble ? "GASTOS" : "INGRESO";
+			incidencia.Attachments.put(attachmentLabel,
 					_appConfig.getWorkingArea().CurrentTransactionMetadata.IngresoDocument);
 		}
         try {

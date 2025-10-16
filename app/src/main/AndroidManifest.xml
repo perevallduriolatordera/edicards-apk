@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ifeu.edicards"
     android:versionCode="5"
-    android:versionName="5.4.25 (2 Octubre 2025) --> Monitorización Efectivo">
+    android:versionName="5.4.26 (16 Octubre 2025) -->  Agrupación de trazabilidad">
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 

@@ -23,10 +23,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import android.database.Cursor;
+import net.ifeu.edicards.Constants.ConstantsDatabase;
 
 public class LogBookCreator implements ILogCreator {
 
@@ -55,6 +60,14 @@ public class LogBookCreator implements ILogCreator {
     }
 
     private ArrayList<LogBookStock> accumulateStocksByBaseCode(ArrayList<LogBookStock> originalList) {
+        // Ordenar solo por ID ascendente
+        Collections.sort(originalList, new Comparator<LogBookStock>() {
+            @Override
+            public int compare(LogBookStock a, LogBookStock b) {
+                return Long.compare(a.idLogBook, b.idLogBook);
+            }
+        });
+        
         Map<String, LogBookStock> accumulatedMap = new HashMap<>();
         
         for (LogBookStock logBook : originalList) {
@@ -73,9 +86,26 @@ public class LogBookCreator implements ILogCreator {
                 newEntry.CodigoCliente = logBook.CodigoCliente;
                 newEntry.NombreCliente = logBook.NombreCliente;
                 newEntry.CodigoArticulo = baseCode;
-                newEntry.NombreArticulo = logBook.NombreArticulo;
-                newEntry.StockInicial = logBook.StockInicial;
-                newEntry.StockFinal = logBook.StockFinal;
+                
+                String nombreEspanol = getNombreArticuloEspanol(baseCode);
+                newEntry.NombreArticulo = (nombreEspanol != null && !nombreEspanol.isEmpty()) 
+                    ? nombreEspanol 
+                    : logBook.NombreArticulo;
+                
+                // Buscar stock final anterior del mismo cliente+artículo
+                int stockInicialCalculado = logBook.StockInicial;
+                
+                for (LogBookStock existing : accumulatedMap.values()) {
+                    if (existing.CodigoCliente.equals(logBook.CodigoCliente) && 
+                        existing.CodigoArticulo.equals(baseCode)) {
+                        stockInicialCalculado = existing.StockFinal;
+                        break;
+                    }
+                }
+                
+                newEntry.StockInicial = stockInicialCalculado;
+                int diferencia = logBook.StockFinal - logBook.StockInicial;
+                newEntry.StockFinal = stockInicialCalculado + diferencia;
                 newEntry.UnidadesDevueltas = logBook.UnidadesDevueltas;
                 newEntry.UnidadesDefectuosas = logBook.UnidadesDefectuosas;
                 newEntry.UnidadesRepuestas = logBook.UnidadesRepuestas;
@@ -88,7 +118,17 @@ public class LogBookCreator implements ILogCreator {
             }
         }
         
-        return new ArrayList<>(accumulatedMap.values());
+        ArrayList<LogBookStock> result = new ArrayList<>(accumulatedMap.values());
+        
+        // Ordenar el resultado final por ID ascendente
+        Collections.sort(result, new Comparator<LogBookStock>() {
+            @Override
+            public int compare(LogBookStock a, LogBookStock b) {
+                return Long.compare(a.idLogBook, b.idLogBook);
+            }
+        });
+        
+        return result;
     }
 
     private boolean createExcel(ArrayList<LogBookStock> list) {
@@ -311,5 +351,48 @@ public class LogBookCreator implements ILogCreator {
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    private String getNombreArticuloEspanol(String codigoEspanol) {
+        try {
+            Cursor cursor = _app.getDatabaseOperations().executeSentence(
+                "SELECT Descripcion FROM " + ConstantsDatabase.TABLE_ARTICULOS + 
+                " WHERE CodigoArticulo = '" + codigoEspanol + "' AND Activo = 1");
+            
+            if (cursor != null && cursor.moveToFirst() && cursor.getCount() > 0) {
+                String descripcion = cursor.getString(cursor.getColumnIndex("Descripcion"));
+                cursor.close();
+                return descripcion;
+            }
+            
+            if (cursor != null) {
+                cursor.close();
+            }
+        } catch (Exception e) {
+            // Si hay error, devolver null
+        }
+        return null;
+    }
+
+    
+    private int getStockActualArticulo(String codigoArticulo) {
+        try {
+            android.database.Cursor cursor = _app.getDatabaseOperations().executeSentence(
+                "SELECT Stock FROM " + ConstantsDatabase.TABLE_ARTICULOS + 
+                " WHERE CodigoArticulo = '" + codigoArticulo + "' AND Activo = 1");
+            
+            if (cursor != null && cursor.moveToFirst() && cursor.getCount() > 0) {
+                int stock = cursor.getInt(cursor.getColumnIndex("Stock"));
+                cursor.close();
+                return stock;
+            }
+            
+            if (cursor != null) {
+                cursor.close();
+            }
+        } catch (Exception e) {
+            // Si hay error, devolver 0
+        }
+        return 0;
     }
 }

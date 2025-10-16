@@ -68,9 +68,8 @@ public class LogBookStock extends Persistent implements IPersistable, ITraceable
         
         String codigoFinal;
         String nombreFinal;
-        int stockInicialFinal = this.StockInicial;
-        int stockFinalFinal = this.StockFinal;
         
+        // Normalizar código: siempre guardar como código español
         if (this.CodigoArticulo.startsWith("CH")) {
             // Es artículo chino, convertir a español
             codigoFinal = this.CodigoArticulo.substring(2);
@@ -78,22 +77,10 @@ public class LogBookStock extends Persistent implements IPersistable, ITraceable
             if (nombreFinal == null || nombreFinal.isEmpty()) {
                 nombreFinal = this.NombreArticulo;
             }
-            
-            // Obtener stock actual del artículo español homólogo
-            int stockEspanol = getStockActualArticulo(codigoFinal);
-            stockInicialFinal += stockEspanol;
-            stockFinalFinal += stockEspanol;
-            
         } else {
-            // Es artículo español, mantener código
+            // Es artículo español, mantener código y nombre
             codigoFinal = this.CodigoArticulo;
             nombreFinal = this.NombreArticulo;
-            
-            // Obtener stock actual del artículo chino homólogo
-            String codigoChino = "CH" + this.CodigoArticulo;
-            int stockChino = getStockActualArticulo(codigoChino);
-            stockInicialFinal += stockChino;
-            stockFinalFinal += stockChino;
         }
 
         ContentValues values = new ContentValues();
@@ -102,8 +89,8 @@ public class LogBookStock extends Persistent implements IPersistable, ITraceable
         values.put("CodigoCliente", this.CodigoCliente);
         values.put("CodigoArticulo", codigoFinal);
         values.put("NombreArticulo", nombreFinal);
-        values.put("StockInicial", stockInicialFinal);
-        values.put("StockFinal", stockFinalFinal);
+        values.put("StockInicial", this.StockInicial);
+        values.put("StockFinal", this.StockFinal);
         values.put("UnidadesDevueltas",this.UnidadesDevueltas);
         values.put("UnidadesDefectuosas", this.UnidadesDefectuosas);
         values.put("UnidadesRepuestas", this.UnidadesRepuestas);
