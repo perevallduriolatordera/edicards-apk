@@ -616,8 +616,11 @@ public class Reports extends Fragment {
 						that.upgradeStock(hist);
 						that.restoreEfectivo(dto);
 
+						Deposito depositoRestaurado = null;
 						if (!dto.isNTV) {
-							that.upgradeDeposito(hist);
+							depositoRestaurado = that.upgradeDeposito(hist);
+							if (depositoRestaurado == null) return;
+
 							_appConfig.getMessageBox().Show("Información",
 									"Se ha restaurado de nuevo el depísito del cliente " + hist.NombrePresentacion,
 									getActivity(), MessageBoxType.Information);
@@ -628,8 +631,6 @@ public class Reports extends Fragment {
 						}
 
 						that.sendIncidencia(hist);
-
-						// CREAMOS EL NUEVO ALBARÁN DE ABONO
 
 						try {
 							dto.Calculate();
@@ -642,7 +643,7 @@ public class Reports extends Fragment {
 							throw new RuntimeException(e1);
 						}
 
-						that.generateXML(dto, hist);
+						that.generateXML(dto, hist, depositoRestaurado);
 						hist.delete();
 						getHistoricos();
 						
@@ -781,7 +782,7 @@ public class Reports extends Fragment {
 		}
 	}
 	
-	private void upgradeDeposito(Historico historico) {
+	private Deposito upgradeDeposito(Historico historico) {
 		
 		try {
 			// Crear lista de artículos a restablecer para mostrar al usuario
@@ -810,7 +811,7 @@ public class Reports extends Fragment {
 				MessageBoxType.Information);
 				
 			if (!confirmar) {
-				return; // El usuario canceló la operación
+				return null;
 			}
 			
 			Deposito deposito = Factory.build(Deposito.class, _appConfig);
@@ -824,7 +825,7 @@ public class Reports extends Fragment {
 						"Se ha encontrado mas de un depósito para este cliente: " + historico.NombrePresentacion,
 						getActivity(), MessageBoxType.Error);
 
-				return;
+				return null;
 			}
 			if (deps.size() == 0) {
 				deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
@@ -850,6 +851,7 @@ public class Reports extends Fragment {
 
 						linea.UnidadesIniciales = historicoLinea.Unidades;
 						linea.UnidadesInicialesFijas = linea.UnidadesIniciales;
+						linea.UnidadesRepuestas = linea.UnidadesIniciales;
 	
 						linea.PVP = historicoLinea.PVP;
 						linea.PVPAnterior = linea.PVP;
@@ -866,8 +868,7 @@ public class Reports extends Fragment {
 				}
 			}
 
-			XmlCreator creator = new XmlCreator(_appConfig);
-			creator.createXmlDeposito(deposito);
+			return deposito;
 
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -887,13 +888,13 @@ public class Reports extends Fragment {
 	}
 
 
-	private void generateXML(DTODeposito deposito, Historico historico) {
+	private void generateXML(DTODeposito deposito, Historico historico, Deposito depositoRestaurado) {
 
 		try {
 			XmlCreator creator = new XmlCreator(_appConfig);
 			creator.createXmlArticulos();
 
-			generateAlbaran(deposito, historico);
+			generateAlbaran(deposito, historico, depositoRestaurado);
 
 			DepositManagerExtension.Documents.sendData(this.getActivity(), this._appConfig);
 
@@ -901,7 +902,7 @@ public class Reports extends Fragment {
 			throw new RuntimeException(ex);
 		}
 	}
-	private void generateAlbaran(DTODeposito deposito, Historico historico) throws Exception {
+	private void generateAlbaran(DTODeposito deposito, Historico historico, Deposito depositoRestaurado) throws Exception {
 		
 		Contador contador = Factory.build(Contador.class, _appConfig);
 		contador.getContadores();
@@ -920,6 +921,12 @@ public class Reports extends Fragment {
 		
 		XmlCreator creator = new XmlCreator(_appConfig);
 		creator.createXmlAlbaran(deposito, historico.NumeroAlbaran);
+		
+		if (depositoRestaurado != null) {
+			creator.createXmlDeposito(depositoRestaurado);
+		} else {
+			creator.createXmlDeposito(deposito);
+		}
 
 		IPdfDocumentGenerator pdf = new PdfDTOCreator(deposito, _appConfig);
 		try {

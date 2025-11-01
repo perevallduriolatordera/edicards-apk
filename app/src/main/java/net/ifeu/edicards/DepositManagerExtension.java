@@ -224,7 +224,7 @@ public class DepositManagerExtension {
 					efectivo.UpdateDateEfectivo = new Date();
 					efectivo.update();
 					createAdeudoIngresoIncidencia(efectivo, appConfig);
-					return true;
+					return false;
 				}
 
 			} catch (Exception e) {
