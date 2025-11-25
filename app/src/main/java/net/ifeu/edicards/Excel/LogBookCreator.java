@@ -60,25 +60,46 @@ public class LogBookCreator implements ILogCreator {
     }
 
     private ArrayList<LogBookStock> accumulateStocksByBaseCode(ArrayList<LogBookStock> originalList) {
-        // Ordenar solo por ID ascendente
+        // Ordenar por fecha/hora cronológica para asegurar el orden correcto de acumulación
         Collections.sort(originalList, new Comparator<LogBookStock>() {
             @Override
             public int compare(LogBookStock a, LogBookStock b) {
+                // Primero por fecha
+                int fechaComparison = a.Fecha.compareTo(b.Fecha);
+                if (fechaComparison != 0) {
+                    return fechaComparison;
+                }
+                // Si la fecha es igual, por ID para mantener consistencia
                 return Long.compare(a.idLogBook, b.idLogBook);
             }
         });
         
         Map<String, LogBookStock> accumulatedMap = new HashMap<>();
+        Map<String, Integer> lastStockByClientArticle = new HashMap<>();
         
         for (LogBookStock logBook : originalList) {
-            String baseCode = LogBookStock.normalizeArticleCode(logBook.CodigoArticulo);
+            // Ya no necesitamos normalizar aquí porque los códigos ya se normalizan al guardar en BBDD
+            String baseCode = logBook.CodigoArticulo;
             String groupKey = baseCode + "|" + logBook.CodigoCliente + "|" + logBook.Fecha + "|" + logBook.TipoMovimiento;
+            String clientArticleKey = logBook.CodigoCliente + "|" + baseCode;
             
             if (accumulatedMap.containsKey(groupKey)) {
+                // Si ya existe una entrada para esta agrupación, sumar los stocks
                 LogBookStock existing = accumulatedMap.get(groupKey);
-                existing.StockInicial += logBook.StockInicial;
-                existing.StockFinal += logBook.StockFinal;
+                existing.UnidadesDevueltas += logBook.UnidadesDevueltas;
+                existing.UnidadesDefectuosas += logBook.UnidadesDefectuosas;
+                existing.UnidadesRepuestas += logBook.UnidadesRepuestas;
+                existing.UnidadesFacturadas += logBook.UnidadesFacturadas;
+                existing.UnidadesIniciales += logBook.UnidadesIniciales;
+                existing.UnidadesAbono += logBook.UnidadesAbono;
+                existing.UnidadesDefectuosasAbono += logBook.UnidadesDefectuosasAbono;
+                
+                // Actualizar el stock final acumulado
+                int diferencia = logBook.StockFinal - logBook.StockInicial;
+                existing.StockFinal = existing.StockInicial + diferencia;
+                lastStockByClientArticle.put(clientArticleKey, existing.StockFinal);
             } else {
+                // Nueva entrada
                 LogBookStock newEntry = Factory.build(LogBookStock.class, _app);
                 newEntry.idLogBook = logBook.idLogBook;
                 newEntry.Fecha = logBook.Fecha;
@@ -87,25 +108,17 @@ public class LogBookCreator implements ILogCreator {
                 newEntry.NombreCliente = logBook.NombreCliente;
                 newEntry.CodigoArticulo = baseCode;
                 
-                String nombreEspanol = getNombreArticuloEspanol(baseCode);
-                newEntry.NombreArticulo = (nombreEspanol != null && !nombreEspanol.isEmpty()) 
-                    ? nombreEspanol 
-                    : logBook.NombreArticulo;
+                // Como los códigos ya vienen normalizados de BBDD, usar el nombre directamente
+                newEntry.NombreArticulo = logBook.NombreArticulo;
                 
-                // Buscar stock final anterior del mismo cliente+artículo
-                int stockInicialCalculado = logBook.StockInicial;
+                // Calcular stock inicial basado en el último stock conocido del mismo cliente+artículo
+                Integer ultimoStock = lastStockByClientArticle.get(clientArticleKey);
+                newEntry.StockInicial = (ultimoStock != null) ? ultimoStock : logBook.StockInicial;
                 
-                for (LogBookStock existing : accumulatedMap.values()) {
-                    if (existing.CodigoCliente.equals(logBook.CodigoCliente) && 
-                        existing.CodigoArticulo.equals(baseCode)) {
-                        stockInicialCalculado = existing.StockFinal;
-                        break;
-                    }
-                }
-                
-                newEntry.StockInicial = stockInicialCalculado;
+                // Calcular diferencia y stock final11
                 int diferencia = logBook.StockFinal - logBook.StockInicial;
-                newEntry.StockFinal = stockInicialCalculado + diferencia;
+                newEntry.StockFinal = newEntry.StockInicial + diferencia;
+                
                 newEntry.UnidadesDevueltas = logBook.UnidadesDevueltas;
                 newEntry.UnidadesDefectuosas = logBook.UnidadesDefectuosas;
                 newEntry.UnidadesRepuestas = logBook.UnidadesRepuestas;
@@ -113,17 +126,22 @@ public class LogBookCreator implements ILogCreator {
                 newEntry.UnidadesIniciales = logBook.UnidadesIniciales;
                 newEntry.UnidadesAbono = logBook.UnidadesAbono;
                 newEntry.UnidadesDefectuosasAbono = logBook.UnidadesDefectuosasAbono;
-                
+
                 accumulatedMap.put(groupKey, newEntry);
+                lastStockByClientArticle.put(clientArticleKey, newEntry.StockFinal);
             }
         }
         
         ArrayList<LogBookStock> result = new ArrayList<>(accumulatedMap.values());
         
-        // Ordenar el resultado final por ID ascendente
+        // Ordenar el resultado final por fecha/hora cronológica
         Collections.sort(result, new Comparator<LogBookStock>() {
             @Override
             public int compare(LogBookStock a, LogBookStock b) {
+                int fechaComparison = a.Fecha.compareTo(b.Fecha);
+                if (fechaComparison != 0) {
+                    return fechaComparison;
+                }
                 return Long.compare(a.idLogBook, b.idLogBook);
             }
         });

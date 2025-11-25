@@ -1,7 +1,9 @@
 package net.ifeu.edicards;
 
 import android.app.ActionBar.LayoutParams;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -47,6 +49,7 @@ public class MonitorView extends Fragment {
 	AppConfig _appConfig;
 	public ImportResult SyncResult;
 	public ExportResult ExportSyncResult;
+	private static final int REQUEST_CODE_LOGBOOK_PREVIEW = 1001;
 
 	@Override
     public void onCreate(Bundle savedInstanceState) {
@@ -82,10 +85,24 @@ public class MonitorView extends Fragment {
 
 		// Start the timer
 		countDownTimer.start();
-    	
+
 		this.fillDataMonitor(monitor);
 	}
-	
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+
+		if (requestCode == REQUEST_CODE_LOGBOOK_PREVIEW) {
+			if (resultCode == Activity.RESULT_OK) {
+				this.executeSync("Enviar trazabilidad de stock");
+			} else {
+				_appConfig = (AppConfig) this.getActivity().getApplicationContext();
+				this.fillDataMonitor(_appConfig.getWorkingArea().Monitor);
+			}
+		}
+	}
+
 	private void showWaiting(String message) {
 		LinearLayout mainLinearLayout = (LinearLayout) this.getActivity().findViewById(R.id.mainLinearLayout);
     	mainLinearLayout.removeAllViews();
@@ -339,10 +356,16 @@ public class MonitorView extends Fragment {
 			LogBookCreator logBookCreator = new LogBookCreator(_appConfig);
 			try {
 				logBookCreator.createExcel30Days();
+
+				// Restaurar la vista normal antes de mostrar la preview
+				_appConfig = (AppConfig) that.getActivity().getApplicationContext();
+				that.fillDataMonitor(_appConfig.getWorkingArea().Monitor);
+
+				Intent intent = new Intent(getActivity(), LogBookPreviewActivity.class);
+				startActivityForResult(intent, REQUEST_CODE_LOGBOOK_PREVIEW);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
-			that.executeSync("Enviar trazabilidad de stock");
 		});
 
 		layout.addView(logBookReport);

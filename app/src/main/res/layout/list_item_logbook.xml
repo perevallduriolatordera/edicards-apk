@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="5dp">
+
+    <TextView
+        android:id="@+id/itemLogBookId"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="#000000"
+        android:gravity="center"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/itemLogBookFecha"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="#000000"
+        android:gravity="center"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/itemLogBookCodigoCliente"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="#000000"
+        android:gravity="center"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/itemLogBookNombreCliente"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="#000000"
+        android:gravity="left"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/itemLogBookCodigoArticulo"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="#000000"
+        android:gravity="center"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/itemLogBookNombreArticulo"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="#000000"
+        android:gravity="left"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/itemLogBookTipoMovimiento"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="#000000"
+        android:gravity="center"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/itemLogBookDepositoInicial"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="#0000FF"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/itemLogBookDepositoFinal"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="#0000FF"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/itemLogBookUnidadesContadas"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="#FF8C00"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/itemLogBookUnidadesFacturadas"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="#008000"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/itemLogBookUnidadesAbonadas"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="#FF0000"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/itemLogBookStockInicial"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="#0000FF"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:padding="5dp" />
+
+    <TextView
+        android:id="@+id/itemLogBookStockFinal"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="#0000FF"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:padding="5dp" />
+
+</LinearLayout>

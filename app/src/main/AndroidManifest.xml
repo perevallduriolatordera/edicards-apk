@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ifeu.edicards"
     android:versionCode="5"
-    android:versionName="5.4.27 (20 Octubre 2025) -->  Agrupación de trazabilidad">
+    android:versionName="5.5.0 (25 Noviembre 2025) --> Monitorización de trazabilidad">
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
@@ -12,7 +12,7 @@
         android:label="@string/app_name"
         android:largeHeap="true"
         android:hardwareAccelerated="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme" >quit
 
         <activity
             android:name=".MainActivity"
@@ -129,6 +129,11 @@
 
         <activity android:name=".IngresoDiarioDialog"
             android:label="Adjuntos"
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
+
+        <activity android:name=".LogBookPreviewActivity"
+            android:label="Vista previa de trazabilidad"
             android:theme="@android:style/Theme.Dialog"
             android:exported="false" />
     </application>
