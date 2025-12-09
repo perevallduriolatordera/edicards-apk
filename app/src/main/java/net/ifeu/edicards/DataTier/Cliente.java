@@ -461,22 +461,38 @@ public class Cliente extends Persistent implements IPersistable {
 		
 	}
 	public void CheckIfNewFiliacion(String filiacion, String codigoCliente) throws Exception {
-		Cliente cliente = Factory.build(Cliente.class, appConfig);
-		cliente.setClienteByCodigo(codigoCliente);
+		try {
+			Cliente cliente = Factory.build(Cliente.class, appConfig);
+			boolean clienteLoaded = cliente.setClienteByCodigo(codigoCliente);
 
-		if (!cliente.Filiacion.equals(filiacion)) {
-			cliente.Filiacion = filiacion;
-			cliente.update();
+			if (!clienteLoaded) {
+				return;
+			}
 
-			String text = "Datos de filiacion del cliente: " + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE
-					+ "CODIGO CLIENTE: " + cliente + ConstantsTypes.NEW_LINE + "NOMBRE DEL CLIENTE: "
-					+ cliente.Nombre + ConstantsTypes.NEW_LINE + "CODIGO FILIACION: " + filiacion
-					+ ConstantsTypes.NEW_LINE + "NOMBRE FILIACION: " + filiacion
-					+ ConstantsTypes.NEW_LINE;
+			// Normalizar valores null a cadena vacía para comparación segura
+			String filiacionActual = (cliente.Filiacion != null) ? cliente.Filiacion : "";
+			String filiacionNueva = (filiacion != null) ? filiacion : "";
 
-			Incidencia incidencia = new Incidencia(appConfig.getUser().User, new Date(), IncidenciaType.Filiacion,
-					text);
-			incidencia.create(new IncidentPdfCreator(appConfig));
+			if (!filiacionActual.equals(filiacionNueva)) {
+				cliente.Filiacion = filiacionNueva;
+				cliente.update();
+
+				String text = "Datos de filiacion del cliente: " + ConstantsTypes.NEW_LINE + ConstantsTypes.NEW_LINE
+						+ "CODIGO CLIENTE: " + cliente.CodigoCliente + ConstantsTypes.NEW_LINE + "NOMBRE DEL CLIENTE: "
+						+ cliente.Nombre + ConstantsTypes.NEW_LINE + "CODIGO FILIACION ANTERIOR: " + filiacionActual
+						+ ConstantsTypes.NEW_LINE + "CODIGO FILIACION NUEVA: " + filiacionNueva
+						+ ConstantsTypes.NEW_LINE;
+
+				try {
+					Incidencia incidencia = new Incidencia(appConfig.getUser().User, new Date(), IncidenciaType.Filiacion,
+							text);
+					incidencia.create(new IncidentPdfCreator(appConfig));
+				} catch (Exception pdfException) {
+					throw pdfException;
+				}
+			}
+		} catch (Exception e) {
+			throw e;
 		}
 	}
 
