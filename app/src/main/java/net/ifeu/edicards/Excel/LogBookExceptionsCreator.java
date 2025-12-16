@@ -29,6 +29,8 @@ import java.util.List;
 
 public class LogBookExceptionsCreator implements ILogCreator {
 
+    private static final int MAX_EXCEL_ROWS = 5000;
+
     private AppConfig _app;
 
     public LogBookExceptionsCreator(AppConfig app) {
@@ -53,9 +55,17 @@ public class LogBookExceptionsCreator implements ILogCreator {
         }
     }
 
+    private boolean hasEnoughMemorySpace() {
+        Runtime rt = Runtime.getRuntime();
+        long free = rt.maxMemory() - (rt.totalMemory() - rt.freeMemory());
+        return free > 50 * 1024 * 1024; // 50 MB
+    }
+
     private boolean createExcel(ArrayList<LogBookExceptions> list) {
 
         if (list.size() == 0) return true;
+        if (!hasEnoughMemorySpace()) return true;
+        if (list.size() > MAX_EXCEL_ROWS) return true;
 
         boolean result = true;
 
@@ -83,6 +93,8 @@ public class LogBookExceptionsCreator implements ILogCreator {
     private boolean createCSV(ArrayList<LogBookExceptions> list) {
 
         if (list.size() == 0) return true;
+        if (!hasEnoughMemorySpace()) return true;
+        if (list.size() > MAX_EXCEL_ROWS) return true;
 
         boolean result = true;
 

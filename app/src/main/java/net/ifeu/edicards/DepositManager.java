@@ -635,7 +635,7 @@ public class DepositManager extends Fragment implements  IMediator {
 					}
 				}
 
-				if (depositos.size() == 0 && !_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
+				if (depositos.size() == 0 && _cliente.CodigoCliente != null && !_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
 
 					if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
 
@@ -662,7 +662,7 @@ public class DepositManager extends Fragment implements  IMediator {
 						return;
 					}
 
-				} else if (depositos.size() > 0 && !_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
+				} else if (depositos.size() > 0 && _cliente.CodigoCliente != null && !_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
 					_deposito = Factory.build(Deposito.class, _appConfig);
 					_deposito.setFirstDepositoByCliente(cliente.CodigoCliente);
 					_deposito.assingFromCliente(_cliente);
