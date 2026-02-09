@@ -28,6 +28,7 @@ import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.ClienteInfo;
 import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.DataTier.DTODeposito;
+import net.ifeu.edicards.DataTier.DTOLineaDeposito;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.DepositoModalidad;
 import net.ifeu.edicards.DataTier.Efectivo;
@@ -618,7 +619,7 @@ public class Reports extends Fragment {
 
 						Deposito depositoRestaurado = null;
 						if (!dto.isNTV) {
-							depositoRestaurado = that.upgradeDeposito(hist);
+							depositoRestaurado = that.upgradeDeposito(hist, dto);
 							if (depositoRestaurado == null) return;
 
 							_appConfig.getMessageBox().Show("Información",
@@ -782,40 +783,75 @@ public class Reports extends Fragment {
 		}
 	}
 	
-	private Deposito upgradeDeposito(Historico historico) {
-		
+	private Deposito upgradeDeposito(Historico historico, DTODeposito dto) {
+
 		try {
+			Deposito deposito = Factory.build(Deposito.class, _appConfig);
+
+			// Si el cliente es nuevo (código 99), buscar por IdDeposito del DTO
+			// En caso contrario, buscar por código de cliente
+			List<Deposito> deps = new ArrayList<>();
+			if (historico.Cliente.CodigoCliente != null && historico.Cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
+				// Cliente nuevo: buscar el depósito específico por IdDeposito
+				try {
+					deposito.setDepositoById(String.valueOf(dto.IdDeposito));
+					// setDepositoById siempre retorna false, pero carga el depósito
+					if (deposito.IdDeposito != null && deposito.IdDeposito > 0) {
+						deps.add(deposito);
+					}
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			} else {
+				// Cliente normal: buscar por código cliente
+				deps = deposito.getDepositosByCodigoCliente(historico.Cliente.CodigoCliente);
+			}
+
 			// Crear lista de artículos a restablecer para mostrar al usuario
+			// Usar las líneas del DTO si es cliente nuevo, sino usar las del histórico
 			StringBuilder articulosInfo = new StringBuilder();
 			articulosInfo.append("Se van a restablecer los siguientes artículos en el depósito:\n\n");
-			
-			for (LineaHistorico historicoLinea : historico.Lineas.values()) {
-				if (historicoLinea.Tipo == ConstantsTypes.TIPO_LINEA_HISTORICO_UNIDADES_INICIALES) {
-					articulosInfo.append("• ")
-						.append(historicoLinea.Articulo.CodigoArticulo)
-						.append(" - ")
-						.append(historicoLinea.Articulo.Descripcion)
-						.append(" (")
-						.append(historicoLinea.Unidades)
-						.append(" unidades)\n");
+
+			if (historico.Cliente.CodigoCliente != null && historico.Cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
+				// Para cliente nuevo, mostrar líneas del DTO (que ya fue deserializado)
+				for (DTOLineaDeposito linea : dto.Lineas.values()) {
+					if (linea.UnidadesIniciales > 0) {
+						articulosInfo.append("• ")
+							.append(linea.CodigoArticulo)
+							.append(" - ")
+							.append(linea.Descripcion)
+							.append(" (")
+							.append(linea.UnidadesIniciales)
+							.append(" unidades)\n");
+					}
+				}
+			} else {
+				// Para cliente normal, mostrar líneas del histórico
+				for (LineaHistorico historicoLinea : historico.Lineas.values()) {
+					if (historicoLinea.Tipo == ConstantsTypes.TIPO_LINEA_HISTORICO_UNIDADES_INICIALES) {
+						articulosInfo.append("• ")
+							.append(historicoLinea.Articulo.CodigoArticulo)
+							.append(" - ")
+							.append(historicoLinea.Articulo.Descripcion)
+							.append(" (")
+							.append(historicoLinea.Unidades)
+							.append(" unidades)\n");
+					}
 				}
 			}
-			
+
 			articulosInfo.append("\n¿Desea continuar con el restablecimiento del depósito?");
-			
+
 			// Mostrar diálogo de confirmación con la lista de artículos
 			boolean confirmar = _appConfig.getMessageBox().ShowWithResult(
 				"Restablecimiento de Depósito",
 				articulosInfo.toString(),
-				getActivity(), 
+				getActivity(),
 				MessageBoxType.Information);
-				
+
 			if (!confirmar) {
 				return null;
 			}
-			
-			Deposito deposito = Factory.build(Deposito.class, _appConfig);
-			List<Deposito> deps = deposito.getDepositosByCodigoCliente(historico.Cliente.CodigoCliente);
 
 			Cliente cliente = Factory.build(Cliente.class, _appConfig);
 			cliente.setClienteById(historico.Cliente.CodigoCliente);
@@ -891,6 +927,15 @@ public class Reports extends Fragment {
 	private void generateXML(DTODeposito deposito, Historico historico, Deposito depositoRestaurado) {
 
 		try {
+			// No generar XML para clientes nuevos (99) si el depósito restaurado es null
+			// ya que es una operación temporal que se está anulando
+			// Un cliente nuevo tendrá depositoRestaurado == null después de la anulación
+			if (depositoRestaurado == null &&
+				((deposito.CodigoCliente != null && deposito.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) ||
+				 (historico.Cliente.CodigoCliente != null && historico.Cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)))) {
+				return;
+			}
+
 			XmlCreator creator = new XmlCreator(_appConfig);
 			creator.createXmlArticulos();
 
@@ -903,7 +948,18 @@ public class Reports extends Fragment {
 		}
 	}
 	private void generateAlbaran(DTODeposito deposito, Historico historico, Deposito depositoRestaurado) throws Exception {
-		
+
+		// Check if there are any sold items
+		int totalVentas = 0;
+		for (DTOLineaDeposito linea : deposito.Lineas.values()) {
+			totalVentas += linea.UnidadesFacturadas;
+		}
+
+		// If no items were sold, don't generate invoice
+		if (totalVentas == 0) {
+			return;
+		}
+
 		Contador contador = Factory.build(Contador.class, _appConfig);
 		contador.getContadores();
 
@@ -914,7 +970,7 @@ public class Reports extends Fragment {
 			contador.ContadorSerieB = contador.ContadorSerieB + 1;
 			deposito.NumeroAlbaran = String.valueOf(contador.ContadorSerieB);
 		}
-		
+
 		contador.update();
 		deposito.cancel();
 		deposito.Calculate();
