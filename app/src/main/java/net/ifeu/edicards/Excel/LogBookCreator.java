@@ -78,8 +78,8 @@ public class LogBookCreator implements ILogCreator {
         Map<String, Integer> lastStockByClientArticle = new HashMap<>();
         
         for (LogBookStock logBook : originalList) {
-            // Ya no necesitamos normalizar aquí porque los códigos ya se normalizan al guardar en BBDD
-            String baseCode = logBook.CodigoArticulo;
+            // Normalizar el código de artículo para agrupar correctamente (ej: CH0002 -> 0002)
+            String baseCode = LogBookStock.normalizeArticleCode(logBook.CodigoArticulo);
             String groupKey = baseCode + "|" + logBook.CodigoCliente + "|" + logBook.Fecha + "|" + logBook.TipoMovimiento;
             String clientArticleKey = logBook.CodigoCliente + "|" + baseCode;
             
