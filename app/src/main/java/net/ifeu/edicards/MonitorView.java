@@ -688,9 +688,7 @@ public class MonitorView extends Fragment {
 			that.showWaiting(message);
 
 			final Context context = _appConfig;
-
 			final ServiceWorker worker = new ServiceWorker();
-
 			Thread exportThread = new Thread() {
 
 				@Override

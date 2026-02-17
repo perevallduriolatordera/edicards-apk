@@ -45,6 +45,7 @@ import net.ifeu.edicards.Html.notification.customer.ICustomerNotification;
 import net.ifeu.edicards.Pdf.gdpr.PdfGDPR;
 import net.ifeu.edicards.Printer.PrintManager;
 import net.ifeu.edicards.Xml.XmlCreator;
+import net.ifeu.edicards.Excel.LogBookCreator;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.ComboBox;
 import net.ifeu.library.Controls.LabelColor;
@@ -1117,10 +1118,19 @@ public class DepositManager extends Fragment implements  IMediator {
 
 				generateXML();
 
-				// Mostrar estado actual del efectivo después de completar la operación
-				showCashStatus();
 
-				// Generem el consentiment GDPR si és necessari
+			// TEMPORAL: Generar Excel de trazabilidad del dia actual despues de cada operacion
+			try {
+				LogBookCreator logBookCreator = new LogBookCreator(_appConfig);
+				logBookCreator.createTodayExcel();
+			} catch (Exception e) {
+				// Si hay error, no fallar la operacion
+			}
+
+			// Mostrar estado actual del efectivo después de completar la operación
+			showCashStatus();
+
+			// Generem el consentiment GDPR si és necessari
 
 				if (!_deposito.Cliente.hasGDPRSigned()) {
 

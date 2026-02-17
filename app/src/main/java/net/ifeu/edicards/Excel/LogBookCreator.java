@@ -59,33 +59,47 @@ public class LogBookCreator implements ILogCreator {
         }
     }
 
-    private ArrayList<LogBookStock> accumulateStocksByBaseCode(ArrayList<LogBookStock> originalList) {
-        // Ordenar por fecha/hora cronológica para asegurar el orden correcto de acumulación
-        Collections.sort(originalList, new Comparator<LogBookStock>() {
-            @Override
-            public int compare(LogBookStock a, LogBookStock b) {
-                // Primero por fecha
-                int fechaComparison = a.Fecha.compareTo(b.Fecha);
-                if (fechaComparison != 0) {
-                    return fechaComparison;
-                }
-                // Si la fecha es igual, por ID para mantener consistencia
-                return Long.compare(a.idLogBook, b.idLogBook);
+    public void createCurrentExcel() throws Exception {
+
+        LogBookStock logBook = Factory.build(LogBookStock.class, _app);
+        ArrayList<LogBookStock> trace = logBook.getAllLogBook();
+
+        if (!this.createExcel(trace)) {
+            if (!this.createCSV(trace)) {
+                throw new RuntimeException("Ha sido imposible generar el fichero de trazabilidad de stock");
             }
-        });
-        
-        Map<String, LogBookStock> accumulatedMap = new HashMap<>();
-        Map<String, Integer> lastStockByClientArticle = new HashMap<>();
-        
+        }
+    }
+
+    // TEMPORAL: Generar Excel solo con operaciones del día actual
+    // Se elimará en futuras versiones cuando se cambie la estrategia de trazabilidad
+    public void createTodayExcel() throws Exception {
+
+        LogBookStock logBook = Factory.build(LogBookStock.class, _app);
+        ArrayList<LogBookStock> trace = logBook.getLogBookToday();
+        ArrayList<LogBookStock> processedList = this.groupLogBooksByArticle(trace);
+
+        if (!this.createExcel(processedList)) {
+            if (!this.createCSV(processedList)) {
+                throw new RuntimeException("Ha sido imposible generar el fichero de trazabilidad de stock");
+            }
+        }
+    }
+
+    // TEMPORAL: Agrupar LogBooks por cliente, fecha y artículo español
+    // Suma valores de artículos españoles + chinos, mostrando siempre el español
+    // Si hay distintos tipos de movimiento, usar el del artículo con StockInicial > 0
+    private ArrayList<LogBookStock> groupLogBooksByArticle(ArrayList<LogBookStock> originalList) {
+        Map<String, LogBookStock> groupedMap = new HashMap<>();
+
         for (LogBookStock logBook : originalList) {
-            // Normalizar el código de artículo para agrupar correctamente (ej: CH0002 -> 0002)
+            // Normalizar código a español
             String baseCode = LogBookStock.normalizeArticleCode(logBook.CodigoArticulo);
-            String groupKey = baseCode + "|" + logBook.CodigoCliente + "|" + logBook.Fecha + "|" + logBook.TipoMovimiento;
-            String clientArticleKey = logBook.CodigoCliente + "|" + baseCode;
-            
-            if (accumulatedMap.containsKey(groupKey)) {
-                // Si ya existe una entrada para esta agrupación, sumar los stocks
-                LogBookStock existing = accumulatedMap.get(groupKey);
+            String groupKey = logBook.CodigoCliente + "|" + logBook.Fecha + "|" + baseCode;
+
+            if (groupedMap.containsKey(groupKey)) {
+                // Ya existe, sumar valores
+                LogBookStock existing = groupedMap.get(groupKey);
                 existing.UnidadesDevueltas += logBook.UnidadesDevueltas;
                 existing.UnidadesDefectuosas += logBook.UnidadesDefectuosas;
                 existing.UnidadesRepuestas += logBook.UnidadesRepuestas;
@@ -93,13 +107,17 @@ public class LogBookCreator implements ILogCreator {
                 existing.UnidadesIniciales += logBook.UnidadesIniciales;
                 existing.UnidadesAbono += logBook.UnidadesAbono;
                 existing.UnidadesDefectuosasAbono += logBook.UnidadesDefectuosasAbono;
-                
-                // Actualizar el stock final acumulado
-                int diferencia = logBook.StockFinal - logBook.StockInicial;
-                existing.StockFinal = existing.StockInicial + diferencia;
-                lastStockByClientArticle.put(clientArticleKey, existing.StockFinal);
+                existing.StockInicial += logBook.StockInicial;
+                existing.StockFinal += logBook.StockFinal;
+
+                // Si tienen distinto TipoMovimiento, usar el del que tiene StockInicial > 0
+                if (!existing.TipoMovimiento.equals(logBook.TipoMovimiento)) {
+                    if (logBook.StockInicial > 0) {
+                        existing.TipoMovimiento = logBook.TipoMovimiento;
+                    }
+                }
             } else {
-                // Nueva entrada
+                // Nueva entrada - crear con código español y descripción
                 LogBookStock newEntry = Factory.build(LogBookStock.class, _app);
                 newEntry.idLogBook = logBook.idLogBook;
                 newEntry.Fecha = logBook.Fecha;
@@ -107,18 +125,9 @@ public class LogBookCreator implements ILogCreator {
                 newEntry.CodigoCliente = logBook.CodigoCliente;
                 newEntry.NombreCliente = logBook.NombreCliente;
                 newEntry.CodigoArticulo = baseCode;
-                
-                // Como los códigos ya vienen normalizados de BBDD, usar el nombre directamente
                 newEntry.NombreArticulo = logBook.NombreArticulo;
-                
-                // Calcular stock inicial basado en el último stock conocido del mismo cliente+artículo
-                Integer ultimoStock = lastStockByClientArticle.get(clientArticleKey);
-                newEntry.StockInicial = (ultimoStock != null) ? ultimoStock : logBook.StockInicial;
-                
-                // Calcular diferencia y stock final11
-                int diferencia = logBook.StockFinal - logBook.StockInicial;
-                newEntry.StockFinal = newEntry.StockInicial + diferencia;
-                
+                newEntry.StockInicial = logBook.StockInicial;
+                newEntry.StockFinal = logBook.StockFinal;
                 newEntry.UnidadesDevueltas = logBook.UnidadesDevueltas;
                 newEntry.UnidadesDefectuosas = logBook.UnidadesDefectuosas;
                 newEntry.UnidadesRepuestas = logBook.UnidadesRepuestas;
@@ -127,33 +136,26 @@ public class LogBookCreator implements ILogCreator {
                 newEntry.UnidadesAbono = logBook.UnidadesAbono;
                 newEntry.UnidadesDefectuosasAbono = logBook.UnidadesDefectuosasAbono;
 
-                accumulatedMap.put(groupKey, newEntry);
-                lastStockByClientArticle.put(clientArticleKey, newEntry.StockFinal);
+                groupedMap.put(groupKey, newEntry);
             }
         }
-        
-        ArrayList<LogBookStock> result = new ArrayList<>(accumulatedMap.values());
-        
-        // Ordenar el resultado final por fecha/hora cronológica
+
+        ArrayList<LogBookStock> result = new ArrayList<>(groupedMap.values());
+
+        // Ordenar por fecha
         Collections.sort(result, new Comparator<LogBookStock>() {
             @Override
             public int compare(LogBookStock a, LogBookStock b) {
-                int fechaComparison = a.Fecha.compareTo(b.Fecha);
-                if (fechaComparison != 0) {
-                    return fechaComparison;
-                }
-                return Long.compare(a.idLogBook, b.idLogBook);
+                return a.Fecha.compareTo(b.Fecha);
             }
         });
-        
+
         return result;
     }
 
     private boolean createExcel(ArrayList<LogBookStock> list) {
 
         if (list.size() == 0) return true;
-        
-        ArrayList<LogBookStock> processedList = accumulateStocksByBaseCode(list);
 
         boolean result = true;
 
@@ -166,7 +168,7 @@ public class LogBookCreator implements ILogCreator {
 
             this.createHeader(workbook, row);
 
-            for (LogBookStock logBook : processedList) {
+            for (LogBookStock logBook : list) {
                 row = sheet.createRow(++rowCount);
                 this.createRow(row, logBook);
             }
@@ -181,8 +183,6 @@ public class LogBookCreator implements ILogCreator {
     private boolean createCSV(ArrayList<LogBookStock> list) {
 
         if (list.size() == 0) return true;
-        
-        ArrayList<LogBookStock> processedList = accumulateStocksByBaseCode(list);
 
         boolean result = true;
 
@@ -194,7 +194,7 @@ public class LogBookCreator implements ILogCreator {
 
             CsvCreator csvCreator = new CsvCreator(csvFilePath, getCsvHeaders());
 
-            for (LogBookStock logBook : processedList) {
+            for (LogBookStock logBook : list) {
                 csvCreator.addLine(logBook.idLogBook, logBook.Fecha, logBook.CodigoCliente, logBook.NombreCliente,
                         logBook.CodigoArticulo, logBook.NombreArticulo, logBook.TipoMovimiento, logBook.UnidadesIniciales,
                         logBook.UnidadesRepuestas, logBook.UnidadesDevueltas, logBook.UnidadesFacturadas,

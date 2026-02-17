@@ -207,10 +207,19 @@ public class DepositManagerExtension {
 		public static boolean RestriccionIngresosDiaria(AppConfig appConfig) {
 			try {
 
+				// Verificar si hay depósitos realizados hoy
+				// Si hay depósitos, no pedir ingresos (ya se habrá registrado el movimiento)
+				Deposito deposito = Factory.build(Deposito.class, appConfig);
+				ArrayList<Deposito> depositosHoy = deposito.getDepositosToday();
+
+				if (depositosHoy != null && depositosHoy.size() > 0) {
+					return false;  // Hay depósitos hoy, no pedir ingresos
+				}
+
 				Efectivo efectivo = Factory.build(Efectivo.class, appConfig);
 				efectivo.getEfectivo();
 
-				if (efectivo.checkUpdateToday()) return false;
+				if (efectivo.checkUpdateToday()) return true;  // Mostrar pantalla de ingresos/gastos incluso si efectivo = 0
 
 				if (efectivo.Efectivo > 0) {
 					if (efectivo.Efectivo < 5) {
@@ -224,7 +233,7 @@ public class DepositManagerExtension {
 					efectivo.UpdateDateEfectivo = new Date();
 					efectivo.update();
 					createAdeudoIngresoIncidencia(efectivo, appConfig);
-					return false;
+					return true;  // Mostrar pantalla de ingresos/gastos incluso si efectivo = 0
 				}
 
 			} catch (Exception e) {

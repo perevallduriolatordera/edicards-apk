@@ -1041,8 +1041,9 @@ public class Deposito extends Cliente implements IPersistable {
 			}
 		}
 		// Solo restamos stock, en el caso de que el deposito sea de tipo Furgoneta
-		LogBookStock logBookTrace = Factory.build(LogBookStock.class, appConfig);
 
+		// Calcular stocks iniciales ANTES de procesar cualquier línea
+		java.util.Map<String, Integer> stocksIniciales = calcularStocksIniciales();
 		for (LineaDeposito linea : this.Lineas.values()) {
 
 			if (!this.isDepositoRetirado()) {
@@ -1059,12 +1060,15 @@ public class Deposito extends Cliente implements IPersistable {
 
 						if (linea.IsVentaDirecta) {
 							int stockInicial = linea.Articulo.Stock;
+							int stockHomologoInicial = getStockHomologoInicial(linea.Articulo.CodigoArticulo, stocksIniciales);
 							linea.calculateStock();
+							int stockHomologoActual = getStockHomologoActual(linea.Articulo.CodigoArticulo);
 
 							if (stockInicial != linea.Articulo.Stock) {
-								logBookTrace.setData("VENTA DIRECTA CON UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
+								LogBookStock logBookTrace = Factory.build(LogBookStock.class, appConfig);
+								logBookTrace.setDataWithTotals("VENTA DIRECTA CON UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
 										this.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
-										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+										stockInicial + stockHomologoInicial, linea.Articulo.Stock + stockHomologoActual, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
 										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
 										linea.UnidadesAbono, linea.UnidadesDefectuosas);
 
@@ -1078,13 +1082,16 @@ public class Deposito extends Cliente implements IPersistable {
 
 						} else {
 							int stockInicial = linea.Articulo.Stock;
+							int stockHomologoInicial = getStockHomologoInicial(linea.Articulo.CodigoArticulo, stocksIniciales);
 							linea.calculateStock();
+							int stockHomologoActual = getStockHomologoActual(linea.Articulo.CodigoArticulo);
 
 							if (stockInicial != linea.Articulo.Stock) {
 
-								logBookTrace.setData("VENTA CONVENCIONAL (NO DIRECTA) CON UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
+								LogBookStock logBookTrace = Factory.build(LogBookStock.class, appConfig);
+							logBookTrace.setDataWithTotals("VENTA CONVENCIONAL (NO DIRECTA) CON UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
 										this.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
-										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+										stockInicial + stockHomologoInicial, linea.Articulo.Stock + stockHomologoActual, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
 										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
 										linea.UnidadesAbono, linea.UnidadesDefectuosas);
 
@@ -1116,12 +1123,15 @@ public class Deposito extends Cliente implements IPersistable {
 
 						if (linea.IsVentaDirecta) {
 							int stockInicial = linea.Articulo.Stock;
+							int stockHomologoInicial = getStockHomologoInicial(linea.Articulo.CodigoArticulo, stocksIniciales);
 							linea.calculateStock();
+							int stockHomologoActual = getStockHomologoActual(linea.Articulo.CodigoArticulo);
 
 							if (stockInicial != linea.Articulo.Stock) {
-								logBookTrace.setData("VENTA DIRECTA SIN UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
+								LogBookStock logBookTrace = Factory.build(LogBookStock.class, appConfig);
+							logBookTrace.setDataWithTotals("VENTA DIRECTA SIN UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
 										this.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
-										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+										stockInicial + stockHomologoInicial, linea.Articulo.Stock + stockHomologoActual, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
 										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
 										linea.UnidadesAbono, linea.UnidadesDefectuosas);
 
@@ -1134,13 +1144,16 @@ public class Deposito extends Cliente implements IPersistable {
 
 						} else if (linea.UnidadesFacturadas > 0) {
 							int stockInicial = linea.Articulo.Stock;
+							int stockHomologoInicial = getStockHomologoInicial(linea.Articulo.CodigoArticulo, stocksIniciales);
 							linea.calculateStock();
+							int stockHomologoActual = getStockHomologoActual(linea.Articulo.CodigoArticulo);
 
 							if (stockInicial != linea.Articulo.Stock) {
 
-								logBookTrace.setData("VENTA CONVENCIONAL (NO DIRECTA) SIN UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
+								LogBookStock logBookTrace = Factory.build(LogBookStock.class, appConfig);
+							logBookTrace.setDataWithTotals("VENTA CONVENCIONAL (NO DIRECTA) SIN UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
 										this.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
-										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+										stockInicial + stockHomologoInicial, linea.Articulo.Stock + stockHomologoActual, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
 										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
 										linea.UnidadesAbono, linea.UnidadesDefectuosas);
 
@@ -1152,13 +1165,16 @@ public class Deposito extends Cliente implements IPersistable {
 							}
 						} else if (linea.UnidadesFacturadas == 0) {
 							int stockInicial = linea.Articulo.Stock;
+							int stockHomologoInicial = getStockHomologoInicial(linea.Articulo.CodigoArticulo, stocksIniciales);
 							linea.calculateStock();
+							int stockHomologoActual = getStockHomologoActual(linea.Articulo.CodigoArticulo);
 
 							if (linea.UnidadesInicialesFijas > 0) {
 
-								logBookTrace.setData("RETIRADA DE ARTÍCULO", this.Cliente.CodigoCliente,
+								LogBookStock logBookTrace = Factory.build(LogBookStock.class, appConfig);
+							logBookTrace.setDataWithTotals("RETIRADA DE ARTÍCULO", this.Cliente.CodigoCliente,
 										this.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
-										stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+										stockInicial + stockHomologoInicial, linea.Articulo.Stock + stockHomologoActual, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
 										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
 										linea.UnidadesAbono, linea.UnidadesDefectuosas);
 
@@ -1184,12 +1200,15 @@ public class Deposito extends Cliente implements IPersistable {
 
 					int stockInicial = linea.Articulo.Stock;
 					linea.calculateStockAbono();
+					int stockHomologoInicial = getStockHomologoInicial(linea.Articulo.CodigoArticulo, stocksIniciales);
+				int stockHomologoActual = getStockHomologoActual(linea.Articulo.CodigoArticulo);
 
 					if (stockInicial != linea.Articulo.Stock) {
 
-						logBookTrace.setData("VENTA ABONO", this.Cliente.CodigoCliente,
+						LogBookStock logBookTrace = Factory.build(LogBookStock.class, appConfig);
+					logBookTrace.setDataWithTotals("VENTA ABONO", this.Cliente.CodigoCliente,
 								this.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
-								stockInicial, linea.Articulo.Stock, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
+								stockInicial + stockHomologoInicial, linea.Articulo.Stock + stockHomologoActual, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
 								linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
 								linea.UnidadesAbono, linea.UnidadesDefectuosas);
 
@@ -1218,6 +1237,42 @@ public class Deposito extends Cliente implements IPersistable {
 				}
 			}
 		}
+	}
+
+	// Calcular mapa de stocks iniciales ANTES de procesar cualquier línea
+	// Mapea cada código de artículo (incluyendo CH) con su stock inicial
+	private java.util.Map<String, Integer> calcularStocksIniciales() {
+		java.util.Map<String, Integer> stocksMap = new java.util.HashMap<>();
+
+		for (LineaDeposito linea : this.Lineas.values()) {
+			String codigo = linea.Articulo.CodigoArticulo;
+			// Guardar el stock inicial con el código EXACTO (no normalizado)
+			stocksMap.put(codigo, linea.Articulo.Stock);
+		}
+
+		return stocksMap;
+	}
+
+	// Obtener el stock inicial del artículo homólogo usando el mapa pre-calculado
+	private int getStockHomologoInicial(String codigoArticulo, java.util.Map<String, Integer> stocksIniciales) {
+		String baseCode = LogBookStock.normalizeArticleCode(codigoArticulo);
+		String codigoHomologo = codigoArticulo.startsWith("CH") ? baseCode : "CH" + baseCode;
+
+		Integer stock = stocksIniciales.get(codigoHomologo);
+		return stock != null ? stock : 0;
+	}
+
+	// Obtener el stock ACTUAL del artículo homólogo (después de todos los cálculos)
+	private int getStockHomologoActual(String codigoArticulo) {
+		String baseCode = LogBookStock.normalizeArticleCode(codigoArticulo);
+		String codigoHomologo = codigoArticulo.startsWith("CH") ? baseCode : "CH" + baseCode;
+
+		for (LineaDeposito linea : this.Lineas.values()) {
+			if (linea.Articulo.CodigoArticulo.equals(codigoHomologo)) {
+				return linea.Articulo.Stock;
+			}
+		}
+		return 0;
 	}
 
 	private double round(double d, int decimalPlace) {
