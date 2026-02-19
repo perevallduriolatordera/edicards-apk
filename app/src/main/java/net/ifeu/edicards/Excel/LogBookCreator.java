@@ -107,8 +107,13 @@ public class LogBookCreator implements ILogCreator {
                 existing.UnidadesIniciales += logBook.UnidadesIniciales;
                 existing.UnidadesAbono += logBook.UnidadesAbono;
                 existing.UnidadesDefectuosasAbono += logBook.UnidadesDefectuosasAbono;
-                existing.StockInicial += logBook.StockInicial;
-                existing.StockFinal += logBook.StockFinal;
+
+                // Usar el StockInicial y StockFinal del que tiene mayor idLogBook
+                if (logBook.idLogBook > existing.idLogBook) {
+                    existing.StockInicial = logBook.StockInicial;
+                    existing.StockFinal = logBook.StockFinal;
+                    existing.idLogBook = logBook.idLogBook;
+                }
 
                 // Si tienen distinto TipoMovimiento, usar el del que tiene StockInicial > 0
                 if (!existing.TipoMovimiento.equals(logBook.TipoMovimiento)) {
@@ -125,7 +130,9 @@ public class LogBookCreator implements ILogCreator {
                 newEntry.CodigoCliente = logBook.CodigoCliente;
                 newEntry.NombreCliente = logBook.NombreCliente;
                 newEntry.CodigoArticulo = baseCode;
-                newEntry.NombreArticulo = logBook.NombreArticulo;
+                // Buscar el nombre correcto del artículo español
+                String nombreEspanol = getNombreArticuloEspanol(baseCode);
+                newEntry.NombreArticulo = (nombreEspanol != null && !nombreEspanol.isEmpty()) ? nombreEspanol : logBook.NombreArticulo;
                 newEntry.StockInicial = logBook.StockInicial;
                 newEntry.StockFinal = logBook.StockFinal;
                 newEntry.UnidadesDevueltas = logBook.UnidadesDevueltas;
@@ -142,11 +149,11 @@ public class LogBookCreator implements ILogCreator {
 
         ArrayList<LogBookStock> result = new ArrayList<>(groupedMap.values());
 
-        // Ordenar por fecha
+        // Ordenar por idLogBook (secuencial = cronológico)
         Collections.sort(result, new Comparator<LogBookStock>() {
             @Override
             public int compare(LogBookStock a, LogBookStock b) {
-                return a.Fecha.compareTo(b.Fecha);
+                return Long.compare(a.idLogBook, b.idLogBook);
             }
         });
 

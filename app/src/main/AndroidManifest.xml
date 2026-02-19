@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ifeu.edicards"
     android:versionCode="5"
-    android:versionName="5.7.2 (10 Febrero 2026) --> Resolución de bugs">
+    android:versionName="5.8.1 (17 Febrero 2026) --> Resolución de bugs">
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 

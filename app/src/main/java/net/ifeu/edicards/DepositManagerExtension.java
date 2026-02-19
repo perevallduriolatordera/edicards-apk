@@ -219,7 +219,7 @@ public class DepositManagerExtension {
 				Efectivo efectivo = Factory.build(Efectivo.class, appConfig);
 				efectivo.getEfectivo();
 
-				if (efectivo.checkUpdateToday()) return true;  // Mostrar pantalla de ingresos/gastos incluso si efectivo = 0
+				if (efectivo.checkUpdateToday()) return false;
 
 				if (efectivo.Efectivo > 0) {
 					if (efectivo.Efectivo < 5) {
@@ -227,13 +227,13 @@ public class DepositManagerExtension {
 						efectivo.update();
 						createRedondeoIngresoIncidencia(efectivo, appConfig);
 					}
+					return true;  // Pedir ingresos/gastos aunque sea < 5, por si hay gastos
 
-					return efectivo.Efectivo >= 5;
 				} else {
 					efectivo.UpdateDateEfectivo = new Date();
 					efectivo.update();
 					createAdeudoIngresoIncidencia(efectivo, appConfig);
-					return true;  // Mostrar pantalla de ingresos/gastos incluso si efectivo = 0
+					return true;  // Pedir ingresos/gastos aunque sea 0 o negativo, por si hay gastos
 				}
 
 			} catch (Exception e) {
