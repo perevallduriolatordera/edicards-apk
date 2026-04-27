@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ifeu.edicards"
     android:versionCode="5"
-    android:versionName="5.8.1 (17 Febrero 2026) --> Resolución de bugs">
+    android:versionName="5.5.1 (09 Diciembre 2025) --> Monitorización de trazabilidad">
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
