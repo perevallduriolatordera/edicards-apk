@@ -481,7 +481,7 @@ public class Deposito extends Cliente implements IPersistable {
 
 	}
 	
-	public ArrayList<Deposito> getDepositosToday()
+		public ArrayList<Deposito> getDepositosToday()
 			throws Exception {
 		ArrayList<Deposito> list = new ArrayList<>();
 

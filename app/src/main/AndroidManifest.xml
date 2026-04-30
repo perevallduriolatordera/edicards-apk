@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ifeu.edicards"
     android:versionCode="59"
-    android:versionName="5.9.4 (28 Abril 2026) --> Limpieza de bugs">
+    android:versionName="5.9.5 (30 Abril 2026) --> Limpieza de bugs">
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 

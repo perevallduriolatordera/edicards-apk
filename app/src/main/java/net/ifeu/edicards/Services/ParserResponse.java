@@ -834,8 +834,6 @@ public class ParserResponse extends ParserBase {
 
 							depo.assingFromCliente(cliente);
 							depo.NumDoc = strNumDoc;
-							// Asignar fecha del día anterior para depósitos sincronizados
-							// evitar que aparezcan en getDepositosToday()
 							Calendar calendar = Calendar.getInstance();
 							calendar.add(Calendar.DAY_OF_YEAR, -1);
 							depo.FechaDeposito = calendar.getTime();
