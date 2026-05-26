@@ -23,6 +23,8 @@ public class ConstantsDatabase {
     public static final String TABLE_GDPR = "GDPR";
     public static final String TABLE_LOGBOOK = "LogBook";
     public static final String TABLE_LOGBOOK_EXCEPTIONS = "LogBookExceptions";
+    public static final String TABLE_CIUDAD_VENDEDOR = "CiudadVendedor";
+    public static final String TABLE_RUTAS_GENERADAS = "RutasGeneradas";
     public static final String INDEX_DEPOSITO_CODIGOCLIENTE = "idx_Deposito_CodigoCliente";
     public static final String INDEX_DEPOSITO_NUMDOC = "idx_Deposito_NumDoc";
     public static final String INDEX_DEPOSITO_IDCLIENTE = "idx_Deposito_IdCliente";
@@ -33,6 +35,9 @@ public class ConstantsDatabase {
     public static final String INDEX_PACTOS_IDARTICULO = "idx_Pactos_IdArticulo";
     public static final String INDEX_ARTICULOS_ACTIVO_TIPO = "idx_Articulos_Activo_Tipo";
     public static final String INDEX_LOGBOOK_FECHA  = "idx_LogBook_Fecha";
+    public static final String INDEX_CIUDADVENDEDOR_USUARIO = "idx_ciudadvendedor_usuario";
+    public static final String INDEX_RUTAS_FECHA = "idx_rutas_fecha";
+    public static final String INDEX_RUTAS_ORDEN = "idx_rutas_orden";
     public static String DATABASE_NAME = "Edicards.db";
 
     public static String DATABASE_RESTOREPOINT_NAME = "Edicards.db";

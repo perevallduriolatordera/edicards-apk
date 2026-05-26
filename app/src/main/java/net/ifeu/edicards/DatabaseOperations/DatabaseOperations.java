@@ -377,6 +377,8 @@ public class DatabaseOperations {
 			createLogBookTable();
 			createIngresosDiariosTable();
 			createLogBookExceptionsTable();
+			createCiudadVendedorTable();
+			createRutasGeneradasTable();
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -406,6 +408,12 @@ public class DatabaseOperations {
 					 new ArrayList<>(Arrays.asList("Activo","Tipo")));
 			createIndex(ConstantsDatabase.INDEX_LOGBOOK_FECHA, ConstantsDatabase.TABLE_LOGBOOK,
 					new ArrayList<>(Arrays.asList("Fecha")));
+			createIndex(ConstantsDatabase.INDEX_CIUDADVENDEDOR_USUARIO, ConstantsDatabase.TABLE_CIUDAD_VENDEDOR,
+					new ArrayList<>(Arrays.asList("Usuario")));
+			createIndex(ConstantsDatabase.INDEX_RUTAS_FECHA, ConstantsDatabase.TABLE_RUTAS_GENERADAS,
+					new ArrayList<>(Arrays.asList("FechaGeneracion")));
+			createIndex(ConstantsDatabase.INDEX_RUTAS_ORDEN, ConstantsDatabase.TABLE_RUTAS_GENERADAS,
+					new ArrayList<>(Arrays.asList("OrdenVisita")));
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -1058,7 +1066,56 @@ public class DatabaseOperations {
 		}
 
 	}
-	
+
+	private void createCiudadVendedorTable() throws Exception {
+		if (_databaseConnection.getDatabase().isOpen()) {
+			try {
+				_databaseConnection.getDatabase().execSQL(
+					"create table if not exists " + ConstantsDatabase.TABLE_CIUDAD_VENDEDOR +
+					" ( IdCiudadVendedor integer primary key autoincrement, " +
+					"Usuario text not null, " +
+					"CiudadBase text not null, " +
+					"CodigoPostal text, " +
+					"FechaCreacion date default CURRENT_DATE);"
+				);
+			} catch (Exception e) {
+				throw new Exception("Error creando la tabla " +
+					ConstantsDatabase.TABLE_CIUDAD_VENDEDOR + ". Motivo: " + e.getMessage());
+			}
+		} else {
+			throw new Exception("Error creando la tabla " +
+				ConstantsDatabase.TABLE_CIUDAD_VENDEDOR +
+				". Motivo: La Base de datos no ha podido ser abierta.");
+		}
+	}
+
+	private void createRutasGeneradasTable() throws Exception {
+		if (_databaseConnection.getDatabase().isOpen()) {
+			try {
+				_databaseConnection.getDatabase().execSQL(
+					"create table if not exists " + ConstantsDatabase.TABLE_RUTAS_GENERADAS +
+					" ( IdRuta integer primary key autoincrement, " +
+					"FechaGeneracion date default CURRENT_DATE, " +
+					"OrdenVisita integer not null, " +
+					"CodigoCliente text not null, " +
+					"NombreCliente text not null, " +
+					"DireccionCliente text, " +
+					"PoblacionCliente text, " +
+					"ProvinciaCliente text, " +
+					"DistanciaEstimada text, " +
+					"CiudadBase text not null);"
+				);
+			} catch (Exception e) {
+				throw new Exception("Error creando la tabla " +
+					ConstantsDatabase.TABLE_RUTAS_GENERADAS + ". Motivo: " + e.getMessage());
+			}
+		} else {
+			throw new Exception("Error creando la tabla " +
+				ConstantsDatabase.TABLE_RUTAS_GENERADAS +
+				". Motivo: La Base de datos no ha podido ser abierta.");
+		}
+	}
+
 	private void alterStructure()  {
 		if (_databaseConnection.getDatabase().isOpen())
 		{

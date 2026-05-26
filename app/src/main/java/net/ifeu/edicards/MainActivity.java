@@ -20,6 +20,8 @@ import android.widget.Toast;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsTypes;
+import net.ifeu.edicards.DataTier.CiudadVendedor;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.Services.ServiceWorker;
 import net.ifeu.edicards.Services.ImportResult;
 import net.ifeu.edicards.Services.ExportResult;
@@ -185,6 +187,9 @@ public class MainActivity extends Activity {
 					try {
 						getData();
 						sendData();
+
+						// Verificar y solicitar ciudad base si es necesario
+						that.verifyCiudadVendedor();
 
 						that._appConfig.getWorkingArea().Monitor = that._serviceWorker.Monitor();
 
@@ -383,7 +388,7 @@ public class MainActivity extends Activity {
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-		
+
 		switch (requestCode) {
 			case REQUEST_EXTERNAL_STORAGE: {
 				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -395,6 +400,53 @@ public class MainActivity extends Activity {
 				}
 				return;
 			}
+		}
+	}
+
+	private void verifyCiudadVendedor() {
+		try {
+			CiudadVendedor ciudad = Factory.build(CiudadVendedor.class, _appConfig);
+
+			if (!ciudad.exists()) {
+				// No tiene ciudad configurada, solicitar en UI thread
+				runOnUiThread(() -> {
+					String ciudadYCP = _appConfig.getMessageBox().InputBox(
+						"Configuración inicial",
+						"Por favor, introduzca su ciudad base y código postal en el formato:\nCiudad, 12345",
+						this
+					);
+
+					if (ciudadYCP != null && !ciudadYCP.trim().isEmpty()) {
+						try {
+							String[] partes = ciudadYCP.split(",");
+							String ciudadBase = partes[0].trim();
+							String codigoPostal = partes.length > 1 ? partes[1].trim() : "";
+
+							ciudad.Usuario = _appConfig.getUser().User;
+							ciudad.CiudadBase = ciudadBase;
+							ciudad.CodigoPostal = codigoPostal;
+							ciudad.save();
+
+							_appConfig.getMessageBox().Show(
+								"Configuración guardada",
+								"Ciudad base: " + ciudadBase + "\nCódigo postal: " + codigoPostal,
+								this,
+								MessageBoxType.Ok
+							);
+						} catch (Exception e) {
+							_appConfig.getMessageBox().Show(
+								"Error",
+								"No se pudo guardar la configuración: " + e.getMessage(),
+								this,
+								MessageBoxType.Error
+							);
+						}
+					}
+				});
+			}
+		} catch (Exception e) {
+			// Log error pero no bloquear el flujo principal
+			android.util.Log.e("MainActivity", "Error verificando ciudad base: " + e.getMessage());
 		}
 	}
 }

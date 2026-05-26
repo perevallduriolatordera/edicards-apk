@@ -27,6 +27,14 @@ public class ConstantsEndpoints {
     public static final String WS_ENVIAR_STOCKS = "http://edicards.ddns.net:8808/ServeiDimoni.asmx/EnviamentStocks";
     //public static final String WS_ENVIAR_STOCK_DIARIO = "http://edicards.ddns.net:8808/ServeiDimoni.asmx/EnviamentStockFurgo";
 
+    // OpenAI ChatGPT API
+    // IMPORTANTE: La API key se obtiene desde variable de entorno CHATGPT_API_KEY
+    // NO hardcodear la clave en el código por razones de seguridad
+    public static final String CHATGPT_API_URL = "https://api.openai.com/v1/chat/completions";
+    public static final String CHATGPT_API_KEY = System.getenv("CHATGPT_API_KEY") != null ?
+        System.getenv("CHATGPT_API_KEY") : "";
+    public static final String CHATGPT_MODEL = "gpt-3.5-turbo";
+
     public static final int WS_PAGINACION = 500;
     public static final int WS_MAX_INTENTOS = 500;
 

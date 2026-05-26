@@ -13,12 +13,14 @@ import net.ifeu.edicards.Constants.ConstantsFolders;
 import net.ifeu.edicards.Constants.ConstantsMail;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Articulo;
+import net.ifeu.edicards.DataTier.CiudadVendedor;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Contador;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.FormaPago;
 import net.ifeu.edicards.DataTier.Pactos;
+import net.ifeu.edicards.DataTier.RutaGenerada;
 import net.ifeu.edicards.DataTier.Tarifa;
 import net.ifeu.edicards.DataTier.TipoIVA;
 import net.ifeu.edicards.Excel.ILogCreator;
@@ -1135,6 +1137,45 @@ public class ServiceWorker extends ServiceBase {
 			}
 		} catch (Exception e) {
 			importResult.addErrorMessage("No se ha podido importar - Error creando excel de excepciones");
+		}
+
+		// Generar ruta semanal con ChatGPT si es necesario
+		try {
+			RutaGenerada rutaGenerada = Factory.build(RutaGenerada.class, app);
+
+			if (!rutaGenerada.hasRouteCurrentWeek()) {
+				// No hay ruta de esta semana, verificar si hay ciudad base
+				CiudadVendedor ciudad = Factory.build(CiudadVendedor.class, app);
+
+				if (ciudad.exists()) {
+					ciudad.load();
+
+					// Generar ruta en segundo plano
+					try {
+						RouteGeneratorService routeService = new RouteGeneratorService();
+						boolean success = routeService.generateRoute(app, ciudad.CiudadBase);
+
+						if (!success) {
+							importResult.addErrorMessage(
+								"No se pudo generar ruta semanal - Verifique conexión a internet"
+							);
+						}
+					} catch (Exception ex) {
+						importResult.addErrorMessage(
+							"Error generando ruta semanal: " + ex.getMessage()
+						);
+					}
+				} else {
+					// No tiene ciudad configurada, no se puede generar ruta
+					importResult.addErrorMessage(
+						"No se pudo generar ruta - Ciudad base no configurada"
+					);
+				}
+			}
+		} catch (Exception e) {
+			importResult.addErrorMessage(
+				"No se ha podido generar ruta semanal - Error: " + e.getMessage()
+			);
 		}
 
 		this.Monitor().ParserMonitor = parser.Monitor();

@@ -1,0 +1,9 @@
+# Archivo de ejemplo para configuración local
+# COPIAR A local.properties y agregar tus valores reales
+
+# OpenAI ChatGPT API Key
+# Obtener en: https://platform.openai.com/api-keys
+CHATGPT_API_KEY=sk-proj-TU_API_KEY_AQUI
+
+# SDK de Android
+sdk.dir=/path/to/android/sdk

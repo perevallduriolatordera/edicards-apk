@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/lblTituloRutas"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ruta Optimizada de Clientes"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:id="@+id/lblFechaGeneracion"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Generada: --/--/----"
+            android:textSize="14sp"/>
+
+        <TextView
+            android:id="@+id/lblTotalClientes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total clientes: 0"
+            android:textSize="14sp"/>
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/listViewRutas"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="#CCCCCC"
+        android:dividerHeight="1dp"/>
+
+    <Button
+        android:id="@+id/btnRegenerarRuta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Regenerar Ruta"
+        android:layout_marginTop="16dp"/>
+
+</LinearLayout>
