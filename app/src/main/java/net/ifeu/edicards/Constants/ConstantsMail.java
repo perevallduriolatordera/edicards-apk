@@ -14,9 +14,9 @@ public class ConstantsMail {
 
     public static final String MAIL_TO = "testtabletedi@gmail.com";
     public static final String MAIL_TO_GDPR = "gdprtabletedi@gmail.com";
-   // public static final String MAIL_TO_LOGBOOK = "trazabilidadtabletedi@gmail.com";
+    public static final String MAIL_TO_LOGBOOK = "trazabilidadtabletedi@gmail.com";
 
-    public static final String MAIL_TO_LOGBOOK = "valldu@hotmail.com";
+    //public static final String MAIL_TO_LOGBOOK = "valldu@hotmail.com";
 
     public static final String MAIL_INGRESOS_EDICARDS = "ingresostabletedi@gmail.com";
     public static final String MAIL_FROM = "tablet@grupediciones.com";
