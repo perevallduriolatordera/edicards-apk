@@ -879,9 +879,15 @@ public class ParserResponse extends ParserBase {
 					} else {
 					
 						if (!depo.setFirstDepositoByCliente(strCodigoCliente)) {
-							
+
 							Cliente cliente = Factory.build(Cliente.class, app);
-							cliente.setClienteByCodigo(strCodigoCliente);
+							boolean clienteFound = cliente.setClienteByCodigo(strCodigoCliente);
+
+							// Validar que el cliente se haya cargado correctamente
+							if (!clienteFound || cliente.CodigoCliente == null || cliente.CodigoCliente.isEmpty()) {
+								android.util.Log.w("ParserResponse", "Cliente no encontrado: " + strCodigoCliente + ", se omite el depósito");
+								continue;
+							}
 
 							depo = Factory.build(Deposito.class, app);
 
