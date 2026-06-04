@@ -92,6 +92,9 @@ public class Cliente extends Persistent implements IPersistable {
 		values.put("Filiacion", this.Filiacion);
 		values.put("IdFormaPago", this.FormaPago.IdFormaPago);
 		values.put("CodigoTarifa", this.CodigoTarifa);
+		values.put("Latitud", this.Latitud);
+		values.put("Longitud", this.Longitud);
+		values.put("FechaGeocodificacion", this.FechaGeocodificacion);
 
 		try {
 			this.IdCliente = super.getDatabaseOperations().insert(ConstantsDatabase.TABLE_CLIENTES, null , values);
@@ -132,7 +135,10 @@ public class Cliente extends Persistent implements IPersistable {
 		values.put("Filiacion", this.Filiacion);
 		values.put("IdFormaPago", this.FormaPago.IdFormaPago);
 		values.put("CodigoTarifa", this.CodigoTarifa);
-		
+		values.put("Latitud", this.Latitud);
+		values.put("Longitud", this.Longitud);
+		values.put("FechaGeocodificacion", this.FechaGeocodificacion);
+
 		String[] whereArgs = { String.valueOf(this.IdCliente) }; 
 		
 			super.getDatabaseOperations().update(ConstantsDatabase.TABLE_CLIENTES, values, "IdCliente = ?", whereArgs);
