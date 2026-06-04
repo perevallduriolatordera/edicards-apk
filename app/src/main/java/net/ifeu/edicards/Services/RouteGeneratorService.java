@@ -3,103 +3,238 @@ package net.ifeu.edicards.Services;
 import android.content.Context;
 import android.util.Log;
 
-import com.androidnetworking.AndroidNetworking;
-import com.androidnetworking.common.Priority;
-import com.androidnetworking.interfaces.JSONObjectRequestListener;
-import com.androidnetworking.error.ANError;
-
 import net.ifeu.edicards.Application.AppConfig;
-import net.ifeu.edicards.Constants.ConstantsEndpoints;
 import net.ifeu.edicards.DataTier.CiudadVendedor;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.RutaGenerada;
+import net.ifeu.edicards.Services.Geocoding.IGeocodingStrategy;
+import net.ifeu.edicards.Services.Geocoding.LatLng;
+import net.ifeu.edicards.Services.Geocoding.OpenRouteServiceGeocodingStrategy;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.concurrent.CountDownLatch;
 
+/**
+ * Servicio para generar rutas optimizadas usando OpenRouteService
+ * Utiliza clustering geográfico para dividir clientes por zonas
+ * y luego optimiza cada zona con TSP Nearest Neighbor
+ */
 public class RouteGeneratorService {
 
 	private static final String TAG = "RouteGeneratorService";
-	private JSONObject apiResponse = null;
-	private Exception apiException = null;
 
+	/**
+	 * Genera una ruta optimizada para los clientes activos del vendedor
+	 * Usa clustering geográfico para agrupar clientes por zonas
+	 *
+	 * @param context Contexto de la aplicación
+	 * @param ciudadBase Ciudad donde se ubica la base del vendedor
+	 * @return true si la ruta se generó exitosamente, false en caso contrario
+	 * @throws Exception Si hay error durante el proceso
+	 */
 	public boolean generateRoute(Context context, String ciudadBase) throws Exception {
 		try {
 			AppConfig app = (AppConfig) context.getApplicationContext();
 
-			// 1. Obtener clientes activos
-			ArrayList<Cliente> clientesActivos = getClientesActivos(app);
+			// Debug: Contar TODOS los clientes activos
+			android.database.Cursor cursorTodos = app.getDatabaseOperations().executeSentence(
+				"SELECT COUNT(*) FROM Clientes WHERE Activo = 1");
+			int totalActivos = 0;
+			if (cursorTodos != null && cursorTodos.getCount() > 0) {
+				cursorTodos.moveToFirst();
+				totalActivos = cursorTodos.getInt(0);
+				cursorTodos.close();
+			}
+			Log.i(TAG, "Total clientes activos en BD: " + totalActivos);
+
+			// Debug: Contar clientes con coordenadas
+			android.database.Cursor cursorConCoordenadas = app.getDatabaseOperations().executeSentence(
+				"SELECT COUNT(*) FROM Clientes WHERE Activo = 1 AND Latitud IS NOT NULL AND Latitud != 0 AND Longitud IS NOT NULL AND Longitud != 0");
+			int clientesConCoordenadas = 0;
+			if (cursorConCoordenadas != null && cursorConCoordenadas.getCount() > 0) {
+				cursorConCoordenadas.moveToFirst();
+				clientesConCoordenadas = cursorConCoordenadas.getInt(0);
+				cursorConCoordenadas.close();
+			}
+			Log.i(TAG, "Clientes activos con coordenadas válidas: " + clientesConCoordenadas);
+
+			// 1. Obtener clientes activos con coordenadas geocodificadas
+			ArrayList<Cliente> clientesActivos = getClientesActivosConCoordenadas(app);
 
 			if (clientesActivos == null || clientesActivos.isEmpty()) {
-				Log.w(TAG, "No hay clientes activos para generar ruta");
+				Log.w(TAG, "No hay clientes activos con coordenadas para generar ruta");
 				return false;
 			}
 
 			if (clientesActivos.size() < 2) {
-				Log.w(TAG, "Mínimo 2 clientes requeridos para generar ruta");
+				Log.w(TAG, "Mínimo 2 clientes con coordenadas requeridos para generar ruta (actual: " + clientesActivos.size() + ")");
 				return false;
 			}
 
-			// 2. Obtener código postal del vendedor
+			// 2. Obtener ubicación de la base del vendedor
 			CiudadVendedor ciudad = Factory.build(CiudadVendedor.class, app);
 			ciudad.load();
-			String codigoPostal = ciudad.CodigoPostal != null ? ciudad.CodigoPostal : "";
 
-			// 3. Construir JSON de clientes
-			JSONArray clientesJSON = buildClientesJSON(clientesActivos);
+			// Geocodificar ubicación de la base si no está ya en caché
+			IGeocodingStrategy geocodingStrategy = new OpenRouteServiceGeocodingStrategy();
+			LatLng baseLocation = geocodingStrategy.geocodeAddress(
+				ciudadBase,
+				null,
+				null,
+				ciudad.CodigoPostal
+			);
 
-			// 4. Construir prompt para ChatGPT
-			String prompt = buildChatGPTPrompt(ciudadBase, codigoPostal, clientesJSON);
-
-			// 5. Llamar a ChatGPT API
-			JSONObject response = callChatGPTAPI(prompt);
-
-			if (response == null) {
-				Log.e(TAG, "Error: respuesta nula de API");
+			if (baseLocation == null) {
+				Log.e(TAG, "No se pudo geocodificar la ciudad base: " + ciudadBase);
 				return false;
 			}
 
-			// 6. Parsear respuesta
-			ArrayList<RutaClienteData> rutaOrdenada = parseRouteResponse(response);
+			Log.d(TAG, "Ciudad base geocodificada: " + baseLocation.toString());
+
+			// 3. Clustering geográfico de clientes
+			GeoClusteringService clusteringService = new GeoClusteringService();
+			int gridSize = determineOptimalGridSize(clientesActivos.size());
+			ArrayList<GeoClusteringService.GeoCluster> clusters = clusteringService.clusterizeClients(
+				clientesActivos,
+				gridSize,
+				baseLocation
+			);
+
+			if (clusters == null || clusters.isEmpty()) {
+				Log.e(TAG, "Error: no se pudieron crear clusters geográficos");
+				return false;
+			}
+
+			// 4. Optimizar ruta considerando clusters
+			ArrayList<RouteOptimizerService.RutaClienteData> rutaOrdenada = optimizeRouteWithClusters(
+				clusters,
+				baseLocation
+			);
 
 			if (rutaOrdenada == null || rutaOrdenada.isEmpty()) {
-				Log.e(TAG, "Error: no se pudo parsear la respuesta de ChatGPT");
+				Log.e(TAG, "Error: no se pudo optimizar la ruta con clusters");
 				return false;
 			}
 
-			// 7. Guardar ruta en BD
+			// 5. Guardar ruta en BD
 			saveRoute(app, rutaOrdenada, ciudadBase);
 
-			Log.i(TAG, "Ruta generada exitosamente con " + rutaOrdenada.size() + " clientes");
+			Log.i(TAG, "Ruta generada exitosamente con " + rutaOrdenada.size() + " clientes en " + clusters.size() + " clusters");
 			return true;
 
 		} catch (Exception e) {
 			Log.e(TAG, "Error generando ruta: " + e.getMessage());
+			e.printStackTrace();
 			return false;
 		}
 	}
 
-	private ArrayList<Cliente> getClientesActivos(AppConfig app) throws Exception {
+	/**
+	 * Determina el tamaño optimal del grid basado en cantidad de clientes
+	 */
+	private int determineOptimalGridSize(int totalClientes) {
+		// Para <= 50 clientes: grid 2x2 = 4 cuadrantes
+		if (totalClientes <= 50) {
+			return 2;
+		}
+		// Para 51-150 clientes: grid 3x3 = 9 cuadrantes
+		if (totalClientes <= 150) {
+			return 3;
+		}
+		// Para > 150 clientes: grid 4x4 = 16 cuadrantes
+		return 4;
+	}
+
+	/**
+	 * Optimiza la ruta recorriendo cada cluster en orden y optimizando dentro de cada uno
+	 * Resultado: Base → [Cluster 1 optimizado] → [Cluster 2 optimizado] → ... → Base
+	 */
+	private ArrayList<RouteOptimizerService.RutaClienteData> optimizeRouteWithClusters(
+			ArrayList<GeoClusteringService.GeoCluster> clusters,
+			LatLng baseLocation) throws Exception {
+
+		ArrayList<RouteOptimizerService.RutaClienteData> rutaCompleta = new ArrayList<>();
+		RouteOptimizerService optimizer = new RouteOptimizerService();
+		int orden = 1;
+
+		Log.i(TAG, "════════════════════════════════════════");
+		Log.i(TAG, "OPTIMIZANDO RUTA CON CLUSTERING");
+		Log.i(TAG, "Total clusters: " + clusters.size());
+
+		// Recorrer cada cluster en orden
+		for (int i = 0; i < clusters.size(); i++) {
+			GeoClusteringService.GeoCluster cluster = clusters.get(i);
+			Log.i(TAG, "");
+			Log.i(TAG, "Procesando Cluster " + (i + 1) + " de " + clusters.size());
+			Log.i(TAG, "  Clientes: " + cluster.size());
+			Log.i(TAG, "  Centro: (" + String.format("%.4f", cluster.centerLat) + ", " +
+					String.format("%.4f", cluster.centerLon) + ")");
+
+			// Optimizar clientes dentro de este cluster
+			ArrayList<RouteOptimizerService.RutaClienteData> rutaCluster = optimizer.optimizeRoute(
+				cluster.clientes,
+				baseLocation
+			);
+
+			if (rutaCluster != null && !rutaCluster.isEmpty()) {
+				// Ajustar números de orden para que sean secuenciales en la ruta global
+				for (RouteOptimizerService.RutaClienteData ruta : rutaCluster) {
+					ruta.orden = orden++;
+					rutaCompleta.add(ruta);
+				}
+				Log.i(TAG, "  ✓ Cluster " + (i + 1) + " optimizado: " + rutaCluster.size() + " clientes");
+			} else {
+				Log.w(TAG, "  ✗ No se pudo optimizar cluster " + (i + 1));
+			}
+		}
+
+		// Resumen final
+		Log.i(TAG, "");
+		Log.i(TAG, "════════════════════════════════════════");
+		Log.i(TAG, "║ RUTA FINAL OPTIMIZADA POR CLUSTERS   ║");
+		Log.i(TAG, "║ Total clientes: " + rutaCompleta.size() + "                       ║");
+
+		double distanciaTotalCompleta = 0;
+		for (RouteOptimizerService.RutaClienteData ruta : rutaCompleta) {
+			String distStr = ruta.distanciaKm.replace(" km", "");
+			try {
+				distanciaTotalCompleta += Double.parseDouble(distStr);
+			} catch (NumberFormatException e) {
+				// Ignorar
+			}
+		}
+		Log.i(TAG, "║ Distancia total: " + String.format("%.1f km", distanciaTotalCompleta) + "             ║");
+		Log.i(TAG, "════════════════════════════════════════");
+
+		return rutaCompleta;
+	}
+
+	/**
+	 * Obtiene los clientes activos que tienen coordenadas
+	 * NO ordena por nombre para permitir que el algoritmo de clustering y optimización funcione correctamente
+	 *
+	 * @param app Configuración de la aplicación
+	 * @return Lista de clientes activos con coordenadas
+	 * @throws Exception Si hay error en la base de datos
+	 */
+	private ArrayList<Cliente> getClientesActivosConCoordenadas(AppConfig app) throws Exception {
 		ArrayList<Cliente> clientesActivos = new ArrayList<>();
 
 		try {
-			Cliente cliente = Factory.build(Cliente.class, app);
-
-			// Ejecutar sentencia SQL para obtener clientes activos
+			// Obtener clientes activos CON coordenadas válidas (> 0)
+			// NO ORDENAR por nombre, dejar que clustering y optimización ordenen
 			android.database.Cursor cursor = app.getDatabaseOperations().executeSentence(
-				"SELECT * FROM Clientes WHERE Activo = 1 ORDER BY Nombre ASC");
+				"SELECT * FROM Clientes WHERE Activo = 1 AND Latitud IS NOT NULL AND Latitud != 0 AND Longitud IS NOT NULL AND Longitud != 0");
+
+			Log.d(TAG, "Buscando clientes activos con coordenadas válidas");
 
 			if (cursor != null && cursor.getCount() > 0) {
 				cursor.moveToFirst();
 
 				do {
 					Cliente c = Factory.build(Cliente.class, app);
+					c.IdCliente = Long.parseLong(cursor.getString(cursor.getColumnIndex("IdCliente")));
 					c.CodigoCliente = cursor.getString(cursor.getColumnIndex("CodigoCliente"));
 					c.NIF = cursor.getString(cursor.getColumnIndex("NIF"));
 					c.Razon = cursor.getString(cursor.getColumnIndex("Razon"));
@@ -109,185 +244,56 @@ public class RouteGeneratorService {
 					c.Poblacion = cursor.getString(cursor.getColumnIndex("Poblacion"));
 					c.CodigoPostal = cursor.getString(cursor.getColumnIndex("CodigoPostal"));
 					c.Provincia = cursor.getString(cursor.getColumnIndex("Provincia"));
+					c.Latitud = cursor.getDouble(cursor.getColumnIndex("Latitud"));
+					c.Longitud = cursor.getDouble(cursor.getColumnIndex("Longitud"));
 
 					clientesActivos.add(c);
+					Log.d(TAG, "Cliente cargado: " + c.Nombre + " (" + c.Latitud + ", " + c.Longitud + ")");
+
 				} while (cursor.moveToNext());
 
 				cursor.close();
+			} else {
+				Log.w(TAG, "No se encontró cursor o está vacío");
+				if (cursor != null) {
+					Log.w(TAG, "Cursor vacío - Count: " + cursor.getCount());
+					cursor.close();
+				}
 			}
+
+			Log.i(TAG, "Total de clientes activos con coordenadas: " + clientesActivos.size());
 
 		} catch (Exception e) {
 			Log.e(TAG, "Error obteniendo clientes activos: " + e.getMessage());
+			e.printStackTrace();
 			throw e;
 		}
 
 		return clientesActivos;
 	}
 
-	private JSONArray buildClientesJSON(ArrayList<Cliente> clientes) throws Exception {
-		JSONArray array = new JSONArray();
-
-		for (Cliente c : clientes) {
-			JSONObject obj = new JSONObject();
-			obj.put("nif", c.NIF != null ? c.NIF : "");
-			obj.put("razon", c.Razon != null ? c.Razon : "");
-			obj.put("nombre", c.Nombre != null ? c.Nombre : "");
-			obj.put("direccion", c.Direccion1 != null ? c.Direccion1 : "");
-			obj.put("poblacion", c.Poblacion != null ? c.Poblacion : "");
-			obj.put("provincia", c.Provincia != null ? c.Provincia : "");
-			obj.put("codigo_postal", c.CodigoPostal != null ? c.CodigoPostal : "");
-
-			array.put(obj);
-		}
-
-		return array;
-	}
-
-	private String buildChatGPTPrompt(String ciudadBase, String codigoPostal, JSONArray clientesJSON) {
-		StringBuilder prompt = new StringBuilder();
-
-		prompt.append("Eres un experto en optimización de rutas logísticas. Tu objetivo es crear la ruta ");
-		prompt.append("MÁS EFICIENTE para un vendedor que debe visitar a todos sus clientes.\n\n");
-
-		prompt.append("Ciudad base del vendedor: ").append(ciudadBase);
-		if (codigoPostal != null && !codigoPostal.isEmpty()) {
-			prompt.append(" (CP: ").append(codigoPostal).append(")");
-		}
-		prompt.append("\n\n");
-
-		prompt.append("Lista de clientes a visitar (en formato JSON):\n");
-		prompt.append(clientesJSON.toString()).append("\n\n");
-
-		prompt.append("REQUISITOS ESTRICTOS:\n");
-		prompt.append("1. La ruta debe ser CIRCULAR: comenzar y terminar en ").append(ciudadBase).append("\n");
-		prompt.append("2. Minimizar la distancia total recorrida\n");
-		prompt.append("3. Agrupar clientes por proximidad geográfica\n");
-		prompt.append("4. Considerar carreteras principales de España\n");
-		if (codigoPostal != null && !codigoPostal.isEmpty()) {
-			prompt.append("5. Usar el código postal ").append(codigoPostal).append(" como referencia de ubicación exacta\n\n");
-		} else {
-			prompt.append("\n");
-		}
-
-		prompt.append("RESPONDE ÚNICAMENTE con un JSON válido en este formato exacto (sin texto adicional):\n");
-		prompt.append("{\n");
-		prompt.append("  \"ruta\": [\n");
-		prompt.append("    {\"orden\": 1, \"nif\": \"...\", \"razon\": \"...\", \"distancia_km\": \"...km\"},\n");
-		prompt.append("    {\"orden\": 2, \"nif\": \"...\", \"razon\": \"...\", \"distancia_km\": \"...km\"}\n");
-		prompt.append("  ],\n");
-		prompt.append("  \"distancia_total_km\": \"número\",\n");
-		prompt.append("  \"tiempo_estimado_horas\": \"número\"\n");
-		prompt.append("}\n");
-
-		return prompt.toString();
-	}
-
-
-	private JSONObject callChatGPTAPI(String prompt) throws Exception {
-		final CountDownLatch latch = new CountDownLatch(1);
-
-		try {
-			JSONObject requestBody = new JSONObject();
-			requestBody.put("model", ConstantsEndpoints.CHATGPT_MODEL);
-
-			JSONArray messages = new JSONArray();
-			JSONObject message = new JSONObject();
-			message.put("role", "user");
-			message.put("content", prompt);
-			messages.put(message);
-
-			requestBody.put("messages", messages);
-			requestBody.put("temperature", 0.3);
-			requestBody.put("max_tokens", 2000);
-
-			AndroidNetworking.post(ConstantsEndpoints.CHATGPT_API_URL)
-				.addHeaders("Authorization", "Bearer " + ConstantsEndpoints.CHATGPT_API_KEY)
-				.addHeaders("Content-Type", "application/json")
-				.addStringBody(requestBody.toString())
-				.setPriority(Priority.MEDIUM)
-				.build()
-				.getAsJSONObject(new JSONObjectRequestListener() {
-					@Override
-					public void onResponse(JSONObject response) {
-						apiResponse = response;
-						apiException = null;
-						latch.countDown();
-					}
-
-					@Override
-					public void onError(ANError error) {
-						apiResponse = null;
-						apiException = new Exception("API Error: " + error.getMessage());
-						Log.e(TAG, "ChatGPT API Error: " + error.getErrorDetail());
-						latch.countDown();
-					}
-				});
-
-			// Esperar respuesta (máximo 60 segundos)
-			latch.await();
-
-			if (apiException != null) {
-				throw apiException;
-			}
-
-			return apiResponse;
-
-		} catch (Exception e) {
-			Log.e(TAG, "Error llamando a ChatGPT API: " + e.getMessage());
-			throw e;
-		}
-	}
-
-	private ArrayList<RutaClienteData> parseRouteResponse(JSONObject response) throws Exception {
-		ArrayList<RutaClienteData> ruta = new ArrayList<>();
-
-		try {
-			// Extraer el mensaje de respuesta
-			JSONArray choices = response.getJSONArray("choices");
-			if (choices.length() == 0) {
-				throw new Exception("Sin opciones en respuesta");
-			}
-
-			JSONObject choice = choices.getJSONObject(0);
-			JSONObject message = choice.getJSONObject("message");
-			String content = message.getString("content");
-
-			// Parsear el JSON de la ruta
-			JSONObject rutaJSON = new JSONObject(content);
-			JSONArray rutaArray = rutaJSON.getJSONArray("ruta");
-
-			for (int i = 0; i < rutaArray.length(); i++) {
-				JSONObject item = rutaArray.getJSONObject(i);
-
-				RutaClienteData rutaCliente = new RutaClienteData();
-				rutaCliente.orden = item.getInt("orden");
-				rutaCliente.nif = item.optString("nif", "");
-				rutaCliente.razon = item.optString("razon", "");
-				rutaCliente.distanciaKm = item.optString("distancia_km", "");
-
-				ruta.add(rutaCliente);
-			}
-
-			Log.i(TAG, "Ruta parseada exitosamente: " + ruta.size() + " paradas");
-			return ruta;
-
-		} catch (Exception e) {
-			Log.e(TAG, "Error parseando respuesta: " + e.getMessage());
-			throw e;
-		}
-	}
-
-	private void saveRoute(AppConfig app, ArrayList<RutaClienteData> rutaOrdenada, String ciudadBase) throws Exception {
+	/**
+	 * Guarda la ruta optimizada en la base de datos
+	 *
+	 * @param app Configuración de la aplicación
+	 * @param rutaOrdenada Lista de clientes en orden optimizado
+	 * @param ciudadBase Ciudad base del vendedor
+	 * @throws Exception Si hay error en la base de datos
+	 */
+	private void saveRoute(AppConfig app, ArrayList<RouteOptimizerService.RutaClienteData> rutaOrdenada, String ciudadBase) throws Exception {
 		try {
 			RutaGenerada rutaGenerada = Factory.build(RutaGenerada.class, app);
 
 			// Eliminar rutas anteriores de esta semana
 			rutaGenerada.deleteCurrentWeekRoutes();
 
+			// Log de debugging
+			Log.i(TAG, "Guardando ruta con " + rutaOrdenada.size() + " clientes");
+
 			// Guardar cada cliente de la ruta
-			for (RutaClienteData rutaCliente : rutaOrdenada) {
-				// Buscar cliente por NIF en la BD
-				Cliente cliente = findClienteByNIF(app, rutaCliente.nif);
+			for (RouteOptimizerService.RutaClienteData rutaCliente : rutaOrdenada) {
+				// Buscar cliente por código en la BD
+				Cliente cliente = findClienteByCodigo(app, rutaCliente.codigoCliente);
 
 				if (cliente != null) {
 					RutaGenerada ruta = Factory.build(RutaGenerada.class, app);
@@ -303,13 +309,13 @@ public class RouteGeneratorService {
 
 					ruta.save();
 
-					Log.d(TAG, "Ruta guardada: " + rutaCliente.orden + ". " + cliente.Nombre);
+					Log.d(TAG, "SaveRoute - Orden: " + rutaCliente.orden + ", Cliente: " + cliente.Nombre + ", Distancia: " + rutaCliente.distanciaKm);
 				} else {
-					Log.w(TAG, "Cliente no encontrado: " + rutaCliente.nif);
+					Log.w(TAG, "Cliente no encontrado: " + rutaCliente.codigoCliente);
 				}
 			}
 
-			Log.i(TAG, "Ruta completa guardada en BD");
+			Log.i(TAG, "Ruta completa guardada en BD - Total: " + rutaOrdenada.size());
 
 		} catch (Exception e) {
 			Log.e(TAG, "Error guardando ruta: " + e.getMessage());
@@ -317,10 +323,18 @@ public class RouteGeneratorService {
 		}
 	}
 
-	private Cliente findClienteByNIF(AppConfig app, String nif) throws Exception {
+	/**
+	 * Busca un cliente por su código en la base de datos
+	 *
+	 * @param app Configuración de la aplicación
+	 * @param codigoCliente Código único del cliente
+	 * @return Objeto Cliente si lo encuentra, null en caso contrario
+	 * @throws Exception Si hay error en la base de datos
+	 */
+	private Cliente findClienteByCodigo(AppConfig app, String codigoCliente) throws Exception {
 		try {
 			android.database.Cursor cursor = app.getDatabaseOperations().executeSentence(
-				"SELECT * FROM Clientes WHERE NIF = '" + nif + "' AND Activo = 1 LIMIT 1");
+				"SELECT * FROM Clientes WHERE CodigoCliente = '" + codigoCliente + "' AND Activo = 1 LIMIT 1");
 
 			if (cursor != null && cursor.getCount() > 0) {
 				cursor.moveToFirst();
@@ -346,17 +360,9 @@ public class RouteGeneratorService {
 			}
 
 		} catch (Exception e) {
-			Log.e(TAG, "Error buscando cliente por NIF: " + e.getMessage());
+			Log.e(TAG, "Error buscando cliente por código: " + e.getMessage());
 		}
 
 		return null;
-	}
-
-	// Clase interna para datos de ruta
-	private static class RutaClienteData {
-		public int orden;
-		public String nif;
-		public String razon;
-		public String distanciaKm;
 	}
 }

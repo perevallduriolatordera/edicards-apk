@@ -16,6 +16,9 @@ import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Cliente;
+import net.ifeu.edicards.Services.Geocoding.IGeocodingStrategy;
+import net.ifeu.edicards.Services.Geocoding.LatLng;
+import net.ifeu.edicards.Services.Geocoding.OpenRouteServiceGeocodingStrategy;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.FormaPago;
@@ -33,6 +36,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import android.annotation.SuppressLint;
+import android.util.Log;
 
 
 @SuppressLint("ShowToast")
@@ -608,6 +612,9 @@ public class ParserResponse extends ParserBase {
 			int length = clientes.getLength();
 			for (int i = 0; i < length; i++) {
 
+				// Crear un nuevo cliente para cada iteración
+				cliente = Factory.build(Cliente.class, app);
+
 				Element element = (Element) clientes.item(i);
 				NodeList codigo = element.getElementsByTagName("Codigo");
 				NodeList nombre = element.getElementsByTagName("Nombre");
@@ -704,7 +711,20 @@ public class ParserResponse extends ParserBase {
 					
 					cliente.ClienteInfo.assignCCC(codigoBancoString, codigoAgenciaString, digitoControlString, numeroCuentaString, ibanString);
 					cliente.ClienteInfo.Cliente = cliente;
-				
+
+					// Geocodificar solo si el cliente está activo y no tiene coordenadas
+					if (cliente.Activo) {
+						geocodificarClienteIfNeeded(cliente);
+
+						// Añadir delay para respetar límite de rate de ORS
+						// 1.5 segundos entre geocodificaciones para evitar errores 403/429
+						try {
+							Thread.sleep(1500); // 1500ms de delay entre geocodificaciones
+						} catch (InterruptedException e) {
+							Log.w("ParserResponse", "Sleep interrumpido: " + e.getMessage());
+						}
+					}
+
 					cliente.save();
 					this.Monitor().ClienteSaveCounter++;
 
@@ -757,6 +777,32 @@ public class ParserResponse extends ParserBase {
 					cliente.ClienteInfo.assignCCC(codigoBancoString, codigoAgenciaString, digitoControlString, numeroCuentaString, ibanString);
 					cliente.ClienteInfo.Cliente = cliente;
 
+				// Cargar coordenadas existentes de BD para evitar re-geocodificar
+				try {
+					android.database.Cursor cursorCoords = app.getDatabaseOperations().executeSentence(
+						"SELECT Latitud, Longitud FROM Clientes WHERE CodigoCliente = '" + cliente.CodigoCliente + "' LIMIT 1");
+					if (cursorCoords != null && cursorCoords.getCount() > 0) {
+						cursorCoords.moveToFirst();
+						Double latBD = cursorCoords.getDouble(cursorCoords.getColumnIndex("Latitud"));
+						Double lonBD = cursorCoords.getDouble(cursorCoords.getColumnIndex("Longitud"));
+
+						// Solo cargar si son válidas (no null y no 0)
+						if (latBD != null && latBD != 0 && lonBD != null && lonBD != 0) {
+							cliente.Latitud = latBD;
+							cliente.Longitud = lonBD;
+							Log.d("ParserResponse", "⊙ COORDENADAS CARGADAS DE BD: " + cliente.CodigoCliente + " (Lat: " + latBD + ", Lon: " + lonBD + ")");
+						}
+						cursorCoords.close();
+					}
+				} catch (Exception e) {
+					Log.w("ParserResponse", "Error cargando coordenadas de BD: " + e.getMessage());
+				}
+
+					// Geocodificar solo si el cliente está activo
+					if (cliente.Activo) {
+						geocodificarClienteIfNeeded(cliente);
+					}
+
 					cliente.update();
 					
 					this.Monitor().ClienteUpdateCounter++;
@@ -802,15 +848,22 @@ public class ParserResponse extends ParserBase {
 					NodeList numDoc = element.getElementsByTagName("E0");
 					NodeList pvp = element.getElementsByTagName("E4");
 					NodeList ejercicio = element.getElementsByTagName("E5");
-	
+
 					Element codigoClienteValue = (Element) codigoCliente.item(0);
 					Element codigoArticuloValue = (Element) codigoArticulo.item(0);
 					Element unidadesValue = (Element) unidades.item(0);
 					Element numDocValue = (Element) numDoc.item(0);
 					Element pvpValue = (Element) pvp.item(0);
 					Element ejercicioValue = (Element) ejercicio.item(0);
-	
+
 					String strCodigoCliente = getCharacterDataFromElement(codigoClienteValue);
+
+					// Validar que CodigoCliente no esté vacío
+					if (strCodigoCliente == null || strCodigoCliente.trim().isEmpty()) {
+						android.util.Log.w("ParserResponse", "Depositó sin CodigoCliente válido, se omite");
+						continue;
+					}
+
 					float intUnidades = Float
 							.parseFloat(getCharacterDataFromElement(unidadesValue));
 					float dblPVP = Float
@@ -819,8 +872,8 @@ public class ParserResponse extends ParserBase {
 							.parseFloat(getCharacterDataFromElement(numDocValue));
 					String strNumDoc = String.valueOf(Math.round(dblNumDoc));
 					String strEjercicio = getCharacterDataFromElement(ejercicioValue);
-					String strCodigoArticulo = getCharacterDataFromElement(codigoArticuloValue); 
-	
+					String strCodigoArticulo = getCharacterDataFromElement(codigoArticuloValue);
+
 					if (cacheDepositos.containsKey(strCodigoCliente)) {
 						depo = cacheDepositos.get(strCodigoCliente);
 					} else {
@@ -893,4 +946,45 @@ public class ParserResponse extends ParserBase {
 		return this._monitor;
 	}
 
+	/**
+	 * Geocodifica un cliente si no tiene coordenadas
+	 * @param cliente Cliente a geocodificar
+	 */
+	private void geocodificarClienteIfNeeded(Cliente cliente) {
+		// Solo geocodificar si NO tiene coordenadas válidas (null o 0)
+		boolean needsGeocoding = (cliente.Latitud == null || cliente.Latitud == 0) &&
+								(cliente.Longitud == null || cliente.Longitud == 0);
+
+		if (needsGeocoding) {
+			try {
+				Log.i("ParserResponse", "==== GEOCODIFICANDO CLIENTE ====");
+				Log.i("ParserResponse", "Código: " + cliente.CodigoCliente);
+				Log.i("ParserResponse", "Nombre: " + cliente.Nombre);
+				Log.i("ParserResponse", "Dirección: " + cliente.Direccion1);
+				Log.i("ParserResponse", "Población: " + cliente.Poblacion);
+
+				IGeocodingStrategy geocodingStrategy = new OpenRouteServiceGeocodingStrategy();
+				LatLng coordinates = geocodingStrategy.geocodeAddress(
+					cliente.Direccion1,
+					cliente.Poblacion,
+					cliente.Provincia,
+					cliente.CodigoPostal
+				);
+
+				if (coordinates != null) {
+					cliente.Latitud = coordinates.getLatitude();
+					cliente.Longitud = coordinates.getLongitude();
+					cliente.FechaGeocodificacion = new Date();
+					Log.d("ParserResponse", "✓ GEOCODIFICADO - Lat: " + cliente.Latitud + ", Lon: " + cliente.Longitud);
+				} else {
+					Log.w("ParserResponse", "✗ NO ENCONTRADAS COORDS: " + cliente.CodigoCliente);
+				}
+			} catch (Exception e) {
+				Log.w("ParserResponse", "✗ ERROR: " + cliente.CodigoCliente + " - " + e.getMessage());
+				e.printStackTrace();
+			}
+		} else {
+			Log.d("ParserResponse", "⊙ CLIENTE YA GEOCODIFICADO: " + cliente.CodigoCliente + " (Lat: " + cliente.Latitud + ", Lon: " + cliente.Longitud + ")");
+	}
+}
 }
