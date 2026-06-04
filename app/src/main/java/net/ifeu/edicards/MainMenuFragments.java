@@ -35,6 +35,8 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener, 
 	public static final String TAB_CLOSE_CAPTION = "Cerrar";
 	public static final String TAB_SINCRO = "sincro";
 	public static final String TAB_SINCRO_CAPTION = "Herramientas";
+	public static final String TAB_RUTAS = "rutas";
+	public static final String TAB_RUTAS_CAPTION = "Rutas";
 
 	private View _root;
 	private TabHost _tabHost;
@@ -77,6 +79,7 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener, 
 		_tabHost.addTab(newTab(TAB_DIETAS, TAB_DIETAS_CAPTION, R.id.tab_2));
 		_tabHost.addTab(newTab(TAB_CLIENTES, TAB_CLIENTES_CAPTION, R.id.tab_4));
 		_tabHost.addTab(newTab(TAB_ARTICULOS, TAB_ARTICULOS_CAPTION, R.id.tab_5));
+		_tabHost.addTab(newTab(TAB_RUTAS, TAB_RUTAS_CAPTION, R.id.tab_9));
 		_tabHost.addTab(newTab(TAB_SINCRO, TAB_SINCRO_CAPTION, R.id.tab_11));
 		_tabHost.addTab(newTab(TAB_CLOSE, TAB_CLOSE_CAPTION, R.id.tab_8));
 
@@ -138,6 +141,12 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener, 
 		if (TAB_CLOSE.equals(tabId)) {
 			updateTab(tabId, null);
 			_currentTab = 8;
+			return;
+		}
+
+		if (TAB_RUTAS.equals(tabId)) {
+			updateTab(tabId, RutasViewerFragment.class);
+			_currentTab = 7;
 			return;
 		}
 
