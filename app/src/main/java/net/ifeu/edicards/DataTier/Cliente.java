@@ -41,6 +41,8 @@ public class Cliente extends Persistent implements IPersistable {
 	public String CodigoTarifa;
 	public ClienteInfo ClienteInfo;
 	public FormaPago FormaPago;
+	public Double Latitud;
+	public Double Longitud;
 	public String NIFPrevious;
 	public String RazonPrevious;
 	public String NombrePrevious;
