@@ -549,6 +549,9 @@ public class DatabaseOperations {
 						                                  + "Filiacion text, "
 						                                  + "IdFormaPago integer, "
 						                                  + "CodigoTarifa integer, "
+						                                  + "Latitud real, "
+						                                  + "Longitud real, "
+						                                  + "FechaGeocodificacion datetime, "
 														  + "Nombre text not null);");
 															
 			} 
@@ -1117,6 +1120,8 @@ public class DatabaseOperations {
 	}
 
 	private void alterStructure()  {
+		addGeocodingColumnsIfNecessary();
+
 		if (_databaseConnection.getDatabase().isOpen())
 		{
 			try {
@@ -1162,5 +1167,34 @@ public class DatabaseOperations {
 		}
 		
 	}
-	
+
+	// Agregar columnas de geocodificación a tabla Clientes
+	private void addGeocodingColumnsIfNecessary() {
+		if (_databaseConnection.getDatabase().isOpen()) {
+			try {
+				_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_CLIENTES + " ADD COLUMN Latitud real default null ");
+			}
+			catch (Exception e) {
+				if (!e.getMessage().startsWith("duplicate column name"))
+					throw new RuntimeException(e);
+			}
+
+			try {
+				_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_CLIENTES + " ADD COLUMN Longitud real default null ");
+			}
+			catch (Exception e) {
+				if (!e.getMessage().startsWith("duplicate column name"))
+					throw new RuntimeException(e);
+			}
+
+			try {
+				_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_CLIENTES + " ADD COLUMN FechaGeocodificacion datetime default null ");
+			}
+			catch (Exception e) {
+				if (!e.getMessage().startsWith("duplicate column name"))
+					throw new RuntimeException(e);
+			}
+		}
+	}
+
 }
