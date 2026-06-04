@@ -1,5 +1,12 @@
 apply plugin: 'com.android.application'
 
+// Leer local.properties
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.newDataInputStream())
+}
+
 android {
     compileSdkVersion 26
     buildToolsVersion "29.0.2"
@@ -16,6 +23,10 @@ android {
         minSdkVersion 24
         targetSdkVersion 26
         multiDexEnabled true
+
+        // Inyectar ORS_API_KEY desde local.properties como BuildConfig
+        def orsApiKey = localProperties.getProperty('ors.api.key', '')
+        buildConfigField "String", "ORS_API_KEY", "\"${orsApiKey}\""
     }
 
     buildTypes {

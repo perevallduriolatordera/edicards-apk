@@ -36,11 +36,10 @@ public class ConstantsEndpoints {
     public static final String CHATGPT_MODEL = "gpt-3.5-turbo";
 
     // OpenRouteService API
-    // IMPORTANTE: La API key se obtiene desde variable de entorno ORS_API_KEY
+    // IMPORTANTE: La API key se obtiene desde BuildConfig (inyectada desde local.properties en build.gradle)
     // Guardada en base64 con formato JSON: {"org":"...","id":"...","h":"..."}
     // La estrategia de geocoding extrae automáticamente el campo "id"
-    public static final String ORS_API_KEY = System.getenv("ORS_API_KEY") != null ?
-        System.getenv("ORS_API_KEY") : "";
+    public static String ORS_API_KEY = null; // Se inicializa en AppConfig
     public static final String ORS_GEOCODING_URL = "https://api.openrouteservice.org/geocode/search";
     public static final String ORS_MATRIX_URL = "https://api.openrouteservice.org/v2/matrix/driving";
 

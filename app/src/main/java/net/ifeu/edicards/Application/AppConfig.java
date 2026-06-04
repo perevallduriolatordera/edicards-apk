@@ -12,6 +12,7 @@ import android.util.Log;
 import com.androidnetworking.AndroidNetworking;
 
 import net.ifeu.edicards.Cache.CacheData;
+import net.ifeu.edicards.Constants.ConstantsEndpoints;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.User;
 import net.ifeu.edicards.DatabaseOperations.DatabaseOperations;
@@ -108,6 +109,14 @@ public class AppConfig extends Application {
 					.build();
 
 			AndroidNetworking.initialize(getApplicationContext());
+
+			// Inicializar ORS_API_KEY desde BuildConfig
+			ConstantsEndpoints.ORS_API_KEY = BuildConfig.ORS_API_KEY;
+			if (ConstantsEndpoints.ORS_API_KEY != null && !ConstantsEndpoints.ORS_API_KEY.isEmpty()) {
+				Log.d("AppConfig", "ORS API Key inicializada correctamente");
+			} else {
+				Log.w("AppConfig", "Advertencia: ORS_API_KEY no está configurada en local.properties");
+			}
 
 		} catch (Exception ex) {
 			Log.e("App Edicards", "Error: " + ex.getMessage());
