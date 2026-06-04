@@ -189,47 +189,47 @@ public class MainActivity extends Activity {
 						sendData();
 
 						// Verificar y solicitar ciudad base si es necesario
-						that.verifyCiudadVendedor();
+						that.verifyCiudadVendedor(() -> {
+							that._appConfig.getWorkingArea().Monitor = that._serviceWorker.Monitor();
 
-						that._appConfig.getWorkingArea().Monitor = that._serviceWorker.Monitor();
+							if (progressDialog != null && progressDialog.isShowing()) {
+								runOnUiThread(() -> {
+									progressDialog.dismiss();
 
-						if (progressDialog != null && progressDialog.isShowing()) {
-							runOnUiThread(() -> {
-								progressDialog.dismiss();
-								
-								// Mostrar errores si los hay, pero continuar al menú principal
-								StringBuilder allErrors = new StringBuilder();
-								boolean hasImportErrors = that._importResult != null && !that._importResult.isSuccess();
-								boolean hasExportErrors = that._exportResult != null && !that._exportResult.isSuccess();
-								
-								if (hasImportErrors || hasExportErrors) {
-									if (hasImportErrors) {
-										allErrors.append("ERRORES DE IMPORTACIÓN:\n");
-										for (String error : that._importResult.getErrorMessages()) {
-											allErrors.append("• ").append(error).append("\n");
+									// Mostrar errores si los hay, pero continuar al menú principal
+									StringBuilder allErrors = new StringBuilder();
+									boolean hasImportErrors = that._importResult != null && !that._importResult.isSuccess();
+									boolean hasExportErrors = that._exportResult != null && !that._exportResult.isSuccess();
+
+									if (hasImportErrors || hasExportErrors) {
+										if (hasImportErrors) {
+											allErrors.append("ERRORES DE IMPORTACIÓN:\n");
+											for (String error : that._importResult.getErrorMessages()) {
+												allErrors.append("• ").append(error).append("\n");
+											}
+											allErrors.append("\n");
 										}
-										allErrors.append("\n");
-									}
-									
-									if (hasExportErrors) {
-										allErrors.append("ERRORES DE EXPORTACIÓN:\n");
-										for (String error : that._exportResult.getErrorMessages()) {
-											allErrors.append("• ").append(error).append("\n");
+
+										if (hasExportErrors) {
+											allErrors.append("ERRORES DE EXPORTACIÓN:\n");
+											for (String error : that._exportResult.getErrorMessages()) {
+												allErrors.append("• ").append(error).append("\n");
+											}
+											allErrors.append("\n");
 										}
-										allErrors.append("\n");
+
+										allErrors.append("La aplicación funcionará normalmente pero algunos procesos pueden no haberse completado correctamente.");
+
+										that._appConfig.getMessageBox().ShowModalWithOk("Advertencia - Errores de Sincronización",
+												allErrors.toString(),
+												that, MessageBoxType.Error);
 									}
-									
-									allErrors.append("La aplicación funcionará normalmente pero algunos procesos pueden no haberse completado correctamente.");
-									
-									that._appConfig.getMessageBox().ShowModalWithOk("Advertencia - Errores de Sincronización",
-											allErrors.toString(),
-											that, MessageBoxType.Error);
-								}
-								
-								Intent intent = new Intent(MainActivity.this, MainMenu.class);
-								startActivity(intent);
-							});
-						}
+
+									Intent intent = new Intent(MainActivity.this, MainMenu.class);
+									startActivity(intent);
+								});
+							}
+						});
 
 					} catch (Exception e) {
 						// Manejar el error correctamente o mostrar un mensaje al usuario
@@ -403,7 +403,7 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	private void verifyCiudadVendedor() {
+	private void verifyCiudadVendedor(Runnable onComplete) {
 		try {
 			CiudadVendedor ciudad = Factory.build(CiudadVendedor.class, _appConfig);
 
@@ -442,11 +442,25 @@ public class MainActivity extends Activity {
 							);
 						}
 					}
+
+					// Ejecutar el callback después de completar la entrada
+					if (onComplete != null) {
+						onComplete.run();
+					}
 				});
+			} else {
+				// Si ya existe, ejecutar el callback inmediatamente
+				if (onComplete != null) {
+					onComplete.run();
+				}
 			}
 		} catch (Exception e) {
 			// Log error pero no bloquear el flujo principal
 			android.util.Log.e("MainActivity", "Error verificando ciudad base: " + e.getMessage());
+			// Ejecutar callback aunque haya error
+			if (onComplete != null) {
+				onComplete.run();
+			}
 		}
 	}
 }
