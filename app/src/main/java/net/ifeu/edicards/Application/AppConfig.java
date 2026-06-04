@@ -11,6 +11,7 @@ import android.util.Log;
 
 import com.androidnetworking.AndroidNetworking;
 
+import net.ifeu.edicards.BuildConfig;
 import net.ifeu.edicards.Cache.CacheData;
 import net.ifeu.edicards.Constants.ConstantsEndpoints;
 import net.ifeu.edicards.Constants.ConstantsTypes;
