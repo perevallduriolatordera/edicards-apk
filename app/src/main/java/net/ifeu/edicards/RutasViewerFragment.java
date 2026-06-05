@@ -31,6 +31,7 @@ public class RutasViewerFragment extends Fragment {
 	private List<RutaGenerada> rutaActual;
 	private Button btnRegenerarRuta;
 	private Button btnLimpiarCoordenadas;
+	private Button btnExportarExcel;
 	private TextView lblFechaGeneracion;
 	private TextView lblTotalClientes;
 
@@ -54,6 +55,7 @@ public class RutasViewerFragment extends Fragment {
 		// Inicializar componentes
 		listViewRutas = (ListView) getActivity().findViewById(R.id.listViewRutas);
 		btnRegenerarRuta = (Button) getActivity().findViewById(R.id.btnRegenerarRuta);
+		btnExportarExcel = (Button) getActivity().findViewById(R.id.btnExportarExcel);
 		btnLimpiarCoordenadas = (Button) getActivity().findViewById(R.id.btnLimpiarCoordenadas);
 		lblFechaGeneracion = (TextView) getActivity().findViewById(R.id.lblFechaGeneracion);
 		lblTotalClientes = (TextView) getActivity().findViewById(R.id.lblTotalClientes);
@@ -65,6 +67,13 @@ public class RutasViewerFragment extends Fragment {
 		btnRegenerarRuta.setOnClickListener(view -> {
 			solicitarPasswordYRegenerar();
 		});
+
+		// Botón exportar a Excel
+		if (btnExportarExcel != null) {
+			btnExportarExcel.setOnClickListener(view -> {
+				exportarRutaAExcel();
+			});
+		}
 
 		// Botón limpiar coordenadas (solo visible en debug/testing)
 		if (btnLimpiarCoordenadas != null) {
@@ -250,6 +259,52 @@ public class RutasViewerFragment extends Fragment {
 					progressDialog.dismiss();
 					app.getMessageBox().Show("Error",
 						"Error: " + e.getMessage(),
+						getActivity(), MessageBoxType.Error);
+				});
+			}
+		}).start();
+	}
+
+	private void exportarRutaAExcel() {
+		if (rutaActual == null || rutaActual.isEmpty()) {
+			app.getMessageBox().Show("Error",
+				"No hay ruta para exportar",
+				getActivity(), MessageBoxType.Error);
+			return;
+		}
+
+		// Mostrar progress dialog
+		final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+		progressDialog.setMessage("Exportando ruta a Excel...");
+		progressDialog.setCancelable(false);
+		progressDialog.show();
+
+		// Ejecutar en background
+		new Thread(() -> {
+			try {
+				ExportToExcelService exportService = new ExportToExcelService();
+				String rutaArchivo = exportService.exportRutasToExcel(rutaActual);
+
+				// Actualizar UI en main thread
+				getActivity().runOnUiThread(() -> {
+					progressDialog.dismiss();
+
+					if (rutaArchivo != null) {
+						app.getMessageBox().Show("Éxito",
+							"Ruta exportada correctamente a:\n" + rutaArchivo,
+							getActivity(), MessageBoxType.Ok);
+					} else {
+						app.getMessageBox().Show("Error",
+							"No se pudo exportar la ruta",
+							getActivity(), MessageBoxType.Error);
+					}
+				});
+
+			} catch (Exception e) {
+				getActivity().runOnUiThread(() -> {
+					progressDialog.dismiss();
+					app.getMessageBox().Show("Error",
+						"Error exportando a Excel: " + e.getMessage(),
 						getActivity(), MessageBoxType.Error);
 				});
 			}

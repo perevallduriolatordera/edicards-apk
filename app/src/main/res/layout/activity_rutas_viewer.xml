@@ -87,6 +87,19 @@
             android:layout_marginBottom="8dp"/>
 
         <Button
+            android:id="@+id/btnExportarExcel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Exportar a Excel"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:background="#4CAF50"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="8dp"/>
+
+        <Button
             android:id="@+id/btnLimpiarCoordenadas"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

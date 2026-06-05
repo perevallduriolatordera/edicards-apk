@@ -145,7 +145,7 @@ public class Cliente extends Persistent implements IPersistable {
 
 		String[] whereArgs = { String.valueOf(this.IdCliente) }; 
 		
-			super.getDatabaseOperations().update(ConstantsDatabase.TABLE_CLIENTES, values, "IdCliente = ?", whereArgs);
+		super.getDatabaseOperations().update(ConstantsDatabase.TABLE_CLIENTES, values, "IdCliente = ?", whereArgs);
 
 	    if (this.ClienteInfo.ExistsClienteInfoByCliente(this))
 	    	this.ClienteInfo.update();
