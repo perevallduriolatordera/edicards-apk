@@ -12,7 +12,6 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.util.CellRangeAddress;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -146,12 +145,13 @@ public class ExportToExcelService {
 		// Nombres de columnas
 		String[] headers = {
 			"Orden",
-			"Código Cliente",
-			"NIF",
-			"Razón Social",
-			"Nombre",
+			"Codigo Cliente",
+			"Nombre Cliente",
+			"Direccion",
+			"Poblacion",
+			"Provincia",
 			"Distancia (km)",
-			"Fecha Generación"
+			"Fecha Generacion"
 		};
 
 		for (int i = 0; i < headers.length; i++) {
@@ -169,38 +169,42 @@ public class ExportToExcelService {
 
 		// Orden
 		Cell cellOrden = row.createCell(cellNum++);
-		cellOrden.setCellValue(ruta.Orden != null ? ruta.Orden : "");
+		cellOrden.setCellValue(ruta.OrdenVisita);
 
-		// Código Cliente
+		// Codigo Cliente
 		Cell cellCodigo = row.createCell(cellNum++);
 		cellCodigo.setCellValue(ruta.CodigoCliente != null ? ruta.CodigoCliente : "");
 
-		// NIF
-		Cell cellNif = row.createCell(cellNum++);
-		cellNif.setCellValue(ruta.NIF != null ? ruta.NIF : "");
-
-		// Razón Social
-		Cell cellRazon = row.createCell(cellNum++);
-		cellRazon.setCellValue(ruta.Razon != null ? ruta.Razon : "");
-
-		// Nombre
+		// Nombre Cliente
 		Cell cellNombre = row.createCell(cellNum++);
-		cellNombre.setCellValue(ruta.Nombre != null ? ruta.Nombre : "");
+		cellNombre.setCellValue(ruta.NombreCliente != null ? ruta.NombreCliente : "");
+
+		// Direccion
+		Cell cellDireccion = row.createCell(cellNum++);
+		cellDireccion.setCellValue(ruta.DireccionCliente != null ? ruta.DireccionCliente : "");
+
+		// Poblacion
+		Cell cellPoblacion = row.createCell(cellNum++);
+		cellPoblacion.setCellValue(ruta.PoblacionCliente != null ? ruta.PoblacionCliente : "");
+
+		// Provincia
+		Cell cellProvincia = row.createCell(cellNum++);
+		cellProvincia.setCellValue(ruta.ProvinciaCliente != null ? ruta.ProvinciaCliente : "");
 
 		// Distancia
 		Cell cellDistancia = row.createCell(cellNum++);
-		cellDistancia.setCellValue(ruta.DistanciaKm != null ? ruta.DistanciaKm : "");
+		cellDistancia.setCellValue(ruta.DistanciaEstimada != null ? ruta.DistanciaEstimada : "");
 
-		// Fecha Generación
+		// Fecha Generacion
 		Cell cellFecha = row.createCell(cellNum++);
 		cellFecha.setCellValue(ruta.FechaGeneracion != null ? ruta.FechaGeneracion.toString() : "");
 	}
 
 	/**
-	 * Ajusta automáticamente el ancho de las columnas
+	 * Ajusta automaticamente el ancho de las columnas
 	 */
 	private void autoResizeColumns(Sheet sheet) {
-		for (int i = 0; i < 7; i++) {
+		for (int i = 0; i < 8; i++) {
 			sheet.autoSizeColumn(i);
 		}
 	}
