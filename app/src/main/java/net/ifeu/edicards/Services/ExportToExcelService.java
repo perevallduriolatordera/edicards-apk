@@ -67,7 +67,7 @@ public class ExportToExcelService {
 			}
 
 			// Ajustar ancho de columnas
-			autoResizeColumns(sheet);
+			setFixedColumnWidths(sheet);
 
 			// Guardar archivo
 			FileOutputStream fos = new FileOutputStream(outputFile);
@@ -201,11 +201,18 @@ public class ExportToExcelService {
 	}
 
 	/**
-	 * Ajusta automaticamente el ancho de las columnas
+	 * Establece anchos fijos para las columnas
+	 * Evita usar autoSizeColumn() que depende de AWT (no disponible en Android)
 	 */
-	private void autoResizeColumns(Sheet sheet) {
-		for (int i = 0; i < 8; i++) {
-			sheet.autoSizeColumn(i);
-		}
+	private void setFixedColumnWidths(Sheet sheet) {
+		// Establecer anchos fijos para cada columna (en unidades de 1/256 de ancho de carácter)
+		sheet.setColumnWidth(0, 8 * 256);    // Orden
+		sheet.setColumnWidth(1, 15 * 256);   // Codigo Cliente
+		sheet.setColumnWidth(2, 20 * 256);   // Nombre Cliente
+		sheet.setColumnWidth(3, 25 * 256);   // Direccion
+		sheet.setColumnWidth(4, 15 * 256);   // Poblacion
+		sheet.setColumnWidth(5, 15 * 256);   // Provincia
+		sheet.setColumnWidth(6, 15 * 256);   // Distancia
+		sheet.setColumnWidth(7, 18 * 256);   // Fecha Generacion
 	}
 }
