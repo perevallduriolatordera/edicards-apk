@@ -74,7 +74,6 @@ public class ExportToExcelService {
 			FileOutputStream fos = new FileOutputStream(outputFile);
 			workbook.write(fos);
 			fos.close();
-			workbook.close();
 
 			Log.i(TAG, "Archivo Excel creado exitosamente: " + outputFile.getAbsolutePath());
 			return outputFile.getAbsolutePath();
