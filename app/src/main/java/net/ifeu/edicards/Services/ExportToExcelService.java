@@ -137,7 +137,7 @@ public class ExportToExcelService {
 		// Crear estilo para encabezados
 		CellStyle headerStyle = workbook.createCellStyle();
 		Font headerFont = workbook.createFont();
-		headerFont.setBold(true);
+		headerFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
 		headerFont.setColor((short) 255); // Blanco
 		headerStyle.setFont(headerFont);
 		headerStyle.setFillForegroundColor((short) 64); // Azul oscuro
