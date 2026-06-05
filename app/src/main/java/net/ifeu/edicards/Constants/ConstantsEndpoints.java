@@ -41,7 +41,7 @@ public class ConstantsEndpoints {
     // La estrategia de geocoding extrae automáticamente el campo "id"
     public static String ORS_API_KEY = null; // Se inicializa en AppConfig
     public static final String ORS_GEOCODING_URL = "https://api.openrouteservice.org/geocode/search";
-    public static final String ORS_MATRIX_URL = "https://api.openrouteservice.org/v2/matrix/driving";
+    public static final String ORS_MATRIX_URL = "https://api.openrouteservice.org/v2/matrix/driving-car";
 
     public static final int WS_PAGINACION = 500;
     public static final int WS_MAX_INTENTOS = 500;
