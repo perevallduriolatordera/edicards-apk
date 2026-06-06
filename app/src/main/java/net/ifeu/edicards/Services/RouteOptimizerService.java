@@ -61,7 +61,7 @@ public class RouteOptimizerService {
 
             // Si hay pocos clientes, procesarlos todos juntos
             if (clientes.size() <= MAX_LOCATIONS_PER_REQUEST) {
-                return optimizeRouteBatch(clientes, baseLocation, 0);
+                return optimizeRouteBatch(clientes, baseLocation, 0, 0);
             }
 
             // Si hay muchos clientes, pre-ordenar por proximidad antes de dividir en lotes
@@ -84,7 +84,10 @@ public class RouteOptimizerService {
                 Log.d(TAG, "Procesando lote " + ((i / MAX_LOCATIONS_PER_REQUEST) + 1) + ": clientes " + i + " a " + (fin - 1));
 
                 // Pasar el orden inicial correcto para este lote
-                ArrayList<RutaClienteData> rutaLote = optimizeRouteBatch(lote, baseLocation, orden - 1);
+                // Si no hay cliente anterior (primer lote), empezar desde base (índice 0)
+                // Si hay cliente anterior, empezar desde primer cliente del lote (índice 1, ya reordenado)
+                int startingIndex = (clienteAnterior != null) ? 1 : 0;
+                ArrayList<RutaClienteData> rutaLote = optimizeRouteBatch(lote, baseLocation, orden - 1, startingIndex);
 
                 if (rutaLote != null) {
                     for (RutaClienteData ruta : rutaLote) {
@@ -135,8 +138,13 @@ public class RouteOptimizerService {
 
     /**
      * Optimiza una ruta para un lote de clientes (máximo 99 clientes)
+     *
+     * @param loteClientes Lista de clientes del lote
+     * @param baseLocation Ubicación de la base
+     * @param ordenInicial Número de orden inicial para este lote
+     * @param startingLocationIndex Índice de location en donde comenzar el NN TSP (0 = base, 1+ = primer cliente del lote, etc.)
      */
-    private ArrayList<RutaClienteData> optimizeRouteBatch(ArrayList<Cliente> loteClientes, LatLng baseLocation, int ordenInicial) throws Exception {
+    private ArrayList<RutaClienteData> optimizeRouteBatch(ArrayList<Cliente> loteClientes, LatLng baseLocation, int ordenInicial, int startingLocationIndex) throws Exception {
         try {
             // 1. Construir lista de coordenadas (incluye base al inicio)
             ArrayList<LatLng> locations = new ArrayList<>();
@@ -144,6 +152,7 @@ public class RouteOptimizerService {
 
             Log.d(TAG, "=== INICIANDO OPTIMIZACIÓN DE LOTE ===");
             Log.d(TAG, "Base location (índice 0): " + baseLocation.toString());
+            Log.d(TAG, "Punto de inicio para NN TSP: índice " + startingLocationIndex + (startingLocationIndex == 0 ? " (BASE)" : " (PRIMER CLIENTE DEL LOTE)"));
 
             for (Cliente cliente : loteClientes) {
                 if (cliente.Latitud != null && cliente.Longitud != null) {
@@ -165,7 +174,8 @@ public class RouteOptimizerService {
             }
 
             // 3. Aplicar algoritmo Nearest Neighbor TSP para optimizar ruta
-            ArrayList<Integer> optimizedIndices = nearestNeighborTSP(distanceMatrix, 0);
+            // Comenzar desde el índice especificado (base para primer lote, primer cliente para lotes posteriores)
+            ArrayList<Integer> optimizedIndices = nearestNeighborTSP(distanceMatrix, startingLocationIndex);
 
             if (optimizedIndices == null || optimizedIndices.isEmpty()) {
                 Log.e(TAG, "No se pudo calcular ruta optimizada para lote");
