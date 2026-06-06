@@ -64,12 +64,22 @@ public class RouteOptimizerService {
                 return optimizeRouteBatch(clientes, baseLocation, 0);
             }
 
-            // Si hay muchos clientes, dividir en lotes
-            Log.i(TAG, "Dividiendo " + clientes.size() + " clientes en lotes de máximo " + MAX_LOCATIONS_PER_REQUEST);
+            // Si hay muchos clientes, pre-ordenar por proximidad antes de dividir en lotes
+            Log.i(TAG, "Pre-ordenando " + clientes.size() + " clientes por proximidad geográfica...");
+            ArrayList<Cliente> clientesOrdenados = preOrderClientsByProximity(clientes, baseLocation);
 
-            for (int i = 0; i < clientes.size(); i += MAX_LOCATIONS_PER_REQUEST) {
-                int fin = Math.min(i + MAX_LOCATIONS_PER_REQUEST, clientes.size());
-                ArrayList<Cliente> lote = new ArrayList<>(clientes.subList(i, fin));
+            Log.i(TAG, "Dividiendo " + clientesOrdenados.size() + " clientes PRE-ORDENADOS en lotes de máximo " + MAX_LOCATIONS_PER_REQUEST);
+
+            // Procesar lotes PRE-ORDENADOS (ahora están geográficamente agrupados)
+            Cliente clienteAnterior = null;
+            for (int i = 0; i < clientesOrdenados.size(); i += MAX_LOCATIONS_PER_REQUEST) {
+                int fin = Math.min(i + MAX_LOCATIONS_PER_REQUEST, clientesOrdenados.size());
+                ArrayList<Cliente> lote = new ArrayList<>(clientesOrdenados.subList(i, fin));
+
+                // Si no es el primer lote, reordenar para conectar con el cliente anterior
+                if (clienteAnterior != null && lote.size() > 1) {
+                    lote = reordenarLoteParaConectar(lote, clienteAnterior);
+                }
 
                 Log.d(TAG, "Procesando lote " + ((i / MAX_LOCATIONS_PER_REQUEST) + 1) + ": clientes " + i + " a " + (fin - 1));
 
@@ -81,6 +91,17 @@ public class RouteOptimizerService {
                         rutaCompleta.add(ruta);
                         // Actualizar orden para el siguiente lote
                         orden = ruta.orden + 1;
+                    }
+                    // Guardar el último cliente procesado para conectar el siguiente lote
+                    if (!rutaLote.isEmpty()) {
+                        RutaClienteData ultimoRuta = rutaLote.get(rutaLote.size() - 1);
+                        // Buscar el cliente correspondiente
+                        for (Cliente c : lote) {
+                            if (c.CodigoCliente.equals(ultimoRuta.codigoCliente)) {
+                                clienteAnterior = c;
+                                break;
+                            }
+                        }
                     }
                 } else {
                     Log.w(TAG, "No se pudo optimizar lote " + ((i / MAX_LOCATIONS_PER_REQUEST) + 1));
@@ -480,6 +501,150 @@ public class RouteOptimizerService {
 
         // Si no es base64 o no se pudo decodificar, retornar la clave original
         return apiKey;
+    }
+
+    /**
+     * Reordena un lote para conectar inteligentemente con el cliente anterior
+     * Busca el cliente del lote más cercano al cliente anterior y lo coloca al inicio
+     */
+    private ArrayList<Cliente> reordenarLoteParaConectar(ArrayList<Cliente> lote, Cliente clienteAnterior) {
+        try {
+            if (clienteAnterior.Latitud == null || clienteAnterior.Longitud == null ||
+                lote.isEmpty()) {
+                return lote;
+            }
+
+            // Calcular distancia desde el cliente anterior a cada cliente del lote
+            int mejorIndice = 0;
+            double mejorDistancia = Double.MAX_VALUE;
+
+            LatLng locAnterior = new LatLng(clienteAnterior.Latitud, clienteAnterior.Longitud);
+
+            for (int i = 0; i < lote.size(); i++) {
+                Cliente cliente = lote.get(i);
+                if (cliente.Latitud != null && cliente.Longitud != null) {
+                    LatLng locActual = new LatLng(cliente.Latitud, cliente.Longitud);
+                    double distancia = calcularDistanciaHaversine(locAnterior, locActual);
+
+                    if (distancia < mejorDistancia) {
+                        mejorDistancia = distancia;
+                        mejorIndice = i;
+                    }
+                }
+            }
+
+            // Si el mejor cliente no es el primero, reordenar
+            if (mejorIndice != 0) {
+                Cliente clienteMejor = lote.remove(mejorIndice);
+                lote.add(0, clienteMejor);
+                Log.d(TAG, "Lote reordenado: cliente más cercano al anterior está a " + String.format("%.1f km", mejorDistancia / 1000.0));
+            }
+
+            return lote;
+
+        } catch (Exception e) {
+            Log.w(TAG, "Error reordenando lote: " + e.getMessage());
+            return lote;
+        }
+    }
+
+    /**
+     * Calcula distancia Haversine entre dos puntos en metros
+     */
+    private double calcularDistanciaHaversine(LatLng loc1, LatLng loc2) {
+        final int RADIO_TIERRA = 6371000; // metros
+        double lat1 = Math.toRadians(loc1.getLatitude());
+        double lat2 = Math.toRadians(loc2.getLatitude());
+        double deltaLat = Math.toRadians(loc2.getLatitude() - loc1.getLatitude());
+        double deltaLon = Math.toRadians(loc2.getLongitude() - loc1.getLongitude());
+
+        double a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+                Math.cos(lat1) * Math.cos(lat2) *
+                        Math.sin(deltaLon / 2) * Math.sin(deltaLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return RADIO_TIERRA * c;
+    }
+
+    /**
+     * Pre-ordena clientes por proximidad geográfica usando Nearest Neighbor greedy
+     * Esto agrupa geográficamente los clientes ANTES de dividir en lotes de 50
+     * Minimiza los saltos entre lotes
+     */
+    private ArrayList<Cliente> preOrderClientsByProximity(ArrayList<Cliente> clientes, LatLng baseLocation) throws Exception {
+        if (clientes.size() <= 1) {
+            return clientes;
+        }
+
+        try {
+            Log.i(TAG, "Calculando matriz de distancias para " + (clientes.size() + 1) + " localizaciones (incluida base)");
+
+            // 1. Construir lista de coordenadas (incluye base al inicio)
+            ArrayList<LatLng> locations = new ArrayList<>();
+            locations.add(baseLocation); // Índice 0 = base
+            for (Cliente cliente : clientes) {
+                locations.add(new LatLng(cliente.Latitud, cliente.Longitud));
+            }
+
+            // 2. Obtener matriz de distancias
+            double[][] distanceMatrix = getDistanceMatrix(locations);
+            if (distanceMatrix == null) {
+                Log.w(TAG, "No se pudo obtener matriz de distancias, usando orden original");
+                return clientes;
+            }
+
+            Log.i(TAG, "Aplicando algoritmo Nearest Neighbor para pre-ordenamiento...");
+
+            // 3. Usar Nearest Neighbor desde la base para pre-ordenar
+            ArrayList<Integer> orderedIndices = new ArrayList<>();
+            boolean[] visited = new boolean[locations.size()];
+            int currentIndex = 0; // Comenzar desde la base
+            visited[0] = true;
+
+            // Agregar índices de clientes ordenados por proximidad
+            for (int i = 1; i < locations.size(); i++) {
+                int nextIndex = -1;
+                double minDistance = Double.MAX_VALUE;
+
+                // Buscar el cliente no visitado más cercano
+                for (int j = 1; j < locations.size(); j++) {
+                    if (!visited[j] && distanceMatrix[currentIndex][j] < minDistance) {
+                        minDistance = distanceMatrix[currentIndex][j];
+                        nextIndex = j;
+                    }
+                }
+
+                if (nextIndex >= 0) {
+                    orderedIndices.add(nextIndex);
+                    visited[nextIndex] = true;
+                    currentIndex = nextIndex;
+
+                    // Log cada 50 clientes
+                    if (i % 50 == 0) {
+                        Log.d(TAG, "Pre-ordenados " + i + " clientes, próximo a " + minDistance / 1000.0 + " km");
+                    }
+                } else {
+                    Log.w(TAG, "Error: no se pudo encontrar siguiente cliente");
+                    break;
+                }
+            }
+
+            Log.i(TAG, "Pre-ordenamiento completo. Total clientes ordenados: " + orderedIndices.size());
+
+            // 4. Reconstruir lista de clientes en nuevo orden
+            ArrayList<Cliente> clientesOrdenados = new ArrayList<>();
+            for (int idx : orderedIndices) {
+                clientesOrdenados.add(clientes.get(idx - 1)); // -1 porque índice 0 es la base
+            }
+
+            return clientesOrdenados;
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error en pre-ordenamiento por proximidad: " + e.getMessage());
+            e.printStackTrace();
+            // Retornar orden original en caso de error
+            return clientes;
+        }
     }
 
     /**
