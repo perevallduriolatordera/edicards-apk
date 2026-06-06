@@ -577,9 +577,39 @@ public class RouteOptimizerService {
     }
 
     /**
+     * Calcula matriz de distancias usando Haversine (no requiere API)
+     * Útil para pre-ordenamiento cuando hay muchas ubicaciones (> 60)
+     *
+     * @param locations Lista de ubicaciones
+     * @return Matriz de distancias en metros
+     */
+    private double[][] calculateHaversineDistanceMatrix(ArrayList<LatLng> locations) {
+        int size = locations.size();
+        double[][] matrix = new double[size][size];
+
+        Log.d(TAG, "Calculando matriz de distancias Haversine para " + size + " ubicaciones (local, sin API)");
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if (i == j) {
+                    matrix[i][j] = 0;
+                } else {
+                    matrix[i][j] = calcularDistanciaHaversine(locations.get(i), locations.get(j));
+                }
+            }
+        }
+
+        Log.d(TAG, "Matriz Haversine " + size + "x" + size + " calculada");
+        return matrix;
+    }
+
+    /**
      * Pre-ordena clientes por proximidad geográfica usando Nearest Neighbor greedy
      * Esto agrupa geográficamente los clientes ANTES de dividir en lotes de 50
      * Minimiza los saltos entre lotes
+     *
+     * NOTA: Usa Haversine en lugar de ORS para evitar límite de 60 ubicaciones
+     * Haversine es suficientemente exacto para pre-ordenamiento geográfico
      */
     private ArrayList<Cliente> preOrderClientsByProximity(ArrayList<Cliente> clientes, LatLng baseLocation) throws Exception {
         if (clientes.size() <= 1) {
@@ -587,23 +617,27 @@ public class RouteOptimizerService {
         }
 
         try {
-            Log.i(TAG, "Calculando matriz de distancias para " + (clientes.size() + 1) + " localizaciones (incluida base)");
+            Log.i(TAG, "Pre-ordenando " + clientes.size() + " clientes usando distancia Haversine (local, sin API)");
 
             // 1. Construir lista de coordenadas (incluye base al inicio)
             ArrayList<LatLng> locations = new ArrayList<>();
             locations.add(baseLocation); // Índice 0 = base
             for (Cliente cliente : clientes) {
-                locations.add(new LatLng(cliente.Latitud, cliente.Longitud));
+                if (cliente.Latitud != null && cliente.Longitud != null) {
+                    locations.add(new LatLng(cliente.Latitud, cliente.Longitud));
+                } else {
+                    Log.w(TAG, "Cliente sin coordenadas en pre-ordenamiento: " + cliente.Nombre);
+                }
             }
 
-            // 2. Obtener matriz de distancias
-            double[][] distanceMatrix = getDistanceMatrix(locations);
+            // 2. Obtener matriz de distancias usando Haversine (local, sin API)
+            double[][] distanceMatrix = calculateHaversineDistanceMatrix(locations);
             if (distanceMatrix == null) {
-                Log.w(TAG, "No se pudo obtener matriz de distancias, usando orden original");
+                Log.w(TAG, "No se pudo calcular matriz Haversine, usando orden original");
                 return clientes;
             }
 
-            Log.i(TAG, "Aplicando algoritmo Nearest Neighbor para pre-ordenamiento...");
+            Log.i(TAG, "Aplicando algoritmo Nearest Neighbor para pre-ordenamiento con Haversine...");
 
             // 3. Usar Nearest Neighbor desde la base para pre-ordenar
             ArrayList<Integer> orderedIndices = new ArrayList<>();
@@ -631,7 +665,7 @@ public class RouteOptimizerService {
 
                     // Log cada 50 clientes
                     if (i % 50 == 0) {
-                        Log.d(TAG, "Pre-ordenados " + i + " clientes, próximo a " + minDistance / 1000.0 + " km");
+                        Log.d(TAG, "Pre-ordenados " + i + " clientes, próximo a " + String.format("%.1f km", minDistance / 1000.0));
                     }
                 } else {
                     Log.w(TAG, "Error: no se pudo encontrar siguiente cliente");
@@ -639,12 +673,22 @@ public class RouteOptimizerService {
                 }
             }
 
-            Log.i(TAG, "Pre-ordenamiento completo. Total clientes ordenados: " + orderedIndices.size());
+            Log.i(TAG, "╔════════════════════════════════════════════╗");
+            Log.i(TAG, "║  PRE-ORDENAMIENTO COMPLETADO EXITOSAMENTE ║");
+            Log.i(TAG, "║  Total clientes pre-ordenados: " + orderedIndices.size() + "          ║");
+            Log.i(TAG, "║  Método: Nearest Neighbor + Haversine      ║");
+            Log.i(TAG, "║  Sin límite de API, cálculo local          ║");
+            Log.i(TAG, "╚════════════════════════════════════════════╝");
 
             // 4. Reconstruir lista de clientes en nuevo orden
             ArrayList<Cliente> clientesOrdenados = new ArrayList<>();
             for (int idx : orderedIndices) {
-                clientesOrdenados.add(clientes.get(idx - 1)); // -1 porque índice 0 es la base
+                // Validar índice
+                if (idx > 0 && idx <= clientes.size()) {
+                    clientesOrdenados.add(clientes.get(idx - 1)); // -1 porque índice 0 es la base
+                } else {
+                    Log.w(TAG, "Índice fuera de rango en pre-ordenamiento: " + idx);
+                }
             }
 
             return clientesOrdenados;
