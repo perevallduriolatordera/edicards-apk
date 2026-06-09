@@ -14,6 +14,8 @@ import net.ifeu.edicards.Services.Geocoding.OpenRouteServiceGeocodingStrategy;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Servicio para generar rutas optimizadas usando OpenRouteService
@@ -66,6 +68,8 @@ public class RouteGeneratorService {
 				Log.w(TAG, "No hay clientes activos con coordenadas para generar ruta");
 				return false;
 			}
+			// Deduplicar clientes (puede haber duplicados por mismo CodigoCliente)
+			clientesActivos = deduplicarClientes(clientesActivos);
 
 			if (clientesActivos.size() < 2) {
 				Log.w(TAG, "Mínimo 2 clientes con coordenadas requeridos para generar ruta (actual: " + clientesActivos.size() + ")");
@@ -364,5 +368,47 @@ public class RouteGeneratorService {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Deduplica clientes por CodigoCliente, manteniendo la última ocurrencia
+	 * Si el mismo CodigoCliente aparece múltiples veces, mantiene solo la última instancia
+	 *
+	 * @param clientes Lista de clientes que puede contener duplicados
+	 * @return Lista con duplicados removidos (mantiene último de cada CodigoCliente)
+	 */
+	private ArrayList<Cliente> deduplicarClientes(ArrayList<Cliente> clientes) {
+		if (clientes == null || clientes.isEmpty()) {
+			return clientes;
+		}
+
+		int totalAntes = clientes.size();
+
+		// Usar un mapa para mantener solo el ÚLTIMO cliente de cada CodigoCliente
+		java.util.LinkedHashMap<String, Cliente> clientesUnicos = new java.util.LinkedHashMap<>();
+
+		for (Cliente cliente : clientes) {
+			if (cliente.CodigoCliente != null && !cliente.CodigoCliente.isEmpty()) {
+				// Si ya existe este código, será sobrescrito por la nueva ocurrencia (la última)
+				clientesUnicos.put(cliente.CodigoCliente, cliente);
+			}
+		}
+
+		// Convertir mapa de vuelta a ArrayList
+		ArrayList<Cliente> resultado = new ArrayList<>(clientesUnicos.values());
+
+		int totalDespues = resultado.size();
+		int duplicadosRemovidos = totalAntes - totalDespues;
+
+		if (duplicadosRemovidos > 0) {
+			Log.i(TAG, "╔══════════════════════════════════════╗");
+			Log.i(TAG, "║  DEDUPLICACIÓN DE CLIENTES          ║");
+			Log.i(TAG, "║  Clientes antes: " + totalAntes + "                 ║");
+			Log.i(TAG, "║  Duplicados removidos: " + duplicadosRemovidos + "            ║");
+			Log.i(TAG, "║  Clientes únicos: " + totalDespues + "                 ║");
+			Log.i(TAG, "╚══════════════════════════════════════╝");
+		}
+
+		return resultado;
 	}
 }
