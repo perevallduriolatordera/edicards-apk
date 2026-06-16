@@ -699,8 +699,8 @@ public class RouteOptimizerService {
             double[][] distanceMatrix = getDistanceMatrix(locations);
 
             if (distanceMatrix == null || distanceMatrix.length == 0) {
-                Log.w(TAG, "No se pudo obtener matriz de distancias ORS, usando cliente 0");
-                return 0;
+                Log.w(TAG, "No se pudo obtener matriz de distancias ORS, fallback a Haversine");
+                return findNearestClientByHaversine(startingClient, clientes);
             }
 
             // Buscar el cliente más cercano (índice 1+ porque 0 es el punto de inicio)
@@ -715,16 +715,45 @@ public class RouteOptimizerService {
                 }
             }
 
-            Log.d(TAG, "Cliente más cercano encontrado: índice " + nearestIdx + " (distancia: " +
+            Log.d(TAG, "Cliente más cercano encontrado (ORS): índice " + nearestIdx + " (distancia: " +
                 String.format("%.1f km", minDistance / 1000.0) + ")");
 
             return nearestIdx;
 
         } catch (Exception e) {
-            Log.w(TAG, "Error buscando cliente más cercano por carretera: " + e.getMessage());
-            // Fallback: usar el primero
-            return 0;
+            Log.w(TAG, "Error buscando cliente más cercano por carretera (ORS): " + e.getMessage());
+            // Fallback: usar Haversine
+            return findNearestClientByHaversine(startingClient, clientes);
         }
+    }
+
+    /**
+     * Fallback: encuentra cliente más cercano usando Haversine (línea recta)
+     */
+    private int findNearestClientByHaversine(Cliente startingClient, ArrayList<Cliente> clientes) {
+        Log.d(TAG, "Usando fallback Haversine para buscar cliente más cercano...");
+        int nearestIdx = 0;
+        double minDistance = Double.MAX_VALUE;
+
+        for (int i = 0; i < clientes.size(); i++) {
+            Cliente c = clientes.get(i);
+            if (c.Latitud != null && c.Longitud != null) {
+                double distance = GeoClusteringService.calculateHaversineDistance(
+                    startingClient.Latitud, startingClient.Longitud,
+                    c.Latitud, c.Longitud
+                );
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    nearestIdx = i;
+                }
+            }
+        }
+
+        Log.d(TAG, "Cliente más cercano encontrado (Haversine fallback): índice " + nearestIdx + " (distancia: " +
+            String.format("%.1f km", minDistance / 1000.0) + ")");
+
+        return nearestIdx;
     }
 
     /**
@@ -817,7 +846,7 @@ public class RouteOptimizerService {
         }
 
         try {
-            Log.i(TAG, "Pre-ordenando " + clientes.size() + " clientes usando ORS Matrix API (distancias reales por carretera)");
+            Log.i(TAG, "Pre-ordenando " + clientes.size() + " clientes usando Haversine (local, sin API)");
 
             // 1. Construir lista de coordenadas (incluye base al inicio)
             ArrayList<LatLng> locations = new ArrayList<>();
@@ -830,14 +859,14 @@ public class RouteOptimizerService {
                 }
             }
 
-            // 2. Obtener matriz de distancias usando ORS (distancias reales por carretera)
-            double[][] distanceMatrix = getDistanceMatrix(locations);
+            // 2. Obtener matriz de distancias usando Haversine (local, sin API - más confiable)
+            double[][] distanceMatrix = calculateHaversineDistanceMatrix(locations);
             if (distanceMatrix == null) {
-                Log.w(TAG, "No se pudo calcular matriz ORS, usando orden original");
+                Log.w(TAG, "No se pudo calcular matriz Haversine, usando orden original");
                 return clientes;
             }
 
-            Log.i(TAG, "Aplicando algoritmo Nearest Neighbor para pre-ordenamiento con ORS Matrix (distancias reales)...");
+            Log.i(TAG, "Aplicando algoritmo Nearest Neighbor para pre-ordenamiento con Haversine (local)...");
 
             // 3. Usar Nearest Neighbor desde la base para pre-ordenar
             ArrayList<Integer> orderedIndices = new ArrayList<>();
@@ -876,8 +905,8 @@ public class RouteOptimizerService {
             Log.i(TAG, "╔════════════════════════════════════════════╗");
             Log.i(TAG, "║  PRE-ORDENAMIENTO COMPLETADO EXITOSAMENTE ║");
             Log.i(TAG, "║  Total clientes pre-ordenados: " + orderedIndices.size() + "          ║");
-            Log.i(TAG, "║  Método: Nearest Neighbor + ORS Matrix     ║");
-            Log.i(TAG, "║  Distancias reales por carretera           ║");
+            Log.i(TAG, "║  Método: Nearest Neighbor + Haversine      ║");
+            Log.i(TAG, "║  Cálculo local, sin dependencias de API    ║");
             Log.i(TAG, "╚════════════════════════════════════════════╝");
 
             // 4. Reconstruir lista de clientes en nuevo orden
