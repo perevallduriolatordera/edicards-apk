@@ -240,7 +240,10 @@ public class RouteOptimizerService {
             optimizedIndices = TwoOptRouteOptimizer.optimize(optimizedIndices, distanceMatrix);
             Log.i(TAG, "✓ Nearest Neighbor + 2-Opt completado");
 
-            // 4. Construir resultado con RutaClienteData
+            // 4. Detectar y loguear saltos anormales (posibles problemas de clusters)
+            detectAbnormalJumps(optimizedIndices, distanceMatrix, loteClientes);
+
+            // 5. Construir resultado con RutaClienteData
             ArrayList<RutaClienteData> rutaOrdenada = new ArrayList<>();
 
             for (int i = 0; i < optimizedIndices.size(); i++) {
@@ -616,6 +619,54 @@ public class RouteOptimizerService {
         } catch (Exception e) {
             Log.w(TAG, "Error reordenando lote: " + e.getMessage());
             return lote;
+        }
+    }
+
+    /**
+     * Detecta y loguea saltos anormales en la ruta (posibles problemas de conectividad entre clusters)
+     *
+     * @param route Ruta optimizada (índices)
+     * @param distanceMatrix Matriz de distancias
+     * @param clientes Clientes del lote para referencia
+     */
+    private void detectAbnormalJumps(ArrayList<Integer> route, double[][] distanceMatrix, ArrayList<Cliente> clientes) {
+        if (route == null || route.size() < 2 || distanceMatrix == null) {
+            return;
+        }
+
+        final double ABNORMAL_THRESHOLD_M = 50000; // 50 km = salto anormal
+        Log.d(TAG, "Detectando saltos anormales > 50 km en la ruta...");
+
+        StringBuilder abnormalJumps = new StringBuilder();
+        boolean hasAbnormal = false;
+
+        for (int i = 0; i < route.size() - 1; i++) {
+            int from = route.get(i);
+            int to = route.get(i + 1);
+
+            if (from >= 0 && from < distanceMatrix.length && to >= 0 && to < distanceMatrix.length) {
+                double distance = distanceMatrix[from][to];
+
+                if (distance > ABNORMAL_THRESHOLD_M) {
+                    hasAbnormal = true;
+                    String fromName = from == 0 ? "BASE" : (from <= clientes.size() ? clientes.get(from - 1).Nombre : "?");
+                    String toName = to == 0 ? "BASE" : (to <= clientes.size() ? clientes.get(to - 1).Nombre : "?");
+
+                    abnormalJumps.append("\n  ⚠️  Salto anormal: ")
+                        .append(fromName)
+                        .append(" → ")
+                        .append(toName)
+                        .append(" = ")
+                        .append(String.format("%.1f km", distance / 1000.0));
+                }
+            }
+        }
+
+        if (hasAbnormal) {
+            Log.w(TAG, "⚠️  SALTOS ANORMALES DETECTADOS:" + abnormalJumps.toString());
+            Log.w(TAG, "ℹ️  Considera aumentar granularidad del grid o revisar clustering");
+        } else {
+            Log.d(TAG, "✓ No se detectaron saltos anormales (todos < 50 km)");
         }
     }
 
