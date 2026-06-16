@@ -314,6 +314,9 @@ public class RouteGeneratorService {
 		Log.i(TAG, "║  Total clientes: " + rutaCompleta.size() + "                       ║");
 		Log.i(TAG, "════════════════════════════════════════");
 
+		// Reordenar ruta: el cliente más cercano a la base debe ser el primero
+		rutaCompleta = ensureFirstClientNearBase(rutaCompleta, baseLocation);
+
 		return rutaCompleta;
 	}
 
@@ -362,6 +365,57 @@ public class RouteGeneratorService {
 		}
 
 		return rutaCluster;
+	}
+
+	/**
+	 * Asegura que el primer cliente de la ruta esté cerca de la base
+	 * Si el primer cliente está muy lejos, lo mueve al final y trae el más cercano
+	 */
+	private ArrayList<RouteOptimizerService.RutaClienteData> ensureFirstClientNearBase(
+			ArrayList<RouteOptimizerService.RutaClienteData> ruta,
+			LatLng baseLocation) {
+
+		if (ruta == null || ruta.isEmpty()) {
+			return ruta;
+		}
+
+		Log.d(TAG, "Verificando si el primer cliente está cerca de la base...");
+
+		// Encontrar el cliente más cercano a la base (por línea recta, rápido)
+		int nearestIdx = 0;
+		double minDistance = Double.MAX_VALUE;
+
+		for (int i = 0; i < ruta.size(); i++) {
+			RouteOptimizerService.RutaClienteData cliente = ruta.get(i);
+			try {
+				double lat = Double.parseDouble(cliente.latitud);
+				double lon = Double.parseDouble(cliente.longitud);
+
+				double distance = GeoClusteringService.calculateHaversineDistance(
+					baseLocation.getLatitude(), baseLocation.getLongitude(),
+					lat, lon
+				);
+
+				if (distance < minDistance) {
+					minDistance = distance;
+					nearestIdx = i;
+				}
+			} catch (Exception e) {
+				// Skip if coordinates are invalid
+			}
+		}
+
+		// Si el más cercano no es el primero, reordenar
+		if (nearestIdx != 0) {
+			RouteOptimizerService.RutaClienteData nearestClient = ruta.remove(nearestIdx);
+			ruta.add(0, nearestClient);
+			Log.d(TAG, "✓ Primer cliente reordenado: " + nearestClient.nombre +
+				" (distancia a base: " + String.format("%.1f km", minDistance / 1000.0) + ")");
+		} else {
+			Log.d(TAG, "✓ El primer cliente ya está cerca de la base");
+		}
+
+		return ruta;
 	}
 
 	/**
