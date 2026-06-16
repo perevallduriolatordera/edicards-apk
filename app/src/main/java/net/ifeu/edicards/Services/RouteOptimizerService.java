@@ -766,7 +766,7 @@ public class RouteOptimizerService {
         }
 
         try {
-            Log.i(TAG, "Pre-ordenando " + clientes.size() + " clientes usando distancia Haversine (local, sin API)");
+            Log.i(TAG, "Pre-ordenando " + clientes.size() + " clientes usando ORS Matrix API (distancias reales por carretera)");
 
             // 1. Construir lista de coordenadas (incluye base al inicio)
             ArrayList<LatLng> locations = new ArrayList<>();
@@ -779,14 +779,14 @@ public class RouteOptimizerService {
                 }
             }
 
-            // 2. Obtener matriz de distancias usando Haversine (local, sin API)
-            double[][] distanceMatrix = calculateHaversineDistanceMatrix(locations);
+            // 2. Obtener matriz de distancias usando ORS (distancias reales por carretera)
+            double[][] distanceMatrix = getDistanceMatrix(locations);
             if (distanceMatrix == null) {
-                Log.w(TAG, "No se pudo calcular matriz Haversine, usando orden original");
+                Log.w(TAG, "No se pudo calcular matriz ORS, usando orden original");
                 return clientes;
             }
 
-            Log.i(TAG, "Aplicando algoritmo Nearest Neighbor para pre-ordenamiento con Haversine...");
+            Log.i(TAG, "Aplicando algoritmo Nearest Neighbor para pre-ordenamiento con ORS Matrix (distancias reales)...");
 
             // 3. Usar Nearest Neighbor desde la base para pre-ordenar
             ArrayList<Integer> orderedIndices = new ArrayList<>();
@@ -825,8 +825,8 @@ public class RouteOptimizerService {
             Log.i(TAG, "╔════════════════════════════════════════════╗");
             Log.i(TAG, "║  PRE-ORDENAMIENTO COMPLETADO EXITOSAMENTE ║");
             Log.i(TAG, "║  Total clientes pre-ordenados: " + orderedIndices.size() + "          ║");
-            Log.i(TAG, "║  Método: Nearest Neighbor + Haversine      ║");
-            Log.i(TAG, "║  Sin límite de API, cálculo local          ║");
+            Log.i(TAG, "║  Método: Nearest Neighbor + ORS Matrix     ║");
+            Log.i(TAG, "║  Distancias reales por carretera           ║");
             Log.i(TAG, "╚════════════════════════════════════════════╝");
 
             // 4. Reconstruir lista de clientes en nuevo orden

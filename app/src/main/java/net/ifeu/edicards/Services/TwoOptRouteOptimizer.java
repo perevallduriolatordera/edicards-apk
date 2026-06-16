@@ -31,10 +31,11 @@ public class TwoOptRouteOptimizer {
         ArrayList<Integer> improved = new ArrayList<>(route);
         boolean mejorado = true;
         int iteraciones = 0;
-        int maxIteraciones = 100; // Limitar iteraciones para no tardar demasiado
+        // Escalar máximo de iteraciones según tamaño de ruta
+        int maxIteraciones = Math.min(500, improved.size() * 10); // Más agresivo para rutas pequeñas
 
         Log.d(TAG, "=== INICIANDO 2-OPT OPTIMIZATION ===");
-        Log.d(TAG, "Ruta inicial: " + improved.size() + " nodos");
+        Log.d(TAG, "Ruta inicial: " + improved.size() + " nodos, máx iteraciones: " + maxIteraciones);
 
         // Calcular distancia inicial
         double distanciaInicial = calcularDistanciaTotal(improved, distanceMatrix);
@@ -55,10 +56,9 @@ public class TwoOptRouteOptimizer {
                         // Invertir segmento
                         invertirSegmento(improved, i + 1, k);
                         mejorado = true;
-                        break; // Reintentar desde el principio
+                        // No hacer break - continuar buscando mejoras en esta iteración
                     }
                 }
-                if (mejorado) break;
             }
         }
 
