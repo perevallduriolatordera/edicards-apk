@@ -700,9 +700,30 @@ public class RouteGeneratorService {
 			rutaGenerada.deleteCurrentWeekRoutes();
 
 			// Log de debugging
-			Log.i(TAG, "Guardando ruta con " + rutaOrdenada.size() + " clientes");
+			Log.i(TAG, "Guardando ruta con " + rutaOrdenada.size() + " clientes + base");
 
-			// Guardar cada cliente de la ruta
+			int orden = 1;
+
+			// 1. Guardar la base como primer punto de la ruta
+			RutaGenerada rutaBase = Factory.build(RutaGenerada.class, app);
+			rutaBase.FechaGeneracion = new Date();
+			rutaBase.OrdenVisita = orden++;
+			rutaBase.CodigoCliente = "BASE";
+			rutaBase.NombreCliente = ciudadBase + " (BASE)";
+			rutaBase.DireccionCliente = "";
+			rutaBase.PoblacionCliente = ciudadBase;
+			rutaBase.ProvinciaCliente = "";
+			rutaBase.DistanciaEstimada = "0 km";
+			rutaBase.CiudadBase = ciudadBase;
+			rutaBase.GeolocalizationStatus = "✓ OK";
+			rutaBase.Latitud = "";
+			rutaBase.Longitud = "";
+			rutaBase.ClusterID = 0;
+
+			rutaBase.save();
+			Log.d(TAG, "SaveRoute - Orden: 1, Cliente: " + ciudadBase + " (BASE)");
+
+			// 2. Guardar cada cliente de la ruta
 			for (RouteOptimizerService.RutaClienteData rutaCliente : rutaOrdenada) {
 				// Buscar cliente por código en la BD
 				Cliente cliente = findClienteByCodigo(app, rutaCliente.codigoCliente);
@@ -710,7 +731,7 @@ public class RouteGeneratorService {
 				if (cliente != null) {
 					RutaGenerada ruta = Factory.build(RutaGenerada.class, app);
 					ruta.FechaGeneracion = new Date();
-					ruta.OrdenVisita = rutaCliente.orden;
+					ruta.OrdenVisita = orden++;  // Usar contador incremental, no el orden original
 					ruta.CodigoCliente = cliente.CodigoCliente;
 					ruta.NombreCliente = cliente.Nombre;
 					ruta.DireccionCliente = cliente.Direccion1;
@@ -729,13 +750,13 @@ public class RouteGeneratorService {
 
 					ruta.save();
 
-					Log.d(TAG, "SaveRoute - Orden: " + rutaCliente.orden + ", Cliente: " + cliente.Nombre + ", Distancia: " + rutaCliente.distanciaKm);
+					Log.d(TAG, "SaveRoute - Orden: " + (orden - 1) + ", Cliente: " + cliente.Nombre + ", Distancia: " + rutaCliente.distanciaKm);
 				} else {
 					Log.w(TAG, "Cliente no encontrado: " + rutaCliente.codigoCliente);
 				}
 			}
 
-			Log.i(TAG, "Ruta completa guardada en BD - Total: " + rutaOrdenada.size());
+			Log.i(TAG, "Ruta completa guardada en BD - Total: " + (rutaOrdenada.size() + 1) + " (incluyendo base)");
 
 		} catch (Exception e) {
 			Log.e(TAG, "Error guardando ruta: " + e.getMessage());
