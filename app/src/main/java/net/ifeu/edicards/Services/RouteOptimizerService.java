@@ -65,7 +65,7 @@ public class RouteOptimizerService {
 
         Log.i(TAG, "Optimizando ruta para " + clientes.size() + " clientes");
         if (startingClient != null) {
-            Log.i(TAG, "Punto de inicio personalizado: " + startingClient.Nombre);
+            Log.i(TAG, "Punto de inicio personalizado: " + startingClient.Nombre + " (" + startingClient.Latitud + ", " + startingClient.Longitud + ")");
         }
 
         try {
@@ -83,15 +83,36 @@ public class RouteOptimizerService {
                 ArrayList<Cliente> clientesOrdenados = clientes;
 
                 if (startingClient != null) {
-                    // Reordenar para que startingClient esté primero
-                    clientesOrdenados = new ArrayList<>();
-                    clientesOrdenados.add(startingClient);
-                    for (Cliente c : clientes) {
-                        if (!c.CodigoCliente.equals(startingClient.CodigoCliente)) {
-                            clientesOrdenados.add(c);
+                    // Encontrar el cliente más cercano a startingClient
+                    int nearestIdx = 0;
+                    double minDistance = Double.MAX_VALUE;
+
+                    for (int i = 0; i < clientes.size(); i++) {
+                        Cliente c = clientes.get(i);
+                        double distance = GeoClusteringService.calculateHaversineDistance(
+                            startingClient.Latitud, startingClient.Longitud,
+                            c.Latitud, c.Longitud
+                        );
+
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            nearestIdx = i;
                         }
                     }
-                    startingIndex = 1; // Empezar desde primer cliente (no base)
+
+                    // Reordenar para que el cliente más cercano esté primero
+                    Cliente nearestClient = clientes.get(nearestIdx);
+                    clientesOrdenados = new ArrayList<>();
+                    clientesOrdenados.add(nearestClient);
+                    for (int i = 0; i < clientes.size(); i++) {
+                        if (i != nearestIdx) {
+                            clientesOrdenados.add(clientes.get(i));
+                        }
+                    }
+
+                    Log.d(TAG, "Cliente más cercano a punto anterior: " + nearestClient.Nombre + " (distancia: " +
+                        String.format("%.1f km", minDistance / 1000.0) + ")");
+                    startingIndex = 1; // Empezar desde primer cliente del cluster (no base)
                 }
 
                 return optimizeRouteBatch(clientesOrdenados, baseLocation, 0, startingIndex);
