@@ -249,7 +249,7 @@ public class RutasViewerFragment extends Fragment {
 							getActivity(), MessageBoxType.Error);
 					});
 				} else {
-					service.generateRouteAsync(app, ciudad.CiudadBase, googleMapsApiKey, new RouteGenerationCallback() {
+					service.generateRouteAsync(app, ciudad.CiudadBase, new RouteGenerationCallback() {
 						@Override
 						public void onProgress(String message) {
 							getActivity().runOnUiThread(() -> {

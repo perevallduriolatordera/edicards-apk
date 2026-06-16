@@ -1166,7 +1166,7 @@ public class ServiceWorker extends ServiceBase {
 							final boolean[] routeGenerated = {false};
 							final Object lock = new Object();
 
-							routeService.generateRouteAsync(app, ciudad.CiudadBase, googleMapsApiKey, new RouteGenerationCallback() {
+							routeService.generateRouteAsync(app, ciudad.CiudadBase, new RouteGenerationCallback() {
 								@Override
 								public void onProgress(String message) {
 									Log.d("ServiceWorker", "Generando ruta: " + message);
