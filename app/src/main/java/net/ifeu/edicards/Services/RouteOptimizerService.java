@@ -83,21 +83,21 @@ public class RouteOptimizerService {
                 ArrayList<Cliente> clientesOrdenados = clientes;
 
                 if (startingClient != null) {
-                    // Encontrar el cliente más cercano a startingClient
-                    int nearestIdx = 0;
-                    double minDistance = Double.MAX_VALUE;
+                    // Encontrar el cliente más cercano a startingClient usando ORS (distancias reales por carretera)
+                    int nearestIdx = findNearestClientByRoad(startingClient, clientes);
+                    double roadDistance = Double.MAX_VALUE;
 
-                    for (int i = 0; i < clientes.size(); i++) {
-                        Cliente c = clientes.get(i);
-                        double distance = GeoClusteringService.calculateHaversineDistance(
-                            startingClient.Latitud, startingClient.Longitud,
-                            c.Latitud, c.Longitud
-                        );
-
-                        if (distance < minDistance) {
-                            minDistance = distance;
-                            nearestIdx = i;
+                    try {
+                        // Calcular distancia real por carretera para logging
+                        ArrayList<LatLng> locations = new ArrayList<>();
+                        locations.add(new LatLng(startingClient.Latitud, startingClient.Longitud));
+                        locations.add(new LatLng(clientes.get(nearestIdx).Latitud, clientes.get(nearestIdx).Longitud));
+                        double[][] distanceMatrix = getDistanceMatrix(locations);
+                        if (distanceMatrix != null && distanceMatrix.length > 0) {
+                            roadDistance = distanceMatrix[0][1];
                         }
+                    } catch (Exception e) {
+                        Log.w(TAG, "Error calculando distancia real para logging: " + e.getMessage());
                     }
 
                     // Reordenar para que el cliente más cercano esté primero
@@ -110,8 +110,8 @@ public class RouteOptimizerService {
                         }
                     }
 
-                    Log.d(TAG, "Cliente más cercano a punto anterior: " + nearestClient.Nombre + " (distancia: " +
-                        String.format("%.1f km", minDistance / 1000.0) + ")");
+                    Log.d(TAG, "Cliente más cercano a punto anterior (POR CARRETERA): " + nearestClient.Nombre + " (distancia: " +
+                        String.format("%.1f km", roadDistance / 1000.0) + ")");
                     startingIndex = 1; // Empezar desde primer cliente del cluster (no base)
                 }
 
@@ -616,6 +616,63 @@ public class RouteOptimizerService {
         } catch (Exception e) {
             Log.w(TAG, "Error reordenando lote: " + e.getMessage());
             return lote;
+        }
+    }
+
+    /**
+     * Encuentra el cliente más cercano a un punto de inicio usando distancias reales (ORS Matrix API)
+     *
+     * @param startingClient Cliente desde el cual medir distancias
+     * @param clientes Lista de clientes candidatos
+     * @return Índice del cliente más cercano por carretera
+     */
+    private int findNearestClientByRoad(Cliente startingClient, ArrayList<Cliente> clientes) {
+        if (clientes == null || clientes.isEmpty()) {
+            return 0;
+        }
+
+        try {
+            // Construir lista de ubicaciones: punto de inicio + todos los clientes
+            ArrayList<LatLng> locations = new ArrayList<>();
+            locations.add(new LatLng(startingClient.Latitud, startingClient.Longitud));
+
+            for (Cliente c : clientes) {
+                if (c.Latitud != null && c.Longitud != null) {
+                    locations.add(new LatLng(c.Latitud, c.Longitud));
+                }
+            }
+
+            Log.d(TAG, "Buscando cliente más cercano por carretera: consultando ORS Matrix para " + locations.size() + " ubicaciones");
+
+            // Obtener matriz de distancias ORS (distancias reales por carretera)
+            double[][] distanceMatrix = getDistanceMatrix(locations);
+
+            if (distanceMatrix == null || distanceMatrix.length == 0) {
+                Log.w(TAG, "No se pudo obtener matriz de distancias ORS, usando cliente 0");
+                return 0;
+            }
+
+            // Buscar el cliente más cercano (índice 1+ porque 0 es el punto de inicio)
+            int nearestIdx = 0;
+            double minDistance = Double.MAX_VALUE;
+
+            for (int i = 1; i < distanceMatrix[0].length; i++) {
+                double distance = distanceMatrix[0][i]; // Distancia desde el punto de inicio (índice 0) a cliente i
+                if (distance < minDistance && distance > 0) { // Evitar 0 (mismo punto)
+                    minDistance = distance;
+                    nearestIdx = i - 1; // Restar 1 porque la matriz incluye el punto de inicio
+                }
+            }
+
+            Log.d(TAG, "Cliente más cercano encontrado: índice " + nearestIdx + " (distancia: " +
+                String.format("%.1f km", minDistance / 1000.0) + ")");
+
+            return nearestIdx;
+
+        } catch (Exception e) {
+            Log.w(TAG, "Error buscando cliente más cercano por carretera: " + e.getMessage());
+            // Fallback: usar el primero
+            return 0;
         }
     }
 
