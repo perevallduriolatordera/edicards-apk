@@ -145,6 +145,7 @@ public class ExportToExcelService {
 		// Nombres de columnas
 		String[] headers = {
 			"Orden",
+			"Cluster",
 			"Codigo Cliente",
 			"Nombre Cliente",
 			"Direccion",
@@ -173,6 +174,10 @@ public class ExportToExcelService {
 		// Orden
 		Cell cellOrden = row.createCell(cellNum++);
 		cellOrden.setCellValue(ruta.OrdenVisita);
+
+		// Cluster
+		Cell cellCluster = row.createCell(cellNum++);
+		cellCluster.setCellValue(ruta.ClusterID);
 
 		// Codigo Cliente
 		Cell cellCodigo = row.createCell(cellNum++);

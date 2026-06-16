@@ -31,6 +31,9 @@ public class RutaGenerada extends Persistent implements IPersistable {
 	public String Latitud;
 	public String Longitud;
 
+	// Cluster
+	public int ClusterID;  // ID del cluster geográfico (solo para debugging/Excel, no se persiste en BD)
+
 	@Override
 	public void InitializePersistance(net.ifeu.edicards.Application.AppConfig appConfigParam) {
 		super.InitializePersistance(appConfigParam);

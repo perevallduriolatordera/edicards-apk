@@ -808,5 +808,8 @@ public class RouteOptimizerService {
         public String geolocalizationStatus;  // "✓ OK", "⚠ SIN COORDENADAS", "❌ COORDENADAS INVÁLIDAS"
         public String latitud;                // Para referencia
         public String longitud;               // Para referencia
+
+        // Información de cluster para debugging
+        public int clusterID;                 // ID del cluster geográfico al que pertenece
     }
 }

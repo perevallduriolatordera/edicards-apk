@@ -233,6 +233,7 @@ public class RouteGeneratorService {
 
 		// Variables para conectar clusters
 		Cliente clienteAnterior = null;
+		int clusterIndex = 0;
 
 		for (GeoClusteringService.GeoCluster cluster : clusters) {
 			// Separar clientes válidos e inválidos
@@ -265,7 +266,8 @@ public class RouteGeneratorService {
 			ArrayList<RouteOptimizerService.RutaClienteData> rutaCluster = optimizeClusterWithVROOM(
 				clientesValidos,
 				baseLocation,
-				clienteAnterior
+				clienteAnterior,
+				cluster.clusterId  // ← Pasar el ID del cluster actual
 			);
 
 			// Agregar clientes optimizados con el orden global correcto
@@ -280,13 +282,15 @@ public class RouteGeneratorService {
 				for (Cliente c : clientesValidos) {
 					if (c.CodigoCliente.equals(ultimoRuta.codigoCliente)) {
 						clienteAnterior = c;
-						Log.d(TAG, "Último cliente del cluster guardado: " + c.Nombre);
+						Log.d(TAG, "Último cliente del cluster " + cluster.clusterId + " guardado: " + c.Nombre);
 						break;
 					}
 				}
 			} else {
-				Log.w(TAG, "No se pudo optimizar cluster");
+				Log.w(TAG, "No se pudo optimizar cluster " + cluster.clusterId);
 			}
+
+			clusterIndex++;
 		}
 
 		// Agregar clientes con coordenadas inválidas al final
@@ -324,17 +328,19 @@ public class RouteGeneratorService {
 	 * @param clientesValidos Clientes del cluster a optimizar
 	 * @param baseLocation Ubicación de la base
 	 * @param clienteAnterior Cliente del cluster anterior (null si es el primer cluster)
+	 * @param clusterID ID del cluster actual para debugging
 	 * @return Ruta optimizada del cluster
 	 */
 	private ArrayList<RouteOptimizerService.RutaClienteData> optimizeClusterWithVROOM(
 			ArrayList<Cliente> clientesValidos,
 			LatLng baseLocation,
-			Cliente clienteAnterior) throws Exception {
+			Cliente clienteAnterior,
+			int clusterID) throws Exception {
 
 		ArrayList<RouteOptimizerService.RutaClienteData> rutaCluster = new ArrayList<>();
 		RouteOptimizerService optimizer = new RouteOptimizerService();
 
-		Log.i(TAG, "Iniciando optimización VROOM+ORS para " + clientesValidos.size() + " clientes");
+		Log.i(TAG, "Iniciando optimización VROOM+ORS para cluster " + clusterID + " (" + clientesValidos.size() + " clientes)");
 		if (clienteAnterior != null) {
 			Log.i(TAG, "  Conectando desde cliente anterior: " + clienteAnterior.Nombre);
 		}
@@ -347,8 +353,9 @@ public class RouteGeneratorService {
 
 		if (rutaOptimizada != null && !rutaOptimizada.isEmpty()) {
 			for (RouteOptimizerService.RutaClienteData ruta : rutaOptimizada) {
+				ruta.clusterID = clusterID;  // ← Guardar clusterID
 				rutaCluster.add(ruta);
-				Log.d(TAG, "  TSP: " + ruta.nombre + " -> " + ruta.latitud + ", " + ruta.longitud + " (" + ruta.distanciaKm + ")");
+				Log.d(TAG, "  TSP: [Cluster " + clusterID + "] " + ruta.nombre + " -> " + ruta.latitud + ", " + ruta.longitud + " (" + ruta.distanciaKm + ")");
 			}
 		} else {
 			Log.w(TAG, "No se pudo optimizar cluster con TSP");
@@ -461,34 +468,34 @@ public class RouteGeneratorService {
 	 * Determina el tamaño optimal del grid basado en cantidad de clientes
 	 */
 	private int determineOptimalGridSize(int totalClientes) {
-		// Estrategia: máximo ~15-20 clientes por cluster
-		// Para que Google Maps pueda manejar bien cada cluster
+		// Estrategia: clientes por cluster = 5-10 para minimizar saltos entre clusters
+		// ORS Matrix API puede manejar fácilmente clusters de 10+ clientes
 
 		Log.i(TAG, "DEBUG: determineOptimalGridSize recibió totalClientes = " + totalClientes);
 
-		// Para <= 50 clientes: grid 2x2 = 4 cuadrantes (12-13 clientes/cluster)
+		// Para <= 50 clientes: grid 3x3 = 9 cuadrantes (5-6 clientes/cluster)
 		if (totalClientes <= 50) {
-			Log.i(TAG, "DEBUG: Retornando gridSize=2 para " + totalClientes + " clientes");
-			return 2;
-		}
-		// Para 51-150 clientes: grid 3x3 = 9 cuadrantes (16-17 clientes/cluster)
-		if (totalClientes <= 150) {
 			Log.i(TAG, "DEBUG: Retornando gridSize=3 para " + totalClientes + " clientes");
 			return 3;
 		}
-		// Para 151-300 clientes: grid 5x5 = 25 cuadrantes (12 clientes/cluster)
-		if (totalClientes <= 300) {
-			Log.i(TAG, "DEBUG: Retornando gridSize=5 para " + totalClientes + " clientes");
-			return 5;
+		// Para 51-150 clientes: grid 4x4 = 16 cuadrantes (9-10 clientes/cluster)
+		if (totalClientes <= 150) {
+			Log.i(TAG, "DEBUG: Retornando gridSize=4 para " + totalClientes + " clientes");
+			return 4;
 		}
-		// Para 301-500 clientes: grid 6x6 = 36 cuadrantes (13-14 clientes/cluster)
-		if (totalClientes <= 500) {
+		// Para 151-300 clientes: grid 6x6 = 36 cuadrantes (8-9 clientes/cluster)
+		if (totalClientes <= 300) {
 			Log.i(TAG, "DEBUG: Retornando gridSize=6 para " + totalClientes + " clientes");
 			return 6;
 		}
-		// Para > 500 clientes: grid 7x7 = 49 cuadrantes (10-15 clientes/cluster)
-		Log.i(TAG, "DEBUG: Retornando gridSize=7 para " + totalClientes + " clientes (>500)");
-		return 7;
+		// Para 301-500 clientes: grid 8x8 = 64 cuadrantes (7-8 clientes/cluster)
+		if (totalClientes <= 500) {
+			Log.i(TAG, "DEBUG: Retornando gridSize=8 para " + totalClientes + " clientes");
+			return 8;
+		}
+		// Para > 500 clientes: grid 9x9 = 81 cuadrantes (6-7 clientes/cluster)
+		Log.i(TAG, "DEBUG: Retornando gridSize=9 para " + totalClientes + " clientes (>500)");
+		return 9;
 	}
 
 	/**
@@ -716,6 +723,9 @@ public class RouteGeneratorService {
 					ruta.GeolocalizationStatus = rutaCliente.geolocalizationStatus;
 					ruta.Latitud = rutaCliente.latitud;
 					ruta.Longitud = rutaCliente.longitud;
+
+					// Cluster (para debugging/Excel)
+					ruta.ClusterID = rutaCliente.clusterID;
 
 					ruta.save();
 
