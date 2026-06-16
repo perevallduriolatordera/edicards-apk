@@ -27,6 +27,10 @@ android {
         // Inyectar ORS_API_KEY desde local.properties como BuildConfig
         def orsApiKey = localProperties.getProperty('ors.api.key', '')
         buildConfigField "String", "ORS_API_KEY", "\"${orsApiKey}\""
+
+        // Inyectar Google Maps Routes API Key desde local.properties
+        def googleMapsApiKey = localProperties.getProperty('google.maps.api.key', '')
+        buildConfigField "String", "GOOGLE_MAPS_API_KEY", "\"${googleMapsApiKey}\""
     }
 
     buildTypes {
@@ -60,6 +64,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.2.2'
 //    implementation 'com.amitshekhar.android:android-networking:1.0.4'
     implementation 'com.github.amitshekhariitbhu.Fast-Android-Networking:android-networking:1.0.4'
+
     implementation files('libs/activation.jar')
     implementation files('libs/additionnal.jar')
     //implementation files('libs/commons-codec-1.10.jar')

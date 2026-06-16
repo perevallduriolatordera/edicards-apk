@@ -135,13 +135,12 @@ public class RouteGeneratorService {
 	}
 
 	/**
-	 * Genera una ruta de forma asíncrona usando Google Maps Routes API
+	 * Genera una ruta de forma asíncrona usando VROOM + ORS
 	 * @param context Contexto de la aplicación
 	 * @param ciudadBase Ciudad base
-	 * @param googleMapsApiKey API Key de Google Maps
 	 * @param callback Callback para recibir resultados
 	 */
-	public void generateRouteAsync(Context context, String ciudadBase, String googleMapsApiKey, RouteGenerationCallback callback) {
+	public void generateRouteAsync(Context context, String ciudadBase, RouteGenerationCallback callback) {
 		new Thread(() -> {
 			try {
 				AppConfig app = (AppConfig) context.getApplicationContext();
@@ -187,9 +186,9 @@ public class RouteGeneratorService {
 					return;
 				}
 
-				callback.onProgress("Optimizando ruta con Google Maps...");
-				ArrayList<RouteOptimizerService.RutaClienteData> rutaOrdenada = optimizeRouteWithGoogleMaps(
-					clusters, baseLocation, context, googleMapsApiKey
+				callback.onProgress("Optimizando rutas con VROOM...");
+				ArrayList<RouteOptimizerService.RutaClienteData> rutaOrdenada = optimizeRouteWithVROOM(
+					clusters, baseLocation
 				);
 
 				if (rutaOrdenada == null || rutaOrdenada.isEmpty()) {
@@ -200,7 +199,7 @@ public class RouteGeneratorService {
 				callback.onProgress("Guardando ruta en BD...");
 				saveRoute(app, rutaOrdenada, ciudadBase);
 
-				Log.i(TAG, "Ruta generada exitosamente");
+				Log.i(TAG, "Ruta generada exitosamente con VROOM");
 				callback.onRouteGenerated();
 
 			} catch (Exception e) {
@@ -211,27 +210,22 @@ public class RouteGeneratorService {
 	}
 
 	/**
-	 * Optimiza ruta usando estrategia híbrida:
-	 * - Clusters < 30 clientes: Google Maps Routes API (mejor precisión de carreteras)
-	 * - Clusters >= 30 clientes: TSP local con ORS Matrix (más rápido, sin límite de waypoints)
-	 * Separa clientes con coordenadas inválidas y los pone al final
+	 * Optimiza ruta usando VROOM + ORS
+	 * - Todos los clusters: ORS Matrix + VROOM optimization
+	 * - Separa clientes con coordenadas inválidas y los pone al final
 	 */
-	private ArrayList<RouteOptimizerService.RutaClienteData> optimizeRouteWithGoogleMaps(
+	private ArrayList<RouteOptimizerService.RutaClienteData> optimizeRouteWithVROOM(
 			ArrayList<GeoClusteringService.GeoCluster> clusters,
-			LatLng baseLocation,
-			Context context,
-			String googleMapsApiKey) throws Exception {
+			LatLng baseLocation) throws Exception {
 
 		ArrayList<RouteOptimizerService.RutaClienteData> rutaCompleta = new ArrayList<>();
 		ArrayList<Cliente> clientesInvalidos = new ArrayList<>();
 		int ordenGlobal = 1;
 
 		Log.d(TAG, "════════════════════════════════════════");
-		Log.d(TAG, "OPTIMIZANDO CON ESTRATEGIA HÍBRIDA");
+		Log.d(TAG, "OPTIMIZANDO CON VROOM + ORS");
 		Log.d(TAG, "Total clusters: " + clusters.size());
 		Log.d(TAG, "Base location: " + baseLocation.getLatitude() + ", " + baseLocation.getLongitude());
-		Log.d(TAG, "  - Clusters < 30 clientes: Google Maps API");
-		Log.d(TAG, "  - Clusters >= 30 clientes: TSP + ORS Matrix");
 
 		for (GeoClusteringService.GeoCluster cluster : clusters) {
 			// Separar clientes válidos e inválidos
@@ -241,13 +235,8 @@ public class RouteGeneratorService {
 			Log.i(TAG, "Procesando cluster con " + cluster.clientes.size() + " clientes");
 
 			for (Cliente cliente : cluster.clientes) {
-				Log.d(TAG, "  → Cliente: " + cliente.Nombre);
-				Log.d(TAG, "    - Latitud: " + cliente.Latitud);
-				Log.d(TAG, "    - Longitud: " + cliente.Longitud);
-
-				if (isValidSpanishCoordinate(cliente.Latitud, cliente.Longitud)) {
+				if (isValidCoordinate(cliente.Latitud, cliente.Longitud)) {
 					clientesValidos.add(cliente);
-					Log.d(TAG, "    ✓ VÁLIDO");
 				} else {
 					clientesInvalidosCluster.add(cliente);
 					Log.w(TAG, "    ✗ INVÁLIDO: " + cliente.Nombre + " (" + cliente.Latitud + ", " + cliente.Longitud + ")");
@@ -263,17 +252,10 @@ public class RouteGeneratorService {
 			}
 
 			Log.d(TAG, "Procesando cluster: " + clientesValidos.size() + " válidos, " + clientesInvalidosCluster.size() + " inválidos");
+			Log.i(TAG, "► USANDO VROOM + ORS (cluster: " + clientesValidos.size() + " clientes)");
 
-			ArrayList<RouteOptimizerService.RutaClienteData> rutaCluster;
-
-			// Decisión: ¿Google Maps o TSP local?
-			if (clientesValidos.size() < 30) {
-				Log.i(TAG, "► USANDO GOOGLE MAPS (cluster pequeño: " + clientesValidos.size() + " clientes)");
-				rutaCluster = optimizeClusterWithGoogleMaps(clientesValidos, baseLocation, context, googleMapsApiKey);
-			} else {
-				Log.i(TAG, "► USANDO TSP LOCAL (cluster grande: " + clientesValidos.size() + " clientes)");
-				rutaCluster = optimizeClusterWithTSP(clientesValidos, baseLocation);
-			}
+			// Usar VROOM para optimizar todos los clusters
+			ArrayList<RouteOptimizerService.RutaClienteData> rutaCluster = optimizeClusterWithVROOM(clientesValidos, baseLocation);
 
 			// Agregar clientes optimizados con el orden global correcto
 			if (rutaCluster != null && !rutaCluster.isEmpty()) {
@@ -303,7 +285,7 @@ public class RouteGeneratorService {
 		}
 
 		Log.i(TAG, "════════════════════════════════════════");
-		Log.i(TAG, "║  RUTA FINAL OPTIMIZADA (HÍBRIDA)        ║");
+		Log.i(TAG, "║  RUTA FINAL OPTIMIZADA CON VROOM        ║");
 		Log.i(TAG, "║  Total clientes: " + rutaCompleta.size() + "                       ║");
 		Log.i(TAG, "════════════════════════════════════════");
 
@@ -314,88 +296,18 @@ public class RouteGeneratorService {
 	 * Llamada síncrona a Google Maps
 	 * Usa el método sincrónico de GoogleMapsRouteOptimizer
 	 */
-	private ArrayList<Integer> callGoogleMapsSync(GoogleMapsRouteOptimizer optimizer, ArrayList<String> waypoints) throws Exception {
-		try {
-			return optimizer.optimizeRouteSynchronous(waypoints);
-		} catch (Exception e) {
-			Log.e(TAG, "Error optimizando ruta con Google Maps: " + e.getMessage());
-			throw e;
-		}
-	}
-
 	/**
-	 * Optimiza un cluster pequeño (< 30 clientes) usando Google Maps Routes API
+	 * Optimiza un cluster usando VROOM + ORS Matrix
+	 * VROOM: Vehicle Routing Open-source Optimization Machine
 	 */
-	private ArrayList<RouteOptimizerService.RutaClienteData> optimizeClusterWithGoogleMaps(
-			ArrayList<Cliente> clientesValidos,
-			LatLng baseLocation,
-			Context context,
-			String googleMapsApiKey) throws Exception {
-
-		ArrayList<RouteOptimizerService.RutaClienteData> rutaCluster = new ArrayList<>();
-
-		// Convertir clientes válidos a waypoints
-		ArrayList<String> waypoints = new ArrayList<>();
-		waypoints.add(baseLocation.getLatitude() + "," + baseLocation.getLongitude());
-
-		Log.i(TAG, "Creando waypoints para Google Maps:");
-		Log.i(TAG, "  Base (índice 0): " + baseLocation.getLatitude() + "," + baseLocation.getLongitude());
-
-		for (int i = 0; i < clientesValidos.size(); i++) {
-			Cliente cliente = clientesValidos.get(i);
-			String waypoint = cliente.Latitud + "," + cliente.Longitud;
-			waypoints.add(waypoint);
-			Log.i(TAG, "  Cliente (índice " + (i + 1) + "): " + cliente.Nombre + " -> " + waypoint);
-		}
-
-		Log.i(TAG, "Total waypoints para Google Maps: " + waypoints.size());
-
-		// Crear optimizador de Google Maps
-		GoogleMapsRouteOptimizer optimizer = new GoogleMapsRouteOptimizer(context, googleMapsApiKey);
-
-		// Llamar de forma síncrona (blocking)
-		ArrayList<Integer> optimizedIndices = callGoogleMapsSync(optimizer, waypoints);
-
-		if (optimizedIndices != null && !optimizedIndices.isEmpty()) {
-			Log.d(TAG, "Orden optimizado recibido: " + optimizedIndices.toString());
-			// Procesar resultado
-			for (Integer idx : optimizedIndices) {
-				if (idx > 0 && idx <= clientesValidos.size()) {
-					Cliente cliente = clientesValidos.get(idx - 1);
-					RouteOptimizerService.RutaClienteData rutaCliente = new RouteOptimizerService.RutaClienteData();
-					rutaCliente.codigoCliente = cliente.CodigoCliente;
-					rutaCliente.nombre = cliente.Nombre;
-					rutaCliente.distanciaKm = "0.0 km"; // Será calculado por Google
-
-					rutaCliente.geolocalizationStatus = "✓ OK";
-					rutaCliente.latitud = cliente.Latitud != null ? String.format("%.6f", cliente.Latitud) : "NULL";
-					rutaCliente.longitud = cliente.Longitud != null ? String.format("%.6f", cliente.Longitud) : "NULL";
-
-					rutaCliente.nif = cliente.NIF != null ? cliente.NIF : "";
-					rutaCliente.razon = cliente.Razon != null ? cliente.Razon : "";
-
-					rutaCluster.add(rutaCliente);
-					Log.d(TAG, "  Google Maps: " + cliente.Nombre + " -> " + rutaCliente.latitud + ", " + rutaCliente.longitud);
-				}
-			}
-		} else {
-			Log.w(TAG, "No se recibió orden optimizado para cluster desde Google Maps");
-		}
-
-		return rutaCluster;
-	}
-
-	/**
-	 * Optimiza un cluster grande (>= 30 clientes) usando TSP local con ORS Matrix
-	 */
-	private ArrayList<RouteOptimizerService.RutaClienteData> optimizeClusterWithTSP(
+	private ArrayList<RouteOptimizerService.RutaClienteData> optimizeClusterWithVROOM(
 			ArrayList<Cliente> clientesValidos,
 			LatLng baseLocation) throws Exception {
 
 		ArrayList<RouteOptimizerService.RutaClienteData> rutaCluster = new ArrayList<>();
 		RouteOptimizerService optimizer = new RouteOptimizerService();
 
-		Log.i(TAG, "Iniciando optimización TSP con ORS para " + clientesValidos.size() + " clientes");
+		Log.i(TAG, "Iniciando optimización VROOM+ORS para " + clientesValidos.size() + " clientes");
 
 		ArrayList<RouteOptimizerService.RutaClienteData> rutaOptimizada = optimizer.optimizeRoute(
 			clientesValidos,
@@ -421,23 +333,30 @@ public class RouteGeneratorService {
 		// Estrategia: máximo ~15-20 clientes por cluster
 		// Para que Google Maps pueda manejar bien cada cluster
 
+		Log.i(TAG, "DEBUG: determineOptimalGridSize recibió totalClientes = " + totalClientes);
+
 		// Para <= 50 clientes: grid 2x2 = 4 cuadrantes (12-13 clientes/cluster)
 		if (totalClientes <= 50) {
+			Log.i(TAG, "DEBUG: Retornando gridSize=2 para " + totalClientes + " clientes");
 			return 2;
 		}
 		// Para 51-150 clientes: grid 3x3 = 9 cuadrantes (16-17 clientes/cluster)
 		if (totalClientes <= 150) {
+			Log.i(TAG, "DEBUG: Retornando gridSize=3 para " + totalClientes + " clientes");
 			return 3;
 		}
 		// Para 151-300 clientes: grid 5x5 = 25 cuadrantes (12 clientes/cluster)
 		if (totalClientes <= 300) {
+			Log.i(TAG, "DEBUG: Retornando gridSize=5 para " + totalClientes + " clientes");
 			return 5;
 		}
 		// Para 301-500 clientes: grid 6x6 = 36 cuadrantes (13-14 clientes/cluster)
 		if (totalClientes <= 500) {
+			Log.i(TAG, "DEBUG: Retornando gridSize=6 para " + totalClientes + " clientes");
 			return 6;
 		}
 		// Para > 500 clientes: grid 7x7 = 49 cuadrantes (10-15 clientes/cluster)
+		Log.i(TAG, "DEBUG: Retornando gridSize=7 para " + totalClientes + " clientes (>500)");
 		return 7;
 	}
 
@@ -750,7 +669,7 @@ public class RouteGeneratorService {
 		for (Cliente cliente : clientes) {
 			if (cliente.CodigoCliente != null && !cliente.CodigoCliente.isEmpty()) {
 				// Contar coordenadas inválidas
-				if (!isValidSpanishCoordinate(cliente.Latitud, cliente.Longitud)) {
+				if (!isValidCoordinate(cliente.Latitud, cliente.Longitud)) {
 					coordinadasInvalidas++;
 				}
 				// Si ya existe este código, será sobrescrito por la nueva ocurrencia (la última)
@@ -805,18 +724,13 @@ public class RouteGeneratorService {
 	 * @param longitud Longitud a validar
 	 * @return true si las coordenadas están dentro de España, false en caso contrario
 	 */
-	private boolean isValidSpanishCoordinate(double latitud, double longitud) {
-		// Rango permitido para España (con margen)
-		final double MIN_LAT = 34.0;
-		final double MAX_LAT = 44.0;
-		final double MIN_LNG = -11.0;
-		final double MAX_LNG = 5.0;
-
-		boolean esValida = latitud >= MIN_LAT && latitud <= MAX_LAT &&
-		                   longitud >= MIN_LNG && longitud <= MAX_LNG;
+	private boolean isValidCoordinate(double latitud, double longitud) {
+		// Aceptar cualquier coordenada geográfica válida mundialmente
+		boolean esValida = latitud >= -90 && latitud <= 90 &&
+		                   longitud >= -180 && longitud <= 180;
 
 		if (!esValida) {
-			Log.w(TAG, "Coordenadas fuera de España: lat=" + latitud + ", lng=" + longitud);
+			Log.w(TAG, "Coordenadas inválidas: lat=" + latitud + ", lng=" + longitud);
 		}
 
 		return esValida;

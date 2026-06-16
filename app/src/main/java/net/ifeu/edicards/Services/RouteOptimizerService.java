@@ -173,7 +173,7 @@ public class RouteOptimizerService {
                 return null;
             }
 
-            // 3. Aplicar algoritmo Nearest Neighbor TSP para optimizar ruta
+            // 3. Aplicar algoritmo de optimización de ruta (Nearest Neighbor + 2-Opt improvement)
             // Comenzar desde el índice especificado (base para primer lote, primer cliente para lotes posteriores)
             ArrayList<Integer> optimizedIndices = nearestNeighborTSP(distanceMatrix, startingLocationIndex);
 
@@ -181,6 +181,10 @@ public class RouteOptimizerService {
                 Log.e(TAG, "No se pudo calcular ruta optimizada para lote");
                 return null;
             }
+
+            // Aplicar mejora 2-opt para optimización local
+            optimizedIndices = TwoOptRouteOptimizer.optimize(optimizedIndices, distanceMatrix);
+            Log.i(TAG, "✓ Nearest Neighbor + 2-Opt completado");
 
             // 4. Construir resultado con RutaClienteData
             ArrayList<RutaClienteData> rutaOrdenada = new ArrayList<>();
@@ -204,6 +208,11 @@ public class RouteOptimizerService {
                     rutaCliente.razon = cliente.Razon != null ? cliente.Razon : "";
                     rutaCliente.nombre = cliente.Nombre != null ? cliente.Nombre : "";
                     rutaCliente.codigoCliente = cliente.CodigoCliente;
+
+                    // Validar geolocalización
+                    rutaCliente.geolocalizationStatus = validateGeolocalization(cliente);
+                    rutaCliente.latitud = cliente.Latitud != null ? String.format("%.6f", cliente.Latitud) : "NULL";
+                    rutaCliente.longitud = cliente.Longitud != null ? String.format("%.6f", cliente.Longitud) : "NULL";
 
                     // Calcular distancia desde punto anterior
                     int prevIndex = i > 0 ? optimizedIndices.get(i - 1) : 0;
@@ -577,6 +586,37 @@ public class RouteOptimizerService {
     }
 
     /**
+     * Valida si un cliente tiene geolocalización válida
+     * Verifica:
+     * - Coordenadas no nulas
+     * - Latitud/Longitud dentro de rangos válidos
+     * - No son valores por defecto (0, 0)
+     *
+     * @param cliente Cliente a validar
+     * @return "✓ OK" si valida, "⚠ SIN COORDENADAS" si null/0, "❌ INVÁLIDAS" si fuera de rango
+     */
+    private String validateGeolocalization(Cliente cliente) {
+        if (cliente.Latitud == null || cliente.Longitud == null) {
+            return "⚠ SIN COORDS";
+        }
+
+        Double lat = cliente.Latitud;
+        Double lon = cliente.Longitud;
+
+        // Verificar si son valores por defecto
+        if (lat == 0 && lon == 0) {
+            return "⚠ SIN COORDS";
+        }
+
+        // Verificar rango válido (aproximadamente España: lat 36-43, lon -10 a 3)
+        if (lat < 35 || lat > 44 || lon < -11 || lon > 4) {
+            return "❌ INVÁLIDAS";
+        }
+
+        return "✓ OK";
+    }
+
+    /**
      * Calcula matriz de distancias usando Haversine (no requiere API)
      * Útil para pre-ordenamiento cuando hay muchas ubicaciones (> 60)
      *
@@ -711,5 +751,10 @@ public class RouteOptimizerService {
         public String nombre;
         public String codigoCliente;
         public String distanciaKm;
+
+        // Geolocalización
+        public String geolocalizationStatus;  // "✓ OK", "⚠ SIN COORDENADAS", "❌ COORDENADAS INVÁLIDAS"
+        public String latitud;                // Para referencia
+        public String longitud;               // Para referencia
     }
 }

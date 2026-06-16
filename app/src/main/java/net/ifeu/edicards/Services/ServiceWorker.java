@@ -3,6 +3,7 @@ package net.ifeu.edicards.Services;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Environment;
+import android.util.Log;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsCredentials;
@@ -28,6 +29,7 @@ import net.ifeu.edicards.Excel.LogBookCreator;
 import net.ifeu.edicards.Excel.LogBookExceptionsCreator;
 import net.ifeu.edicards.Pdf.inventory.PdfInventory;
 import net.ifeu.edicards.Services.RestClient.RequestMethod;
+import net.ifeu.edicards.Services.RouteGenerationCallback;
 import net.ifeu.edicards.Xml.XmlCreator;
 import net.ifeu.library.Csv.CsvCreator;
 import net.ifeu.library.Debugger.Debugger;
@@ -1139,7 +1141,7 @@ public class ServiceWorker extends ServiceBase {
 			importResult.addErrorMessage("No se ha podido importar - Error creando excel de excepciones");
 		}
 
-		// Generar ruta semanal con ChatGPT si es necesario
+		// Generar ruta semanal con Google Maps Routes API si es necesario
 		try {
 			RutaGenerada rutaGenerada = Factory.build(RutaGenerada.class, app);
 
@@ -1150,15 +1152,58 @@ public class ServiceWorker extends ServiceBase {
 				if (ciudad.exists()) {
 					ciudad.load();
 
-					// Generar ruta en segundo plano
+					// Generar ruta con Google Maps Routes API
 					try {
 						RouteGeneratorService routeService = new RouteGeneratorService();
-						boolean success = routeService.generateRoute(app, ciudad.CiudadBase);
+						String googleMapsApiKey = ConstantsEndpoints.GOOGLE_MAPS_API_KEY;
 
-						if (!success) {
+						if (googleMapsApiKey == null || googleMapsApiKey.isEmpty()) {
 							importResult.addErrorMessage(
-								"No se pudo generar ruta semanal - Verifique conexión a internet"
+								"No se pudo generar ruta - Google Maps API Key no configurada"
 							);
+						} else {
+							// Usar generateRouteAsync con callback
+							final boolean[] routeGenerated = {false};
+							final Object lock = new Object();
+
+							routeService.generateRouteAsync(app, ciudad.CiudadBase, googleMapsApiKey, new RouteGenerationCallback() {
+								@Override
+								public void onProgress(String message) {
+									Log.d("ServiceWorker", "Generando ruta: " + message);
+								}
+
+								@Override
+								public void onRouteGenerated() {
+									Log.i("ServiceWorker", "✓ Ruta generada exitosamente con Google Maps");
+									routeGenerated[0] = true;
+									synchronized (lock) {
+										lock.notifyAll();
+									}
+								}
+
+								@Override
+								public void onError(String errorMsg) {
+									Log.e("ServiceWorker", "✗ Error generando ruta: " + errorMsg);
+									synchronized (lock) {
+										lock.notifyAll();
+									}
+								}
+							});
+
+							// Esperar a que termine (máximo 5 minutos)
+							synchronized (lock) {
+								try {
+									lock.wait(300000); // 5 minutos
+								} catch (InterruptedException e) {
+									Thread.currentThread().interrupt();
+								}
+							}
+
+							if (!routeGenerated[0]) {
+								importResult.addErrorMessage(
+									"No se pudo generar ruta semanal - Timeout o error en Google Maps API"
+								);
+							}
 						}
 					} catch (Exception ex) {
 						importResult.addErrorMessage(

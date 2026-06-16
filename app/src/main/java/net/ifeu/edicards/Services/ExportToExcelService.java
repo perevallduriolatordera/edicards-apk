@@ -151,6 +151,9 @@ public class ExportToExcelService {
 			"Poblacion",
 			"Provincia",
 			"Distancia (km)",
+			"Geo Status",
+			"Latitud",
+			"Longitud",
 			"Fecha Generacion"
 		};
 
@@ -195,6 +198,18 @@ public class ExportToExcelService {
 		Cell cellDistancia = row.createCell(cellNum++);
 		cellDistancia.setCellValue(ruta.DistanciaEstimada != null ? ruta.DistanciaEstimada : "");
 
+		// Geo Status
+		Cell cellGeoStatus = row.createCell(cellNum++);
+		cellGeoStatus.setCellValue(ruta.GeolocalizationStatus != null ? ruta.GeolocalizationStatus : "⚠ SIN COORDS");
+
+		// Latitud
+		Cell cellLatitud = row.createCell(cellNum++);
+		cellLatitud.setCellValue(ruta.Latitud != null ? ruta.Latitud : "");
+
+		// Longitud
+		Cell cellLongitud = row.createCell(cellNum++);
+		cellLongitud.setCellValue(ruta.Longitud != null ? ruta.Longitud : "");
+
 		// Fecha Generacion
 		Cell cellFecha = row.createCell(cellNum++);
 		cellFecha.setCellValue(ruta.FechaGeneracion != null ? ruta.FechaGeneracion.toString() : "");
@@ -212,7 +227,10 @@ public class ExportToExcelService {
 		sheet.setColumnWidth(3, 25 * 256);   // Direccion
 		sheet.setColumnWidth(4, 15 * 256);   // Poblacion
 		sheet.setColumnWidth(5, 15 * 256);   // Provincia
-		sheet.setColumnWidth(6, 15 * 256);   // Distancia
-		sheet.setColumnWidth(7, 18 * 256);   // Fecha Generacion
+		sheet.setColumnWidth(6, 15 * 256);   // Distancia (km)
+		sheet.setColumnWidth(7, 15 * 256);   // Geo Status
+		sheet.setColumnWidth(8, 18 * 256);   // Latitud
+		sheet.setColumnWidth(9, 18 * 256);   // Longitud
+		sheet.setColumnWidth(10, 18 * 256);  // Fecha Generacion
 	}
 }

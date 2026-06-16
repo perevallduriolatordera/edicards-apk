@@ -1106,7 +1106,10 @@ public class DatabaseOperations {
 					"PoblacionCliente text, " +
 					"ProvinciaCliente text, " +
 					"DistanciaEstimada text, " +
-					"CiudadBase text not null);"
+					"CiudadBase text not null, " +
+					"GeolocalizationStatus text, " +
+					"Latitud text, " +
+					"Longitud text);"
 				);
 			} catch (Exception e) {
 				throw new Exception("Error creando la tabla " +
@@ -1160,7 +1163,29 @@ public class DatabaseOperations {
 				if (!e.getMessage().startsWith("duplicate column name"))
 					throw new RuntimeException(e);
 			}
+				try {
+					_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_RUTAS_GENERADAS + " ADD COLUMN GeolocalizationStatus text default null ");
+				}
+				catch (Exception e) {
+					if (!e.getMessage().startsWith("duplicate column name"))
+						throw new RuntimeException(e);
+				}
 			
+				try {
+					_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_RUTAS_GENERADAS + " ADD COLUMN Latitud text default null ");
+				}
+				catch (Exception e) {
+					if (!e.getMessage().startsWith("duplicate column name"))
+						throw new RuntimeException(e);
+				}
+			
+				try {
+					_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_RUTAS_GENERADAS + " ADD COLUMN Longitud text default null ");
+				}
+				catch (Exception e) {
+					if (!e.getMessage().startsWith("duplicate column name"))
+						throw new RuntimeException(e);
+				}
 		}
 		else {
 			throw new RuntimeException("Error añadiendo columnas. Motivo: La Base de datos no ha podido ser abierta.");

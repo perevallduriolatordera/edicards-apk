@@ -14,11 +14,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.ConstantsEndpoints;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.CiudadVendedor;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.RutaGenerada;
 import net.ifeu.edicards.Services.RouteGeneratorService;
+import net.ifeu.edicards.Services.RouteGenerationCallback;
 import net.ifeu.edicards.Services.ExportToExcelService;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
 
@@ -235,25 +237,48 @@ public class RutasViewerFragment extends Fragment {
 					return;
 				}
 
-				// Generar ruta
+				// Generar ruta con Google Maps Routes API
 				RouteGeneratorService service = new RouteGeneratorService();
-				boolean success = service.generateRoute(app, ciudad.CiudadBase);
+				String googleMapsApiKey = ConstantsEndpoints.GOOGLE_MAPS_API_KEY;
 
-				// Actualizar UI en main thread
-				getActivity().runOnUiThread(() -> {
-					progressDialog.dismiss();
-
-					if (success) {
-						app.getMessageBox().Show("Éxito",
-							"Ruta regenerada correctamente",
-							getActivity(), MessageBoxType.Ok);
-						cargarRutaActual(true);
-					} else {
+				if (googleMapsApiKey == null || googleMapsApiKey.isEmpty()) {
+					getActivity().runOnUiThread(() -> {
+						progressDialog.dismiss();
 						app.getMessageBox().Show("Error",
-							"No se pudo regenerar la ruta. Verifique conexión a internet.",
+							"Google Maps API Key no está configurada",
 							getActivity(), MessageBoxType.Error);
-					}
-				});
+					});
+				} else {
+					service.generateRouteAsync(app, ciudad.CiudadBase, googleMapsApiKey, new RouteGenerationCallback() {
+						@Override
+						public void onProgress(String message) {
+							getActivity().runOnUiThread(() -> {
+								progressDialog.setMessage("Generando ruta: " + message);
+							});
+						}
+
+						@Override
+						public void onRouteGenerated() {
+							getActivity().runOnUiThread(() -> {
+								progressDialog.dismiss();
+								app.getMessageBox().Show("Éxito",
+									"Ruta regenerada correctamente con Google Maps",
+									getActivity(), MessageBoxType.Ok);
+								cargarRutaActual(true);
+							});
+						}
+
+						@Override
+						public void onError(String errorMsg) {
+							getActivity().runOnUiThread(() -> {
+								progressDialog.dismiss();
+								app.getMessageBox().Show("Error",
+									"No se pudo regenerar la ruta: " + errorMsg,
+									getActivity(), MessageBoxType.Error);
+							});
+						}
+					});
+				}
 
 			} catch (Exception e) {
 				getActivity().runOnUiThread(() -> {

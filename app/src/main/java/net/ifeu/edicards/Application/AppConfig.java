@@ -119,6 +119,14 @@ public class AppConfig extends Application {
 				Log.w("AppConfig", "Advertencia: ORS_API_KEY no está configurada en local.properties");
 			}
 
+			// Inicializar Google Maps API Key desde BuildConfig
+			ConstantsEndpoints.GOOGLE_MAPS_API_KEY = BuildConfig.GOOGLE_MAPS_API_KEY;
+			if (ConstantsEndpoints.GOOGLE_MAPS_API_KEY != null && !ConstantsEndpoints.GOOGLE_MAPS_API_KEY.isEmpty()) {
+				Log.d("AppConfig", "Google Maps API Key inicializada correctamente");
+			} else {
+				Log.w("AppConfig", "Advertencia: GOOGLE_MAPS_API_KEY no está configurada en local.properties");
+			}
+
 		} catch (Exception ex) {
 			Log.e("App Edicards", "Error: " + ex.getMessage());
 			try {

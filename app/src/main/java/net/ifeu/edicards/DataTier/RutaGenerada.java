@@ -26,6 +26,11 @@ public class RutaGenerada extends Persistent implements IPersistable {
 	public String DistanciaEstimada;
 	public String CiudadBase;
 
+	// Geolocalización
+	public String GeolocalizationStatus;  // "✓ OK", "⚠ SIN COORDS", "❌ INVÁLIDAS"
+	public String Latitud;
+	public String Longitud;
+
 	@Override
 	public void InitializePersistance(net.ifeu.edicards.Application.AppConfig appConfigParam) {
 		super.InitializePersistance(appConfigParam);
@@ -45,6 +50,9 @@ public class RutaGenerada extends Persistent implements IPersistable {
 		values.put("ProvinciaCliente", this.ProvinciaCliente);
 		values.put("DistanciaEstimada", this.DistanciaEstimada);
 		values.put("CiudadBase", this.CiudadBase);
+		values.put("GeolocalizationStatus", this.GeolocalizationStatus);
+		values.put("Latitud", this.Latitud);
+		values.put("Longitud", this.Longitud);
 
 		try {
 			this.IdRuta = super.getDatabaseOperations().insert(
@@ -66,6 +74,9 @@ public class RutaGenerada extends Persistent implements IPersistable {
 		values.put("PoblacionCliente", this.PoblacionCliente);
 		values.put("ProvinciaCliente", this.ProvinciaCliente);
 		values.put("DistanciaEstimada", this.DistanciaEstimada);
+		values.put("GeolocalizationStatus", this.GeolocalizationStatus);
+		values.put("Latitud", this.Latitud);
+		values.put("Longitud", this.Longitud);
 
 		String[] whereArgs = {String.valueOf(this.IdRuta)};
 
@@ -127,6 +138,9 @@ public class RutaGenerada extends Persistent implements IPersistable {
 					ruta.ProvinciaCliente = cursor.getString(cursor.getColumnIndex("ProvinciaCliente"));
 					ruta.DistanciaEstimada = cursor.getString(cursor.getColumnIndex("DistanciaEstimada"));
 					ruta.CiudadBase = cursor.getString(cursor.getColumnIndex("CiudadBase"));
+					ruta.GeolocalizationStatus = cursor.getString(cursor.getColumnIndex("GeolocalizationStatus"));
+					ruta.Latitud = cursor.getString(cursor.getColumnIndex("Latitud"));
+					ruta.Longitud = cursor.getString(cursor.getColumnIndex("Longitud"));
 
 					list.add(ruta);
 				} while (cursor.moveToNext());

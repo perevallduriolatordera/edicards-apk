@@ -43,6 +43,11 @@ public class ConstantsEndpoints {
     public static final String ORS_GEOCODING_URL = "https://api.openrouteservice.org/geocode/search";
     public static final String ORS_MATRIX_URL = "https://api.openrouteservice.org/v2/matrix/driving-car";
 
+    // Google Maps Routes API
+    // Inyectada desde local.properties en build.gradle
+    public static String GOOGLE_MAPS_API_KEY = null; // Se inicializa en AppConfig
+    public static final String GOOGLE_MAPS_ROUTES_URL = "https://routes.googleapis.com/directions/v2:computeRoutes";
+
     public static final int WS_PAGINACION = 500;
     public static final int WS_MAX_INTENTOS = 500;
 
