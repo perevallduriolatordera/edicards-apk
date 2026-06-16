@@ -213,6 +213,7 @@ public class RouteGeneratorService {
 	 * Optimiza ruta usando VROOM + ORS
 	 * - Todos los clusters: ORS Matrix + VROOM optimization
 	 * - Separa clientes con coordenadas inválidas y los pone al final
+	 * - REORDENA clusters por proximidad para minimizar saltos entre ellos
 	 */
 	private ArrayList<RouteOptimizerService.RutaClienteData> optimizeRouteWithVROOM(
 			ArrayList<GeoClusteringService.GeoCluster> clusters,
@@ -226,6 +227,9 @@ public class RouteGeneratorService {
 		Log.d(TAG, "OPTIMIZANDO CON VROOM + ORS");
 		Log.d(TAG, "Total clusters: " + clusters.size());
 		Log.d(TAG, "Base location: " + baseLocation.getLatitude() + ", " + baseLocation.getLongitude());
+
+		// REORDENAR clusters por proximidad secuencial (vecino más cercano)
+		clusters = orderClustersByProximity(clusters, baseLocation);
 
 		for (GeoClusteringService.GeoCluster cluster : clusters) {
 			// Separar clientes válidos e inválidos
@@ -324,6 +328,106 @@ public class RouteGeneratorService {
 		}
 
 		return rutaCluster;
+	}
+
+	/**
+	 * Reordena clusters usando algoritmo de vecino más cercano
+	 * Minimiza los saltos entre clusters visitando los más cercanos secuencialmente
+	 *
+	 * @param clusters Lista original de clusters
+	 * @param baseLocation Ubicación de la base
+	 * @return Clusters reordenados por proximidad secuencial
+	 */
+	private ArrayList<GeoClusteringService.GeoCluster> orderClustersByProximity(
+			ArrayList<GeoClusteringService.GeoCluster> clusters,
+			LatLng baseLocation) {
+
+		if (clusters == null || clusters.size() <= 1) {
+			return clusters;
+		}
+
+		ArrayList<GeoClusteringService.GeoCluster> orderedClusters = new ArrayList<>();
+		ArrayList<Integer> visitedIndexes = new ArrayList<>();
+
+		Log.d(TAG, "════════════════════════════════════════");
+		Log.d(TAG, "REORDENANDO CLUSTERS POR PROXIMIDAD");
+		Log.d(TAG, "Total clusters a reordenar: " + clusters.size());
+
+		// 1. Empezar con el cluster más cercano a la base
+		int currentIdx = 0;
+		double minDistToBase = Double.MAX_VALUE;
+		for (int i = 0; i < clusters.size(); i++) {
+			double distToBase = clusters.get(i).distanceToPoint(
+					baseLocation.getLatitude(),
+					baseLocation.getLongitude()
+			);
+			if (distToBase < minDistToBase) {
+				minDistToBase = distToBase;
+				currentIdx = i;
+			}
+		}
+
+		// Agregar primer cluster
+		orderedClusters.add(clusters.get(currentIdx));
+		visitedIndexes.add(currentIdx);
+		Log.d(TAG, "[1] Cluster inicial (más cercano a base): Cluster " +
+				clusters.get(currentIdx).clusterId +
+				" (" + clusters.get(currentIdx).size() + " clientes)");
+
+		// 2. Algoritmo del vecino más cercano para clusters restantes
+		double lastLat = clusters.get(currentIdx).centerLat;
+		double lastLon = clusters.get(currentIdx).centerLon;
+
+		while (visitedIndexes.size() < clusters.size()) {
+			int nearestIdx = -1;
+			double minDist = Double.MAX_VALUE;
+
+			// Buscar cluster no visitado más cercano al último
+			for (int i = 0; i < clusters.size(); i++) {
+				if (visitedIndexes.contains(i)) {
+					continue; // Ya visitado
+				}
+
+				GeoClusteringService.GeoCluster candidate = clusters.get(i);
+				double dist = calculateDistance(
+						lastLat, lastLon,
+						candidate.centerLat, candidate.centerLon
+				);
+
+				if (dist < minDist) {
+					minDist = dist;
+					nearestIdx = i;
+				}
+			}
+
+			if (nearestIdx == -1) {
+				break; // No hay más clusters
+			}
+
+			// Agregar cluster más cercano
+			orderedClusters.add(clusters.get(nearestIdx));
+			visitedIndexes.add(nearestIdx);
+
+			GeoClusteringService.GeoCluster nextCluster = clusters.get(nearestIdx);
+			Log.d(TAG, "[" + (visitedIndexes.size()) + "] Cluster " + nextCluster.clusterId +
+					" (" + nextCluster.size() + " clientes) - Distancia: " +
+					String.format("%.1f km", minDist / 1000.0));
+
+			// Actualizar posición para próxima iteración
+			lastLat = nextCluster.centerLat;
+			lastLon = nextCluster.centerLon;
+		}
+
+		Log.d(TAG, "════════════════════════════════════════");
+
+		return orderedClusters;
+	}
+
+	/**
+	 * Calcula distancia Haversine entre dos puntos en km
+	 */
+	private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+		return GeoClusteringService.calculateHaversineDistance(lat1, lon1, lat2, lon2);
 	}
 
 	/**
