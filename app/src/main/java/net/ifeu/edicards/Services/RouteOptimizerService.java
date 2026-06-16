@@ -39,6 +39,20 @@ public class RouteOptimizerService {
      * @throws Exception Si hay error en la llamada a ORS Matrix API
      */
     public ArrayList<RutaClienteData> optimizeRoute(ArrayList<Cliente> clientes, LatLng baseLocation) throws Exception {
+        return optimizeRoute(clientes, baseLocation, null);
+    }
+
+    /**
+     * Optimiza una ruta para una lista de clientes usando algoritmo Nearest Neighbor
+     * Versión con punto de inicio personalizado para conectar clusters
+     *
+     * @param clientes Lista de clientes con coordenadas ya geocodificadas
+     * @param baseLocation Ubicación de la base del vendedor
+     * @param startingClient Cliente desde el que comenzar la ruta (null = comenzar desde base)
+     * @return Lista de RutaClienteData ordenada de forma optimizada, o null si falla
+     * @throws Exception Si hay error en la llamada a ORS Matrix API
+     */
+    public ArrayList<RutaClienteData> optimizeRoute(ArrayList<Cliente> clientes, LatLng baseLocation, Cliente startingClient) throws Exception {
         if (clientes == null || clientes.isEmpty()) {
             Log.w(TAG, "Lista de clientes vacía");
             return null;
@@ -50,6 +64,9 @@ public class RouteOptimizerService {
         }
 
         Log.i(TAG, "Optimizando ruta para " + clientes.size() + " clientes");
+        if (startingClient != null) {
+            Log.i(TAG, "Punto de inicio personalizado: " + startingClient.Nombre);
+        }
 
         try {
             // Dividir clientes en lotes de máximo 49 (50 incluyendo la base)
@@ -61,7 +78,23 @@ public class RouteOptimizerService {
 
             // Si hay pocos clientes, procesarlos todos juntos
             if (clientes.size() <= MAX_LOCATIONS_PER_REQUEST) {
-                return optimizeRouteBatch(clientes, baseLocation, 0, 0);
+                // Determinar startingIndex basado en si hay startingClient
+                int startingIndex = 0;
+                ArrayList<Cliente> clientesOrdenados = clientes;
+
+                if (startingClient != null) {
+                    // Reordenar para que startingClient esté primero
+                    clientesOrdenados = new ArrayList<>();
+                    clientesOrdenados.add(startingClient);
+                    for (Cliente c : clientes) {
+                        if (!c.CodigoCliente.equals(startingClient.CodigoCliente)) {
+                            clientesOrdenados.add(c);
+                        }
+                    }
+                    startingIndex = 1; // Empezar desde primer cliente (no base)
+                }
+
+                return optimizeRouteBatch(clientesOrdenados, baseLocation, 0, startingIndex);
             }
 
             // Si hay muchos clientes, pre-ordenar por proximidad antes de dividir en lotes
@@ -484,10 +517,8 @@ public class RouteOptimizerService {
             }
         }
 
-        // Volver a la base (startIndex)
-        route.add(startIndex);
-
-        Log.d(TAG, "Ruta NN calculada: " + route.toString());
+        // Ruta lineal: NO volver a la base
+        Log.d(TAG, "Ruta NN lineal calculada: " + route.toString());
         return route;
     }
 

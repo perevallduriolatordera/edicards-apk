@@ -231,6 +231,9 @@ public class RouteGeneratorService {
 		// REORDENAR clusters por proximidad secuencial (vecino más cercano)
 		clusters = orderClustersByProximity(clusters, baseLocation);
 
+		// Variables para conectar clusters
+		Cliente clienteAnterior = null;
+
 		for (GeoClusteringService.GeoCluster cluster : clusters) {
 			// Separar clientes válidos e inválidos
 			ArrayList<Cliente> clientesValidos = new ArrayList<>();
@@ -258,14 +261,28 @@ public class RouteGeneratorService {
 			Log.d(TAG, "Procesando cluster: " + clientesValidos.size() + " válidos, " + clientesInvalidosCluster.size() + " inválidos");
 			Log.i(TAG, "► USANDO VROOM + ORS (cluster: " + clientesValidos.size() + " clientes)");
 
-			// Usar VROOM para optimizar todos los clusters
-			ArrayList<RouteOptimizerService.RutaClienteData> rutaCluster = optimizeClusterWithVROOM(clientesValidos, baseLocation);
+			// Usar VROOM para optimizar todos los clusters, conectando con el anterior
+			ArrayList<RouteOptimizerService.RutaClienteData> rutaCluster = optimizeClusterWithVROOM(
+				clientesValidos,
+				baseLocation,
+				clienteAnterior
+			);
 
 			// Agregar clientes optimizados con el orden global correcto
 			if (rutaCluster != null && !rutaCluster.isEmpty()) {
 				for (RouteOptimizerService.RutaClienteData rutaCliente : rutaCluster) {
 					rutaCliente.orden = ordenGlobal++;
 					rutaCompleta.add(rutaCliente);
+				}
+
+				// Guardar el último cliente del cluster actual para conectar con el siguiente
+				RouteOptimizerService.RutaClienteData ultimoRuta = rutaCluster.get(rutaCluster.size() - 1);
+				for (Cliente c : clientesValidos) {
+					if (c.CodigoCliente.equals(ultimoRuta.codigoCliente)) {
+						clienteAnterior = c;
+						Log.d(TAG, "Último cliente del cluster guardado: " + c.Nombre);
+						break;
+					}
 				}
 			} else {
 				Log.w(TAG, "No se pudo optimizar cluster");
@@ -303,19 +320,29 @@ public class RouteGeneratorService {
 	/**
 	 * Optimiza un cluster usando VROOM + ORS Matrix
 	 * VROOM: Vehicle Routing Open-source Optimization Machine
+	 *
+	 * @param clientesValidos Clientes del cluster a optimizar
+	 * @param baseLocation Ubicación de la base
+	 * @param clienteAnterior Cliente del cluster anterior (null si es el primer cluster)
+	 * @return Ruta optimizada del cluster
 	 */
 	private ArrayList<RouteOptimizerService.RutaClienteData> optimizeClusterWithVROOM(
 			ArrayList<Cliente> clientesValidos,
-			LatLng baseLocation) throws Exception {
+			LatLng baseLocation,
+			Cliente clienteAnterior) throws Exception {
 
 		ArrayList<RouteOptimizerService.RutaClienteData> rutaCluster = new ArrayList<>();
 		RouteOptimizerService optimizer = new RouteOptimizerService();
 
 		Log.i(TAG, "Iniciando optimización VROOM+ORS para " + clientesValidos.size() + " clientes");
+		if (clienteAnterior != null) {
+			Log.i(TAG, "  Conectando desde cliente anterior: " + clienteAnterior.Nombre);
+		}
 
 		ArrayList<RouteOptimizerService.RutaClienteData> rutaOptimizada = optimizer.optimizeRoute(
 			clientesValidos,
-			baseLocation
+			baseLocation,
+			clienteAnterior
 		);
 
 		if (rutaOptimizada != null && !rutaOptimizada.isEmpty()) {
