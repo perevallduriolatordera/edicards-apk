@@ -1031,24 +1031,24 @@ public class Reports extends Fragment {
 
 		Reports that = this;
 
+		// Layout params moderno con margen
 		android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		
-		params.setMargins(15, 0, 15, 0);
+		params.setMargins(8, 8, 8, 8);
 
 		// Nuevo Layout
-
 		final LinearLayout layout = new LinearLayout(this.getActivity());
 		layout.setOrientation(LinearLayout.HORIZONTAL);
+		layout.setGravity(Gravity.CENTER);
+		layout.setPadding(8, 8, 8, 8);
 
-		// Botón Ver
-
-		ButtonColor ver = new ButtonColor(getActivity(), Color.BLUE, getResources().getDrawable(R.drawable.ic_view_all));
-
+		// Botón Ver - Estilo moderno azul
+		ButtonColor ver = new ButtonColor(getActivity(), Color.parseColor("#1976D2"), getResources().getDrawable(R.drawable.ic_view_all));
 		ver.setText("Ver");
 		ver.setTextSize(TEXT_SIZE_BUTTON);
+		ver.setTextColor(Color.WHITE);
+		ver.setBackgroundResource(R.drawable.button_primary);
 		ver.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getWidth());
-
 		ver.setLayoutParams(params);
 
 		ver.setOnClickListener(v -> {
@@ -1067,11 +1067,12 @@ public class Reports extends Fragment {
 		});
 
 
-		// Botón Potenciados
-		ButtonColor potenciados = new ButtonColor(getActivity(), Color.BLUE, getResources().getDrawable(R.drawable.ic_potenciados));
-
+		// Botón Potenciados - Estilo moderno verde
+		ButtonColor potenciados = new ButtonColor(getActivity(), Color.parseColor("#4CAF50"), getResources().getDrawable(R.drawable.ic_potenciados));
 		potenciados.setText("Potenciados");
 		potenciados.setTextSize(TEXT_SIZE_BUTTON);
+		potenciados.setTextColor(Color.WHITE);
+		potenciados.setBackgroundResource(R.drawable.button_success);
 		potenciados.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getWidth());
 		potenciados.setLayoutParams(params);
 
@@ -1085,13 +1086,13 @@ public class Reports extends Fragment {
 			}
 		});
 
-		// Botón Retirados
-		ButtonColor retirados = new ButtonColor(getActivity(), Color.MAGENTA, getResources().getDrawable(R.drawable.ic_retirados));
-
+		// Botón Retirados - Estilo moderno naranja
+		ButtonColor retirados = new ButtonColor(getActivity(), Color.parseColor("#FF9800"), getResources().getDrawable(R.drawable.ic_retirados));
 		retirados.setText("Retirados");
 		retirados.setTextSize(TEXT_SIZE_BUTTON);
+		retirados.setTextColor(Color.WHITE);
+		retirados.setBackgroundResource(R.drawable.button_warning);
 		retirados.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getWidth());
-
 		retirados.setLayoutParams(params);
 
 		retirados.setOnClickListener(arg0 -> {
@@ -1104,13 +1105,13 @@ public class Reports extends Fragment {
 			}
 		});
 
-		// Botón Piezas
-		ButtonColor piezas = new ButtonColor(getActivity(), Color.GRAY, getResources().getDrawable(R.drawable.ic_piezas));
-
+		// Botón Piezas - Estilo moderno gris
+		ButtonColor piezas = new ButtonColor(getActivity(), Color.parseColor("#757575"), getResources().getDrawable(R.drawable.ic_piezas));
 		piezas.setText("Piezas");
 		piezas.setTextSize(TEXT_SIZE_BUTTON);
+		piezas.setTextColor(Color.WHITE);
+		piezas.setBackgroundResource(R.drawable.button_secondary);
 		piezas.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getWidth());
-
 		piezas.setLayoutParams(params);
 
 		piezas.setOnClickListener(arg0 -> {
@@ -1118,13 +1119,13 @@ public class Reports extends Fragment {
 				StartPiezasDialog();
 		});
 
-		// Botón Totales
-		ButtonColor totales = new ButtonColor(getActivity(), Color.RED, getResources().getDrawable(R.drawable.ic_totals));
-
+		// Botón Totales - Estilo moderno azul
+		ButtonColor totales = new ButtonColor(getActivity(), Color.parseColor("#1976D2"), getResources().getDrawable(R.drawable.ic_totals));
 		totales.setText("Totales");
 		totales.setTextSize(TEXT_SIZE_BUTTON);
+		totales.setTextColor(Color.WHITE);
+		totales.setBackgroundResource(R.drawable.button_primary);
 		totales.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(),  0.15f).getWidth());
-
 		totales.setLayoutParams(params);
 
 		totales.setOnClickListener(arg0 -> {

@@ -1,71 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/gastosManagerLayout"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-	android:orientation="vertical"
-    android:background="@color/Edicards"> >
-    
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        	  android:id="@+id/calendarMainLinearLayout" 
-              android:layout_width="fill_parent" 
-              android:layout_height="wrap_content"
-              android:layout_marginTop="5dp" 
-              android:background="@color/DarkBlue"
-              android:orientation="horizontal" >
-</LinearLayout>
+    android:id="@+id/gastosManagerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF">
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        	  android:id="@+id/headerMainLinearLayout" 
-              android:layout_width="fill_parent" 
-              android:layout_height="wrap_content"
-              android:background="@color/DarkBlue"
-              android:orientation="horizontal" >
-              
+    <!-- Cabecera Moderna -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FFF3E0"
+        android:padding="16dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center">
+
         <TextView
-        	android:text="Código"
-        	android:layout_width="150px" 
-    		android:layout_height="wrap_content"
-    		android:textSize="16dp"
-    		android:layout_marginLeft="30dp"/>
-        
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Gestión de Dietas"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#E65100"
+            android:gravity="center"
+            android:layout_marginBottom="8dp"/>
+
+        <View
+            android:layout_width="80dp"
+            android:layout_height="2dp"
+            android:background="#E65100"
+            android:layout_marginBottom="12dp"/>
+
         <TextView
-        	android:text="Artículo"
-        	android:layout_width="300px" 
-    		android:layout_height="wrap_content"
-    		android:textSize="16dp"
-    		android:layout_marginLeft="40dp"/>
-        
-        <TextView
-        	android:text="Cantidad"
-        	android:layout_width="185px" 
-    		android:layout_height="wrap_content"
-    		android:textSize="16dp"
-    		android:layout_marginLeft="100dp"/>
-        
-        
-</LinearLayout>
- 
-  <LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical"
-               android:layout_width="fill_parent" 
-               android:layout_height="fill_parent">
-    
-    
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/svcScroll" 
-    android:clickable="true" 
-    android:layout_weight="1" 
-    android:layout_width="fill_parent" 
-    android:layout_marginLeft="5px" 
-    android:layout_height="fill_parent">
-    
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical"
-        	  android:id="@+id/mainLinearLayout" 
-               android:layout_width="fill_parent" 
-               android:layout_height="fill_parent">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Control semanal de gastos y dietas"
+            android:textSize="14sp"
+            android:textColor="#616161"
+            android:gravity="center"/>
     </LinearLayout>
-</ScrollView>
 
-</LinearLayout>
+    <!-- Selector de Fecha y Comentarios -->
+    <LinearLayout
+        android:id="@+id/calendarMainLinearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FAFAFA"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp">
 
- 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Seleccionar Fecha"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#424242"
+            android:layout_marginBottom="8dp"/>
+    </LinearLayout>
+
+    <!-- Cabecera de Tabla -->
+    <LinearLayout
+        android:id="@+id/headerMainLinearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#E3F2FD"
+        android:padding="12dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="0.25"
+            android:layout_height="wrap_content"
+            android:text="Código"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#1976D2"
+            android:gravity="center"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="0.45"
+            android:layout_height="wrap_content"
+            android:text="Artículo"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#1976D2"
+            android:gravity="center"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_weight="0.30"
+            android:layout_height="wrap_content"
+            android:text="Cantidad"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#1976D2"
+            android:gravity="center"/>
+    </LinearLayout>
+
+    <!-- Área de Artículos -->
+    <ScrollView
+        android:id="@+id/svcScroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#FAFAFA"
+        android:padding="4dp">
+
+        <LinearLayout
+            android:id="@+id/mainLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="4dp"/>
+    </ScrollView>
+
 </LinearLayout>

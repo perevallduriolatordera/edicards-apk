@@ -157,33 +157,48 @@ public class GastosManager extends Fragment {
 	    @SuppressLint("SuspiciousIndentation")
 		private void addLine(Articulo articulo) throws Exception
 	    {
-	    	articulo.Activo = true; 
-	    	
-	    	LinearLayout articleLayout = (LinearLayout) getActivity().findViewById(R.id.mainLinearLayout);
-	    	
-	    	android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
-	    	
-	    	final LinearLayout layout = new LinearLayout(getActivity());
-	    	
-	    	layout.setBackgroundResource(R.drawable.card_background);
-	    	layout.setLayoutParams(params);
-			layout.setOrientation(LinearLayout.HORIZONTAL);
-			layout.setPadding(20, 20, 20, 20);
+	    	articulo.Activo = true;
 
-	    	LabelColor codigoArticulo = new LabelColor(getActivity(),Color.BLACK);
+	    	LinearLayout articleLayout = (LinearLayout) getActivity().findViewById(R.id.mainLinearLayout);
+
+	    	// Usar LayoutParams con peso para alineación correcta
+	    	android.widget.LinearLayout.LayoutParams paramsLayout = new LinearLayout.LayoutParams(
+	    		LayoutParams.MATCH_PARENT,
+	    		LayoutParams.WRAP_CONTENT
+	    	);
+	    	paramsLayout.setMargins(0, 0, 0, 8);
+
+	    	final LinearLayout layout = new LinearLayout(getActivity());
+
+	    	layout.setBackgroundResource(R.drawable.card_background);
+	    	layout.setLayoutParams(paramsLayout);
+			layout.setOrientation(LinearLayout.HORIZONTAL);
+			layout.setPadding(12, 12, 12, 12);
+			layout.setGravity(Gravity.CENTER_VERTICAL);
+
+			int TEXT_SIZE = 14;
+
+			// Código - 25% del ancho
+	    	android.widget.LinearLayout.LayoutParams paramsCodigo = new LinearLayout.LayoutParams(
+	    		0, LayoutParams.WRAP_CONTENT, 0.25f
+	    	);
+	    	LabelColor codigoArticulo = new LabelColor(getActivity(),Color.parseColor("#424242"));
 	    	codigoArticulo.setText(articulo.CodigoArticulo);
-			int TEXT_SIZE = 24;
-			codigoArticulo.setTextSize(TEXT_SIZE -8);
-	    	codigoArticulo.setWidth(150);
-	    	codigoArticulo.setLayoutParams(params);
-	    	
-	    	LabelColor articuloDescripcion = new LabelColor(getActivity(),Color.BLACK, true);
+			codigoArticulo.setTextSize(TEXT_SIZE);
+	    	codigoArticulo.setLayoutParams(paramsCodigo);
+	    	codigoArticulo.setGravity(Gravity.CENTER);
+
+	    	// Descripción - 45% del ancho
+	    	android.widget.LinearLayout.LayoutParams paramsDesc = new LinearLayout.LayoutParams(
+	    		0, LayoutParams.WRAP_CONTENT, 0.45f
+	    	);
+	    	LabelColor articuloDescripcion = new LabelColor(getActivity(),Color.parseColor("#212121"), true);
 	    	articuloDescripcion.setTag(articulo);
 	    	articuloDescripcion.setText(articulo.Descripcion);
-	    	articuloDescripcion.setTextSize(TEXT_SIZE -8);
-	    	articuloDescripcion.setWidth(500);
+	    	articuloDescripcion.setTextSize(TEXT_SIZE);
 	    	articuloDescripcion.setPaintFlags(articuloDescripcion.getPaintFlags() | Paint.FAKE_BOLD_TEXT_FLAG);
-	    	articuloDescripcion.setLayoutParams(params);
+	    	articuloDescripcion.setLayoutParams(paramsDesc);
+	    	articuloDescripcion.setGravity(Gravity.CENTER);
 	    	
 	    	Gasto gasto = Factory.build(Gasto.class, _appConfig);
 
@@ -234,18 +249,19 @@ public class GastosManager extends Fragment {
 						throw new RuntimeException(e);					}
 			});
 	    	
-	    	TextBoxColor cantidad = new TextBoxColor(getActivity(),Color.argb(255, 100, 100, 50),Gravity.RIGHT);
-	    	//unidadesEntradas.setInputType(InputType.TYPE_CLASS_NUMBER);
+	    	// Cantidad - 30% del ancho
+	    	android.widget.LinearLayout.LayoutParams paramsCantidad = new LinearLayout.LayoutParams(
+	    		0, LayoutParams.WRAP_CONTENT, 0.30f
+	    	);
+	    	TextBoxColor cantidad = new TextBoxColor(getActivity(),Color.parseColor("#424242"),Gravity.CENTER);
 	    	cantidad.setInputType(InputType.TYPE_CLASS_NUMBER);
 	    	cantidad.setHint(String.valueOf(gasto.Cantidad));
 	    	cantidad.setTextSize(TEXT_SIZE);
-			int FIELDS_WIDTH = 200;
-			cantidad.setWidth(FIELDS_WIDTH);
+	    	cantidad.setLayoutParams(paramsCantidad);
 	    	cantidad.setKeyListener(DigitsKeyListener.getInstance(false,true));
 
 			InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 	    	imm.showSoftInput(cantidad, InputMethodManager.SHOW_IMPLICIT);
-	    	cantidad.setLayoutParams(params);
 	    	cantidad.setTag(gasto);
 	    	
 	    	cantidad.setOnFocusChangeListener((view, hasFocus) -> {

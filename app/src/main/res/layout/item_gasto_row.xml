@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/card_background"
+    android:padding="12dp"
+    android:layout_marginBottom="4dp"
+    android:gravity="center_vertical">
+
+    <!-- Código del Artículo -->
+    <TextView
+        android:id="@+id/txtCodigoArticulo"
+        android:layout_width="0dp"
+        android:layout_weight="0.25"
+        android:layout_height="wrap_content"
+        android:text="Código"
+        android:textSize="14sp"
+        android:textColor="#424242"
+        android:gravity="center"/>
+
+    <!-- Descripción del Artículo -->
+    <TextView
+        android:id="@+id/txtDescripcionArticulo"
+        android:layout_width="0dp"
+        android:layout_weight="0.45"
+        android:layout_height="wrap_content"
+        android:text="Descripción"
+        android:textSize="14sp"
+        android:textColor="#212121"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:ellipsize="end"
+        android:maxLines="2"/>
+
+    <!-- Cantidad (EditText) -->
+    <EditText
+        android:id="@+id/txtCantidad"
+        android:layout_width="0dp"
+        android:layout_weight="0.30"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:textSize="14sp"
+        android:textColor="#424242"
+        android:gravity="center"
+        android:inputType="numberDecimal"
+        android:background="@android:drawable/edit_text"
+        android:padding="8dp"/>
+
+</LinearLayout>

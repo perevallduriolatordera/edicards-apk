@@ -1,67 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/reportsManagerLayout"
-	android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-	android:orientation="vertical"
-    android:background="@color/Edicards"> 
+    android:id="@+id/reportsManagerLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF">
 
+    <!-- Cabecera Moderna -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#E8F5E9"
+        android:padding="16dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center">
 
-	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        	  android:id="@+id/headerMainLinearLayout" 
-              android:layout_width="fill_parent" 
-              android:layout_height="wrap_content"
-              android:background="@color/DarkBlue"
-              android:orientation="vertical" >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Informes y Reportes"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#2E7D32"
+            android:gravity="center"
+            android:layout_marginBottom="8dp"/>
 
-				<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-					android:id="@+id/headerReportButtonsLinearLayout"
-					android:layout_width="fill_parent"
-					android:layout_height="wrap_content"
-					android:background="@color/WhiteSmoke"
-					android:orientation="horizontal" />
+        <View
+            android:layout_width="80dp"
+            android:layout_height="2dp"
+            android:background="#2E7D32"
+            android:layout_marginBottom="12dp"/>
 
-					<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-						android:layout_width="fill_parent"
-						android:layout_height="175dp"
-						android:orientation="horizontal" >
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Selecciona el rango de fechas para generar informes"
+            android:textSize="14sp"
+            android:textColor="#616161"
+            android:gravity="center"/>
+    </LinearLayout>
 
-						<DatePicker
-							android:id="@+id/dpResult1"
-							android:layout_width="wrap_content"
-							android:scaleX="0.60"
-							android:scaleY="0.60"
-							android:layout_height="wrap_content" />
+    <!-- Botones de Acción -->
+    <LinearLayout
+        android:id="@+id/headerReportButtonsLinearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp"
+        android:background="#F5F5F5"
+        android:padding="8dp"/>
 
-						<DatePicker
-							android:id="@+id/dpResult2"
-							android:layout_width="wrap_content"
-							android:scaleX="0.60"
-							android:scaleY="0.60"
-							android:layout_height="wrap_content" />
+    <!-- Selectores de Fecha -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FAFAFA"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp">
 
-					</LinearLayout>
-				</LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Rango de Fechas"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#424242"
+            android:layout_marginBottom="8dp"/>
 
-		<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical"
-    			android:layout_marginBottom="15dp"
-    			android:layout_height="wrap_content"
-    			android:layout_width="fill_parent"
-                android:layout_marginTop="15dp" >
-    
-			<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-				android:id="@+id/svcScroll"
-				android:clickable="true"
-				android:layout_weight="1"
-				android:layout_width="fill_parent"
-				android:layout_height="fill_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
 
-				<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-						  android:id="@+id/mainLinearLayoutArticles"
-						  android:layout_width="fill_parent"
-						  android:layout_height="fill_parent"
-						  android:orientation="vertical" >
-				</LinearLayout>
-			</ScrollView>
-		</LinearLayout>
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="#FFFFFF"
+                android:padding="8dp"
+                android:layout_marginEnd="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Fecha Inicio"
+                    android:textSize="12sp"
+                    android:textColor="#757575"
+                    android:layout_marginBottom="4dp"/>
+
+                <DatePicker
+                    android:id="@+id/dpResult1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:calendarViewShown="false"
+                    android:datePickerMode="spinner"
+                    android:spinnersShown="true"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="#FFFFFF"
+                android:padding="8dp"
+                android:layout_marginStart="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Fecha Fin"
+                    android:textSize="12sp"
+                    android:textColor="#757575"
+                    android:layout_marginBottom="4dp"/>
+
+                <DatePicker
+                    android:id="@+id/dpResult2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:calendarViewShown="false"
+                    android:datePickerMode="spinner"
+                    android:spinnersShown="true"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Área de Resultados -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Resultados"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#424242"
+        android:layout_marginBottom="8dp"/>
+
+    <ScrollView
+        android:id="@+id/svcScroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#FAFAFA"
+        android:padding="8dp">
+
+        <LinearLayout
+            android:id="@+id/mainLinearLayoutArticles"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp"/>
+    </ScrollView>
 
 </LinearLayout>
