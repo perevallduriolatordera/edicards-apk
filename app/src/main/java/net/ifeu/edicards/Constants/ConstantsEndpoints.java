@@ -48,6 +48,16 @@ public class ConstantsEndpoints {
     public static String GOOGLE_MAPS_API_KEY = null; // Se inicializa en AppConfig
     public static final String GOOGLE_MAPS_ROUTES_URL = "https://routes.googleapis.com/directions/v2:computeRoutes";
 
+    // Google Route Optimization API
+    // Optimización de rutas profesional con algoritmo OR-Tools
+    // Pricing: $10 USD por 1000 requests (~€0.55/mes para uso típico)
+    // Documentación: https://developers.google.com/maps/documentation/route-optimization
+    public static final String GOOGLE_ROUTE_OPTIMIZATION_URL = "https://routes.googleapis.com/v2:optimizeTours";
+
+    // Configuración: Seleccionar servicio de optimización de rutas
+    // Opciones: "GOOGLE" (Google Maps Routes API con waypoint optimization), "ORS" (OpenRouteService)
+    public static final String ROUTE_OPTIMIZER_SERVICE = "GOOGLE";
+
     public static final int WS_PAGINACION = 500;
     public static final int WS_MAX_INTENTOS = 500;
 

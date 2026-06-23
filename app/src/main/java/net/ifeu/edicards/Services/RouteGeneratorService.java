@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.ConstantsEndpoints;
 import net.ifeu.edicards.DataTier.CiudadVendedor;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Factories.Factory;
@@ -18,17 +19,20 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Servicio para generar rutas optimizadas usando OpenRouteService
+ * Servicio para generar rutas optimizadas
  * Utiliza clustering geográfico para dividir clientes por zonas
- * y luego optimiza cada zona con TSP Nearest Neighbor
+ * y luego optimiza usando el servicio configurado en ConstantsEndpoints.ROUTE_OPTIMIZER_SERVICE
  */
 public class RouteGeneratorService {
 
 	private static final String TAG = "RouteGeneratorService";
 
+	private Context context;
+	private String googleApiKey;
+
 	/**
-	 * Genera una ruta optimizada para los clientes activos del vendedor usando Google Maps Routes API
-	 * Usa clustering geográfico para agrupar clientes por zonas y Google Maps para optimizar cada cluster
+	 * Genera una ruta optimizada para los clientes activos del vendedor
+	 * Usa clustering geográfico para agrupar clientes por zonas y el servicio configurado para optimizar
 	 *
 	 * @param context Contexto de la aplicación
 	 * @param ciudadBase Ciudad donde se ubica la base del vendedor
@@ -37,7 +41,9 @@ public class RouteGeneratorService {
 	 */
 	public boolean generateRoute(Context context, String ciudadBase) throws Exception {
 		try {
+			this.context = context;
 			AppConfig app = (AppConfig) context.getApplicationContext();
+			this.googleApiKey = ConstantsEndpoints.GOOGLE_MAPS_API_KEY;
 
 			// Debug: Contar TODOS los clientes activos
 			android.database.Cursor cursorTodos = app.getDatabaseOperations().executeSentence(
@@ -135,7 +141,7 @@ public class RouteGeneratorService {
 	}
 
 	/**
-	 * Genera una ruta de forma asíncrona usando VROOM + ORS
+	 * Genera una ruta de forma asíncrona usando el servicio configurado
 	 * @param context Contexto de la aplicación
 	 * @param ciudadBase Ciudad base
 	 * @param callback Callback para recibir resultados
@@ -143,7 +149,9 @@ public class RouteGeneratorService {
 	public void generateRouteAsync(Context context, String ciudadBase, RouteGenerationCallback callback) {
 		new Thread(() -> {
 			try {
+				this.context = context;
 				AppConfig app = (AppConfig) context.getApplicationContext();
+				this.googleApiKey = ConstantsEndpoints.GOOGLE_MAPS_API_KEY;
 
 				callback.onProgress("Obteniendo clientes activos...");
 				ArrayList<Cliente> clientesActivos = getClientesActivosConCoordenadas(app);
@@ -186,8 +194,9 @@ public class RouteGeneratorService {
 					return;
 				}
 
-				callback.onProgress("Optimizando rutas con VROOM...");
-				ArrayList<RouteOptimizerService.RutaClienteData> rutaOrdenada = optimizeRouteWithVROOM(
+				String serviceName = ConstantsEndpoints.ROUTE_OPTIMIZER_SERVICE;
+				callback.onProgress("Optimizando rutas con " + serviceName + "...");
+				ArrayList<RouteOptimizerService.RutaClienteData> rutaOrdenada = optimizeRouteWithService(
 					clusters, baseLocation
 				);
 
@@ -210,12 +219,11 @@ public class RouteGeneratorService {
 	}
 
 	/**
-	 * Optimiza ruta usando VROOM + ORS
-	 * - Todos los clusters: ORS Matrix + VROOM optimization
+	 * Optimiza ruta usando el servicio configurado (Google o ORS)
 	 * - Separa clientes con coordenadas inválidas y los pone al final
 	 * - REORDENA clusters por proximidad para minimizar saltos entre ellos
 	 */
-	private ArrayList<RouteOptimizerService.RutaClienteData> optimizeRouteWithVROOM(
+	private ArrayList<RouteOptimizerService.RutaClienteData> optimizeRouteWithService(
 			ArrayList<GeoClusteringService.GeoCluster> clusters,
 			LatLng baseLocation) throws Exception {
 
@@ -223,8 +231,9 @@ public class RouteGeneratorService {
 		ArrayList<Cliente> clientesInvalidos = new ArrayList<>();
 		int ordenGlobal = 1;
 
+		String service = ConstantsEndpoints.ROUTE_OPTIMIZER_SERVICE;
 		Log.d(TAG, "════════════════════════════════════════");
-		Log.d(TAG, "OPTIMIZANDO CON VROOM + ORS");
+		Log.d(TAG, "OPTIMIZANDO CON " + service);
 		Log.d(TAG, "Total clusters: " + clusters.size());
 		Log.d(TAG, "Base location: " + baseLocation.getLatitude() + ", " + baseLocation.getLongitude());
 
@@ -260,10 +269,10 @@ public class RouteGeneratorService {
 			}
 
 			Log.d(TAG, "Procesando cluster: " + clientesValidos.size() + " válidos, " + clientesInvalidosCluster.size() + " inválidos");
-			Log.i(TAG, "► USANDO VROOM + ORS (cluster: " + clientesValidos.size() + " clientes)");
+			Log.i(TAG, "► USANDO " + service + " (cluster: " + clientesValidos.size() + " clientes)");
 
-			// Usar VROOM para optimizar todos los clusters, conectando con el anterior
-			ArrayList<RouteOptimizerService.RutaClienteData> rutaCluster = optimizeClusterWithVROOM(
+			// Optimizar usando el servicio configurado, conectando con el anterior
+			ArrayList<RouteOptimizerService.RutaClienteData> rutaCluster = optimizeClusterWithService(
 				clientesValidos,
 				baseLocation,
 				clienteAnterior,
@@ -310,7 +319,7 @@ public class RouteGeneratorService {
 		}
 
 		Log.i(TAG, "════════════════════════════════════════");
-		Log.i(TAG, "║  RUTA FINAL OPTIMIZADA CON VROOM        ║");
+		Log.i(TAG, "║  RUTA FINAL OPTIMIZADA CON " + service + "        ║");
 		Log.i(TAG, "║  Total clientes: " + rutaCompleta.size() + "                       ║");
 		Log.i(TAG, "════════════════════════════════════════");
 
@@ -321,12 +330,9 @@ public class RouteGeneratorService {
 	}
 
 	/**
-	 * Llamada síncrona a Google Maps
-	 * Usa el método sincrónico de GoogleMapsRouteOptimizer
-	 */
-	/**
-	 * Optimiza un cluster usando VROOM + ORS Matrix
-	 * VROOM: Vehicle Routing Open-source Optimization Machine
+	 * Optimiza un cluster SIEMPRE usando Google Maps
+	 * Si el cluster tiene >24 clientes, lo subdivide en sub-clusters de máximo 24
+	 * IMPORTANTE: Pre-ordena clientes por proximidad antes de dividir en batches
 	 *
 	 * @param clientesValidos Clientes del cluster a optimizar
 	 * @param baseLocation Ubicación de la base
@@ -334,37 +340,151 @@ public class RouteGeneratorService {
 	 * @param clusterID ID del cluster actual para debugging
 	 * @return Ruta optimizada del cluster
 	 */
-	private ArrayList<RouteOptimizerService.RutaClienteData> optimizeClusterWithVROOM(
+	private ArrayList<RouteOptimizerService.RutaClienteData> optimizeClusterWithService(
 			ArrayList<Cliente> clientesValidos,
 			LatLng baseLocation,
 			Cliente clienteAnterior,
 			int clusterID) throws Exception {
 
 		ArrayList<RouteOptimizerService.RutaClienteData> rutaCluster = new ArrayList<>();
-		RouteOptimizerService optimizer = new RouteOptimizerService();
 
-		Log.i(TAG, "Iniciando optimización VROOM+ORS para cluster " + clusterID + " (" + clientesValidos.size() + " clientes)");
-		if (clienteAnterior != null) {
-			Log.i(TAG, "  Conectando desde cliente anterior: " + clienteAnterior.Nombre);
-		}
+		// Google Maps tiene límite de 25 waypoints (base + 24 clientes)
+		final int GOOGLE_MAPS_MAX_CLIENTS = 24;
 
-		ArrayList<RouteOptimizerService.RutaClienteData> rutaOptimizada = optimizer.optimizeRoute(
-			clientesValidos,
-			baseLocation,
-			clienteAnterior
-		);
+		Log.i(TAG, "Iniciando optimización para cluster " + clusterID + " (" + clientesValidos.size() + " clientes)");
 
-		if (rutaOptimizada != null && !rutaOptimizada.isEmpty()) {
-			for (RouteOptimizerService.RutaClienteData ruta : rutaOptimizada) {
-				ruta.clusterID = clusterID;  // ← Guardar clusterID
-				rutaCluster.add(ruta);
-				Log.d(TAG, "  TSP: [Cluster " + clusterID + "] " + ruta.nombre + " -> " + ruta.latitud + ", " + ruta.longitud + " (" + ruta.distanciaKm + ")");
+		// Si el cluster es muy grande, subdividirlo en batches
+		if (clientesValidos.size() > GOOGLE_MAPS_MAX_CLIENTS) {
+			Log.w(TAG, "  ⚠ Cluster muy grande (" + clientesValidos.size() + " clientes)");
+			Log.w(TAG, "  → Pre-ordenando por proximidad antes de dividir en batches");
+
+			// PRE-ORDENAR clientes por proximidad usando algoritmo del vecino más cercano
+			ArrayList<Cliente> clientesOrdenados = preOrderClientesByProximity(
+				clientesValidos,
+				clienteAnterior,
+				baseLocation
+			);
+
+			Log.w(TAG, "  → Subdividiendo en batches de " + GOOGLE_MAPS_MAX_CLIENTS + " clientes");
+
+			// Dividir clientes ORDENADOS en sub-batches de máximo 24 clientes
+			int totalBatches = (int) Math.ceil((double) clientesOrdenados.size() / GOOGLE_MAPS_MAX_CLIENTS);
+			Cliente ultimoCliente = clienteAnterior;
+
+			for (int batchNum = 0; batchNum < totalBatches; batchNum++) {
+				int startIdx = batchNum * GOOGLE_MAPS_MAX_CLIENTS;
+				int endIdx = Math.min(startIdx + GOOGLE_MAPS_MAX_CLIENTS, clientesOrdenados.size());
+
+				ArrayList<Cliente> batch = new ArrayList<>(clientesOrdenados.subList(startIdx, endIdx));
+
+				Log.i(TAG, "  → Procesando sub-batch " + (batchNum + 1) + "/" + totalBatches +
+				           " (" + batch.size() + " clientes) con Google Maps");
+
+				UnifiedRouteOptimizer optimizer = new UnifiedRouteOptimizer(context, googleApiKey);
+				ArrayList<RouteOptimizerService.RutaClienteData> rutaBatch =
+					optimizer.optimizeRoute(batch, baseLocation, ultimoCliente);
+
+				if (rutaBatch != null && !rutaBatch.isEmpty()) {
+					for (RouteOptimizerService.RutaClienteData ruta : rutaBatch) {
+						ruta.clusterID = clusterID;  // ← Mantener el mismo clusterID
+						rutaCluster.add(ruta);
+					}
+
+					// Actualizar último cliente para conectar siguiente batch
+					String ultimoCodigo = rutaBatch.get(rutaBatch.size() - 1).codigoCliente;
+					for (Cliente c : batch) {
+						if (c.CodigoCliente.equals(ultimoCodigo)) {
+							ultimoCliente = c;
+							break;
+						}
+					}
+				}
 			}
 		} else {
-			Log.w(TAG, "No se pudo optimizar cluster con TSP");
+			// Cluster pequeño, optimizar directamente con Google Maps
+			Log.i(TAG, "  → Optimizando con Google Maps (" + clientesValidos.size() + " clientes)");
+
+			UnifiedRouteOptimizer optimizer = new UnifiedRouteOptimizer(context, googleApiKey);
+			ArrayList<RouteOptimizerService.RutaClienteData> rutaOptimizada =
+				optimizer.optimizeRoute(clientesValidos, baseLocation, clienteAnterior);
+
+			if (rutaOptimizada != null && !rutaOptimizada.isEmpty()) {
+				for (RouteOptimizerService.RutaClienteData ruta : rutaOptimizada) {
+					ruta.clusterID = clusterID;  // ← Guardar clusterID
+					rutaCluster.add(ruta);
+				}
+			}
+		}
+
+		if (rutaCluster.isEmpty()) {
+			Log.w(TAG, "No se pudo optimizar cluster " + clusterID + " con Google Maps");
+		} else {
+			Log.i(TAG, "✓ Cluster " + clusterID + " optimizado: " + rutaCluster.size() + " clientes");
 		}
 
 		return rutaCluster;
+	}
+
+	/**
+	 * Pre-ordena clientes usando algoritmo del vecino más cercano (Nearest Neighbor)
+	 * Esto asegura que los batches tengan clientes geográficamente continuos
+	 *
+	 * @param clientes Lista de clientes a ordenar
+	 * @param startingClient Cliente desde donde comenzar (null = comenzar desde el más cercano a base)
+	 * @param baseLocation Ubicación de la base
+	 * @return Lista ordenada de clientes por proximidad
+	 */
+	private ArrayList<Cliente> preOrderClientesByProximity(
+			ArrayList<Cliente> clientes,
+			Cliente startingClient,
+			LatLng baseLocation) {
+
+		ArrayList<Cliente> ordenados = new ArrayList<>();
+		ArrayList<Cliente> pendientes = new ArrayList<>(clientes);
+
+		// Determinar punto de inicio
+		double currentLat, currentLon;
+		if (startingClient != null) {
+			currentLat = startingClient.Latitud;
+			currentLon = startingClient.Longitud;
+			Log.d(TAG, "  Pre-ordenando desde cliente anterior: " + startingClient.Nombre);
+		} else {
+			currentLat = baseLocation.getLatitude();
+			currentLon = baseLocation.getLongitude();
+			Log.d(TAG, "  Pre-ordenando desde base");
+		}
+
+		// Algoritmo del vecino más cercano
+		while (!pendientes.isEmpty()) {
+			Cliente masCercano = null;
+			double distanciaMinima = Double.MAX_VALUE;
+
+			// Buscar cliente más cercano a la posición actual
+			for (Cliente cliente : pendientes) {
+				double distancia = GeoClusteringService.calculateHaversineDistance(
+					currentLat, currentLon,
+					cliente.Latitud, cliente.Longitud
+				);
+
+				if (distancia < distanciaMinima) {
+					distanciaMinima = distancia;
+					masCercano = cliente;
+				}
+			}
+
+			// Agregar a la lista ordenada y remover de pendientes
+			if (masCercano != null) {
+				ordenados.add(masCercano);
+				pendientes.remove(masCercano);
+
+				// Actualizar posición actual al cliente recién agregado
+				currentLat = masCercano.Latitud;
+				currentLon = masCercano.Longitud;
+			}
+		}
+
+		Log.d(TAG, "  ✓ " + ordenados.size() + " clientes pre-ordenados por proximidad");
+		return ordenados;
 	}
 
 	/**
@@ -520,36 +640,32 @@ public class RouteGeneratorService {
 
 	/**
 	 * Determina el tamaño optimal del grid basado en cantidad de clientes
+	 * Objetivo: Clusters de máximo 20-25 clientes para que Google Maps pueda optimizarlos
 	 */
 	private int determineOptimalGridSize(int totalClientes) {
-		// Estrategia: clientes por cluster = 5-10 para minimizar saltos entre clusters
-		// ORS Matrix API puede manejar fácilmente clusters de 10+ clientes
+		// NUEVA ESTRATEGIA: clusters pequeños (≤25 clientes) para poder usar Google Maps
+		// Google Maps tiene límite de 25 waypoints (base + 24 clientes)
 
-		Log.i(TAG, "DEBUG: determineOptimalGridSize recibió totalClientes = " + totalClientes);
+		Log.i(TAG, "════════════════════════════════════════");
+		Log.i(TAG, "DETERMINANDO GRID SIZE ÓPTIMO");
+		Log.i(TAG, "Total clientes: " + totalClientes);
 
-		// Para <= 50 clientes: grid 3x3 = 9 cuadrantes (5-6 clientes/cluster)
-		if (totalClientes <= 50) {
-			Log.i(TAG, "DEBUG: Retornando gridSize=3 para " + totalClientes + " clientes");
-			return 3;
-		}
-		// Para 51-150 clientes: grid 4x4 = 16 cuadrantes (9-10 clientes/cluster)
-		if (totalClientes <= 150) {
-			Log.i(TAG, "DEBUG: Retornando gridSize=4 para " + totalClientes + " clientes");
-			return 4;
-		}
-		// Para 151-300 clientes: grid 6x6 = 36 cuadrantes (8-9 clientes/cluster)
-		if (totalClientes <= 300) {
-			Log.i(TAG, "DEBUG: Retornando gridSize=6 para " + totalClientes + " clientes");
-			return 6;
-		}
-		// Para 301-500 clientes: grid 8x8 = 64 cuadrantes (7-8 clientes/cluster)
-		if (totalClientes <= 500) {
-			Log.i(TAG, "DEBUG: Retornando gridSize=8 para " + totalClientes + " clientes");
-			return 8;
-		}
-		// Para > 500 clientes: grid 9x9 = 81 cuadrantes (6-7 clientes/cluster)
-		Log.i(TAG, "DEBUG: Retornando gridSize=9 para " + totalClientes + " clientes (>500)");
-		return 9;
+		// Calcular gridSize para tener ~20 clientes por cluster (con margen para Google Maps)
+		// Fórmula: gridSize = sqrt(totalClientes / 20)
+		int targetClientsPerCluster = 20;
+		int gridSize = (int) Math.ceil(Math.sqrt((double) totalClientes / targetClientsPerCluster));
+
+		// Asegurar mínimo 3x3 y máximo 30x30
+		gridSize = Math.max(3, Math.min(30, gridSize));
+
+		int estimatedClusters = gridSize * gridSize;
+		int estimatedClientsPerCluster = totalClientes / estimatedClusters;
+
+		Log.i(TAG, "Grid size calculado: " + gridSize + "x" + gridSize + " = " + estimatedClusters + " cuadrantes");
+		Log.i(TAG, "Clientes estimados por cluster: " + estimatedClientsPerCluster);
+		Log.i(TAG, "════════════════════════════════════════");
+
+		return gridSize;
 	}
 
 	/**
@@ -561,11 +677,12 @@ public class RouteGeneratorService {
 			LatLng baseLocation) throws Exception {
 
 		ArrayList<RouteOptimizerService.RutaClienteData> rutaCompleta = new ArrayList<>();
-		RouteOptimizerService optimizer = new RouteOptimizerService();
+		UnifiedRouteOptimizer optimizer = new UnifiedRouteOptimizer(context, googleApiKey);
 		int orden = 1;
 
+		String service = ConstantsEndpoints.ROUTE_OPTIMIZER_SERVICE;
 		Log.i(TAG, "════════════════════════════════════════");
-		Log.i(TAG, "OPTIMIZANDO RUTA CON CLUSTERING");
+		Log.i(TAG, "OPTIMIZANDO RUTA CON CLUSTERING + " + service);
 		Log.i(TAG, "Total clusters: " + clusters.size());
 
 		// Recorrer cada cluster en orden
@@ -580,7 +697,8 @@ public class RouteGeneratorService {
 			// Optimizar clientes dentro de este cluster
 			ArrayList<RouteOptimizerService.RutaClienteData> rutaCluster = optimizer.optimizeRoute(
 				cluster.clientes,
-				baseLocation
+				baseLocation,
+				null
 			);
 
 			if (rutaCluster != null && !rutaCluster.isEmpty()) {
