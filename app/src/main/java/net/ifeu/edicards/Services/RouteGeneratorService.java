@@ -382,11 +382,11 @@ public class RouteGeneratorService {
 
 				UnifiedRouteOptimizer optimizer = new UnifiedRouteOptimizer(context, googleApiKey);
 				ArrayList<RouteOptimizerService.RutaClienteData> rutaBatch =
-					optimizer.optimizeRoute(batch, baseLocation, ultimoCliente);
+					optimizer.optimizeRoute(batch, baseLocation, ultimoCliente, clusterID);
 
 				if (rutaBatch != null && !rutaBatch.isEmpty()) {
+					// Ya no necesitamos asignar clusterID aquí - se asigna dentro de optimizeRoute
 					for (RouteOptimizerService.RutaClienteData ruta : rutaBatch) {
-						ruta.clusterID = clusterID;  // ← Mantener el mismo clusterID
 						rutaCluster.add(ruta);
 					}
 
@@ -406,11 +406,11 @@ public class RouteGeneratorService {
 
 			UnifiedRouteOptimizer optimizer = new UnifiedRouteOptimizer(context, googleApiKey);
 			ArrayList<RouteOptimizerService.RutaClienteData> rutaOptimizada =
-				optimizer.optimizeRoute(clientesValidos, baseLocation, clienteAnterior);
+				optimizer.optimizeRoute(clientesValidos, baseLocation, clienteAnterior, clusterID);
 
 			if (rutaOptimizada != null && !rutaOptimizada.isEmpty()) {
+				// Ya no necesitamos asignar clusterID aquí - se asigna dentro de optimizeRoute
 				for (RouteOptimizerService.RutaClienteData ruta : rutaOptimizada) {
-					ruta.clusterID = clusterID;  // ← Guardar clusterID
 					rutaCluster.add(ruta);
 				}
 			}

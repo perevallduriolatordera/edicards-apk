@@ -44,7 +44,7 @@ public class UnifiedRouteOptimizer {
             ArrayList<Cliente> clientes,
             LatLng baseLocation) throws Exception {
 
-        return optimizeRoute(clientes, baseLocation, null);
+        return optimizeRoute(clientes, baseLocation, null, 0);
     }
 
     /**
@@ -61,21 +61,41 @@ public class UnifiedRouteOptimizer {
             LatLng baseLocation,
             Cliente startingClient) throws Exception {
 
+        return optimizeRoute(clientes, baseLocation, startingClient, 0);
+    }
+
+    /**
+     * Optimiza ruta usando el servicio configurado en ConstantsEndpoints
+     *
+     * @param clientes Lista de clientes a visitar
+     * @param baseLocation Ubicación de la base
+     * @param startingClient Cliente desde el que comenzar (null = comenzar desde base)
+     * @param clusterID ID del cluster geográfico al que pertenecen estos clientes
+     * @return Lista ordenada de clientes optimizada
+     * @throws Exception Si hay error en la optimización
+     */
+    public ArrayList<RouteOptimizerService.RutaClienteData> optimizeRoute(
+            ArrayList<Cliente> clientes,
+            LatLng baseLocation,
+            Cliente startingClient,
+            int clusterID) throws Exception {
+
         String service = ConstantsEndpoints.ROUTE_OPTIMIZER_SERVICE;
 
         Log.i(TAG, "╔═══════════════════════════════════════════════╗");
         Log.i(TAG, "║  UNIFIED ROUTE OPTIMIZER                     ║");
         Log.i(TAG, "║  Servicio seleccionado: " + service + "                  ║");
         Log.i(TAG, "║  Clientes a optimizar: " + clientes.size() + "               ║");
+        Log.i(TAG, "║  Cluster ID: " + clusterID + "                               ║");
         Log.i(TAG, "╚═══════════════════════════════════════════════╝");
 
         if ("GOOGLE".equalsIgnoreCase(service)) {
-            return optimizeWithGoogle(clientes, baseLocation);
+            return optimizeWithGoogle(clientes, baseLocation, clusterID);
         } else if ("ORS".equalsIgnoreCase(service)) {
-            return optimizeWithORS(clientes, baseLocation, startingClient);
+            return optimizeWithORS(clientes, baseLocation, startingClient, clusterID);
         } else {
             Log.w(TAG, "Servicio desconocido: " + service + ", usando Google por defecto");
-            return optimizeWithGoogle(clientes, baseLocation);
+            return optimizeWithGoogle(clientes, baseLocation, clusterID);
         }
     }
 
@@ -84,9 +104,10 @@ public class UnifiedRouteOptimizer {
      */
     private ArrayList<RouteOptimizerService.RutaClienteData> optimizeWithGoogle(
             ArrayList<Cliente> clientes,
-            LatLng baseLocation) throws Exception {
+            LatLng baseLocation,
+            int clusterID) throws Exception {
 
-        Log.i(TAG, "→ Usando Google Maps Routes API (waypoint optimization)");
+        Log.i(TAG, "→ Usando Google Maps Routes API (waypoint optimization) - Cluster " + clusterID);
 
         GoogleMapsRouteOptimizer googleService =
             new GoogleMapsRouteOptimizer(context, googleApiKey);
@@ -112,7 +133,7 @@ public class UnifiedRouteOptimizer {
 
             if (ordenOptimizado == null || ordenOptimizado.isEmpty()) {
                 Log.w(TAG, "⚠ Google devolvió resultado vacío, intentando fallback a ORS");
-                return optimizeWithORS(clientes, baseLocation, null);
+                return optimizeWithORS(clientes, baseLocation, null, clusterID);
             }
 
             // Convertir orden optimizado a RutaClienteData
@@ -141,6 +162,7 @@ public class UnifiedRouteOptimizer {
                 rutaCliente.latitud = String.format("%.6f", cliente.Latitud);
                 rutaCliente.longitud = String.format("%.6f", cliente.Longitud);
                 rutaCliente.geolocalizationStatus = "✓ OK";
+                rutaCliente.clusterID = clusterID;  // ← Asignar clusterID al crear el objeto
 
                 // Calcular distancia aproximada
                 LatLng currentLocation = new LatLng(cliente.Latitud, cliente.Longitud);
@@ -151,13 +173,13 @@ public class UnifiedRouteOptimizer {
                 prevLocation = currentLocation;
             }
 
-            Log.i(TAG, "✓ Optimización con Google Maps completada exitosamente");
+            Log.i(TAG, "✓ Optimización con Google Maps completada exitosamente - " + resultado.size() + " clientes en cluster " + clusterID);
             return resultado;
 
         } catch (Exception e) {
             Log.e(TAG, "❌ Error con Google Maps: " + e.getMessage());
             Log.w(TAG, "→ Intentando fallback a OpenRouteService...");
-            return optimizeWithORS(clientes, baseLocation, null);
+            return optimizeWithORS(clientes, baseLocation, null, clusterID);
         }
     }
 
@@ -185,9 +207,10 @@ public class UnifiedRouteOptimizer {
     private ArrayList<RouteOptimizerService.RutaClienteData> optimizeWithORS(
             ArrayList<Cliente> clientes,
             LatLng baseLocation,
-            Cliente startingClient) throws Exception {
+            Cliente startingClient,
+            int clusterID) throws Exception {
 
-        Log.i(TAG, "→ Usando OpenRouteService");
+        Log.i(TAG, "→ Usando OpenRouteService - Cluster " + clusterID);
 
         RouteOptimizerService orsService = new RouteOptimizerService();
 
@@ -195,7 +218,11 @@ public class UnifiedRouteOptimizer {
             orsService.optimizeRoute(clientes, baseLocation, startingClient);
 
         if (result != null && !result.isEmpty()) {
-            Log.i(TAG, "✓ Optimización con ORS completada exitosamente");
+            // Asignar clusterID a todos los resultados
+            for (RouteOptimizerService.RutaClienteData ruta : result) {
+                ruta.clusterID = clusterID;
+            }
+            Log.i(TAG, "✓ Optimización con ORS completada exitosamente - " + result.size() + " clientes en cluster " + clusterID);
         }
 
         return result;
