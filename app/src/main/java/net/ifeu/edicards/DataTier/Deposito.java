@@ -42,6 +42,7 @@ public class Deposito extends Cliente implements IPersistable {
 	public String MotivoRetirado = ConstantsTypes.EMPTY_STRING;
 	public boolean CCCUpdated;
 	public boolean IsNtvDeposit;
+	public boolean MovimientosRetiradoRegistrados = false; // Flag para evitar duplicación de movimientos
 
 	@Override
 	public void InitializePersistance(AppConfig appConfigParam) {
