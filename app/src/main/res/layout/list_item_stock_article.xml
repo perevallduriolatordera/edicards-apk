@@ -2,66 +2,64 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:gravity="center_vertical">
 
     <TextView
         android:id="@+id/itemCodigoArticulo"
         android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="22sp"
+        android:textSize="14sp"
         android:textStyle="bold"
-        android:width="85dp"
-        android:layout_marginRight="15dp"
-        android:layout_marginLeft="20dp"
-        android:textColor="#000000" />
+        android:gravity="center"
+        android:textColor="#212121" />
 
     <TextView
         android:id="@+id/itemDescripcionArticulo"
         android:layout_weight="4"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="22sp"
+        android:textSize="14sp"
         android:textStyle="bold"
-        android:width="240dp"
-        android:layout_marginRight="15dp"
-        android:textColor="#000000" />
+        android:gravity="center"
+        android:textColor="#212121" />
 
     <TextView
         android:id="@+id/itemUnidadesInicial"
         android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="22sp"
-        android:width="85dp"
-        android:layout_marginRight="15dp"
-        android:textColor="#000000" />
+        android:textSize="14sp"
+        android:gravity="center"
+        android:textColor="#1976D2" />
 
     <TextView
         android:id="@+id/itemUnidadesInicialDefectuoso"
         android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="22sp"
-        android:width="100dp"
-        android:layout_marginRight="15dp"
-        android:textColor="#000000" />
+        android:textSize="14sp"
+        android:gravity="center"
+        android:textColor="#D32F2F" />
 
     <EditText
         android:id="@+id/itemUnidadesRecuento"
         android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="22sp"
-        android:width="150dp"
-        android:layout_marginRight="15dp"
-        android:textColor="#000000" />
+        android:textSize="14sp"
+        android:gravity="center"
+        android:padding="4dp"
+        android:background="@android:drawable/edit_text"
+        android:textColor="#212121" />
 
     <ImageView
         android:id="@+id/itemImage"
         android:layout_weight="1"
-        android:layout_width="32dp"
-        android:layout_height="32dp">
-    </ImageView>
+        android:layout_width="0dp"
+        android:layout_height="32dp"
+        android:scaleType="centerInside"/>
 
 </LinearLayout>

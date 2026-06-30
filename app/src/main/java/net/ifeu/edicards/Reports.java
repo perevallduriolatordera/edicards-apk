@@ -60,6 +60,8 @@ public class Reports extends Fragment {
 	AppConfig _appConfig;
 	private Calendar _calendar1;
 	private Calendar _calendar2;
+	private DatePicker _datePicker1;
+	private DatePicker _datePicker2;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -90,7 +92,50 @@ public class Reports extends Fragment {
 		_calendar1 = Calendar.getInstance();
 		_calendar2 = Calendar.getInstance();
 
+		// Configurar DatePickers en modo spinner
+		configureDatePickers();
+
 		FillButtonsHeader();
+	}
+
+	private void configureDatePickers() {
+		LinearLayout datePickersContainer = getActivity().findViewById(R.id.datePickersContainer);
+
+		// Crear DatePickers dinámicamente igual que en GastosManager
+		_datePicker1 = new DatePicker(this.getActivity().getApplicationContext());
+		_datePicker2 = new DatePicker(this.getActivity().getApplicationContext());
+
+		// Configurar DatePicker 1 (Fecha Inicio) - reducido para más espacio
+		android.widget.LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(
+			LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		_datePicker1.setLayoutParams(params1);
+		_datePicker1.setScaleX(0.60f);
+		_datePicker1.setScaleY(0.60f);
+		_datePicker1.init(_calendar1.get(Calendar.YEAR),
+			_calendar1.get(Calendar.MONTH),
+			_calendar1.get(Calendar.DATE), null);
+
+		// Configurar DatePicker 2 (Fecha Fin) - reducido para más espacio
+		android.widget.LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(
+			LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		params2.setMargins(5, 0, 0, 0);
+		_datePicker2.setLayoutParams(params2);
+		_datePicker2.setScaleX(0.60f);
+		_datePicker2.setScaleY(0.60f);
+		_datePicker2.init(_calendar2.get(Calendar.YEAR),
+			_calendar2.get(Calendar.MONTH),
+			_calendar2.get(Calendar.DATE), null);
+
+		// Crear layout horizontal para los dos DatePickers
+		final LinearLayout layout = new LinearLayout(getActivity());
+		layout.setOrientation(LinearLayout.HORIZONTAL);
+		layout.setGravity(Gravity.CENTER);
+		layout.removeAllViews();
+
+		layout.addView(_datePicker1);
+		layout.addView(_datePicker2);
+
+		datePickersContainer.addView(layout);
 	}
 
 	private void CreateReportLayout() throws Exception {
@@ -450,10 +495,12 @@ public class Reports extends Fragment {
 
 			layout2.addView(total);
 
-			color = Color.BLACK;
+			color = Color.parseColor("#1976D2");
 			ButtonColor reImpresion = new ButtonColor(this.getActivity(), color, getResources().getDrawable(R.drawable.ic_send));
 			reImpresion.setTextSize(TEXT_SIZE_BUTTON);
 			reImpresion.setText("Reimprimir");
+			reImpresion.setTextColor(Color.WHITE);
+			reImpresion.setBackgroundResource(R.drawable.button_primary);
 			reImpresion.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getWidth());
 
 			reImpresion.setLayoutParams(params);
@@ -589,10 +636,12 @@ public class Reports extends Fragment {
 
 			layout2.addView(reImpresion);
 
-			color = Color.RED;
+			color = Color.parseColor("#FF9800");
 			ButtonColor anular = new ButtonColor(this.getActivity(), color, getResources().getDrawable(R.drawable.ic_recycled));
 			anular.setTextSize(TEXT_SIZE_BUTTON);
 			anular.setText("Anular");
+			anular.setTextColor(Color.WHITE);
+			anular.setBackgroundResource(R.drawable.button_warning);
 			anular.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getWidth());
 			anular.setLayoutParams(params);
 			
@@ -1183,15 +1232,10 @@ public class Reports extends Fragment {
 	private void getHistoricos() {
 		try {
 
-			DatePicker picker1 = getActivity().findViewById(
-					R.id.dpResult1);
-			DatePicker picker2 = getActivity().findViewById(
-					R.id.dpResult2);
-
-			_calendar1.set(picker1.getYear(), picker1.getMonth(),
-					picker1.getDayOfMonth());
-			_calendar2.set(picker2.getYear(), picker2.getMonth(),
-					picker2.getDayOfMonth());
+			_calendar1.set(_datePicker1.getYear(), _datePicker1.getMonth(),
+					_datePicker1.getDayOfMonth());
+			_calendar2.set(_datePicker2.getYear(), _datePicker2.getMonth(),
+					_datePicker2.getDayOfMonth());
 
 			CreateReportLayout();
 		} catch (Exception e) {

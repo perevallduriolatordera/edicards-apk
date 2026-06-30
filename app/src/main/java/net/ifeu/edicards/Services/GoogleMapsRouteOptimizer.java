@@ -229,7 +229,8 @@ public class GoogleMapsRouteOptimizer {
 
     /**
      * Construye JSON para Google Maps Routes API
-     * Ruta circular: Base → Clientes → Base
+     * Ruta LINEAL: Base → Clientes (sin retorno)
+     * El último cliente será el destino (NO vuelve a la base)
      */
     private JSONObject buildRequestJSON(ArrayList<String> waypoints) throws Exception {
         JSONObject request = new JSONObject();
@@ -249,21 +250,26 @@ public class GoogleMapsRouteOptimizer {
         request.put("origin", origin);
         Log.d(TAG, "Origen (Base): lat=" + originLat + ", lng=" + originLng);
 
-        // Destino (volver a la base - mismo que origen para ruta circular)
+        // Destino (último waypoint - NO vuelve a la base para ruta LINEAL)
         JSONObject destination = new JSONObject();
+        String[] lastCoords = waypoints.get(waypoints.size() - 1).split(",");
+        double destLat = Double.parseDouble(lastCoords[0]);
+        double destLng = Double.parseDouble(lastCoords[1]);
+
         destination.put("location", new JSONObject()
             .put("latLng", new JSONObject()
-                .put("latitude", originLat)
-                .put("longitude", originLng)
+                .put("latitude", destLat)
+                .put("longitude", destLng)
             )
         );
         request.put("destination", destination);
-        Log.d(TAG, "Destino (Retorno a Base): lat=" + originLat + ", lng=" + originLng);
+        Log.d(TAG, "Destino (Último cliente - Ruta LINEAL): lat=" + destLat + ", lng=" + destLng);
 
-        // Intermedios (todos los clientes)
-        if (waypoints.size() > 1) {
+        // Intermedios (todos los clientes EXCEPTO el último, que es el destino)
+        if (waypoints.size() > 2) {
             JSONArray intermediates = new JSONArray();
-            for (int i = 1; i < waypoints.size(); i++) {
+            // Iterar desde 1 (después de la base) hasta size-1 (antes del último)
+            for (int i = 1; i < waypoints.size() - 1; i++) {
                 String[] coords = waypoints.get(i).split(",");
                 double lat = Double.parseDouble(coords[0]);
                 double lng = Double.parseDouble(coords[1]);
@@ -277,7 +283,9 @@ public class GoogleMapsRouteOptimizer {
                 intermediates.put(waypoint);
             }
             request.put("intermediates", intermediates);
-            Log.d(TAG, "Intermedios (Clientes): " + (waypoints.size() - 1) + " puntos");
+            Log.d(TAG, "Intermedios (Clientes): " + (waypoints.size() - 2) + " puntos");
+        } else {
+            Log.d(TAG, "Sin intermedios (ruta directa base → último cliente)");
         }
 
         // Opciones

@@ -1,89 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/mainLayoutStockManager"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-	android:orientation="vertical"
-    android:background="@color/Edicards"> >
+    android:id="@+id/mainLayoutStockManager"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF">
 
-	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-		android:id="@+id/headerStockButtonsLinearLayout"
-		android:layout_width="fill_parent"
-		android:layout_height="50px"
-		android:layout_marginTop="5dp"
-		android:background="@color/WhiteSmoke"
-		android:orientation="horizontal" >
-
-	</LinearLayout>
-
-	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        	  android:id="@+id/headerMainLinearLayout" 
-              android:layout_width="fill_parent" 
-              android:layout_height="50px" 
-              android:layout_marginTop="5dp"
-              android:background="@color/DarkBlue"
-              android:orientation="horizontal" >
-              
-        <TextView
-        	android:text="Código"
-			android:layout_weight="1"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-    		android:textSize="16dp"
-    		android:layout_marginTop="10dp"
-    		android:layout_marginLeft="20dp"/>
-        
-        <TextView
-        	android:text="Artículo"
-			android:layout_weight="4"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-    		android:textSize="16dp"
-    		android:layout_marginTop="10dp" />
-        
-        <TextView
-        	android:text="Actual"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:textSize="16dp"
-    		android:layout_marginTop="10dp" />
-            
+    <!-- Cabecera Moderna -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#E8F5E9"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center">
 
         <TextView
-        	android:text="Reciclado"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:textSize="16dp"
-    		android:layout_marginTop="10dp" />
-        
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Gestión de Almacén"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#2E7D32"
+            android:gravity="center"/>
+    </LinearLayout>
+
+    <!-- Botones de Acción -->
+    <LinearLayout
+        android:id="@+id/headerStockButtonsLinearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp"
+        android:background="#F5F5F5"
+        android:padding="8dp"
+        android:gravity="center_vertical"/>
+
+    <!-- Cabecera de Tabla -->
+    <LinearLayout
+        android:id="@+id/headerMainLinearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#E3F2FD"
+        android:padding="12dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center_vertical">
+
         <TextView
-        	android:text="Recuento"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:textSize="16dp"
-    		android:layout_marginTop="10dp" />
+            android:text="Código"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#1976D2"
+            android:gravity="center"/>
 
-		<TextView
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:textSize="16dp"/>
+        <TextView
+            android:text="Artículo"
+            android:layout_weight="4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#1976D2"
+            android:gravity="center"/>
 
+        <TextView
+            android:text="Actual"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#1976D2"
+            android:gravity="center"/>
 
-	</LinearLayout>
- 
-	<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
-		android:orientation="vertical"
-		android:layout_width="fill_parent"
-	    android:layout_height="fill_parent"
-		android:background="@color/White">
-		<ListView
-			android:id="@+id/listViewArticles"
-			android:layout_width="fill_parent"
-			android:layout_height="match_parent"
-			android:divider="#b5b5b5"
-			android:dividerHeight="1dp"/>
+        <TextView
+            android:text="Reciclado"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#1976D2"
+            android:gravity="center"/>
+
+        <TextView
+            android:text="Recuento"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#1976D2"
+            android:gravity="center"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="14sp"/>
+    </LinearLayout>
+
+    <!-- Lista de Artículos -->
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#FAFAFA">
+
+        <ListView
+            android:id="@+id/listViewArticles"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="#E0E0E0"
+            android:dividerHeight="1dp"
+            android:padding="4dp"/>
     </LinearLayout>
 </LinearLayout>

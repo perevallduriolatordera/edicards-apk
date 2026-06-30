@@ -1,163 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/depositManagerLayout"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="#FFF"
-    android:orientation="vertical">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF"
+    android:orientation="vertical"
+    android:padding="16dp">
 
+    <!-- Cabecera Moderna -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#E1F5FE"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Gestión de Depósitos"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#0277BD"
+            android:gravity="center"/>
+    </LinearLayout>
+
+    <!-- Área de información del depósito (se llena desde código) -->
     <LinearLayout
         android:id="@+id/headerMainLinearLayout"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/DarkBlue"
+        android:background="#F5F5F5"
+        android:padding="12dp"
         android:visibility="gone"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:layout_marginBottom="12dp">
 
-            <LinearLayout
-                android:id="@+id/headerMainLinearLayout1"
-                android:layout_width="fill_parent"
+        <!-- Fila 1: Cliente, Total Base, Total Factura, Tipo Entrega -->
+        <LinearLayout
+            android:id="@+id/headerMainLinearLayout1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="50dp"
-                android:background="@color/DarkBlue"
-                android:orientation="horizontal" >
+                android:text="Cliente:"
+                android:textSize="12sp"
+                android:textColor="#616161"
+                android:layout_marginEnd="8dp"/>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Cliente:"
-                    android:layout_marginRight="10dp"
-                    android:textSize="12dp" />
-
-                <TextView
-                    android:textColor="#FFFFFF"
-                    android:id="@+id/lblCliente"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="25dp"
-                    android:textSize="12dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Total Base:"
-                    android:layout_marginRight="10dp"
-                    android:textSize="12dp" />
-
-                <TextView
-                    android:textColor="#FFFFFF"
-                    android:id="@+id/lblBase"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="25dp"
-                    android:textSize="12dp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Total Factura:"
-                    android:layout_marginRight="10dp"
-                    android:textSize="12dp" />
-
-                <TextView
-                    android:textColor="#FFFFFF"
-                    android:id="@+id/lblTotalFactura"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="25dp"
-                    android:textSize="12dp" />
-
-                <TextView
-                    android:layout_width="150dp"
-                    android:layout_height="wrap_content"
-                    android:text="Tipo de entrega:"
-                    android:textSize="14dp" />
-
-                <TextView
-                    android:textColor="#FFFFFF"
-                    android:id="@+id/lblTipoEntrega"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="14dp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/headerMainLinearLayout2"
-                android:layout_width="fill_parent"
+            <TextView
+                android:id="@+id/lblCliente"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="50dp"
-                android:background="@color/DarkBlue"
-                android:orientation="horizontal" />
+                android:layout_weight="1"
+                android:textSize="12sp"
+                android:textColor="#212121"
+                android:textStyle="bold"
+                android:layout_marginEnd="16dp"/>
 
-            <LinearLayout
-                android:id="@+id/headerMainLinearLayout3"
-                android:layout_width="fill_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/DarkBlue"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="50dp"
-                android:orientation="horizontal"/>
+                android:text="Total Base:"
+                android:textSize="12sp"
+                android:textColor="#616161"
+                android:layout_marginEnd="8dp"/>
 
-            <LinearLayout
-                android:id="@+id/headerMainLinearLayout4"
-                android:layout_width="fill_parent"
+            <TextView
+                android:id="@+id/lblBase"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/DarkBlue"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="50dp"
-                android:visibility="gone"
-                android:orientation="horizontal"/>
+                android:textSize="12sp"
+                android:textColor="#212121"
+                android:textStyle="bold"
+                android:layout_marginEnd="16dp"/>
 
-            <LinearLayout
-                android:id="@+id/headerLabelsLinearLayout"
-                android:layout_width="fill_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/DarkBlue"
-                android:layout_marginTop="5dp"
-                android:orientation="horizontal" />
+                android:text="Total:"
+                android:textSize="12sp"
+                android:textColor="#616161"
+                android:layout_marginEnd="8dp"/>
 
-            <LinearLayout
-                android:id="@+id/headerMainLinearLayout7"
-                android:layout_width="fill_parent"
+            <TextView
+                android:id="@+id/lblTotalFactura"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@color/Edicards"
-                android:orientation="horizontal" />
+                android:textSize="12sp"
+                android:textColor="#0277BD"
+                android:textStyle="bold"
+                android:layout_marginEnd="16dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Entrega:"
+                android:textSize="12sp"
+                android:textColor="#616161"
+                android:layout_marginEnd="8dp"/>
+
+            <TextView
+                android:id="@+id/lblTipoEntrega"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="#212121"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <!-- Fila 2: Botones dinámicos -->
+        <LinearLayout
+            android:id="@+id/headerMainLinearLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp"
+            android:gravity="center_vertical"/>
+
+        <!-- Fila 3: Controles adicionales -->
+        <LinearLayout
+            android:id="@+id/headerMainLinearLayout3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp"
+            android:gravity="center_vertical"/>
+
+        <!-- Fila 4: Controles opcionales -->
+        <LinearLayout
+            android:id="@+id/headerMainLinearLayout4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            android:layout_marginBottom="8dp"
+            android:gravity="center_vertical"/>
+
+        <!-- Cabecera de tabla de artículos -->
+        <LinearLayout
+            android:id="@+id/headerLabelsLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="#E3F2FD"
+            android:padding="8dp"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"/>
+
+        <!-- Fila 7: Adicional -->
+        <LinearLayout
+            android:id="@+id/headerMainLinearLayout7"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"/>
     </LinearLayout>
 
+    <!-- Lista de artículos -->
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
         android:id="@+id/linearLayoutArticles"
-        android:orientation="vertical" >
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:background="#FAFAFA">
 
-            <LinearLayout
-                android:id="@+id/mainLinearLayoutArticles"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:animateLayoutChanges="false"
-                android:layout_marginTop="0dp"
-                android:layout_marginBottom="0dp"
-                android:orientation="vertical" >
+        <LinearLayout
+            android:id="@+id/mainLinearLayoutArticles"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-                <ListView
-                    android:id="@+id/listViewArticles"
-                    android:layout_width="fill_parent"
-                    android:layout_height="350dp"
-                    android:divider="#b5b5b5"
-                    android:dividerHeight="1dp"/>
-            </LinearLayout>
+            <ListView
+                android:id="@+id/listViewArticles"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:divider="#E0E0E0"
+                android:dividerHeight="1dp"
+                android:padding="4dp"/>
+        </LinearLayout>
     </LinearLayout>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <!-- Botones de acción (se llenan desde código) -->
+    <LinearLayout
         android:id="@+id/headerButtonsLinearLayout"
-        android:layout_width="fill_parent"
-        android:layout_height="100dp"
-        android:layout_marginTop="5dp"
-        android:background="@color/WhiteSmoke"
-        android:orientation="horizontal" />
-
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="#F5F5F5"
+        android:padding="8dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"/>
 
 </LinearLayout>

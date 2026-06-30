@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ifeu.edicards"
-    android:versionCode="59"
-    android:versionName="5.9.6 (26 Mayo 2026) --> Limpieza de bugs">
+    android:versionCode="60"
+    android:versionName="6.0.2 (29 Junio 2026) --> Generación de rutas">
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 

@@ -26,6 +26,7 @@ import java.util.Set;
 public class RouteGeneratorService {
 
 	private static final String TAG = "RouteGeneratorService";
+	private static final double MAX_JUMP_KM = 10.0; // Salto máximo permitido entre clientes consecutivos
 
 	private Context context;
 	private String googleApiKey;
@@ -101,6 +102,9 @@ public class RouteGeneratorService {
 			}
 
 			Log.d(TAG, "Ciudad base geocodificada: " + baseLocation.toString());
+
+			// 2.5. Pre-ordenar clientes geográficamente (ruta más lineal)
+			clientesActivos = preOrdenarClientesGeograficamente(clientesActivos, baseLocation);
 
 			// 3. Clustering geográfico de clientes
 			GeoClusteringService clusteringService = new GeoClusteringService();
@@ -650,9 +654,10 @@ public class RouteGeneratorService {
 		Log.i(TAG, "DETERMINANDO GRID SIZE ÓPTIMO");
 		Log.i(TAG, "Total clientes: " + totalClientes);
 
-		// Calcular gridSize para tener ~20 clientes por cluster (con margen para Google Maps)
-		// Fórmula: gridSize = sqrt(totalClientes / 20)
-		int targetClientsPerCluster = 20;
+		// Calcular gridSize para tener ~10 clientes por cluster (minimizar saltos)
+		// Con límite MAX_JUMP_KM=10km, clusters más pequeños = menos saltos
+		// Fórmula: gridSize = sqrt(totalClientes / 10)
+		int targetClientsPerCluster = 10;
 		int gridSize = (int) Math.ceil(Math.sqrt((double) totalClientes / targetClientsPerCluster));
 
 		// Asegurar mínimo 3x3 y máximo 30x30
@@ -684,12 +689,47 @@ public class RouteGeneratorService {
 		Log.i(TAG, "════════════════════════════════════════");
 		Log.i(TAG, "OPTIMIZANDO RUTA CON CLUSTERING + " + service);
 		Log.i(TAG, "Total clusters: " + clusters.size());
+		Log.i(TAG, "Estrategia: Vecino más cercano (minimizar saltos entre clusters)");
 
-		// Recorrer cada cluster en orden
-		for (int i = 0; i < clusters.size(); i++) {
-			GeoClusteringService.GeoCluster cluster = clusters.get(i);
+		// Usar algoritmo del vecino más cercano para ordenar clusters
+		ArrayList<GeoClusteringService.GeoCluster> clustersVisitados = new ArrayList<>();
+		ArrayList<GeoClusteringService.GeoCluster> clustersPendientes = new ArrayList<>(clusters);
+
+		// Empezar desde el cluster más cercano a la base
+		double currentLat = baseLocation.getLatitude();
+		double currentLon = baseLocation.getLongitude();
+
+		while (!clustersPendientes.isEmpty()) {
+			// Buscar el cluster más cercano a la posición actual
+			GeoClusteringService.GeoCluster closestCluster = null;
+			double minDistance = Double.MAX_VALUE;
+
+			for (GeoClusteringService.GeoCluster cluster : clustersPendientes) {
+				double distance = cluster.distanceToPoint(currentLat, currentLon);
+				if (distance < minDistance) {
+					minDistance = distance;
+					closestCluster = cluster;
+				}
+			}
+
+			if (closestCluster != null) {
+				clustersVisitados.add(closestCluster);
+				clustersPendientes.remove(closestCluster);
+
+				// Actualizar posición actual al centro del cluster visitado
+				currentLat = closestCluster.centerLat;
+				currentLon = closestCluster.centerLon;
+
+				Log.d(TAG, "Siguiente cluster: " + closestCluster.clusterId +
+					" (distancia: " + String.format("%.1f", minDistance / 1000) + " km)");
+			}
+		}
+
+		// Optimizar cada cluster en el orden calculado
+		for (int i = 0; i < clustersVisitados.size(); i++) {
+			GeoClusteringService.GeoCluster cluster = clustersVisitados.get(i);
 			Log.i(TAG, "");
-			Log.i(TAG, "Procesando Cluster " + (i + 1) + " de " + clusters.size());
+			Log.i(TAG, "Procesando Cluster " + cluster.clusterId + " (" + (i + 1) + "/" + clustersVisitados.size() + ")");
 			Log.i(TAG, "  Clientes: " + cluster.size());
 			Log.i(TAG, "  Centro: (" + String.format("%.4f", cluster.centerLat) + ", " +
 					String.format("%.4f", cluster.centerLon) + ")");
@@ -698,18 +738,32 @@ public class RouteGeneratorService {
 			ArrayList<RouteOptimizerService.RutaClienteData> rutaCluster = optimizer.optimizeRoute(
 				cluster.clientes,
 				baseLocation,
-				null
+				null,
+				cluster.clusterId  // ← Pasar el ID del cluster
 			);
 
 			if (rutaCluster != null && !rutaCluster.isEmpty()) {
+				// Validar saltos dentro del cluster
+				int saltosGrandes = validarSaltosEnRuta(rutaCluster, MAX_JUMP_KM);
+				if (saltosGrandes > 0) {
+					Log.w(TAG, "  ⚠ Cluster " + cluster.clusterId + " tiene " + saltosGrandes + " saltos > " + MAX_JUMP_KM + " km");
+				}
+
+				// MEJORA: Si hay un siguiente cluster, reordenar para terminar en el cliente
+				// más cercano al siguiente cluster (minimizar salto entre clusters)
+				if (i < clustersVisitados.size() - 1) {
+					GeoClusteringService.GeoCluster siguienteCluster = clustersVisitados.get(i + 1);
+					optimizarConexionEntreCluster(rutaCluster, siguienteCluster);
+				}
+
 				// Ajustar números de orden para que sean secuenciales en la ruta global
 				for (RouteOptimizerService.RutaClienteData ruta : rutaCluster) {
 					ruta.orden = orden++;
 					rutaCompleta.add(ruta);
 				}
-				Log.i(TAG, "  ✓ Cluster " + (i + 1) + " optimizado: " + rutaCluster.size() + " clientes");
+				Log.i(TAG, "  ✓ Cluster " + cluster.clusterId + " optimizado: " + rutaCluster.size() + " clientes");
 			} else {
-				Log.w(TAG, "  ✗ No se pudo optimizar cluster " + (i + 1));
+				Log.w(TAG, "  ✗ No se pudo optimizar cluster " + cluster.clusterId);
 			}
 		}
 
@@ -732,6 +786,120 @@ public class RouteGeneratorService {
 		Log.i(TAG, "════════════════════════════════════════");
 
 		return rutaCompleta;
+	}
+
+	/**
+	 * Pre-ordena los clientes geográficamente para crear una ruta más lineal
+	 * Usa ordenación angular desde la base (barrido en sentido horario)
+	 * Esto evita zigzags y mejora la eficiencia del clustering
+	 */
+	private ArrayList<Cliente> preOrdenarClientesGeograficamente(
+			ArrayList<Cliente> clientes,
+			LatLng baseLocation) {
+
+		Log.i(TAG, "");
+		Log.i(TAG, "════════════════════════════════════════");
+		Log.i(TAG, "PRE-ORDENACIÓN GEOGRÁFICA");
+		Log.i(TAG, "Ordenando " + clientes.size() + " clientes desde la base");
+
+		final double baseLat = baseLocation.getLatitude();
+		final double baseLon = baseLocation.getLongitude();
+
+		// Ordenar por ángulo polar desde la base (barrido en sentido horario)
+		ArrayList<Cliente> clientesOrdenados = new ArrayList<>(clientes);
+		clientesOrdenados.sort((c1, c2) -> {
+			// Calcular ángulo desde la base a cada cliente
+			double angulo1 = Math.atan2(c1.Latitud - baseLat, c1.Longitud - baseLon);
+			double angulo2 = Math.atan2(c2.Latitud - baseLat, c2.Longitud - baseLon);
+
+			// Si están en el mismo ángulo (~misma dirección), ordenar por distancia
+			if (Math.abs(angulo1 - angulo2) < 0.1) {
+				double dist1 = GeoClusteringService.calculateHaversineDistance(
+					baseLat, baseLon, c1.Latitud, c1.Longitud);
+				double dist2 = GeoClusteringService.calculateHaversineDistance(
+					baseLat, baseLon, c2.Latitud, c2.Longitud);
+				return Double.compare(dist1, dist2);
+			}
+
+			return Double.compare(angulo1, angulo2);
+		});
+
+		Log.i(TAG, "✓ Clientes ordenados en barrido angular desde base");
+		Log.i(TAG, "════════════════════════════════════════");
+
+		return clientesOrdenados;
+	}
+
+	/**
+	 * Valida que no haya saltos mayores al límite especificado en una ruta
+	 * @return Número de saltos que exceden el límite
+	 */
+	private int validarSaltosEnRuta(ArrayList<RouteOptimizerService.RutaClienteData> ruta, double maxKm) {
+		int saltosGrandes = 0;
+
+		for (int i = 1; i < ruta.size(); i++) {
+			String distStr = ruta.get(i).distanciaKm.replace(" km", "").replace(",", ".");
+			try {
+				double distancia = Double.parseDouble(distStr);
+				if (distancia > maxKm) {
+					saltosGrandes++;
+					Log.d(TAG, "    → Salto grande: " + ruta.get(i - 1).nombre +
+						" → " + ruta.get(i).nombre + " (" + distancia + " km)");
+				}
+			} catch (Exception e) {
+				// Ignorar distancias inválidas
+			}
+		}
+
+		return saltosGrandes;
+	}
+
+	/**
+	 * Optimiza la conexión entre el cluster actual y el siguiente
+	 * Reordena los clientes del cluster actual para que el último sea el más cercano
+	 * al centro del siguiente cluster (minimiza el salto entre clusters)
+	 */
+	private void optimizarConexionEntreCluster(
+			ArrayList<RouteOptimizerService.RutaClienteData> rutaCluster,
+			GeoClusteringService.GeoCluster siguienteCluster) {
+
+		if (rutaCluster == null || rutaCluster.size() < 2) {
+			return; // No hay nada que optimizar
+		}
+
+		// Buscar el cliente más cercano al centro del siguiente cluster
+		int indiceMasCercano = -1;
+		double distanciaMinima = Double.MAX_VALUE;
+
+		for (int i = 0; i < rutaCluster.size(); i++) {
+			RouteOptimizerService.RutaClienteData cliente = rutaCluster.get(i);
+			try {
+				double lat = Double.parseDouble(cliente.latitud);
+				double lon = Double.parseDouble(cliente.longitud);
+
+				double distancia = GeoClusteringService.calculateHaversineDistance(
+					lat, lon,
+					siguienteCluster.centerLat, siguienteCluster.centerLon
+				);
+
+				if (distancia < distanciaMinima) {
+					distanciaMinima = distancia;
+					indiceMasCercano = i;
+				}
+			} catch (Exception e) {
+				// Ignorar clientes con coordenadas inválidas
+			}
+		}
+
+		// Si encontramos un cliente más cercano y NO es el último, reordenar
+		if (indiceMasCercano >= 0 && indiceMasCercano != rutaCluster.size() - 1) {
+			RouteOptimizerService.RutaClienteData clienteMasCercano = rutaCluster.remove(indiceMasCercano);
+			rutaCluster.add(clienteMasCercano); // Mover al final
+
+			Log.d(TAG, "  → Optimizado: moviendo '" + clienteMasCercano.nombre +
+				"' al final (distancia al siguiente cluster: " +
+				String.format("%.1f", distanciaMinima / 1000) + " km)");
+		}
 	}
 
 	/**

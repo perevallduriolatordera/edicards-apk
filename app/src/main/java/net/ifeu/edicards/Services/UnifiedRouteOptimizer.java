@@ -163,6 +163,7 @@ public class UnifiedRouteOptimizer {
                 rutaCliente.longitud = String.format("%.6f", cliente.Longitud);
                 rutaCliente.geolocalizationStatus = "✓ OK";
                 rutaCliente.clusterID = clusterID;  // ← Asignar clusterID al crear el objeto
+                Log.i(TAG, ">>>>> ASIGNANDO CLUSTER " + clusterID + " A CLIENTE: " + cliente.Nombre);
 
                 // Calcular distancia aproximada
                 LatLng currentLocation = new LatLng(cliente.Latitud, cliente.Longitud);

@@ -43,7 +43,7 @@ public class StockManager extends Fragment implements IMediator {
 	private AppConfig _appConfig;
 	private HashMap<String, Articulo> _articulos;
 	private final int TEXT_SIZE_BUTTON = 12;
-	private final int BUTTONS_WIDTH = 150;
+	private final int BUTTONS_WIDTH = 250;
 	private boolean _isManagerPasswordMode;
 	private ListView _articlesListView;
 	ArrayAdapter<Articulo> _adapter;
@@ -126,11 +126,11 @@ public class StockManager extends Fragment implements IMediator {
 
 					itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesInicial);
 					itemTextView.setText(String.valueOf(articulo.Stock));
-					itemTextView.setTextColor(Color.BLUE);
+					itemTextView.setTextColor(Color.parseColor("#1976D2"));
 
 					itemTextView = (TextView) convertView.findViewById(R.id.itemUnidadesInicialDefectuoso);
 					itemTextView.setText(String.valueOf(articulo.StockDefectuoso));
-					itemTextView.setTextColor(Color.RED);
+					itemTextView.setTextColor(Color.parseColor("#D32F2F"));
 
 					EditText editText = (EditText) convertView.findViewById(R.id.itemUnidadesRecuento);
 					editText.setInputType(InputType.TYPE_CLASS_NUMBER);
@@ -320,14 +320,17 @@ public class StockManager extends Fragment implements IMediator {
 		
 		android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		
-		ButtonColor recuento = new ButtonColor(_activity, Color.BLUE,
+		params.setMargins(8, 0, 8, 0);
+
+		ButtonColor recuento = new ButtonColor(_activity, Color.parseColor("#1976D2"),
 				getResources().getDrawable(R.drawable.ic_send));
 
 		recuento.setText("Enviar recuento");
 		recuento.setTextSize(TEXT_SIZE_BUTTON);
+		recuento.setTextColor(Color.WHITE);
+		recuento.setBackgroundResource(R.drawable.button_primary);
 		recuento.setWidth(BUTTONS_WIDTH);
-		
+
 		recuento.setLayoutParams(params);
 
 		final StockManager that = this;
@@ -407,14 +410,20 @@ public class StockManager extends Fragment implements IMediator {
 			}
 		});
 		
-		ButtonColor inicializar = new ButtonColor(_activity, Color.RED,
+		android.widget.LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(
+				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		params2.setMargins(8, 0, 8, 0);
+
+		ButtonColor inicializar = new ButtonColor(_activity, Color.parseColor("#D32F2F"),
 				getResources().getDrawable(R.drawable.ic_restart));
 
 		inicializar.setText("Inicializar Stock");
 		inicializar.setTextSize(TEXT_SIZE_BUTTON);
+		inicializar.setTextColor(Color.WHITE);
+		inicializar.setBackgroundResource(R.drawable.button_warning);
 		inicializar.setWidth(BUTTONS_WIDTH);
-		
-		inicializar.setLayoutParams(params);
+
+		inicializar.setLayoutParams(params2);
 		
 		inicializar.setOnClickListener(arg0 -> {
 
@@ -444,14 +453,20 @@ public class StockManager extends Fragment implements IMediator {
 			}
 		});
 		
-		ButtonColor reciclado = new ButtonColor(_activity, Color.MAGENTA,
+		android.widget.LinearLayout.LayoutParams params3 = new LinearLayout.LayoutParams(
+				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		params3.setMargins(8, 0, 8, 0);
+
+		ButtonColor reciclado = new ButtonColor(_activity, Color.parseColor("#4CAF50"),
 				getResources().getDrawable(R.drawable.ic_recycled));
 
 		reciclado.setText("Reciclado");
 		reciclado.setTextSize(TEXT_SIZE_BUTTON);
+		reciclado.setTextColor(Color.WHITE);
+		reciclado.setBackgroundResource(R.drawable.button_success);
 		reciclado.setWidth(BUTTONS_WIDTH);
-		
-		reciclado.setLayoutParams(params);
+
+		reciclado.setLayoutParams(params3);
 		
 		reciclado.setOnClickListener(arg0 -> {
 
@@ -490,11 +505,6 @@ public class StockManager extends Fragment implements IMediator {
 			}
 		});
 
-		TextView space = new TextView(_activity);
-		space.setWidth(30);
-		space.setLayoutParams(params);
-
-		mainHeaderButtonsLinearLayout.addView(space);
 		mainHeaderButtonsLinearLayout.addView(recuento);
 		mainHeaderButtonsLinearLayout.addView(inicializar);
 		mainHeaderButtonsLinearLayout.addView(reciclado);
