@@ -42,6 +42,7 @@ public class Deposito extends Cliente implements IPersistable {
 	public String MotivoRetirado = ConstantsTypes.EMPTY_STRING;
 	public boolean CCCUpdated;
 	public boolean IsNtvDeposit;
+	public boolean MovimientosRetiradoRegistrados = false; // Flag para evitar duplicación de movimientos
 
 	@Override
 	public void InitializePersistance(AppConfig appConfigParam) {
@@ -199,12 +200,12 @@ public class Deposito extends Cliente implements IPersistable {
 			if (cliente.setClienteById(cursor.getString(cursor
 					.getColumnIndex("IdCliente"))))
 				this.Cliente = cliente;
-			
+
 			ClienteInfo clienteInfo = Factory.build(ClienteInfo.class, appConfig);
 
 			if (clienteInfo.setClienteInfoByCliente(cliente))
 				this.Cliente.ClienteInfo = clienteInfo;
-			
+
 			LineaDeposito linea = Factory.build(LineaDeposito.class, appConfig);
 
 			this.Lineas = linea
@@ -274,12 +275,12 @@ public class Deposito extends Cliente implements IPersistable {
 				if (cliente.setClienteById(cursor.getString(cursor
 						.getColumnIndex("IdCliente"))))
 					this.Cliente = cliente;
-				
+
 				ClienteInfo clienteInfo = Factory.build(ClienteInfo.class, appConfig);
 
 				if (clienteInfo.setClienteInfoByCliente(cliente))
 					this.Cliente.ClienteInfo = clienteInfo;
-				
+
 				LineaDeposito linea = Factory.build(LineaDeposito.class, appConfig);
 
 				this.Lineas = linea
@@ -293,7 +294,7 @@ public class Deposito extends Cliente implements IPersistable {
 		return false;
 
 	}
-	
+
 	public ArrayList<Deposito> getDepositosByCliente(String idCliente)
 			throws Exception {
 		ArrayList<Deposito> list = new ArrayList<>();
@@ -364,7 +365,7 @@ public class Deposito extends Cliente implements IPersistable {
 					if (cliente.setClienteById(cursor.getString(cursor
 							.getColumnIndex("IdCliente"))))
 						deposito.Cliente = cliente;
-					
+
 					ClienteInfo clienteInfo = Factory.build(ClienteInfo.class, appConfig);
 
 					if (clienteInfo.setClienteInfoByCliente(cliente))
@@ -386,7 +387,7 @@ public class Deposito extends Cliente implements IPersistable {
 			return list;
 
 	}
-	
+
 	public ArrayList<Deposito> getDepositosByCodigoCliente(String codigoCliente)
 			throws Exception {
 		ArrayList<Deposito> list = new ArrayList<>();
@@ -394,7 +395,7 @@ public class Deposito extends Cliente implements IPersistable {
 		Cursor cursor = super.getDatabaseOperations()
 				.getRecordsFromField(ConstantsDatabase.TABLE_DEPOSITOS,
 						"CodigoCliente", codigoCliente, true, ConstantsTypes.EMPTY_STRING, ConstantsTypes.EMPTY_STRING);
-		
+
 
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -458,7 +459,7 @@ public class Deposito extends Cliente implements IPersistable {
 					if (cliente.setClienteById(cursor.getString(cursor
 							.getColumnIndex("IdCliente"))))
 						deposito.Cliente = cliente;
-					
+
 					ClienteInfo clienteInfo = Factory.build(ClienteInfo.class, appConfig);
 
 					if (clienteInfo.setClienteInfoByCliente(cliente))
@@ -480,8 +481,8 @@ public class Deposito extends Cliente implements IPersistable {
 			return list;
 
 	}
-	
-		public ArrayList<Deposito> getDepositosToday()
+
+	public ArrayList<Deposito> getDepositosToday()
 			throws Exception {
 		ArrayList<Deposito> list = new ArrayList<>();
 
@@ -489,7 +490,7 @@ public class Deposito extends Cliente implements IPersistable {
 		formatter = new SimpleDateFormat("dd/MM/yyyy");
 
 		String date = formatter.format(new Date());
-		
+
 		Cursor cursor = super.getDatabaseOperations()
 				.getRecordsFromField(ConstantsDatabase.TABLE_DEPOSITOS,
 						"FechaDeposito", date, true, ConstantsTypes.EMPTY_STRING, ConstantsTypes.EMPTY_STRING);
@@ -554,7 +555,7 @@ public class Deposito extends Cliente implements IPersistable {
 					if (cliente.setClienteById(cursor.getString(cursor
 							.getColumnIndex("IdCliente"))))
 						deposito.Cliente = cliente;
-					
+
 					ClienteInfo clienteInfo = Factory.build(ClienteInfo.class, appConfig);
 
 					if (clienteInfo.setClienteInfoByCliente(cliente))
@@ -576,7 +577,7 @@ public class Deposito extends Cliente implements IPersistable {
 			return list;
 
 	}
-	
+
 	public void Calculate() throws Exception {
 		Totales = new Totales();
 
@@ -584,12 +585,12 @@ public class Deposito extends Cliente implements IPersistable {
 
 			if (linea.UnidadesFacturadas > 0 || linea.UnidadesAbono > 0) {
 				double bruto = round(linea.UnidadesFacturadas * linea.PVP,3);
-				
+
 				if (linea.UnidadesAbono > 0) {
 					double abonoValue = Math.abs(linea.TotalAbono);
 					bruto = round(bruto - abonoValue, 3);
 				}
-				
+
 				double neto;
 
 				if (linea.Descuento1 != 0)
@@ -605,9 +606,9 @@ public class Deposito extends Cliente implements IPersistable {
 				if (iva.setTipoIVAByClienteArticulo(this.Cliente,
 						linea.Articulo)
 						&& !super.appConfig.getUser().SerialInvoiceB
-								.equals(this.Serie)) {
+						.equals(this.Serie)) {
 
-				
+
 					double baseSinDte = neto;
 					double base = bruto; //round(neto - descuento1 - descuento2,3);
 					base = round(base, 3);
@@ -638,7 +639,7 @@ public class Deposito extends Cliente implements IPersistable {
 				} else {
 					double base = bruto;
 					double baseSinDte = neto;
-				
+
 					Base bases;
 
 					if (this.Totales.Bases.containsKey(String
@@ -663,7 +664,7 @@ public class Deposito extends Cliente implements IPersistable {
 				}
 			}
 		}
-		
+
 		this.CalculateTotals(this.Totales);
 
 	}
@@ -692,7 +693,7 @@ public class Deposito extends Cliente implements IPersistable {
 				if (iva.setTipoIVAByClienteArticulo(this.Cliente,
 						linea.Articulo)
 						&& !super.appConfig.getUser().SerialInvoiceB
-								.equals(this.Serie)) {
+						.equals(this.Serie)) {
 
 					double base = bruto;
 
@@ -705,7 +706,7 @@ public class Deposito extends Cliente implements IPersistable {
 						bases.Base = round(bases.Base + base,3);
 						bases.IvaPerc = iva.Impuesto;
 						bases.RecargoPerc = iva.Recargo;
-	
+
 					} else {
 						bases = this.TotalesDeposito.new Base();
 						bases.Base = base;
@@ -741,17 +742,17 @@ public class Deposito extends Cliente implements IPersistable {
 				}
 			}
 		}
-		
+
 		this.CalculateTotals(this.TotalesDeposito);
 
 	}
-	
+
 	private void CalculateTotals(Totales totales)
 	{
 		for (Entry<String, Base> entry : totales.Bases.entrySet())
 		{
 			Base base = entry.getValue();
-			
+
 			double descuento1 = round(base.Base * (this.DescuentoComercial / 100),5);
 			double descuento2 = round((base.Base - descuento1)
 					* (this.DescuentoFinanciero / 100),5);
@@ -759,57 +760,57 @@ public class Deposito extends Cliente implements IPersistable {
 			double totalIVA = round((baseTipo * base.IvaPerc) / 100,5);
 			double totalRecargo = round((baseTipo * base.RecargoPerc) / 100,5);
 			double total = round(baseTipo,2) + round(totalIVA,2) + round(totalRecargo,2);
-			
+
 			base.Descuento = round(descuento1 + descuento2 , 5);
 			base.Iva = round(totalIVA,5);
 			base.Recargo = round(totalRecargo,5);
 			base.Total = round(total,2);
-			
+
 			totales.TotalBaseSinDte = round(totales.TotalBaseSinDte + base.BaseSinDte,5);
 			totales.TotalBase = round(totales.TotalBase + baseTipo,5);
 			totales.DescuentoFinanciero = this.DescuentoFinanciero;
 			totales.DescuentoProntoPago = this.DescuentoComercial;
 			totales.TotalDescuentoProntoPago = round(totales.TotalDescuentoProntoPago + descuento1,5);
 			totales.TotalDescuentoFinanciero = round(totales.TotalDescuentoFinanciero + descuento2,5);
-			
+
 			totales.TotalIVA = round(totales.TotalIVA + totalIVA,5);
 			totales.TotalRecargo = round(totales.TotalRecargo + totalRecargo,5);
 			totales.Total = round(totales.Total + total,2);
-			
+
 		}
 	}
-	
+
 	@Override
 	public void clean() throws Exception {
-		
+
 		Cursor cursor = super.getDatabaseOperations().executeSentence(
 				"DELETE FROM " + ConstantsDatabase.TABLE_DEPOSITOS);
-		
+
 		if (cursor != null)
 			cursor.close();
-		
+
 		this.DeleteAllLinesDepositos();
 	}
-	
+
 	private void DeleteAllLinesDepositos() throws Exception {
 		Cursor cursor = super.getDatabaseOperations().executeSentence(
 				"DELETE FROM " + ConstantsDatabase.TABLE_LINEAS_DEPOSITO);
-		
+
 		if (cursor != null)
 			cursor.close();
 	}
-	
+
 	public void DeleteAllLines() throws Exception {
 		Cursor cursor = super.getDatabaseOperations().executeSentence(
 				"DELETE FROM " + ConstantsDatabase.TABLE_LINEAS_DEPOSITO + " WHERE IdDeposito = "
 						+ this.IdDeposito);
-		
+
 		if (cursor != null)
 			cursor.close();
 	}
 
 	public void assingFromCliente(Cliente cliente) {
-		
+
 		this.Activo = cliente.Activo;
 		this.CodigoCliente = cliente.CodigoCliente;
 		this.Clave = cliente.Clave;
@@ -835,7 +836,7 @@ public class Deposito extends Cliente implements IPersistable {
 		this.ClienteInfo.CCC = cliente.ClienteInfo.CCC;
 		this.ClienteInfo.Representante = cliente.ClienteInfo.Representante;
 		this.ClienteInfo.DniRepresentante = cliente.ClienteInfo.DniRepresentante;
-		
+
 		this.Cliente = cliente;
 
 	}
@@ -886,30 +887,30 @@ public class Deposito extends Cliente implements IPersistable {
 				if (linea.UnidadesInicialesFijas > 0)
 					return true;
 			}
-			
-			if (Lineas.values().size() == 0) return true; 
+
+			if (Lineas.values().size() == 0) return true;
 		}
 
 		return false;
 	}
-	
+
 	public void RetirarDeposito() {
 		for (LineaDeposito linea : Lineas.values()) {
 			linea.UnidadesRepuestas=0;
 		}
-		
+
 	}
-	
+
 	public Deposito CloneOnlyLineas()
 	{
 		Deposito deposito = Factory.build(Deposito.class, appConfig);
-		
+
 		for (LineaDeposito linea : Lineas.values()) {
-			
+
 			if (linea.UnidadesInicialesFijas > 0)
 				deposito.Lineas.put(String.valueOf(linea.Articulo.CodigoArticulo), linea);
 		}
-		
+
 		return deposito;
 	}
 
@@ -1089,7 +1090,7 @@ public class Deposito extends Cliente implements IPersistable {
 							if (stockInicial != linea.Articulo.Stock) {
 
 								LogBookStock logBookTrace = Factory.build(LogBookStock.class, appConfig);
-							logBookTrace.setDataWithTotals("VENTA CONVENCIONAL (NO DIRECTA) CON UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
+								logBookTrace.setDataWithTotals("VENTA CONVENCIONAL (NO DIRECTA) CON UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
 										this.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
 										stockInicial + stockHomologoInicial, linea.Articulo.Stock + stockHomologoActual, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
 										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
@@ -1129,7 +1130,7 @@ public class Deposito extends Cliente implements IPersistable {
 
 							if (stockInicial != linea.Articulo.Stock) {
 								LogBookStock logBookTrace = Factory.build(LogBookStock.class, appConfig);
-							logBookTrace.setDataWithTotals("VENTA DIRECTA SIN UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
+								logBookTrace.setDataWithTotals("VENTA DIRECTA SIN UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
 										this.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
 										stockInicial + stockHomologoInicial, linea.Articulo.Stock + stockHomologoActual, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
 										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
@@ -1151,7 +1152,7 @@ public class Deposito extends Cliente implements IPersistable {
 							if (stockInicial != linea.Articulo.Stock) {
 
 								LogBookStock logBookTrace = Factory.build(LogBookStock.class, appConfig);
-							logBookTrace.setDataWithTotals("VENTA CONVENCIONAL (NO DIRECTA) SIN UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
+								logBookTrace.setDataWithTotals("VENTA CONVENCIONAL (NO DIRECTA) SIN UNIDADES REPUESTAS", this.Cliente.CodigoCliente,
 										this.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
 										stockInicial + stockHomologoInicial, linea.Articulo.Stock + stockHomologoActual, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
 										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
@@ -1172,7 +1173,7 @@ public class Deposito extends Cliente implements IPersistable {
 							if (linea.UnidadesInicialesFijas > 0) {
 
 								LogBookStock logBookTrace = Factory.build(LogBookStock.class, appConfig);
-							logBookTrace.setDataWithTotals("RETIRADA DE ARTÍCULO", this.Cliente.CodigoCliente,
+								logBookTrace.setDataWithTotals("RETIRADA DE ARTÍCULO", this.Cliente.CodigoCliente,
 										this.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
 										stockInicial + stockHomologoInicial, linea.Articulo.Stock + stockHomologoActual, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
 										linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,
@@ -1201,12 +1202,12 @@ public class Deposito extends Cliente implements IPersistable {
 					int stockInicial = linea.Articulo.Stock;
 					linea.calculateStockAbono();
 					int stockHomologoInicial = getStockHomologoInicial(linea.Articulo.CodigoArticulo, stocksIniciales);
-				int stockHomologoActual = getStockHomologoActual(linea.Articulo.CodigoArticulo);
+					int stockHomologoActual = getStockHomologoActual(linea.Articulo.CodigoArticulo);
 
 					if (stockInicial != linea.Articulo.Stock) {
 
 						LogBookStock logBookTrace = Factory.build(LogBookStock.class, appConfig);
-					logBookTrace.setDataWithTotals("VENTA ABONO", this.Cliente.CodigoCliente,
+						logBookTrace.setDataWithTotals("VENTA ABONO", this.Cliente.CodigoCliente,
 								this.Cliente.Razon, LogBookStock.normalizeArticleCode(linea.Articulo.CodigoArticulo), linea.Articulo.Descripcion,
 								stockInicial + stockHomologoInicial, linea.Articulo.Stock + stockHomologoActual, linea.UnidadesDevueltas, linea.UnidadesDefectuosas,
 								linea.UnidadesRepuestas, linea.UnidadesFacturadas, linea.UnidadesInicialesFijas,

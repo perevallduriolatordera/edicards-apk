@@ -170,32 +170,32 @@ public class DepositManager extends Fragment implements  IMediator {
 		params.weight = 1;
 		LabelColor labelPago = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				"Forma de pago", TEXT_SIZE,  params);
-		
+
 		_comboPago = DepositManagerExtension.UI.addCombo(_appConfig, params, _appConfig.getCache().getAllFormasPagoList(), _deposito.Cliente.FormaPago.Descripcion);
-		
+
 		// Filiacion
-		
+
 		LabelColor labelFiliacion = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				"Filiación", TEXT_SIZE, params);
 
-		
+
 		TipoIVA iva = Factory.build(TipoIVA.class, _appConfig);
 		_comboFiliacion = DepositManagerExtension.UI.addCombo(_appConfig, params, iva.getFiliaciones(), iva.getFiliacionByCode(_deposito.Cliente.Filiacion));
 
 		// //Copias
-		
+
 		LabelColor labelCopias = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				"Copias", TEXT_SIZE, 90, params);
 		List<String> copias = new ArrayList<>();
 		for (int i=1; i < 6; i++) copias.add(String.valueOf(i));
-		
+
 		_comboCopias = DepositManagerExtension.UI.addCombo(_appConfig, params, copias, "1");
-		
+
 		// Series
 
 		LabelColor labelSeries = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				"Series", TEXT_SIZE, 75, params);
-		
+
 		List<String> series = new ArrayList<>();
 		series.add(_appConfig.getUser().SerialInvoiceA);
 		series.add(_appConfig.getUser().SerialInvoiceB);
@@ -209,15 +209,15 @@ public class DepositManager extends Fragment implements  IMediator {
 		_checkPagado.setTextSize(TEXT_SIZE);
 		_checkPagado.setTextColor(Color.WHITE);
 		_checkPagado.setLayoutParams(params);
-		
+
 		LabelColor labelCantidadPagada = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				"Cantidad Pagada", TEXT_SIZE, 150, params);
-		
+
 		_textBoxCantidadPagada = DepositManagerExtension.UI.addEdit(getActivity(), Color.GREEN, Gravity.LEFT,
 				"0", TEXT_SIZE, 75, params, false);
 
 		// descuento 1
-		
+
 		LabelColor labelDescuento1 = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				"Dte. com.", TEXT_SIZE, 75, params);
 
@@ -225,7 +225,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		TextBoxColor descuento1 = DepositManagerExtension.UI.addEdit(getActivity(), Color.WHITE, Gravity.LEFT,
 				dec.format(_cliente.DescuentoProntoPago), TEXT_SIZE, 60, params, true);
-		
+
 		descuento1.setOnFocusChangeListener((view, hasFocus) -> {
 			if (!hasFocus) {
 
@@ -260,13 +260,13 @@ public class DepositManager extends Fragment implements  IMediator {
 		});
 
 		// descuento 2
-		
+
 		LabelColor labelDescuento2 = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				"Dte. fin.", TEXT_SIZE, 75, params);
 
 		TextBoxColor descuento2 = DepositManagerExtension.UI.addEdit(getActivity(), Color.WHITE, Gravity.LEFT,
 				dec.format(_cliente.DescuentoFinanciero), TEXT_SIZE, 60, params, true);
-	
+
 		descuento2.setOnFocusChangeListener((view, hasFocus) -> {
 			if (!hasFocus) {
 
@@ -297,7 +297,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				throw new RuntimeException(e);
 			}
 		});
-		
+
 		_checkPagado.setOnCheckedChangeListener((buttonView, isChecked) -> {
 
 			if (_deposito == null) return;
@@ -312,7 +312,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				_textBoxCantidadPagada.setText("");
 			}
 		});
-		
+
 		if (_deposito.Cliente.FormaPago != null && _deposito.Cliente.FormaPago.Descripcion != null) {
 			if (_deposito.Cliente.FormaPago.Descripcion.trim().equalsIgnoreCase("CONTADO")) {
 				this._checkPagado.setChecked(true);
@@ -336,7 +336,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		topLinearLayout3.removeAllViews();
 
 		DepositManagerExtension.UI.addViewsToLayout(topLinearLayout, labelPago, _comboPago, _checkPagado,
-		labelCantidadPagada, _textBoxCantidadPagada, labelSeries, _comboSerie);
+				labelCantidadPagada, _textBoxCantidadPagada, labelSeries, _comboSerie);
 
 		DepositManagerExtension.UI.addViewsToLayout(topLinearLayout2, labelFiliacion, _comboFiliacion, labelCopias,
 				_comboCopias, labelDescuento1, descuento1, labelDescuento2, descuento2);
@@ -351,12 +351,12 @@ public class DepositManager extends Fragment implements  IMediator {
 		_comboPago.addObserver("PAGADO", (String id, String text)-> {
 			if (((CharSequence) text).toString().trim().equalsIgnoreCase("CONTADO")) {
 				this._checkPagado.setChecked(true);
-                try {
-                    _deposito.CalculateDeposito();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-                _textBoxCantidadPagada.setText(String.valueOf(DepositManagerExtension.Format.RoundTo2Decimals(_deposito.Totales.Total)));
+				try {
+					_deposito.CalculateDeposito();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+				_textBoxCantidadPagada.setText(String.valueOf(DepositManagerExtension.Format.RoundTo2Decimals(_deposito.Totales.Total)));
 				_deposito.Pagado = true;
 			}
 			else
@@ -396,7 +396,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params.setMargins(5, 0, 5, 0);
-		
+
 		LayoutParams params2 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params2.setMargins(2, 2, 0, 0);
 
@@ -411,21 +411,21 @@ public class DepositManager extends Fragment implements  IMediator {
 		int TEXT_SIZE_BUTTON = 12;
 		ButtonColor datos = DepositManagerExtension.UI.addButton(getActivity(), Color.BLUE, "Cliente",
 				TEXT_SIZE_BUTTON, ScreenManager.getViewWidthByLength(_appConfig, 20, TEXT_SIZE_BUTTON, Gravity.LEFT), params, getResources().getDrawable(R.drawable.ic_customer_data));
-		
+
 		final DepositManager that = this;
 		datos.setOnClickListener(arg0 -> {
 
-				if (_textBoxColorRequestFocus != null)
-					_textBoxColorRequestFocus.requestFocus();
+			if (_textBoxColorRequestFocus != null)
+				_textBoxColorRequestFocus.requestFocus();
 
-				try {
-					DepositManagerExtension.Dialogs.StartCustomerDataDialog(that);
-				} catch (Exception e) {
-						throw new RuntimeException(e);
-				}
+			try {
+				DepositManagerExtension.Dialogs.StartCustomerDataDialog(that);
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
 
 		});
-		
+
 		// Botón Totales
 
 		ButtonColor totales = DepositManagerExtension.UI.addButton(getActivity(), Color.WHITE, "Resumen",
@@ -444,7 +444,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		});
 
 		// Botón Albarán
-		
+
 		ButtonColor albaran = DepositManagerExtension.UI.addButton(getActivity(), Color.RED, "Cerrar operación",
 				TEXT_SIZE_BUTTON, ScreenManager.getViewWidthByLength(_appConfig, 20, TEXT_SIZE_BUTTON, Gravity.LEFT), params, getResources().getDrawable(R.drawable.ic_save));
 
@@ -492,7 +492,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				}
 
 				if (_deposito.Serie.equals(_appConfig.getUser().SerialInvoiceA)
-					&& !DepositManagerExtension.DataTier.IsCustomerEmailFilled(that._deposito)) {
+						&& !DepositManagerExtension.DataTier.IsCustomerEmailFilled(that._deposito)) {
 
 					boolean result = _appConfig.getMessageBox().ShowWithResult("Cierre de operación",
 							"El cliente NO tiene informada un cuenta de correo para que se le envíe la notificación del pedido. Desea editarlo?", arg0.getContext(),
@@ -669,7 +669,7 @@ public class DepositManager extends Fragment implements  IMediator {
 					_deposito.IsNtvDeposit = isNTV;
 					this.addPotentialArticles();
 				}
-			//} else {
+				//} else {
 				try {
 					if (depositoNTVDTO != null)
 						this.addNTVArticles(depositoNTVDTO);
@@ -809,13 +809,13 @@ public class DepositManager extends Fragment implements  IMediator {
 		_articlesListView.setAdapter(_adapter);
 		_isRendered = true;
 	}
-	
+
 	private void createAutoComplete(AutoCompleteTextView autocomplete) {
 
 		autocomplete.addTextChangedListener(new DepositManagerTextWatcher());
 		ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(),android.R.layout.simple_dropdown_item_1line, this._articles);
-                
-        autocomplete.setAdapter(adapter);
+
+		autocomplete.setAdapter(adapter);
 		autocomplete.setOnItemClickListener((listView, view, position, id) -> {
 
 			String selectedArticle =  listView.getItemAtPosition(position).toString().trim().toUpperCase();
@@ -830,7 +830,7 @@ public class DepositManager extends Fragment implements  IMediator {
 			autocomplete.setText(ConstantsTypes.EMPTY_STRING);
 		});
 	}
-	
+
 	private void addPotentialArticles() throws Exception {
 		// Buscamos los artículos que no están asociados al depósito
 
@@ -893,44 +893,44 @@ public class DepositManager extends Fragment implements  IMediator {
 
 	private void updateEfectivo() {
 		Efectivo efectivo = Factory.build(Efectivo.class, _appConfig);
-        try {
-            efectivo.getEfectivo();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+		try {
+			efectivo.getEfectivo();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 
 		efectivo.Efectivo = efectivo.Efectivo + _deposito.CantidadPagada;
 		efectivo.UpdateDateEfectivo = new Date();
 
-        try {
-            efectivo.update();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+		try {
+			efectivo.update();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    private void showCashStatus() {
-        try {
-            Efectivo efectivo = Factory.build(Efectivo.class, _appConfig);
-            efectivo.getEfectivo();
-            
-            SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault());
-            String lastUpdateTime = timeFormat.format(efectivo.UpdateDateEfectivo);
-            
-            String message = String.format(
-                "INFORMACIÓN DE EFECTIVO:\n\n" +
-                "💰 Cantidad actual: %.2f €\n\n" +
-                "🕒 Última actualización: %s",
-                efectivo.Efectivo,
-                lastUpdateTime
-            );
-            
-            _appConfig.getMessageBox().Show("Estado del Efectivo", message, this.getActivity(), MessageBoxType.Information);
-            
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+	private void showCashStatus() {
+		try {
+			Efectivo efectivo = Factory.build(Efectivo.class, _appConfig);
+			efectivo.getEfectivo();
+
+			SimpleDateFormat timeFormat = new SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault());
+			String lastUpdateTime = timeFormat.format(efectivo.UpdateDateEfectivo);
+
+			String message = String.format(
+					"INFORMACIÓN DE EFECTIVO:\n\n" +
+							"💰 Cantidad actual: %.2f €\n\n" +
+							"🕒 Última actualización: %s",
+					efectivo.Efectivo,
+					lastUpdateTime
+			);
+
+			_appConfig.getMessageBox().Show("Estado del Efectivo", message, this.getActivity(), MessageBoxType.Information);
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 
 	private void SaveDeposito() {
 		_deposito.PagoDescripcion = _comboPago.getText();
@@ -1017,9 +1017,9 @@ public class DepositManager extends Fragment implements  IMediator {
 				String motivo;
 				do {
 					motivo = _appConfig.getMessageBox().InputBox("Cierre de operación",
-							"Introduzca el motivo de la baja", getActivity());	
+							"Introduzca el motivo de la baja", getActivity());
 				} while (motivo.trim().equals(ConstantsTypes.EMPTY_STRING));
-				
+
 				_deposito.MotivoRetirado = motivo;
 
 				// Generamos la incidencia de baja de cliente
@@ -1030,49 +1030,56 @@ public class DepositManager extends Fragment implements  IMediator {
 				creator.createXmlDeposito(_deposito);
 			}
 
-			Map<String, LineaDeposito> processed =new HashMap<>();
-			
-			for (LineaDeposito linea : _deposito.Lineas.values()) {
+			// VALIDACIÓN: Solo registrar movimientos si NO se han registrado ya
+			// Esto evita duplicación cuando el usuario cancela y vuelve a intentar cerrar
+			if (!_deposito.MovimientosRetiradoRegistrados) {
+				Map<String, LineaDeposito> processed =new HashMap<>();
 
-				if (!processed.containsKey(linea.Articulo.CodigoArticulo)) {
+				for (LineaDeposito linea : _deposito.Lineas.values()) {
 
-					int stockInicial = linea.Articulo.Stock;
-					linea.calculateStock();
+					if (!processed.containsKey(linea.Articulo.CodigoArticulo)) {
 
-					if (linea.UnidadesInicialesFijas > 0) {
-						String codigoArticulo = linea.Articulo.CodigoArticulo;
-						LineaDeposito logBookLinea = new LineaDeposito();
-						logBookLinea.Articulo = new Articulo();
-						logBookLinea.Articulo.CodigoArticulo = codigoArticulo;
-						logBookLinea.Articulo.Descripcion = linea.Articulo.Descripcion;
-						logBookLinea.Articulo.Stock = stockInicial;
-						logBookLinea.UnidadesInicialesFijas = linea.UnidadesInicialesFijas;
-						logBookLinea.UnidadesDevueltas = linea.UnidadesDevueltas;
-						logBookLinea.UnidadesDefectuosas = linea.UnidadesDefectuosas;
-						logBookLinea.UnidadesRepuestas = linea.UnidadesRepuestas;
-						logBookLinea.UnidadesFacturadas = linea.UnidadesFacturadas;
-						logBookLinea.UnidadesAbono = linea.UnidadesAbono;
-							
-						LogBookStock logBookTrace = Factory.build(LogBookStock.class, _appConfig);
-						logBookTrace.setData("DEPOSITO RETIRADO", _deposito.Cliente.CodigoCliente,
-								_deposito.Cliente.Razon, codigoArticulo, linea.Articulo.Descripcion,
-								stockInicial, linea.Articulo.Stock, logBookLinea.UnidadesDevueltas, logBookLinea.UnidadesDefectuosas,
-								logBookLinea.UnidadesRepuestas, logBookLinea.UnidadesFacturadas, logBookLinea.UnidadesInicialesFijas,
-								logBookLinea.UnidadesAbono, logBookLinea.UnidadesDefectuosas);
+						int stockInicial = linea.Articulo.Stock;
+						linea.calculateStock();
 
-						logBookTrace.save();
+						if (linea.UnidadesInicialesFijas > 0) {
+							String codigoArticulo = linea.Articulo.CodigoArticulo;
+							LineaDeposito logBookLinea = new LineaDeposito();
+							logBookLinea.Articulo = new Articulo();
+							logBookLinea.Articulo.CodigoArticulo = codigoArticulo;
+							logBookLinea.Articulo.Descripcion = linea.Articulo.Descripcion;
+							logBookLinea.Articulo.Stock = stockInicial;
+							logBookLinea.UnidadesInicialesFijas = linea.UnidadesInicialesFijas;
+							logBookLinea.UnidadesDevueltas = linea.UnidadesDevueltas;
+							logBookLinea.UnidadesDefectuosas = linea.UnidadesDefectuosas;
+							logBookLinea.UnidadesRepuestas = linea.UnidadesRepuestas;
+							logBookLinea.UnidadesFacturadas = linea.UnidadesFacturadas;
+							logBookLinea.UnidadesAbono = linea.UnidadesAbono;
+
+							LogBookStock logBookTrace = Factory.build(LogBookStock.class, _appConfig);
+							logBookTrace.setData("DEPOSITO RETIRADO", _deposito.Cliente.CodigoCliente,
+									_deposito.Cliente.Razon, codigoArticulo, linea.Articulo.Descripcion,
+									stockInicial, linea.Articulo.Stock, logBookLinea.UnidadesDevueltas, logBookLinea.UnidadesDefectuosas,
+									logBookLinea.UnidadesRepuestas, logBookLinea.UnidadesFacturadas, logBookLinea.UnidadesInicialesFijas,
+									logBookLinea.UnidadesAbono, logBookLinea.UnidadesDefectuosas);
+
+							logBookTrace.save();
+						}
+						linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.UnidadesDefectuosas;
+						linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
+								+ linea.UnidadesDefectuosas;
+
+						linea.Articulo.Activo = true;
+						linea.Articulo.update();
 					}
-					linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.UnidadesDefectuosas;
-					linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
-							+ linea.UnidadesDefectuosas;
 
-					linea.Articulo.Activo = true;
-					linea.Articulo.update();
+					processed.put(linea.Articulo.CodigoArticulo, linea);
 				}
+				_deposito.DeleteAllLines();
 
-				processed.put(linea.Articulo.CodigoArticulo, linea);
+				// Marcar como registrados para evitar duplicación
+				_deposito.MovimientosRetiradoRegistrados = true;
 			}
-			_deposito.DeleteAllLines();
 		}
 
 		if (_deposito.isDeposito() && (!_deposito.isDepositoUpdated() || _deposito.isDepositoUpdatedOnlyVentaDirecta())) {
@@ -1101,7 +1108,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			if (_deposito.isDeposito() || _deposito.isAlbaran() || _deposito.isDepositoRetirado()) {
 				DepositManagerExtension.Dialogs.StartSignatureCustomerDialog(this);
-				
+
 				boolean result = _appConfig.getMessageBox().ShowWithResult("Cierre de operación",
 						"Se va a proceder a guardar los datos. Si sigue adelante, el depósito y/o el albarán ya no podrán ser modificados. Desea Continuar?",
 						this.getActivity(), MessageBoxType.Information);
@@ -1116,10 +1123,10 @@ public class DepositManager extends Fragment implements  IMediator {
 					updateEfectivo();
 
 				generateXML();
-			// Mostrar estado actual del efectivo después de completar la operación
-			showCashStatus();
+				// Mostrar estado actual del efectivo después de completar la operación
+				showCashStatus();
 
-			// Generem el consentiment GDPR si és necessari
+				// Generem el consentiment GDPR si és necessari
 
 				if (!_deposito.Cliente.hasGDPRSigned()) {
 
@@ -1148,13 +1155,13 @@ public class DepositManager extends Fragment implements  IMediator {
 
 	private void SaveHistorico() {
 		_deposito.Cliente.Filiacion = DepositManagerExtension.DataTier.getFiliacionCode(_comboFiliacion.getText()).trim();
-        try {
-            _deposito.Cliente.update();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+		try {
+			_deposito.Cliente.update();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 
-        _deposito.Filiacion = DepositManagerExtension.DataTier.getFiliacionCode(_comboFiliacion.getText());
+		_deposito.Filiacion = DepositManagerExtension.DataTier.getFiliacionCode(_comboFiliacion.getText());
 		_deposito.Pagado = _checkPagado.isChecked();
 		_deposito.PagoDescripcion = _comboPago.getText();
 
@@ -1390,7 +1397,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			unidadesDevueltas.setOnFocusChangeListener((view, hasFocus) -> {
 
- 				_lastTextBox = (TextBoxColor) view;
+				_lastTextBox = (TextBoxColor) view;
 				if (!hasFocus) {
 					int unidadesDevueltasValue;
 
@@ -1705,7 +1712,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		LabelColor articuloDescripcion = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion + " (Abono) ", TEXT_SIZE, 13,
-						params, true, lineaDeposito.Articulo)
+				params, true, lineaDeposito.Articulo)
 				: (LabelColor) _headerAbonoLayout.getChildAt(1);
 		articuloDescripcion.setText((lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion));
 		articuloDescripcion.setTag(lineaDeposito.Articulo);
@@ -1769,7 +1776,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				"Defect.", TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true)
 				: (LabelColor) _headerAbonoLayout.getChildAt(4);
 
-		
+
 		TextBoxColor defectuosasAbono = createHeaderLayout ?  DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
 				String.valueOf(lineaDeposito.DefectuosasAbono), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true, lineaDeposito)
 				: (TextBoxColor) _headerAbonoLayout.getChildAt(5);
@@ -1819,11 +1826,11 @@ public class DepositManager extends Fragment implements  IMediator {
 			}
 
 		});
-		
+
 		LabelColor labelPVPAbono = createHeaderLayout ?  DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				"PVP", TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true)
 				: (LabelColor) _headerAbonoLayout.getChildAt(6);
-		
+
 		TextBoxColor pvpAbono =  createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
 				DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAbono), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true, lineaDeposito)
 				:(TextBoxColor) _headerAbonoLayout.getChildAt(7);
@@ -1856,13 +1863,13 @@ public class DepositManager extends Fragment implements  IMediator {
 		});
 
 		double totalAbonoImporte = lineaDeposito.TotalAbono;
-		
+
 		LabelColor totalAbono =  createHeaderLayout ?  DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.RIGHT, InputType.TYPE_CLASS_NUMBER,
 				DepositManagerExtension.Format.CurrencyFormat(totalAbonoImporte), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true)
 				: (LabelColor) _headerAbonoLayout.getChildAt(8);
 		totalAbono.setText(DepositManagerExtension.Format.CurrencyFormat(totalAbonoImporte));
 		totalAbono.setTag(lineaDeposito);
-				
+
 		// Botón Venta
 
 		LayoutParams buttonParams = new LayoutParams(params);
@@ -1921,12 +1928,12 @@ public class DepositManager extends Fragment implements  IMediator {
 	}
 
 	private void createHeaderLabels() {
-		
+
 		LinearLayout mainLinearLayout = this.getActivity()
 				.findViewById(R.id.headerLabelsLinearLayout);
-		
+
 		mainLinearLayout.removeAllViews();
-		
+
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
 		DepositManagerExtension.UI.addViewsToLayout(mainLinearLayout,
@@ -1947,9 +1954,9 @@ public class DepositManager extends Fragment implements  IMediator {
 				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 						"Repuestas".toUpperCase(), TEXT_SIZE, 13, params),
 				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-								"PVP Post.".toUpperCase(), TEXT_SIZE, 13, params),
+						"PVP Post.".toUpperCase(), TEXT_SIZE, 13, params),
 				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-								"Total".toUpperCase(), TEXT_SIZE, 13, params));
+						"Total".toUpperCase(), TEXT_SIZE, 13, params));
 
 	}
 
