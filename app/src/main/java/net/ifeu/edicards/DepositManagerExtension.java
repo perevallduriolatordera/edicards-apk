@@ -583,14 +583,16 @@ public class DepositManagerExtension {
     static class UI {
 		public static LabelColor addLabel(Context context, int color, int gravity, int input, String text, int size,
 				int width, LayoutParams params) {
-			
+
 			LabelColor label = new LabelColor(context, color, gravity);
+			label.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
+			label.setTextColor(color);  // Reestablecer color después del typeface
 			label.setRawInputType(input);
 			label.setText(text);
 			label.setTextSize(size);
 			label.setWidth(width);
 			label.setLayoutParams(params);
-			
+
 			return label;
 		}
 
@@ -598,6 +600,8 @@ public class DepositManagerExtension {
 			LayoutParams params) {
 
 			LabelColor label = new LabelColor(context, color, gravity);
+			label.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
+			label.setTextColor(color);  // Reestablecer color después del typeface
 			label.setRawInputType(input);
 			label.setText(text);
 			label.setTextSize(size);
@@ -651,12 +655,13 @@ public class DepositManagerExtension {
 		
 		public static LabelColor addLabelByText(Context context, int color, int gravity, int input, String text, int size,
 				int width, LayoutParams params, boolean bold) {
-			
+
 			String mask="";
             for (int i=0; i < width; i++) mask = mask.concat("A");
-			
+
 			LabelColor label = new LabelColor(context, color, bold);
-			label.setTypeface(Typeface.MONOSPACE);    //all characters the same width
+			label.setTypeface(bold ? Typeface.create(Typeface.MONOSPACE, Typeface.BOLD) : Typeface.MONOSPACE);    //all characters the same width
+			label.setTextColor(color);  // Reestablecer color después del typeface
 			label.setRawInputType(input);
 			
 			label.setText(mask);
@@ -693,12 +698,13 @@ public class DepositManagerExtension {
 		
 		public static LabelColor addLabelByText(Context context, int color, int gravity, int input, String text, int size,
 				int width, LayoutParams params, boolean bold, Object tag) {
-			
+
 			String mask="";
             for (int i=0; i < width; i++) mask = mask.concat("A");
-			
+
 			LabelColor label = new LabelColor(context, color, bold,  gravity);
-			label.setTypeface(Typeface.MONOSPACE);    //all characters the same width
+			label.setTypeface(bold ? Typeface.create(Typeface.MONOSPACE, Typeface.BOLD) : Typeface.MONOSPACE);    //all characters the same width
+			label.setTextColor(color);  // Reestablecer color después del typeface
 			label.setRawInputType(input);
 			
 			label.setText(mask);
@@ -737,28 +743,36 @@ public class DepositManagerExtension {
 		
 		public static LabelColor addLabel(Context context, int color, int gravity, int input, String text, int size,
 				int width, LayoutParams params, boolean bold) {
-			
+
 			LabelColor label = new LabelColor(context, color, bold, gravity);
+			if (bold) {
+				label.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
+				label.setTextColor(color);  // Reestablecer color después del typeface
+			}
 			label.setRawInputType(input);
 			label.setText(text);
 			label.setTextSize(size);
 			label.setWidth(width);
 			label.setLayoutParams(params);
-			
+
 			return label;
 		}
 		
 		public static LabelColor addLabel(Context context, int color, int gravity, int input, String text, int size,
 				int width, LayoutParams params, boolean bold, Object tag) {
-			
+
 			LabelColor label = new LabelColor(context, color, bold, gravity);
+			if (bold) {
+				label.setTypeface(Typeface.create("sans-serif", Typeface.BOLD));
+				label.setTextColor(color);  // Reestablecer color después del typeface
+			}
 			label.setRawInputType(input);
 			label.setText(text);
 			label.setTextSize(size);
 			label.setWidth(width);
 			label.setLayoutParams(params);
 			label.setTag(tag);
-			
+
 			return label;
 		}
 		

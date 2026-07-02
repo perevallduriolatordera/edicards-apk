@@ -1,139 +1,252 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent" 
-              android:layout_height="fill_parent" 
-              android:orientation="vertical" > 
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
 
-   
-    <TextView android:id="@+id/lblIdArticuloLabel"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="25px"
-        android:layout_marginRight="25px"
-        android:textSize="@dimen/text_small"
-        android:text="Código:" />
-    
-    <TextView android:id="@+id/lblIdArticulo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="25px"
-        android:layout_marginRight="25px"
-        android:textSize="@dimen/text_small"
-        android:textColor="#6699BB"
-        android:textStyle="bold"
-        android:text="" />
-    
-    <TextView android:id="@+id/lblDescripcionArticuloLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="25px"
-        android:layout_marginRight="25px"
-        android:textSize="@dimen/text_small"
-        android:text="Descripción:" />
-    
-    <TextView android:id="@+id/lblDescripcionArticulo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="25px"
-        android:layout_marginRight="25px"
-        android:textSize="@dimen/text_small"
-        android:textColor="#6699BB"
-        android:textStyle="bold"
-        android:text="" />
-    
-    
-    <TextView android:id="@+id/lblPrecioArticuloLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="25px"
-        android:layout_marginRight="25px"
-        android:textSize="@dimen/text_small"
-        android:text="Precio:" />
-    
-    <TextView android:id="@+id/lblPrecioArticulo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="25px"
-        android:layout_marginRight="25px"
-        android:textSize="@dimen/text_small"
-        android:textColor="#6699BB"
-        android:textStyle="bold"
-        android:text="" />
-    
-     <TextView android:id="@+id/lblFamiliaArticuloLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="25px"
-        android:layout_marginRight="25px"
-        android:textSize="@dimen/text_small"
-        android:text="Familia:" />
-    
-    <TextView android:id="@+id/lblFamiliaArticulo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="25px"
-        android:layout_marginRight="25px"
-        android:textSize="@dimen/text_small"
-        android:textColor="#6699BB"
-        android:textStyle="bold"
-        android:text="" />
-    
-    <TextView android:id="@+id/lblTipoIVAArticuloLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="25px"
-        android:layout_marginRight="25px"
-        android:textSize="@dimen/text_small"
-        android:text="Tipo IVA:" />
-    
-    <TextView android:id="@+id/lblTipoIVAArticulo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="25px"
-        android:layout_marginRight="25px"
-        android:textSize="@dimen/text_small"
-        android:textColor="#6699BB"
-        android:textStyle="bold"
-        android:text="" />
-    
-    <TextView android:id="@+id/lblDescuento1ArticuloLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="25px"
-        android:layout_marginRight="25px"
-        android:textSize="@dimen/text_small"
-        android:text="Descuento 1:" />
-    
-    <TextView android:id="@+id/lblDescuento1Articulo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="25px"
-        android:layout_marginRight="25px"
-        android:textSize="@dimen/text_small"
-        android:textColor="#6699BB"
-        android:textStyle="bold"
-        android:text="" />
-    
-     <TextView android:id="@+id/lblStockLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="25px"
-        android:layout_marginRight="25px"
-        android:textSize="@dimen/text_small"
-        android:text="Unidades actuales:" />
-    
-    <TextView android:id="@+id/lblStock"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="25px"
-        android:layout_marginRight="25px"
-        android:textSize="@dimen/text_small"
-        android:textColor="#6699BB"
-        android:textStyle="bold"
-        android:text="" />
+        android:orientation="vertical"
+        android:padding="20dp">
 
+        <!-- Título del diálogo -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Información del Artículo"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#0277BD"
+            android:gravity="center"
+            android:paddingBottom="20dp"/>
 
-</LinearLayout>
+        <!-- Separador -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#E0E0E0"
+            android:layout_marginBottom="16dp"/>
 
- 
-       
+        <!-- Campo: Código -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#F5F5F5"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/lblIdArticuloLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Código"
+                android:textSize="12sp"
+                android:textColor="#757575"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/lblIdArticulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="16sp"
+                android:textColor="#1976D2"
+                android:textStyle="bold"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <!-- Campo: Descripción -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#F5F5F5"
+            android:padding="12dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:id="@+id/lblDescripcionArticuloLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Descripción"
+                android:textSize="12sp"
+                android:textColor="#757575"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/lblDescripcionArticulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="16sp"
+                android:textColor="#212121"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <!-- Fila: Precio y Familia -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <!-- Precio -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="#F5F5F5"
+                android:padding="12dp"
+                android:layout_marginEnd="6dp">
+
+                <TextView
+                    android:id="@+id/lblPrecioArticuloLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Precio"
+                    android:textSize="12sp"
+                    android:textColor="#757575"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/lblPrecioArticulo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="18sp"
+                    android:textColor="#4CAF50"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+
+            <!-- Familia -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="#F5F5F5"
+                android:padding="12dp"
+                android:layout_marginStart="6dp">
+
+                <TextView
+                    android:id="@+id/lblFamiliaArticuloLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Familia"
+                    android:textSize="12sp"
+                    android:textColor="#757575"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/lblFamiliaArticulo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="14sp"
+                    android:textColor="#212121"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Fila: Tipo IVA y Descuento -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <!-- Tipo IVA -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="#F5F5F5"
+                android:padding="12dp"
+                android:layout_marginEnd="6dp">
+
+                <TextView
+                    android:id="@+id/lblTipoIVAArticuloLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tipo IVA"
+                    android:textSize="12sp"
+                    android:textColor="#757575"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/lblTipoIVAArticulo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="14sp"
+                    android:textColor="#212121"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+
+            <!-- Descuento -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:background="#F5F5F5"
+                android:padding="12dp"
+                android:layout_marginStart="6dp">
+
+                <TextView
+                    android:id="@+id/lblDescuento1ArticuloLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Descuento"
+                    android:textSize="12sp"
+                    android:textColor="#757575"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/lblDescuento1Articulo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="14sp"
+                    android:textColor="#FF6F00"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Campo: Stock -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#E8F5E9"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/lblStockLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Unidades en Stock"
+                android:textSize="12sp"
+                android:textColor="#2E7D32"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/lblStock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="20sp"
+                android:textColor="#388E3C"
+                android:textStyle="bold"
+                android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

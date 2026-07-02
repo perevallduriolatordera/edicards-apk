@@ -1,122 +1,189 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent" 
-    android:layout_height="fill_parent" 
-    android:orientation="vertical"
-    android:background="@color/Edicards" >
-
-    <EditText
-        android:id="@+id/txtTextSearch"
-        android:layout_width="fill_parent"
-        android:layout_weight="1"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:layout_marginTop="30dp"
-        android:ems="16"
-        android:hint="cliente a buscar" >
-    </EditText>
-
-    <CheckBox
-        android:id="@+id/chkOnlyStartsWith"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:layout_marginTop="15dp"
-        android:checked="false"
-        android:text="Empiezan por" />
-
-    <RadioGroup
-        android:id="@+id/grpFilterField"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="50px"
-        android:layout_marginRight="50px"
-        android:layout_marginTop="14dp"
-        android:orientation="horizontal"
-        android:text="Buscar por el campo..." >
-
-        <RadioButton
-            android:id="@+id/optNombre"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-
-            android:text="Nombre" />
-        <RadioButton
-            android:id="@+id/optNIF"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginRight="15dp"
-            android:text="NIF" />
-
-        <RadioButton
-            android:id="@+id/optTelefono"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginRight="15dp"
-            android:text="Teléfono" />
-
-        <RadioButton
-            android:id="@+id/optPoblacion"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginRight="15dp"
-            android:text="Población" />
-    </RadioGroup>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
 
     <LinearLayout
-        android:id="@+id/linearLayout2"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="30dp"
-        android:layout_marginLeft="50px"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:padding="20dp">
 
-        <net.ifeu.library.Controls.ButtonColor
-            android:id="@+id/btnAccept"
-            android:layout_width="150dp"
-            android:layout_height="30dp"
-            android:layout_marginRight="50px"
-            android:paddingLeft="5px"
-            android:text="Buscar"
-            android:textColor="#FFF"
-            android:background="@drawable/background_button" />
-        <net.ifeu.library.Controls.ButtonColor
-            android:id="@+id/btnNewCustomer"
-            android:layout_width="150dp"
-            android:layout_height="30dp"
-            android:layout_marginRight="50px"
-            android:paddingLeft="5px"
-            android:background="@drawable/background_button"
-            android:text="Nuevo cliente"
-            android:textColor="#FFF" />
+        <!-- Cabecera -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#0277BD"
+            android:padding="16dp"
+            android:layout_marginBottom="24dp"
+            android:gravity="center"
+            android:elevation="4dp">
 
-        <net.ifeu.library.Controls.ButtonColor
-            android:id="@+id/btnNTVImport"
-            android:layout_width="150dp"
-            android:layout_height="30dp"
-            android:layout_marginRight="50px"
-            android:paddingLeft="5px"
-            android:background="@drawable/background_button"
-            android:text="Importación NTV"
-            android:textColor="#FFF" />
-        
-        <net.ifeu.library.Controls.ButtonColor
-            android:id="@+id/btnClose"
-            android:layout_width="150dp"
-            android:layout_height="30dp"
-            android:layout_marginRight="50px"
-            android:paddingLeft="5px"
-            android:background="@drawable/background_button"
-            android:text="Cerrar"
-            android:textColor="#FFF" />
-     </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Búsqueda Avanzada de Clientes"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#FFFFFF"
+                android:gravity="center"/>
+        </LinearLayout>
 
-</LinearLayout>
+        <!-- Campo de búsqueda -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#F5F5F5"
+            android:padding="16dp"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Texto a buscar"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#424242"
+                android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/txtTextSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Ingrese el texto a buscar"
+                android:padding="12dp"
+                android:textSize="16sp"
+                android:textColor="#212121"
+                android:background="@android:drawable/edit_text"/>
+        </LinearLayout>
+
+        <!-- Checkbox -->
+        <CheckBox
+            android:id="@+id/chkOnlyStartsWith"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:checked="false"
+            android:text="Solo resultados que empiecen por el texto"
+            android:textSize="14sp"
+            android:textColor="#212121"/>
+
+        <!-- Criterio de búsqueda -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Buscar por campo"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#0277BD"
+            android:layout_marginBottom="12dp"/>
+
+        <RadioGroup
+            android:id="@+id/grpFilterField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#F5F5F5"
+            android:padding="12dp"
+            android:layout_marginBottom="24dp">
+
+            <RadioButton
+                android:id="@+id/optNombre"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nombre"
+                android:textSize="15sp"
+                android:textColor="#212121"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/optNIF"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="NIF / CIF"
+                android:textSize="15sp"
+                android:textColor="#212121"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/optTelefono"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Teléfono"
+                android:textSize="15sp"
+                android:textColor="#212121"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/optPoblacion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Población"
+                android:textSize="15sp"
+                android:textColor="#212121"
+                android:padding="8dp"/>
+        </RadioGroup>
+
+        <!-- Botones de acción -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <net.ifeu.library.Controls.ButtonColor
+                android:id="@+id/btnAccept"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🔍  Buscar Cliente"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:background="#4CAF50"
+                android:padding="14dp"
+                android:layout_marginBottom="10dp"
+                android:elevation="2dp"/>
+
+            <net.ifeu.library.Controls.ButtonColor
+                android:id="@+id/btnNewCustomer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="➕  Nuevo Cliente"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:background="#2196F3"
+                android:padding="14dp"
+                android:layout_marginBottom="10dp"
+                android:elevation="2dp"/>
+
+            <net.ifeu.library.Controls.ButtonColor
+                android:id="@+id/btnNTVImport"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📥  Importación NTV"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:background="#FF9800"
+                android:padding="14dp"
+                android:layout_marginBottom="10dp"
+                android:elevation="2dp"/>
+
+            <net.ifeu.library.Controls.ButtonColor
+                android:id="@+id/btnClose"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Cerrar"
+                android:textSize="16sp"
+                android:textColor="@android:color/white"
+                android:background="#757575"
+                android:padding="14dp"
+                android:elevation="2dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

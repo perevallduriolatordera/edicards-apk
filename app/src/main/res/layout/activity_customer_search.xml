@@ -11,18 +11,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="#E3F2FD"
-        android:padding="12dp"
+        android:background="#0277BD"
+        android:padding="16dp"
         android:layout_marginBottom="16dp"
-        android:gravity="center">
+        android:gravity="center"
+        android:elevation="4dp">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Búsqueda de Clientes"
-            android:textSize="20sp"
+            android:textSize="22sp"
             android:textStyle="bold"
-            android:textColor="#1976D2"
+            android:textColor="#FFFFFF"
             android:gravity="center"/>
     </LinearLayout>
 

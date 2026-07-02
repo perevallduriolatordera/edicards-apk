@@ -2,85 +2,239 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    android:padding="10dp"
+    android:layout_marginBottom="2dp">
 
-    <TextView
-        android:id="@+id/itemCodigoArticulo"
-        android:layout_width="wrap_content"
+    <!-- Fila superior: Código, Descripción e Icono -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="#000000" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp">
 
-    <TextView
-        android:id="@+id/itemDescripcionArticulo"
-        android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/itemCodigoArticulo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#1976D2"
+            android:background="#E3F2FD"
+            android:padding="4dp"
+            android:layout_marginEnd="8dp"/>
+
+        <TextView
+            android:id="@+id/itemDescripcionArticulo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#212121"
+            android:maxLines="2"
+            android:ellipsize="end"/>
+
+        <ImageView
+            android:id="@+id/itemImage"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="8dp"
+            android:contentDescription="Icono del artículo"/>
+    </LinearLayout>
+
+    <!-- Fila de datos numéricos (en grid compacto) -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="#000000" />
+        android:orientation="horizontal"
+        android:background="#F5F5F5"
+        android:padding="8dp">
 
-    <TextView
-        android:id="@+id/itemUnidadesInicial"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:layout_gravity="center"
-        android:textColor="#000000" />
+        <!-- Columna 1: Inicial y Contadas -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/itemUnidadesContadas"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:layout_gravity="center"
-        android:textColor="#000000" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Inicial"
+                android:textSize="10sp"
+                android:textColor="#757575"
+                android:gravity="center"/>
 
-    <TextView
-        android:id="@+id/itemUnidadesRecicladas"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:layout_gravity="center"
-        android:textColor="#000000" />
+            <TextView
+                android:id="@+id/itemUnidadesInicial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#424242"
+                android:gravity="center"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
 
-    <TextView
-        android:id="@+id/itemPVP"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:layout_gravity="center"
-        android:textColor="#000000" />
+        <!-- Columna 2: Contadas -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/itemUnidadesFacturadas"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:layout_gravity="center"
-        android:textColor="#000000" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Contadas"
+                android:textSize="10sp"
+                android:textColor="#757575"
+                android:gravity="center"/>
 
-    <TextView
-        android:id="@+id/itemUnidadesRepuestas"
+            <TextView
+                android:id="@+id/itemUnidadesContadas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#424242"
+                android:gravity="center"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
 
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:layout_gravity="center"
-        android:textColor="#000000" />
+        <!-- Columna 3: Recicladas -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/itemPVPPost"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:layout_gravity="center"
-        android:textColor="#000000" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Recicl."
+                android:textSize="10sp"
+                android:textColor="#757575"
+                android:gravity="center"/>
 
-    <ImageView
-        android:id="@+id/itemImage"
-        android:layout_width="32dp"
-        android:layout_height="32dp">
-    </ImageView>
+            <TextView
+                android:id="@+id/itemUnidadesRecicladas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#424242"
+                android:gravity="center"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
+
+        <!-- Columna 4: PVP -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PVP"
+                android:textSize="10sp"
+                android:textColor="#757575"
+                android:gravity="center"/>
+
+            <TextView
+                android:id="@+id/itemPVP"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#4CAF50"
+                android:gravity="center"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
+
+        <!-- Columna 5: Facturadas -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Fact."
+                android:textSize="10sp"
+                android:textColor="#757575"
+                android:gravity="center"/>
+
+            <TextView
+                android:id="@+id/itemUnidadesFacturadas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#424242"
+                android:gravity="center"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
+
+        <!-- Columna 6: Repuestas -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Repues."
+                android:textSize="10sp"
+                android:textColor="#757575"
+                android:gravity="center"/>
+
+            <TextView
+                android:id="@+id/itemUnidadesRepuestas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#424242"
+                android:gravity="center"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
+
+        <!-- Columna 7: PVP Post -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PVP Post"
+                android:textSize="10sp"
+                android:textColor="#757575"
+                android:gravity="center"/>
+
+            <TextView
+                android:id="@+id/itemPVPPost"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:textColor="#4CAF50"
+                android:gravity="center"
+                android:layout_marginTop="2dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

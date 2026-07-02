@@ -61,7 +61,7 @@ public class CustomerSearchListDialog extends ListActivity {
 		lstView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		lstView.setTextFilterEnabled(true);
 
-		setListAdapter(new ArrayAdapter<>(this, android.R.layout.simple_gallery_item, _customers));
+		setListAdapter(new ArrayAdapter<>(this, R.layout.list_item_customer, _customers));
 
 	}
 
