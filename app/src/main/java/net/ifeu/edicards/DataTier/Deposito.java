@@ -1050,6 +1050,9 @@ public class Deposito extends Cliente implements IPersistable {
 			if (!this.isDepositoRetirado()) {
 
 				if (linea.UnidadesRepuestas > 0) {
+					// Asignar el IdDeposito a la línea antes de guardarla
+					// para que se pueda recuperar correctamente al recargar el depósito
+					linea.IdDeposito = this.IdDeposito;
 					try {
 						linea.save();
 					} catch (Exception e) {
