@@ -598,60 +598,57 @@ public class Reports extends Fragment {
 			final Reports that = this;
 
 			anular.setOnClickListener(arg0 -> {
-				try {
-
-                    boolean drop = _appConfig
-							.getMessageBox()
-							.ShowWithResult(
-									"Anular operación",
-									"Se va a proceder a anular la operación. Desea Continuar?",
-									getActivity(),
-									MessageBoxType.Information);
-
-					if (drop) {
-
-						DTODeposito dto = new DTODeposito(_appConfig, getActivity());
-						dto.deserialize(hist.Serializacion);
-
-						that.upgradeStock(hist);
-						that.restoreEfectivo(dto);
-
-						Deposito depositoRestaurado = null;
-						if (!dto.isNTV) {
-							depositoRestaurado = that.upgradeDeposito(hist);
-							if (depositoRestaurado == null) return;
-
-							_appConfig.getMessageBox().Show("Información",
-									"Se ha restaurado de nuevo el depísito del cliente " + hist.NombrePresentacion,
-									getActivity(), MessageBoxType.Information);
-						} else {
-							_appConfig.getMessageBox().Show("Información",
-									"Al ser un pedido NTV, el depósito NO será restaurado " + hist.NombrePresentacion,
-									getActivity(), MessageBoxType.Information);
-						}
-
-						that.sendIncidencia(hist);
+				_appConfig.getMessageBox().ShowWithResultAsync(
+					"Anular operación",
+					"Se va a proceder a anular la operación. ¿Desea Continuar?",
+					getActivity(),
+					MessageBoxType.Information,
+					drop -> {
+						if (!drop) return;
 
 						try {
-							dto.Calculate();
-						} catch (Exception e1) {
-							throw new RuntimeException(e1);
-						}
-						try {
-							dto.CalculateDeposito();
-						} catch (Exception e1) {
-							throw new RuntimeException(e1);
-						}
+							DTODeposito dto = new DTODeposito(_appConfig, getActivity());
+							dto.deserialize(hist.Serializacion);
 
-						that.generateXML(dto, hist, depositoRestaurado);
-						hist.delete();
-						getHistoricos();
-						
+							Deposito depositoRestaurado = null;
+							if (!dto.isNTV) {
+								depositoRestaurado = that.upgradeDeposito(hist);
+								if (depositoRestaurado == null) return;
+
+								_appConfig.getMessageBox().Show("Información",
+										"Se ha restaurado de nuevo el depísito del cliente " + hist.NombrePresentacion,
+										getActivity(), MessageBoxType.Information);
+							} else {
+								_appConfig.getMessageBox().Show("Información",
+										"Al ser un pedido NTV, el depósito NO será restaurado " + hist.NombrePresentacion,
+										getActivity(), MessageBoxType.Information);
+							}
+
+							that.upgradeStock(hist);
+							that.restoreEfectivo(dto);
+
+							that.sendIncidencia(hist);
+
+							try {
+								dto.Calculate();
+							} catch (Exception e1) {
+								throw new RuntimeException(e1);
+							}
+							try {
+								dto.CalculateDeposito();
+							} catch (Exception e1) {
+								throw new RuntimeException(e1);
+							}
+
+							that.generateXML(dto, hist, depositoRestaurado);
+							hist.delete();
+							getHistoricos();
+
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
 					}
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-
+				);
 			});
 
 			layout2.addView(anular);
