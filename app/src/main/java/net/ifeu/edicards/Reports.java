@@ -51,6 +51,7 @@ import net.ifeu.library.Errors.ResultResponse;
 import net.ifeu.library.LogBook.LogBookStock;
 import net.ifeu.library.Utils.Inactivate;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
+import net.ifeu.library.Utils.MessageBox.MessageBox;
 import net.ifeu.library.Utils.Screen.ScreenManager;
 
 public class Reports extends Fragment {
@@ -610,39 +611,17 @@ public class Reports extends Fragment {
 							DTODeposito dto = new DTODeposito(_appConfig, getActivity());
 							dto.deserialize(hist.Serializacion);
 
-							Deposito depositoRestaurado = null;
 							if (!dto.isNTV) {
-								depositoRestaurado = that.upgradeDeposito(hist);
-								if (depositoRestaurado == null) return;
-
-								_appConfig.getMessageBox().Show("Información",
-										"Se ha restaurado de nuevo el depísito del cliente " + hist.NombrePresentacion,
-										getActivity(), MessageBoxType.Information);
+								that.upgradeDeposito(hist, depositoRestaurado -> {
+									if (depositoRestaurado == null) return;
+									continueWithUpgrade(dto, hist, (Deposito) depositoRestaurado);
+								});
 							} else {
 								_appConfig.getMessageBox().Show("Información",
 										"Al ser un pedido NTV, el depósito NO será restaurado " + hist.NombrePresentacion,
 										getActivity(), MessageBoxType.Information);
+								continueWithUpgrade(dto, hist, null);
 							}
-
-							that.upgradeStock(hist);
-							that.restoreEfectivo(dto);
-
-							that.sendIncidencia(hist);
-
-							try {
-								dto.Calculate();
-							} catch (Exception e1) {
-								throw new RuntimeException(e1);
-							}
-							try {
-								dto.CalculateDeposito();
-							} catch (Exception e1) {
-								throw new RuntimeException(e1);
-							}
-
-							that.generateXML(dto, hist, depositoRestaurado);
-							hist.delete();
-							getHistoricos();
 
 						} catch (Exception e) {
 							throw new RuntimeException(e);
@@ -779,13 +758,44 @@ public class Reports extends Fragment {
 		}
 	}
 	
-	private Deposito upgradeDeposito(Historico historico) {
-		
+	private void continueWithUpgrade(DTODeposito dto, Historico hist, Deposito depositoRestaurado) {
 		try {
-			// Crear lista de artículos a restablecer para mostrar al usuario
+			if (depositoRestaurado != null) {
+				_appConfig.getMessageBox().Show("Información",
+						"Se ha restaurado de nuevo el depísito del cliente " + hist.NombrePresentacion,
+						getActivity(), MessageBoxType.Information);
+			}
+
+			upgradeStock(hist);
+			restoreEfectivo(dto);
+
+			sendIncidencia(hist);
+
+			try {
+				dto.Calculate();
+			} catch (Exception e1) {
+				throw new RuntimeException(e1);
+			}
+			try {
+				dto.CalculateDeposito();
+			} catch (Exception e1) {
+				throw new RuntimeException(e1);
+			}
+
+			generateXML(dto, hist, depositoRestaurado);
+			hist.delete();
+			getHistoricos();
+
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private void upgradeDeposito(Historico historico, MessageBox.DepositoResultCallback callback) {
+		try {
 			StringBuilder articulosInfo = new StringBuilder();
 			articulosInfo.append("Se van a restablecer los siguientes artículos en el depósito:\n\n");
-			
+
 			for (LineaHistorico historicoLinea : historico.Lineas.values()) {
 				if (historicoLinea.Tipo == ConstantsTypes.TIPO_LINEA_HISTORICO_UNIDADES_INICIALES) {
 					articulosInfo.append("• ")
@@ -797,76 +807,70 @@ public class Reports extends Fragment {
 						.append(" unidades)\n");
 				}
 			}
-			
+
 			articulosInfo.append("\n¿Desea continuar con el restablecimiento del depósito?");
-			
-			// Mostrar diálogo de confirmación con la lista de artículos
-			boolean confirmar = _appConfig.getMessageBox().ShowWithResult(
+
+			_appConfig.getMessageBox().ShowWithResultAsync(
 				"Restablecimiento de Depósito",
 				articulosInfo.toString(),
-				getActivity(), 
-				MessageBoxType.Information);
-				
-			if (!confirmar) {
-				return null;
-			}
-			
-			Deposito deposito = Factory.build(Deposito.class, _appConfig);
-			List<Deposito> deps = deposito.getDepositosByCodigoCliente(historico.Cliente.CodigoCliente);
-
-			Cliente cliente = Factory.build(Cliente.class, _appConfig);
-			cliente.setClienteById(historico.Cliente.CodigoCliente);
-
-			if (deps.size() > 1) {
-				_appConfig.getMessageBox().Show("Atención",
-						"Se ha encontrado mas de un depósito para este cliente: " + historico.NombrePresentacion,
-						getActivity(), MessageBoxType.Error);
-
-				return null;
-			}
-			if (deps.size() == 0) {
-				deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
-				deposito.assingFromCliente(cliente);
-				deposito.IsNtvDeposit = false;
-
-				deposito.save();
-			} else {
-				deposito = deps.stream().findFirst().get();
-			}
-
-			deposito.DeleteAllLines();
-
-			for (LineaHistorico historicoLinea : historico.Lineas.values()) {
-				
-				switch (historicoLinea.Tipo) {
-					case ConstantsTypes.TIPO_LINEA_HISTORICO_UNIDADES_INICIALES: {
-
-						LineaDeposito linea = Factory.build(LineaDeposito.class, _appConfig);
-
-						linea.IdDeposito = deposito.IdDeposito;
-						linea.Articulo = historicoLinea.Articulo;
-
-						linea.UnidadesIniciales = historicoLinea.Unidades;
-						linea.UnidadesInicialesFijas = linea.UnidadesIniciales;
-						linea.UnidadesRepuestas = linea.UnidadesIniciales;
-	
-						linea.PVP = historicoLinea.PVP;
-						linea.PVPAnterior = linea.PVP;
-						linea.PVPInicial = linea.PVPAnterior;
-						
-						linea.Descuento1 = 0;
-						linea.Descuento2 = 0;
-
-						linea.save();
-						deposito.Lineas.put(linea.Articulo.CodigoArticulo, linea);
-						break;
+				getActivity(),
+				MessageBoxType.Information,
+				confirmar -> {
+					if (!confirmar) {
+						callback.onResult(null);
+						return;
 					}
 
+					try {
+						Deposito deposito = Factory.build(Deposito.class, _appConfig);
+						List<Deposito> deps = deposito.getDepositosByCodigoCliente(historico.Cliente.CodigoCliente);
+
+						Cliente cliente = Factory.build(Cliente.class, _appConfig);
+						cliente.setClienteById(historico.Cliente.CodigoCliente);
+
+						if (deps.size() > 1) {
+							_appConfig.getMessageBox().Show("Atención",
+									"Se ha encontrado mas de un depósito para este cliente: " + historico.NombrePresentacion,
+									getActivity(), MessageBoxType.Error);
+							callback.onResult(null);
+							return;
+						}
+
+						if (deps.size() == 0) {
+							deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
+							deposito.assingFromCliente(cliente);
+							deposito.IsNtvDeposit = false;
+							deposito.save();
+						} else {
+							deposito = deps.stream().findFirst().get();
+						}
+
+						deposito.DeleteAllLines();
+
+						for (LineaHistorico historicoLinea : historico.Lineas.values()) {
+							if (historicoLinea.Tipo == ConstantsTypes.TIPO_LINEA_HISTORICO_UNIDADES_INICIALES) {
+								LineaDeposito linea = Factory.build(LineaDeposito.class, _appConfig);
+								linea.IdDeposito = deposito.IdDeposito;
+								linea.Articulo = historicoLinea.Articulo;
+								linea.UnidadesIniciales = historicoLinea.Unidades;
+								linea.UnidadesInicialesFijas = linea.UnidadesIniciales;
+								linea.UnidadesRepuestas = linea.UnidadesIniciales;
+								linea.PVP = historicoLinea.PVP;
+								linea.PVPAnterior = linea.PVP;
+								linea.PVPInicial = linea.PVPAnterior;
+								linea.Descuento1 = 0;
+								linea.Descuento2 = 0;
+								linea.save();
+								deposito.Lineas.put(linea.Articulo.CodigoArticulo, linea);
+							}
+						}
+
+						callback.onResult(deposito);
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
 				}
-			}
-
-			return deposito;
-
+			);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

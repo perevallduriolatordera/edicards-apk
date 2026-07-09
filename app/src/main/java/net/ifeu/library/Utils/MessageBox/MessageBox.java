@@ -25,6 +25,10 @@ public class MessageBox {
 		void onResult(boolean result);
 	}
 
+	public interface DepositoResultCallback {
+		void onResult(Object deposito);
+	}
+
 	@SuppressWarnings("deprecation")
 	public void Show(String title, String text, Context context, MessageBoxType type)
 	{
