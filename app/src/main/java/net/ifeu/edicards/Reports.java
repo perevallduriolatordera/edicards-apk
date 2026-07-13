@@ -724,7 +724,7 @@ public class Reports extends Fragment {
 
 					case ConstantsTypes.TIPO_LINEA_HISTORICO_BAJAS: {
 						int stockInicial = linea.Articulo.Stock;
-						linea.Articulo.Stock = stockInicial - linea.Unidades;
+						linea.Articulo.Stock = stockInicial + linea.Unidades;
 
 						if (stockInicial != linea.Articulo.Stock) {
 
