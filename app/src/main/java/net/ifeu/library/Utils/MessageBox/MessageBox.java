@@ -14,20 +14,10 @@ import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.R;
 import net.ifeu.library.Controls.TextBoxColor;
 
-import java.util.concurrent.CountDownLatch;
-
 public class MessageBox {
-
+	
 	private boolean _result;
 	private String _value;
-
-	public interface DialogResultCallback {
-		void onResult(boolean result);
-	}
-
-	public interface DepositoResultCallback {
-		void onResult(Object deposito);
-	}
 
 	@SuppressWarnings("deprecation")
 	public void Show(String title, String text, Context context, MessageBoxType type)
@@ -64,79 +54,37 @@ public class MessageBox {
 	
 	public boolean ShowWithResult(String title, String text, Context context, MessageBoxType type)
 	{
-		final CountDownLatch latch = new CountDownLatch(1);
-		_result = false;
-
+		 final Handler handler = new Handler() {
+		        @Override
+		        public void handleMessage(Message mesg) {
+		            throw new RuntimeException("@Custom");
+		        }  
+		    };
+		    
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(context, R.style.AppTheme));
         alertDialog.setTitle(title);
         alertDialog.setMessage(text);
         alertDialog.setPositiveButton("Sí", (dialog, arg1) -> {
             setResult(true);
+            handler.sendMessage(handler.obtainMessage());
             dialog.dismiss();
-            latch.countDown();
         });
 
         alertDialog.setNegativeButton("No", (dialog, arg1) -> {
 			setResult(false);
+			handler.sendMessage(handler.obtainMessage());
 			dialog.dismiss();
-			latch.countDown();
 	});
-
+        
         alertDialog.setCancelable(false);
-
-		switch (type) {
-			case Error:
-				alertDialog.setIcon(R.drawable.ic_error);
-				break;
-			case Information:
-				alertDialog.setIcon(R.drawable.ic_information);
-				break;
-			case Ok:
-				alertDialog.setIcon(R.drawable.ic_ok);
-				break;
-		}
-
+        
         alertDialog.create().show();
-
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        
+        // loop till a runtime exception is triggered.
+        try { Looper.loop(); }
+        catch(RuntimeException e2) {}
 
         return _result;
-	}
-
-	public void ShowWithResultAsync(String title, String text, Context context, MessageBoxType type, DialogResultCallback callback)
-	{
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(new ContextThemeWrapper(context, R.style.AppTheme));
-        alertDialog.setTitle(title);
-        alertDialog.setMessage(text);
-        alertDialog.setPositiveButton("Sí", (dialog, arg1) -> {
-            dialog.dismiss();
-            callback.onResult(true);
-        });
-
-        alertDialog.setNegativeButton("No", (dialog, arg1) -> {
-			dialog.dismiss();
-			callback.onResult(false);
-	});
-
-        alertDialog.setCancelable(false);
-
-		switch (type) {
-			case Error:
-				alertDialog.setIcon(R.drawable.ic_error);
-				break;
-			case Information:
-				alertDialog.setIcon(R.drawable.ic_information);
-				break;
-			case Ok:
-				alertDialog.setIcon(R.drawable.ic_ok);
-				break;
-		}
-
-        alertDialog.create().show();
 	}
 	
 	public void ShowModalWithOk(String title, String text, Context context, MessageBoxType type)
