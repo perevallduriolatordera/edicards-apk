@@ -614,9 +614,6 @@ public class Reports extends Fragment {
 						DTODeposito dto = new DTODeposito(_appConfig, getActivity());
 						dto.deserialize(hist.Serializacion);
 
-						that.upgradeStock(hist);
-						that.restoreEfectivo(dto);
-
 						Deposito depositoRestaurado = null;
 						if (!dto.isNTV) {
 							depositoRestaurado = that.upgradeDeposito(hist, dto);
@@ -631,6 +628,8 @@ public class Reports extends Fragment {
 									getActivity(), MessageBoxType.Information);
 						}
 
+						that.upgradeStock(hist);
+						that.restoreEfectivo(dto);
 						that.sendIncidencia(hist);
 
 						try {
