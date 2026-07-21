@@ -953,21 +953,44 @@ public class ParserResponse extends ParserBase {
 	}
 
 	/**
+	 * Valida si unas coordenadas son válidas geográficamente
+	 * @param latitud Latitud a validar
+	 * @param longitud Longitud a validar
+	 * @return true si las coordenadas son válidas, false en caso contrario
+	 */
+	private boolean isValidCoordinate(Double latitud, Double longitud) {
+		// Verificar que no sean null primero
+		if (latitud == null || longitud == null) {
+			return false;
+		}
+
+		// Aceptar cualquier coordenada geográfica válida mundialmente
+		return latitud >= -90 && latitud <= 90 &&
+		       longitud >= -180 && longitud <= 180;
+	}
+
+	/**
 	 * Geocodifica un cliente si no tiene coordenadas
 	 * @param cliente Cliente a geocodificar
 	 */
 	private void geocodificarClienteIfNeeded(Cliente cliente) {
-		// Solo geocodificar si NO tiene coordenadas válidas (null o 0)
-		boolean needsGeocoding = (cliente.Latitud == null || cliente.Latitud == 0) &&
-								(cliente.Longitud == null || cliente.Longitud == 0);
+		// Geocodificar si NO tiene coordenadas válidas (null, 0, o fuera de rango)
+		boolean needsGeocoding = (cliente.Latitud == null || cliente.Latitud == 0 || cliente.Longitud == null || cliente.Longitud == 0) ||
+								(!isValidCoordinate(cliente.Latitud, cliente.Longitud));
 
 		if (needsGeocoding) {
 			try {
-				Log.i("ParserResponse", "==== GEOCODIFICANDO CLIENTE ====");
+				String razon = (cliente.Latitud == null || cliente.Longitud == null) ? "SIN COORDS" :
+				              ((cliente.Latitud == 0 || cliente.Longitud == 0) ? "COORDS = 0" : "COORDS INVÁLIDAS");
+
+				Log.i("ParserResponse", "==== GEOCODIFICANDO CLIENTE (" + razon + ") ====");
 				Log.i("ParserResponse", "Código: " + cliente.CodigoCliente);
 				Log.i("ParserResponse", "Nombre: " + cliente.Nombre);
 				Log.i("ParserResponse", "Dirección: " + cliente.Direccion1);
 				Log.i("ParserResponse", "Población: " + cliente.Poblacion);
+				if (cliente.Latitud != null && cliente.Longitud != null) {
+					Log.i("ParserResponse", "Coords anteriores: Lat=" + cliente.Latitud + ", Lon=" + cliente.Longitud);
+				}
 
 				IGeocodingStrategy geocodingStrategy = new OpenRouteServiceGeocodingStrategy();
 				LatLng coordinates = geocodingStrategy.geocodeAddress(

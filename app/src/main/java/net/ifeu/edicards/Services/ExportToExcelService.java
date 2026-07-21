@@ -1,5 +1,8 @@
 package net.ifeu.edicards.Services;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.util.Log;
 
@@ -26,6 +29,29 @@ import java.util.Locale;
 public class ExportToExcelService {
 
 	private static final String TAG = "ExportToExcelService";
+	private Context context;
+	private String appVersion = "N/A";
+
+	/**
+	 * Constructor que recibe el contexto para obtener la versión de la app
+	 */
+	public ExportToExcelService(Context context) {
+		this.context = context;
+		this.appVersion = getAppVersion();
+	}
+
+	/**
+	 * Obtiene la versión de la aplicación
+	 */
+	private String getAppVersion() {
+		try {
+			PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+			return pInfo.versionName;
+		} catch (PackageManager.NameNotFoundException e) {
+			Log.e(TAG, "Error obteniendo versión de la app: " + e.getMessage());
+			return "N/A";
+		}
+	}
 
 	/**
 	 * Exporta lista de rutas a archivo Excel
@@ -146,6 +172,7 @@ public class ExportToExcelService {
 		String[] headers = {
 			"Orden",
 			"Cluster",
+			"Zona",
 			"Codigo Cliente",
 			"Nombre Cliente",
 			"Direccion",
@@ -155,7 +182,8 @@ public class ExportToExcelService {
 			"Geo Status",
 			"Latitud",
 			"Longitud",
-			"Fecha Generacion"
+			"Fecha Generacion",
+			"Version App"
 		};
 
 		for (int i = 0; i < headers.length; i++) {
@@ -178,6 +206,10 @@ public class ExportToExcelService {
 		// Cluster
 		Cell cellCluster = row.createCell(cellNum++);
 		cellCluster.setCellValue(ruta.ClusterID);
+
+		// Zona
+		Cell cellZona = row.createCell(cellNum++);
+		cellZona.setCellValue(ruta.NombreZona != null ? ruta.NombreZona : "");
 
 		// Codigo Cliente
 		Cell cellCodigo = row.createCell(cellNum++);
@@ -218,6 +250,10 @@ public class ExportToExcelService {
 		// Fecha Generacion
 		Cell cellFecha = row.createCell(cellNum++);
 		cellFecha.setCellValue(ruta.FechaGeneracion != null ? ruta.FechaGeneracion.toString() : "");
+
+		// Version App
+		Cell cellVersion = row.createCell(cellNum++);
+		cellVersion.setCellValue(appVersion);
 	}
 
 	/**
@@ -227,15 +263,17 @@ public class ExportToExcelService {
 	private void setFixedColumnWidths(Sheet sheet) {
 		// Establecer anchos fijos para cada columna (en unidades de 1/256 de ancho de carácter)
 		sheet.setColumnWidth(0, 8 * 256);    // Orden
-		sheet.setColumnWidth(1, 15 * 256);   // Codigo Cliente
-		sheet.setColumnWidth(2, 20 * 256);   // Nombre Cliente
-		sheet.setColumnWidth(3, 25 * 256);   // Direccion
-		sheet.setColumnWidth(4, 15 * 256);   // Poblacion
-		sheet.setColumnWidth(5, 15 * 256);   // Provincia
-		sheet.setColumnWidth(6, 15 * 256);   // Distancia (km)
-		sheet.setColumnWidth(7, 15 * 256);   // Geo Status
-		sheet.setColumnWidth(8, 18 * 256);   // Latitud
-		sheet.setColumnWidth(9, 18 * 256);   // Longitud
-		sheet.setColumnWidth(10, 18 * 256);  // Fecha Generacion
+		sheet.setColumnWidth(1, 10 * 256);   // Cluster
+		sheet.setColumnWidth(2, 15 * 256);   // Codigo Cliente
+		sheet.setColumnWidth(3, 20 * 256);   // Nombre Cliente
+		sheet.setColumnWidth(4, 25 * 256);   // Direccion
+		sheet.setColumnWidth(5, 15 * 256);   // Poblacion
+		sheet.setColumnWidth(6, 15 * 256);   // Provincia
+		sheet.setColumnWidth(7, 15 * 256);   // Distancia (km)
+		sheet.setColumnWidth(8, 15 * 256);   // Geo Status
+		sheet.setColumnWidth(9, 18 * 256);   // Latitud
+		sheet.setColumnWidth(10, 18 * 256);  // Longitud
+		sheet.setColumnWidth(11, 18 * 256);  // Fecha Generacion
+		sheet.setColumnWidth(12, 12 * 256);  // Version App
 	}
 }

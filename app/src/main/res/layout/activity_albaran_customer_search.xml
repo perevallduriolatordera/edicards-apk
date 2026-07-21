@@ -85,46 +85,50 @@
             android:id="@+id/grpFilterField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:background="#F5F5F5"
             android:padding="12dp"
             android:layout_marginBottom="24dp">
 
             <RadioButton
                 android:id="@+id/optNombre"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Nombre"
-                android:textSize="15sp"
+                android:textSize="13sp"
                 android:textColor="#212121"
-                android:padding="8dp"/>
+                android:padding="6dp"/>
 
             <RadioButton
                 android:id="@+id/optNIF"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="NIF / CIF"
-                android:textSize="15sp"
+                android:text="NIF/CIF"
+                android:textSize="13sp"
                 android:textColor="#212121"
-                android:padding="8dp"/>
+                android:padding="6dp"/>
 
             <RadioButton
                 android:id="@+id/optTelefono"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Teléfono"
-                android:textSize="15sp"
+                android:textSize="13sp"
                 android:textColor="#212121"
-                android:padding="8dp"/>
+                android:padding="6dp"/>
 
             <RadioButton
                 android:id="@+id/optPoblacion"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Población"
-                android:textSize="15sp"
+                android:textSize="13sp"
                 android:textColor="#212121"
-                android:padding="8dp"/>
+                android:padding="6dp"/>
         </RadioGroup>
 
         <!-- Botones de acción -->

@@ -40,7 +40,7 @@ public class Totals extends Activity {
 		fillBases();
 		fillTotals();
 
-		ButtonColor button = this.addCloseButton(Color.WHITE, "Cerrar pantalla", 14, 150);
+		ButtonColor button = this.addCloseButton(Color.parseColor("#757575"), "Cerrar pantalla", 14, 150);
 		button.setOnClickListener(arg0 -> finish());
 
 		_mainLayout.addView(button);
@@ -149,10 +149,9 @@ public class Totals extends Activity {
 
 		button.setText(text);
 		button.setTextSize(size);
-		button.setWidth(width);
-		button.setTextColor(Color.BLACK);
+		button.setTextColor(Color.WHITE);
 
-		LayoutParams customParams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		LayoutParams customParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		customParams.setMargins(0, 60, 0 , 30);
 		button.setLayoutParams(customParams);
 

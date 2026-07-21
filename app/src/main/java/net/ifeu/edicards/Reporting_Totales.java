@@ -30,9 +30,9 @@ public class Reporting_Totales extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reporting__totales);
         
-        android.view.WindowManager.LayoutParams params = getWindow().getAttributes(); 
+        android.view.WindowManager.LayoutParams params = getWindow().getAttributes();
         params.height = LayoutParams.FILL_PARENT;
-		params.width  = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.8f).getWidth();
+		params.width  = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.95f).getWidth();
         getWindow().setAttributes(params);
 
         fillTotales();

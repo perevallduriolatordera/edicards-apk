@@ -4,6 +4,7 @@ import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.Reporting;
 import net.ifeu.edicards.DataTier.Reporting.Retirado;
 import net.ifeu.library.Controls.LabelColor;
+import net.ifeu.library.Utils.Screen.ScreenManager;
 import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.graphics.Color;
@@ -16,12 +17,18 @@ import android.widget.LinearLayout;
 public class Reporting_Retirados extends Activity {
 
 	AppConfig _appConfig;
-	
-    @Override
+
+    @SuppressWarnings("deprecation")
+	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reporting__potenciados);
-        
+
+        android.view.WindowManager.LayoutParams params = getWindow().getAttributes();
+        params.height = LayoutParams.FILL_PARENT;
+        params.width  = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.95f).getWidth();
+        getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
+
         fillRetirados();
     }
 

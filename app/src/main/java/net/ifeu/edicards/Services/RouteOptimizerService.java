@@ -935,6 +935,7 @@ public class RouteOptimizerService {
      */
     public static class RutaClienteData {
         public int orden;
+        public int ordenVisita;  // Alias para compatibilidad
         public String nif;
         public String razon;
         public String nombre;
@@ -946,7 +947,9 @@ public class RouteOptimizerService {
         public String latitud;                // Para referencia
         public String longitud;               // Para referencia
 
-        // Información de cluster para debugging
+        // Información de cluster/zona para debugging
         public int clusterID;                 // ID del cluster geográfico al que pertenece
+        public int clusterId;                 // Alias para compatibilidad
+        public String nombreZona;             // Nombre de la zona a la que pertenece (para rutas por zonas)
     }
 }

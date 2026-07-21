@@ -190,17 +190,6 @@
             android:textSize="12sp"
             android:textColor="#757575"
             android:text=""/>
-
-        <!-- Etiqueta de versión de código -->
-        <TextView
-            android:id="@+id/lblCodigoVersion"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#FF0000"
-            android:layout_marginTop="8dp"
-            android:text="Calafell"/>
     </LinearLayout>
 
     <!-- Espaciador inferior -->

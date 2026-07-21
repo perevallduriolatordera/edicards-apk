@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="#F5F5F5"
+    android:layout_marginBottom="8dp"
+    android:elevation="2dp">
+
+    <!-- Fila superior: Nombre y número de clientes -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="10dp">
+
+        <!-- Nombre de la Zona -->
+        <TextView
+            android:id="@+id/txtNombreZona"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Zona 1"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#2C3E50"
+            android:gravity="center_vertical"/>
+
+        <!-- Número de clientes -->
+        <TextView
+            android:id="@+id/txtNumClientes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="(0 clientes)"
+            android:textSize="13sp"
+            android:textColor="#7F8C8D"
+            android:gravity="center_vertical"
+            android:paddingStart="8dp"
+            android:paddingEnd="4dp"/>
+    </LinearLayout>
+
+    <!-- Botón Ver/Asignar Clientes -->
+    <net.ifeu.library.Controls.ButtonColor
+        android:id="@+id/btnVerClientesZona"
+        android:layout_width="match_parent"
+        android:layout_height="38dp"
+        android:text="Ver/Asignar Clientes"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:background="#673AB7"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Fila inferior: Botones -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <!-- Botón Editar -->
+        <net.ifeu.library.Controls.ButtonColor
+            android:id="@+id/btnEditarZona"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:text="Editar"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:background="@color/Blue"
+            android:layout_marginEnd="6dp"/>
+
+        <!-- Botón Activar -->
+        <net.ifeu.library.Controls.ButtonColor
+            android:id="@+id/btnActivarZona"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:text="Activar"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:background="@color/Green"
+            android:layout_marginEnd="6dp"/>
+
+        <!-- Botón Pausar -->
+        <net.ifeu.library.Controls.ButtonColor
+            android:id="@+id/btnDesactivarZona"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:text="Pausar"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:background="@color/Orange"
+            android:layout_marginEnd="6dp"/>
+
+        <!-- Botón Borrar -->
+        <net.ifeu.library.Controls.ButtonColor
+            android:id="@+id/btnBorrarZona"
+            android:layout_width="0dp"
+            android:layout_height="42dp"
+            android:layout_weight="1"
+            android:text="Borrar"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white"
+            android:background="@color/Red"/>
+    </LinearLayout>
+
+</LinearLayout>

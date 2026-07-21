@@ -97,8 +97,19 @@ public class DatabaseOperations {
 	{
 		if (_databaseConnection == null)
 			return false;
-		
+
 		return _databaseConnection.getDatabase().isOpen();
+	}
+
+	/**
+	 * Obtiene la base de datos SQLite directamente
+	 * @return SQLiteDatabase
+	 */
+	public android.database.sqlite.SQLiteDatabase getDatabase() {
+		if (_databaseConnection != null) {
+			return _databaseConnection.getDatabase();
+		}
+		return null;
 	}
 
 	private static void copyFile(FileInputStream fromFile, FileOutputStream toFile) throws IOException {
@@ -379,11 +390,12 @@ public class DatabaseOperations {
 			createLogBookExceptionsTable();
 			createCiudadVendedorTable();
 			createRutasGeneradasTable();
+			createZonasTable();
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		
+
 	}
 	
 	private void createIndexs() {
@@ -430,7 +442,7 @@ public class DatabaseOperations {
 			dropTable(ConstantsDatabase.TABLE_LINEAS_DEPOSITO);
 			dropTable(ConstantsDatabase.TABLE_TARIFAS);
 			dropTable(ConstantsDatabase.TABLE_PACTOS);
-			dropTable(ConstantsDatabase.TABLE_TIPOS_IVA); 
+			dropTable(ConstantsDatabase.TABLE_TIPOS_IVA);
 			dropTable(ConstantsDatabase.TABLE_FORMAS_PAGO);
 			dropTable(ConstantsDatabase.TABLE_GASTOS);
 			dropTable(ConstantsDatabase.TABLE_HISTORICOS);
@@ -444,12 +456,13 @@ public class DatabaseOperations {
 			dropTable(ConstantsDatabase.TABLE_LOGBOOK);
 			dropTable(ConstantsDatabase.TABLE_INGRESOS_DIARIOS);
 			dropTable(ConstantsDatabase.TABLE_LOGBOOK_EXCEPTIONS);
-			
+			dropTable(ConstantsDatabase.TABLE_ZONAS);
+
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		
+
 	}
 	
 	public void deleteAllRecords(String table) throws Exception
@@ -1122,14 +1135,52 @@ public class DatabaseOperations {
 		}
 	}
 
+	private void createZonasTable() throws Exception {
+		if (_databaseConnection.getDatabase().isOpen()) {
+			try {
+				_databaseConnection.getDatabase().execSQL(
+					"create table if not exists " + ConstantsDatabase.TABLE_ZONAS +
+					" ( IdZona integer primary key autoincrement, " +
+					"NombreZona text not null, " +
+					"Activa integer not null default 1);"
+				);
+			} catch (Exception e) {
+				throw new Exception("Error creando la tabla " +
+					ConstantsDatabase.TABLE_ZONAS + ". Motivo: " + e.getMessage());
+			}
+		} else {
+			throw new Exception("Error creando la tabla " +
+				ConstantsDatabase.TABLE_ZONAS +
+				". Motivo: La Base de datos no ha podido ser abierta.");
+		}
+	}
+
 	private void alterStructure()  {
 		addGeocodingColumnsIfNecessary();
 
 		if (_databaseConnection.getDatabase().isOpen())
 		{
+			// Añadir columna IdZona a tabla Clientes
+			try {
+				_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_CLIENTES + " ADD COLUMN IdZona integer default null ");
+			}
+			catch (Exception e) {
+				if (!e.getMessage().startsWith("duplicate column name"))
+					throw new RuntimeException(e);
+			}
+
+			// Añadir columna ClusterID a tabla RutasGeneradas
+			try {
+				_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_RUTAS_GENERADAS + " ADD COLUMN ClusterID integer NOT NULL default 0 ");
+			}
+			catch (Exception e) {
+				if (!e.getMessage().startsWith("duplicate column name"))
+					throw new RuntimeException(e);
+			}
+
 			try {
 				_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_LINEAS_HISTORICO + " ADD COLUMN PVP REAL default null ");
-			} 
+			}
 			catch (Exception e) {
 				if (!e.getMessage().startsWith("duplicate column name"))
 					throw new RuntimeException(e);

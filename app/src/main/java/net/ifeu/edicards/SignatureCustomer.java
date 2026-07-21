@@ -3,6 +3,7 @@ package net.ifeu.edicards;
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.library.Signature.SignatureView;
 import net.ifeu.library.Utils.Screen.FontSizeManager;
+import net.ifeu.library.Utils.Screen.ScreenManager;
 
 import android.app.Activity;
 import android.app.ActionBar.LayoutParams;
@@ -29,10 +30,10 @@ public class SignatureCustomer extends Activity {
 		_app = (AppConfig) this.getApplicationContext();
 		
 		setFinishOnTouchOutside (false);
-		
-		android.view.WindowManager.LayoutParams params = getWindow().getAttributes(); 
+
+		android.view.WindowManager.LayoutParams params = getWindow().getAttributes();
         params.height = LayoutParams.FILL_PARENT;
-        params.width  = 1000;
+        params.width  = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.95f).getWidth();
         getWindow().setAttributes(params);
 
 		TextView lblFormaPago = this.findViewById(R.id.lblFormaDePago);

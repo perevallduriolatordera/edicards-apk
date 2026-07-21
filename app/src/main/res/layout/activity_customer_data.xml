@@ -1,480 +1,530 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:layout_marginTop="20dp"
-    android:background="@color/Edicards" >
+    android:background="#FFFFFF">
 
-    <ScrollView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:clickable="true"
-        android:layout_weight="4" >
-
+    <!-- Header moderno -->
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="50dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="#0277BD"
+        android:padding="16dp"
+        android:elevation="4dp"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Datos del Cliente"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:gravity="center"/>
+    </LinearLayout>
+
+    <!-- ScrollView con formulario -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#FAFAFA"
+        android:padding="16dp">
 
         <LinearLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+            android:orientation="vertical"
+            android:background="#FFFFFF"
+            android:padding="20dp"
+            android:elevation="2dp">
 
-            <TextView
-                android:id="@+id/lblNIFClienteLabel"
-                android:layout_width="0dp"
+            <!-- NIF -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:text="NIF:             "
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
 
-            <EditText
-                android:id="@+id/lblNIFCliente"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:singleLine="true"
-                android:text=""
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold" />
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/lblNIFClienteLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="NIF / CIF"
+                    android:textColor="#0277BD"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
 
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/lblNombreClienteLabel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:text="Nombre:    "
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
-
-            <EditText
-                android:id="@+id/lblNombreCliente"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:singleLine="true"
-                android:text=""
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/lblRazonClienteLabel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:text="Razón:       "
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
-
-            <EditText
-                android:id="@+id/lblRazonCliente"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:singleLine="true"
-                android:text=""
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/lblDireccionClienteLabel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:text="Dirección: "
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
-
-            <EditText
-                android:id="@+id/lblDireccionCliente"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:singleLine="true"
-                android:text=""
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/lblLocalidadClienteLabel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:text="Localidad:"
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
-
-            <EditText
-                android:id="@+id/lblLocalidadCliente"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:singleLine="true"
-                android:text=""
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/lblProvinciaClienteLabel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:text="Provincia: "
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
-
-            <EditText
-                android:id="@+id/lblProvinciaCliente"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:singleLine="true"
-                android:text=""
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold" />
-        </LinearLayout>
-        
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/lblCodigoPostalClienteLabel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:text="CP:             "
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
-
-            <EditText
-                android:id="@+id/lblCodigoPostalCliente"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:singleLine="true"
-                android:text=""
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold" />
-
-        </LinearLayout>>
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/lblTelefono1ClienteLabel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:singleLine="true"
-                android:text="Teléfono 1:"
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
-
-            <EditText
-                android:id="@+id/lblTelefono1Cliente"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:text=""
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="70px"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/lblTelefono2ClienteLabel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:singleLine="true"
-                android:text="Teléfono 2:"
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
-
-            <EditText
-                android:id="@+id/lblTelefono2Cliente"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:text=""
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/lblFaxClienteLabel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:text="FAX:             "
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
-
-            <EditText
-                android:id="@+id/lblFaxCliente"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:singleLine="true"
-                android:text=""
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/lblFaxMailLabel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:text="MAIL:           "
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
-
-            <EditText
-                android:id="@+id/lblMailCliente"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:singleLine="true"
-                android:text=""
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold" />
-        </LinearLayout>
-        
-         <LinearLayout
-            android:layout_width="fill_parent"
-             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/lblCCCLabel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:text="Cuenta Corriente:    "
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
-
-            <EditText
-                android:id="@+id/lblCCCCliente"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:singleLine="true"
-                android:text=""
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold" />
-        </LinearLayout>
-        
-         <LinearLayout
-            android:layout_width="fill_parent"
-             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/lblRepresentanteClienteLabel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:text="Represent. Tienda: "
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
-
-            <EditText
-                android:id="@+id/lblRepresentanteCliente"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:singleLine="true"
-                android:text=""
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold" />
-        </LinearLayout>
-        
-         <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/lblDniRepresentanteClienteLabel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:text="DNI Repres Tienda: "
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
-
-            <EditText
-                android:id="@+id/lblDniRepresentanteCliente"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:singleLine="true"
-                android:text=""
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold" />
-
+                <EditText
+                    android:id="@+id/lblNIFCliente"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Introduce el NIF/CIF"
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:textColor="#212121"
+                    android:background="@android:drawable/edit_text"/>
             </LinearLayout>
-          </LinearLayout>
-        </ScrollView>
+
+            <!-- Nombre -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/lblNombreClienteLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Nombre Comercial"
+                    android:textColor="#0277BD"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
+
+                <EditText
+                    android:id="@+id/lblNombreCliente"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Introduce el nombre"
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:textColor="#212121"
+                    android:background="@android:drawable/edit_text"/>
+            </LinearLayout>
+
+            <!-- Razón Social -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/lblRazonClienteLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Razón Social"
+                    android:textColor="#0277BD"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
+
+                <EditText
+                    android:id="@+id/lblRazonCliente"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Introduce la razón social"
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:textColor="#212121"
+                    android:background="@android:drawable/edit_text"/>
+            </LinearLayout>
+
+            <!-- Dirección -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/lblDireccionClienteLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Dirección"
+                    android:textColor="#0277BD"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
+
+                <EditText
+                    android:id="@+id/lblDireccionCliente"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Introduce la dirección"
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:textColor="#212121"
+                    android:background="@android:drawable/edit_text"/>
+            </LinearLayout>
+
+            <!-- Localidad y Provincia en fila -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <!-- Localidad -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="8dp">
+
+                    <TextView
+                        android:id="@+id/lblLocalidadClienteLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Localidad"
+                        android:textColor="#0277BD"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp"/>
+
+                    <EditText
+                        android:id="@+id/lblLocalidadCliente"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Localidad"
+                        android:padding="12dp"
+                        android:textSize="16sp"
+                        android:textColor="#212121"
+                        android:background="@android:drawable/edit_text"/>
+                </LinearLayout>
+
+                <!-- Provincia -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="8dp">
+
+                    <TextView
+                        android:id="@+id/lblProvinciaClienteLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Provincia"
+                        android:textColor="#0277BD"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp"/>
+
+                    <EditText
+                        android:id="@+id/lblProvinciaCliente"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Provincia"
+                        android:padding="12dp"
+                        android:textSize="16sp"
+                        android:textColor="#212121"
+                        android:background="@android:drawable/edit_text"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Código Postal -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/lblCodigoPostalClienteLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Código Postal"
+                    android:textColor="#0277BD"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
+
+                <EditText
+                    android:id="@+id/lblCodigoPostalCliente"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="CP"
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:textColor="#212121"
+                    android:inputType="number"
+                    android:background="@android:drawable/edit_text"/>
+            </LinearLayout>
+
+            <!-- Teléfonos en fila -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <!-- Teléfono 1 -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="8dp">
+
+                    <TextView
+                        android:id="@+id/lblTelefono1ClienteLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Teléfono 1"
+                        android:textColor="#0277BD"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp"/>
+
+                    <EditText
+                        android:id="@+id/lblTelefono1Cliente"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Teléfono"
+                        android:padding="12dp"
+                        android:textSize="16sp"
+                        android:textColor="#212121"
+                        android:inputType="phone"
+                        android:background="@android:drawable/edit_text"/>
+                </LinearLayout>
+
+                <!-- Teléfono 2 -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="8dp">
+
+                    <TextView
+                        android:id="@+id/lblTelefono2ClienteLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Teléfono 2"
+                        android:textColor="#0277BD"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp"/>
+
+                    <EditText
+                        android:id="@+id/lblTelefono2Cliente"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Teléfono 2"
+                        android:padding="12dp"
+                        android:textSize="16sp"
+                        android:textColor="#212121"
+                        android:inputType="phone"
+                        android:background="@android:drawable/edit_text"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- FAX y Email en fila -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <!-- FAX -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="8dp">
+
+                    <TextView
+                        android:id="@+id/lblFaxClienteLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="FAX"
+                        android:textColor="#0277BD"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp"/>
+
+                    <EditText
+                        android:id="@+id/lblFaxCliente"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="FAX"
+                        android:padding="12dp"
+                        android:textSize="16sp"
+                        android:textColor="#212121"
+                        android:inputType="phone"
+                        android:background="@android:drawable/edit_text"/>
+                </LinearLayout>
+
+                <!-- Email -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginStart="8dp">
+
+                    <TextView
+                        android:id="@+id/lblFaxMailLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Email"
+                        android:textColor="#0277BD"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="4dp"/>
+
+                    <EditText
+                        android:id="@+id/lblMailCliente"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="email@ejemplo.com"
+                        android:padding="12dp"
+                        android:textSize="16sp"
+                        android:textColor="#212121"
+                        android:inputType="textEmailAddress"
+                        android:background="@android:drawable/edit_text"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Cuenta Corriente -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/lblCCCLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Cuenta Corriente (IBAN)"
+                    android:textColor="#0277BD"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
+
+                <EditText
+                    android:id="@+id/lblCCCCliente"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="ES00 0000 0000 0000 0000 0000"
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:textColor="#212121"
+                    android:background="@android:drawable/edit_text"/>
+            </LinearLayout>
+
+            <!-- Representante -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/lblRepresentanteClienteLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Representante Tienda"
+                    android:textColor="#0277BD"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
+
+                <EditText
+                    android:id="@+id/lblRepresentanteCliente"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Nombre del representante"
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:textColor="#212121"
+                    android:background="@android:drawable/edit_text"/>
+            </LinearLayout>
+
+            <!-- DNI Representante -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:id="@+id/lblDniRepresentanteClienteLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="DNI Representante"
+                    android:textColor="#0277BD"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
+
+                <EditText
+                    android:id="@+id/lblDniRepresentanteCliente"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="DNI del representante"
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:textColor="#212121"
+                    android:background="@android:drawable/edit_text"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Botones de acción -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#FFFFFF"
+        android:padding="16dp"
+        android:elevation="4dp">
+
+        <net.ifeu.library.Controls.ButtonColor
+            android:id="@+id/btnDocumentPhoto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="📷  Tomar Fotos DNI"
+            android:textSize="16sp"
+            android:textColor="@android:color/white"
+            android:background="#2196F3"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:elevation="2dp"/>
 
         <LinearLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <net.ifeu.library.Controls.ButtonColor
-                android:id="@+id/btnDocumentPhoto"
-                android:paddingLeft="15px"
-                android:layout_marginLeft="20px"
-                android:layout_marginRight="20px"
-                android:layout_width="0dp"
-                android:layout_weight="0.5"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_height="80px"
-                android:background="@drawable/background_button"
-                android:textColor="@color/Black"
-                android:text="Tomar fotos DNI"/>
+            android:orientation="horizontal">
 
             <net.ifeu.library.Controls.ButtonColor
                 android:id="@+id/btnApplyChanges"
-                android:layout_marginLeft="20px"
-                android:layout_marginRight="20px"
-                android:paddingLeft="15px"
                 android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_height="80px"
-                android:background="@drawable/background_button"
-                android:textColor="@color/Black"
+                android:text="✓  Aplicar Cambios"
+                android:textSize="16sp"
+                android:textColor="@android:color/white"
+                android:background="#4CAF50"
+                android:padding="16dp"
+                android:layout_marginEnd="8dp"
                 android:onClick="OnApply"
-                android:text="Aplicar cambios"/>
+                android:elevation="2dp"/>
 
             <net.ifeu.library.Controls.ButtonColor
                 android:id="@+id/btnDiscardChanges"
-                android:layout_marginLeft="20px"
-                android:layout_marginRight="20px"
-                android:paddingLeft="15px"
                 android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_height="80px"
-                android:background="@drawable/background_button"
-                android:textColor="@color/Black"
+                android:text="✕  Cerrar"
+                android:textSize="16sp"
+                android:textColor="@android:color/white"
+                android:background="#757575"
+                android:padding="16dp"
+                android:layout_marginStart="8dp"
                 android:onClick="OnClose"
-                android:text="Cerrar Pantalla"/>
-
+                android:elevation="2dp"/>
         </LinearLayout>
     </LinearLayout>
+
+</LinearLayout>

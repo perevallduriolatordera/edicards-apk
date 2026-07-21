@@ -44,6 +44,7 @@ public class Cliente extends Persistent implements IPersistable {
 	public Double Latitud;
 	public Double Longitud;
 	public Date FechaGeocodificacion;
+	public Long IdZona;
 	public String NIFPrevious;
 	public String RazonPrevious;
 	public String NombrePrevious;
@@ -97,6 +98,9 @@ public class Cliente extends Persistent implements IPersistable {
 		if (this.FechaGeocodificacion != null) {
 			values.put("FechaGeocodificacion", this.FechaGeocodificacion.getTime());
 		}
+		if (this.IdZona != null) {
+			values.put("IdZona", this.IdZona);
+		}
 
 		try {
 			this.IdCliente = super.getDatabaseOperations().insert(ConstantsDatabase.TABLE_CLIENTES, null , values);
@@ -141,6 +145,9 @@ public class Cliente extends Persistent implements IPersistable {
 		values.put("Longitud", this.Longitud);
 		if (this.FechaGeocodificacion != null) {
 			values.put("FechaGeocodificacion", this.FechaGeocodificacion.getTime());
+		}
+		if (this.IdZona != null) {
+			values.put("IdZona", this.IdZona);
 		}
 
 		String[] whereArgs = { String.valueOf(this.IdCliente) }; 
@@ -319,6 +326,12 @@ public class Cliente extends Persistent implements IPersistable {
 				if (clienteInfo.setClienteInfoByCliente(this))
 					this.ClienteInfo = clienteInfo;
 
+				// IdZona
+				int zonaColumnIndex = cursor.getColumnIndex("IdZona");
+				if (zonaColumnIndex != -1 && !cursor.isNull(zonaColumnIndex)) {
+					this.IdZona = cursor.getLong(zonaColumnIndex);
+				}
+
 			    cursor.close();
 				return true;
 			} else {
@@ -375,7 +388,13 @@ public class Cliente extends Persistent implements IPersistable {
 
 			if (clienteInfo.setClienteInfoByCliente(this))
 				this.ClienteInfo = clienteInfo;
-		
+
+			// IdZona
+			int zonaColumnIndex = cursor.getColumnIndex("IdZona");
+			if (zonaColumnIndex != -1 && !cursor.isNull(zonaColumnIndex)) {
+				this.IdZona = cursor.getLong(zonaColumnIndex);
+			}
+
 		    cursor.close();
 			return true;
 		} else {
@@ -431,6 +450,12 @@ public class Cliente extends Persistent implements IPersistable {
 
 				if (clienteInfo.setClienteInfoByCliente(this))
 					this.ClienteInfo = clienteInfo;
+
+				// IdZona
+				int zonaColumnIndex = cursor.getColumnIndex("IdZona");
+				if (zonaColumnIndex != -1 && !cursor.isNull(zonaColumnIndex)) {
+					this.IdZona = cursor.getLong(zonaColumnIndex);
+				}
 
 			    cursor.close();
 				return true;
@@ -509,6 +534,150 @@ public class Cliente extends Persistent implements IPersistable {
 		}
 	}
 
-	              
+	/**
+	 * Obtiene todos los clientes activos de la base de datos
+	 * @return ArrayList de clientes
+	 * @throws Exception Si hay error en la BD
+	 */
+	public java.util.ArrayList<Cliente> getAllClientes() throws Exception {
+		java.util.ArrayList<Cliente> clientes = new java.util.ArrayList<>();
+
+		Cursor cursor = super.getDatabaseOperations().executeSentence(
+			"SELECT * FROM " + ConstantsDatabase.TABLE_CLIENTES + " WHERE Activo = '1' ORDER BY Nombre ASC");
+
+		if (cursor != null) {
+			cursor.moveToFirst();
+
+			if (cursor.getCount() > 0) {
+				do {
+					Cliente cliente = Factory.build(Cliente.class, appConfig);
+
+					cliente.IdCliente = Long.parseLong(cursor.getString(cursor.getColumnIndex("IdCliente")));
+					cliente.Activo = cursor.getString(cursor.getColumnIndex("Activo")).equals("1");
+					cliente.CodigoCliente = cursor.getString(cursor.getColumnIndex("CodigoCliente"));
+					cliente.Nombre = cursor.getString(cursor.getColumnIndex("Nombre"));
+					cliente.NIF = cursor.getString(cursor.getColumnIndex("NIF"));
+					cliente.Razon = cursor.getString(cursor.getColumnIndex("Razon"));
+					cliente.Direccion1 = cursor.getString(cursor.getColumnIndex("Direccion1"));
+					cliente.Direccion2 = cursor.getString(cursor.getColumnIndex("Direccion2"));
+					cliente.CodigoPostal = cursor.getString(cursor.getColumnIndex("CodigoPostal"));
+					cliente.Poblacion = cursor.getString(cursor.getColumnIndex("Poblacion"));
+					cliente.Provincia = cursor.getString(cursor.getColumnIndex("Provincia"));
+					cliente.Telefono1 = cursor.getString(cursor.getColumnIndex("Telefono1"));
+					cliente.Telefono2 = cursor.getString(cursor.getColumnIndex("Telefono2"));
+
+					// IdZona (puede ser null)
+					int idZonaIndex = cursor.getColumnIndex("IdZona");
+					if (idZonaIndex >= 0 && !cursor.isNull(idZonaIndex)) {
+						cliente.IdZona = cursor.getLong(idZonaIndex);
+					}
+
+					clientes.add(cliente);
+				} while (cursor.moveToNext());
+			}
+
+			cursor.close();
+		}
+
+		return clientes;
+	}
+
+	/**
+	 * Obtiene el total de clientes en la base de datos
+	 * @return Número total de clientes
+	 */
+	public int getTotalClientes() {
+		int total = 0;
+		Cursor cursor = null;
+		try {
+			String query = "SELECT COUNT(*) as total FROM Clientes";
+			cursor = super.getDatabaseOperations().getDatabase().rawQuery(query, null);
+			if (cursor != null && cursor.moveToFirst()) {
+				total = cursor.getInt(0);
+			}
+		} catch (Exception e) {
+			android.util.Log.e("Cliente", "Error al obtener total de clientes", e);
+		} finally {
+			if (cursor != null) cursor.close();
+		}
+		return total;
+	}
+
+	/**
+	 * Obtiene el número de clientes que tienen coordenadas válidas
+	 * @return Número de clientes geocodificados
+	 */
+	public int getClientesGeocodificados() {
+		int total = 0;
+		Cursor cursor = null;
+		try {
+			String query = "SELECT COUNT(*) as total FROM Clientes " +
+			              "WHERE Latitud IS NOT NULL AND Longitud IS NOT NULL " +
+			              "AND Latitud != 0 AND Longitud != 0 " +
+			              "AND Latitud BETWEEN -90 AND 90 " +
+			              "AND Longitud BETWEEN -180 AND 180";
+			cursor = super.getDatabaseOperations().getDatabase().rawQuery(query, null);
+			if (cursor != null && cursor.moveToFirst()) {
+				total = cursor.getInt(0);
+			}
+		} catch (Exception e) {
+			android.util.Log.e("Cliente", "Error al obtener clientes geocodificados", e);
+		} finally {
+			if (cursor != null) cursor.close();
+		}
+		return total;
+	}
+
+	/**
+	 * Obtiene la lista de clientes pendientes de geocodificar
+	 * @return ArrayList de clientes sin coordenadas válidas
+	 */
+	public java.util.ArrayList<Cliente> getClientesPendientesGeocodificacion() {
+		java.util.ArrayList<Cliente> clientes = new java.util.ArrayList<>();
+		Cursor cursor = null;
+
+		try {
+			String query = "SELECT * FROM Clientes " +
+			              "WHERE Latitud IS NULL OR Longitud IS NULL " +
+			              "OR Latitud = 0 OR Longitud = 0 " +
+			              "OR Latitud < -90 OR Latitud > 90 " +
+			              "OR Longitud < -180 OR Longitud > 180 " +
+			              "ORDER BY Nombre";
+
+			cursor = super.getDatabaseOperations().getDatabase().rawQuery(query, null);
+
+			if (cursor != null && cursor.moveToFirst()) {
+				do {
+					Cliente cliente = new Cliente();
+					cliente.IdCliente = cursor.getLong(cursor.getColumnIndex("IdCliente"));
+					cliente.CodigoCliente = cursor.getString(cursor.getColumnIndex("CodigoCliente"));
+					cliente.Nombre = cursor.getString(cursor.getColumnIndex("Nombre"));
+					cliente.Direccion1 = cursor.getString(cursor.getColumnIndex("Direccion1"));
+					cliente.Poblacion = cursor.getString(cursor.getColumnIndex("Poblacion"));
+					cliente.CodigoPostal = cursor.getString(cursor.getColumnIndex("CodigoPostal"));
+					cliente.Provincia = cursor.getString(cursor.getColumnIndex("Provincia"));
+
+					int latitudIndex = cursor.getColumnIndex("Latitud");
+					if (latitudIndex >= 0 && !cursor.isNull(latitudIndex)) {
+						cliente.Latitud = cursor.getDouble(latitudIndex);
+					}
+
+					int longitudIndex = cursor.getColumnIndex("Longitud");
+					if (longitudIndex >= 0 && !cursor.isNull(longitudIndex)) {
+						cliente.Longitud = cursor.getDouble(longitudIndex);
+					}
+
+					clientes.add(cliente);
+				} while (cursor.moveToNext());
+			}
+		} catch (Exception e) {
+			android.util.Log.e("Cliente", "Error al obtener clientes pendientes", e);
+		} finally {
+			if (cursor != null) cursor.close();
+		}
+
+		return clientes;
+	}
+
 
 }

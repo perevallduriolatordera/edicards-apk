@@ -25,6 +25,7 @@ public class ConstantsDatabase {
     public static final String TABLE_LOGBOOK_EXCEPTIONS = "LogBookExceptions";
     public static final String TABLE_CIUDAD_VENDEDOR = "CiudadVendedor";
     public static final String TABLE_RUTAS_GENERADAS = "RutasGeneradas";
+    public static final String TABLE_ZONAS = "Zonas";
     public static final String INDEX_DEPOSITO_CODIGOCLIENTE = "idx_Deposito_CodigoCliente";
     public static final String INDEX_DEPOSITO_NUMDOC = "idx_Deposito_NumDoc";
     public static final String INDEX_DEPOSITO_IDCLIENTE = "idx_Deposito_IdCliente";

@@ -20,6 +20,7 @@ import net.ifeu.edicards.DataTier.NTV.support.ExcelNTVParser;
 import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.IO.IOUtils;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
+import net.ifeu.library.Utils.Screen.ScreenManager;
 
 import java.io.File;
 
@@ -32,6 +33,10 @@ public class AlbaranCustomerSearch extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_albaran_customer_search);
 		_appConfig = (AppConfig) this.getApplicationContext();
+
+		android.view.WindowManager.LayoutParams params = getWindow().getAttributes();
+		params.width = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.95f).getWidth();
+		getWindow().setAttributes(params);
 
 		final RadioGroup radioGroup = (RadioGroup) findViewById(
 				R.id.grpFilterField);

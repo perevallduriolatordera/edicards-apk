@@ -1,230 +1,362 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/Edicards" >
+    android:background="#FFFFFF">
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="15dp"
-        android:src="@drawable/edicards_logo_bitmap"
-        android:layout_gravity="center"
-        android:layout_marginTop="10px"
-        android:layout_marginBottom="10px"/>
+    <!-- Header con logo y título -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#2196F3"
+        android:padding="20dp"
+        android:elevation="4dp"
+        android:gravity="center">
 
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:src="@drawable/edicards_logo_bitmap"
+            android:layout_marginBottom="12dp"
+            android:contentDescription="Logo Edicards"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nuevo Usuario"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:gravity="center"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Complete los datos para crear su perfil"
+            android:textSize="14sp"
+            android:textColor="#E3F2FD"
+            android:gravity="center"/>
+    </LinearLayout>
+
+    <!-- Contenedor con scroll -->
+    <ScrollView
         android:id="@+id/svcScroll"
-        android:clickable="true"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:fillViewport="true">
 
-            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/mainLinearLayout"
-                android:layout_width="fill_parent"
-                android:layout_height="250dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                android:orientation="vertical" >
+        <LinearLayout
+            android:id="@+id/mainLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Sección: Credenciales -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="CREDENCIALES"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#2196F3"
+                android:layout_marginBottom="12dp"
+                android:layout_marginTop="8dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#F5F5F5"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp"
+                android:elevation="2dp">
 
                 <TextView
                     android:id="@+id/lblUser"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="150px"
-                    android:layout_marginRight="150px"
-                    android:textColor="#FFF"
-                    android:text="Identificador del usuario" />
+                    android:text="Identificador del usuario"
+                    android:textSize="12sp"
+                    android:textColor="#757575"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
 
                 <EditText
                     android:id="@+id/txtUser"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="150px"
-                    android:layout_marginRight="150px"
-                    android:ems="10" >
-
+                    android:background="@android:drawable/edit_text"
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:textColor="#212121"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Usuario"
+                    android:singleLine="true">
                     <requestFocus />
                 </EditText>
 
                 <TextView
                     android:id="@+id/lblPassword"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="150px"
-                    android:layout_marginRight="150px"
-                    android:textColor="#FFF"
-                    android:text="Contraseña" />
+                    android:text="Contraseña"
+                    android:textSize="12sp"
+                    android:textColor="#757575"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
 
                 <EditText
                     android:id="@+id/txtPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="150px"
-                    android:layout_marginRight="150px"
-                    android:ems="10"
-                    android:inputType="textPassword" />
+                    android:background="@android:drawable/edit_text"
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:textColor="#212121"
+                    android:inputType="textPassword"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Contraseña"
+                    android:singleLine="true"/>
 
                 <TextView
                     android:id="@+id/lblPasswordRepeat"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="150px"
-                    android:layout_marginRight="150px"
-                    android:textColor="#FFF"
-                    android:text="Vuelva a escribir la contraseña" />
+                    android:text="Confirmar contraseña"
+                    android:textSize="12sp"
+                    android:textColor="#757575"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
 
                 <EditText
                     android:id="@+id/txtPasswordRepeat"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="150px"
-                    android:layout_marginRight="150px"
-                    android:ems="10"
-                    android:inputType="textPassword" />
+                    android:background="@android:drawable/edit_text"
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:textColor="#212121"
+                    android:inputType="textPassword"
+                    android:hint="Repetir contraseña"
+                    android:singleLine="true"/>
+            </LinearLayout>
+
+            <!-- Sección: Configuración de Facturación -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="CONFIGURACIÓN DE FACTURACIÓN"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#2196F3"
+                android:layout_marginBottom="12dp"
+                android:layout_marginTop="8dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#F5F5F5"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp"
+                android:elevation="2dp">
 
                 <TextView
                     android:id="@+id/lblSerialInvoiceA"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="150px"
-                    android:layout_marginRight="150px"
-                    android:textColor="#FFF"
-                    android:text="Código Série Factura A" />
+                    android:text="Código Serie Factura A"
+                    android:textSize="12sp"
+                    android:textColor="#757575"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
 
                 <EditText
                     android:id="@+id/txtSerialInoviceA"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="150px"
-                    android:layout_marginRight="150px"
-                    android:ems="10" >
-                </EditText>
+                    android:background="@android:drawable/edit_text"
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:textColor="#212121"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Serie A"
+                    android:singleLine="true"/>
 
                 <TextView
                     android:id="@+id/lblSerialInoviceB"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="150px"
-                    android:layout_marginRight="150px"
-                    android:textColor="#FFF"
-                    android:text="Código Série Factura B" />
+                    android:text="Código Serie Factura B"
+                    android:textSize="12sp"
+                    android:textColor="#757575"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
 
                 <EditText
                     android:id="@+id/txtSerialInoviceB"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="150px"
-                    android:layout_marginRight="150px"
-                    android:ems="10" >
-                </EditText>
-
-                <TextView
-                    android:id="@+id/lblCompany"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="150px"
-                    android:layout_marginRight="150px"
-                    android:textColor="#FFF"
-                    android:text="Código de Empresa" />
-
-                <EditText
-                    android:id="@+id/txtCompany"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="150px"
-                    android:layout_marginRight="150px"
-                    android:ems="10" >
-                </EditText>
-
-                <TextView
-                    android:id="@+id/lblName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="150px"
-                    android:layout_marginRight="150px"
-                    android:textColor="#FFF"
-                    android:text="Nombre del vendedor" />
-
-                <EditText
-                    android:id="@+id/txtName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="150px"
-                    android:layout_marginRight="150px"
-                    android:ems="10" >
-                </EditText>
+                    android:background="@android:drawable/edit_text"
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:textColor="#212121"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Serie B"
+                    android:singleLine="true"/>
 
                 <TextView
                     android:id="@+id/lblSerieA"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="150px"
-                    android:layout_marginRight="150px"
-                    android:textColor="#FFF"
-                    android:text="Inicialización Serie A" />
+                    android:text="Inicialización Serie A"
+                    android:textSize="12sp"
+                    android:textColor="#757575"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
 
                 <EditText
                     android:id="@+id/txtSerieA"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="150px"
-                    android:layout_marginRight="150px"
-                    android:ems="10" >
-                </EditText>
+                    android:background="@android:drawable/edit_text"
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:textColor="#212121"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Número inicial Serie A"
+                    android:singleLine="true"/>
 
-                 <TextView
+                <TextView
                     android:id="@+id/lblSerieB"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                     android:layout_marginLeft="150px"
-                     android:layout_marginRight="150px"
-                    android:textColor="#FFF"
-                    android:text="Inicialización Serie B" />
+                    android:text="Inicialización Serie B"
+                    android:textSize="12sp"
+                    android:textColor="#757575"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
 
                 <EditText
                     android:id="@+id/txtSerieB"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="150px"
-                    android:layout_marginRight="150px"
-                    android:ems="10" >
-                </EditText>
+                    android:background="@android:drawable/edit_text"
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:textColor="#212121"
+                    android:hint="Número inicial Serie B"
+                    android:singleLine="true"/>
+            </LinearLayout>
+
+            <!-- Sección: Datos de la Empresa -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="DATOS DE LA EMPRESA"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#2196F3"
+                android:layout_marginBottom="12dp"
+                android:layout_marginTop="8dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#F5F5F5"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp"
+                android:elevation="2dp">
+
+                <TextView
+                    android:id="@+id/lblCompany"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Código de Empresa"
+                    android:textSize="12sp"
+                    android:textColor="#757575"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
+
+                <EditText
+                    android:id="@+id/txtCompany"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:drawable/edit_text"
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:textColor="#212121"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Empresa"
+                    android:singleLine="true"/>
+
+                <TextView
+                    android:id="@+id/lblName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Nombre del vendedor"
+                    android:textSize="12sp"
+                    android:textColor="#757575"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
+
+                <EditText
+                    android:id="@+id/txtName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:drawable/edit_text"
+                    android:padding="12dp"
+                    android:textSize="16sp"
+                    android:textColor="#212121"
+                    android:hint="Nombre completo"
+                    android:singleLine="true"/>
+            </LinearLayout>
 
         </LinearLayout>
     </ScrollView>
 
+    <!-- Botones fijos en la parte inferior -->
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:layout_marginTop="5px"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="#FFFFFF"
+        android:elevation="4dp">
 
-        <ImageButton
-            android:id="@+id/btnAccept"
-            android:layout_width="0dip"
-            android:layout_height="fill_parent"
-            android:layout_weight=".50"
-            android:background="#FFF"
-            android:onClick="OnAcceptClick"
-            android:src="@drawable/ic_new_customer"
-            android:text="Entrar"
-            android:textColor="#FFF" />
-
-        <ImageButton
+        <Button
             android:id="@+id/btnCancel"
-            android:layout_width="0dip"
-            android:layout_height="fill_parent"
-            android:layout_weight=".50"
-            android:background="#FFF"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Cancelar"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:background="#757575"
+            android:padding="14dp"
+            android:layout_marginEnd="8dp"
             android:onClick="OnCancelClick"
-            android:src="@drawable/ic_close"
-            android:text="Salir"
-            android:textColor="#FFF" />
+            android:elevation="2dp"/>
+
+        <Button
+            android:id="@+id/btnAccept"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="✓ Crear Usuario"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:background="#4CAF50"
+            android:padding="14dp"
+            android:layout_marginStart="8dp"
+            android:onClick="OnAcceptClick"
+            android:elevation="2dp"/>
     </LinearLayout>
 
 </LinearLayout>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@android:color/white">
+
+    <!-- Título -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Gestión de Zonas"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:gravity="center"
+        android:paddingBottom="16dp"/>
+
+    <!-- Botón Nueva Zona -->
+    <net.ifeu.library.Controls.ButtonColor
+        android:id="@+id/btnNuevaZona"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="+ Nueva Zona"
+        android:textColor="@android:color/white"
+        android:background="@color/Blue"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Lista de Zonas -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:id="@+id/zonasListLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"/>
+    </ScrollView>
+
+    <!-- Botón Cerrar -->
+    <net.ifeu.library.Controls.ButtonColor
+        android:id="@+id/btnCerrar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cerrar"
+        android:textColor="@android:color/white"
+        android:background="@color/Black"
+        android:padding="12dp"
+        android:layout_marginTop="16dp"/>
+
+</LinearLayout>

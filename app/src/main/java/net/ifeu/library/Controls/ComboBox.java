@@ -78,8 +78,8 @@ public class ComboBox extends LinearLayout {
        });
        
        relativeLayout.addView(_text);
-       
-       _label = new LabelColor(context,Color.WHITE);
+
+       _label = new LabelColor(context, Color.parseColor("#212121"));
        _label.setTextSize(TEXT_SIZE);
        
        RelativeLayout.LayoutParams labelLayoutParams = 

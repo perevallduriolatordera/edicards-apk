@@ -1,48 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF">
 
+    <!-- Header moderno -->
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical" >
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#4CAF50"
+        android:padding="16dp"
+        android:elevation="4dp"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Firma del Vendedor"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:gravity="center"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Por favor, firme en el área blanca"
+            android:textSize="14sp"
+            android:textColor="#E8F5E9"
+            android:gravity="center"/>
+    </LinearLayout>
+
+    <!-- Área de firma -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="#FAFAFA">
 
         <net.ifeu.library.Signature.SignatureView
             android:id="@+id/signatureView"
-            android:layout_width="wrap_content"
-            android:layout_height="600px" />
-
-        <LinearLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:orientation="horizontal" >
-
-            <Button
-                android:id="@+id/btnAccept"
-                android:layout_width="150px"
-                android:layout_height="40px"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="20dp"
-                android:background="#FFF"
-                android:onClick="OnClick"
-                android:text="Aceptar"
-                android:textColor="#000" />
-
-            <Button
-                android:id="@+id/btnCancel"
-                android:layout_width="150px"
-                android:layout_height="40px"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="20dp"
-                android:background="#FFF"
-                android:onClick="OnDelete"
-                android:text="Borrar"
-                android:textColor="#000" />
-        </LinearLayout>
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#FFFFFF"
+            android:elevation="2dp"/>
     </LinearLayout>
 
-</RelativeLayout>
+    <!-- Botones de acción -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="#FFFFFF"
+        android:elevation="4dp">
+
+        <Button
+            android:id="@+id/btnAccept"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="✓ Aceptar"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:background="#4CAF50"
+            android:padding="16dp"
+            android:layout_marginEnd="8dp"
+            android:onClick="OnClick"/>
+
+        <Button
+            android:id="@+id/btnCancel"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="🗑 Borrar"
+            android:textSize="16sp"
+            android:textColor="#FFFFFF"
+            android:background="#FF9800"
+            android:padding="16dp"
+            android:layout_marginStart="8dp"
+            android:onClick="OnDelete"/>
+    </LinearLayout>
+
+</LinearLayout>

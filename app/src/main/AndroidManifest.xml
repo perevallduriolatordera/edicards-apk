@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ifeu.edicards"
     android:versionCode="60"
-    android:versionName="6.0.2 (29 Junio 2026) --> Generación de rutas">
+    android:versionName="6.0.4 (30 Junio 2026) --> Reordenamos despues de resultados google">
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
@@ -128,6 +128,16 @@
 
         <activity android:name=".IngresoDiarioDialog"
             android:label="Adjuntos"
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
+
+        <activity android:name=".ZonasDialog"
+            android:label="Gestión de Zonas"
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
+
+        <activity android:name=".AsignarClientesZonaDialog"
+            android:label="Asignar Clientes a Zonas"
             android:theme="@android:style/Theme.Dialog"
             android:exported="false" />
 

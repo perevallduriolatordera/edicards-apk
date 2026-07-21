@@ -100,17 +100,18 @@ public class UnifiedRouteOptimizer {
     }
 
     /**
-     * Optimiza usando Google Maps Routes API con waypoint optimization
+     * Optimiza usando Google Fleet Routing API (Single Vehicle Routing)
+     * Mejor algoritmo TSP, soporta hasta 100 clientes por batch
      */
     private ArrayList<RouteOptimizerService.RutaClienteData> optimizeWithGoogle(
             ArrayList<Cliente> clientes,
             LatLng baseLocation,
             int clusterID) throws Exception {
 
-        Log.i(TAG, "→ Usando Google Maps Routes API (waypoint optimization) - Cluster " + clusterID);
+        Log.i(TAG, "→ Usando Google Fleet Routing API (Single Vehicle) - Cluster " + clusterID);
 
-        GoogleMapsRouteOptimizer googleService =
-            new GoogleMapsRouteOptimizer(context, googleApiKey);
+        GoogleFleetRoutingOptimizer googleService =
+            new GoogleFleetRoutingOptimizer(context, googleApiKey);
 
         try {
             // Construir lista de waypoints (lat,lng como strings)

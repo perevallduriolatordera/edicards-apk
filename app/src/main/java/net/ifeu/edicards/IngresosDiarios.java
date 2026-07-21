@@ -41,8 +41,8 @@ public class IngresosDiarios extends Activity {
 		setFinishOnTouchOutside(false);
 
 		android.view.WindowManager.LayoutParams params = getWindow().getAttributes();
-		params.height = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.6f).getHeight();
-		params.width  = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.8f).getWidth();
+		params.height = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.8f).getHeight();
+		params.width  = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.95f).getWidth();
 		getWindow().setAttributes(params);
 
 		_appConfig = (AppConfig) this.getApplicationContext();

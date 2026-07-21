@@ -32,7 +32,7 @@ public class CustomerSearchListDialog extends ListActivity {
 		setContentView(R.layout.activity_customer_search_list_dialog);
 
 		android.view.WindowManager.LayoutParams params = getWindow().getAttributes();
-		ScreenManager.ScreenSize screenSize= ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.75f);
+		ScreenManager.ScreenSize screenSize= ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.95f);
 		params.width = screenSize.getWidth();
 		params.height= screenSize.getHeight();
 		getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);

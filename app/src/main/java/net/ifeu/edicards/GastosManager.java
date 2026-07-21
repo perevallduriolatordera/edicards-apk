@@ -79,6 +79,9 @@ public class GastosManager extends Fragment {
 			if (!_isRendered)
 	    		addCalendar();
 
+			if (!_isRendered)
+				setupDateToggle();
+
 	        try {
 				_articulos = _appConfig.getCache().getAllGastos();
 			} catch (Exception e1) {
@@ -93,7 +96,7 @@ public class GastosManager extends Fragment {
 
 			_isRendered = true;
 			_mainLayout = (LinearLayout) this.getActivity().findViewById(R.id.gastosManagerLayout);
-		
+
 	    }
 
 		private void addArticles() throws Exception
@@ -116,8 +119,10 @@ public class GastosManager extends Fragment {
 	    	_datePic.init(_calendar.get(Calendar.YEAR), _calendar
 	    			    .get(Calendar.MONTH), _calendar.get(Calendar.DATE),
 	    			    dateSetListener);
-	    	 
+
 	    	_datePic.setLayoutParams(params);
+	    	_datePic.setScaleX(0.45f);
+	    	_datePic.setScaleY(0.45f);
 	    	
 	    	android.widget.LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
 	    	params2.setMargins(0, 55, 10, 0);
@@ -134,7 +139,34 @@ public class GastosManager extends Fragment {
 	    	calendarLayout.addView(layout);
 
 	    }
-	    
+
+	private void setupDateToggle() {
+		final LinearLayout calendarLayout = getActivity().findViewById(R.id.calendarMainLinearLayout);
+		final android.widget.TextView lblCurrentDate = getActivity().findViewById(R.id.lblCurrentDate);
+		final android.widget.Button btnToggle = getActivity().findViewById(R.id.btnToggleDatePicker);
+
+		// Actualizar el label con la fecha actual
+		updateDateLabel(lblCurrentDate);
+
+		// Configurar el botón de toggle
+		btnToggle.setOnClickListener(v -> {
+			if (calendarLayout.getVisibility() == View.VISIBLE) {
+				calendarLayout.setVisibility(View.GONE);
+				btnToggle.setText("Cambiar Fecha");
+				updateDateLabel(lblCurrentDate);
+			} else {
+				calendarLayout.setVisibility(View.VISIBLE);
+				btnToggle.setText("Ocultar");
+			}
+		});
+	}
+
+	private void updateDateLabel(android.widget.TextView label) {
+		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
+		String fecha = sdf.format(_calendar.getTime());
+		label.setText("Fecha: " + fecha);
+	}
+
 	    private final DatePicker.OnDateChangedListener dateSetListener = new DatePicker.OnDateChangedListener() {
 
 	    	  @Override

@@ -31,8 +31,9 @@ public class RutaGenerada extends Persistent implements IPersistable {
 	public String Latitud;
 	public String Longitud;
 
-	// Cluster
-	public int ClusterID;  // ID del cluster geográfico (solo para debugging/Excel, no se persiste en BD)
+	// Cluster / Zona
+	public int ClusterID;  // ID del cluster geográfico (se persiste en BD y se muestra en Excel)
+	public String NombreZona;  // Nombre de la zona (para rutas por zonas, no se persiste en BD)
 
 	@Override
 	public void InitializePersistance(net.ifeu.edicards.Application.AppConfig appConfigParam) {
@@ -56,6 +57,7 @@ public class RutaGenerada extends Persistent implements IPersistable {
 		values.put("GeolocalizationStatus", this.GeolocalizationStatus);
 		values.put("Latitud", this.Latitud);
 		values.put("Longitud", this.Longitud);
+		values.put("ClusterID", this.ClusterID);
 
 		try {
 			this.IdRuta = super.getDatabaseOperations().insert(
@@ -144,6 +146,12 @@ public class RutaGenerada extends Persistent implements IPersistable {
 					ruta.GeolocalizationStatus = cursor.getString(cursor.getColumnIndex("GeolocalizationStatus"));
 					ruta.Latitud = cursor.getString(cursor.getColumnIndex("Latitud"));
 					ruta.Longitud = cursor.getString(cursor.getColumnIndex("Longitud"));
+
+					// Cargar ClusterID (con fallback a 0 si la columna no existe o es null)
+					int clusterIdIndex = cursor.getColumnIndex("ClusterID");
+					ruta.ClusterID = (clusterIdIndex >= 0 && !cursor.isNull(clusterIdIndex))
+						? cursor.getInt(clusterIdIndex)
+						: 0;
 
 					list.add(ruta);
 				} while (cursor.moveToNext());

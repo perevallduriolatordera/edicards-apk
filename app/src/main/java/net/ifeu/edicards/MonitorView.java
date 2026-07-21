@@ -318,25 +318,24 @@ public class MonitorView extends Fragment {
 	private void createButtonsHeader() {
 
 		int TEXT_SIZE_BUTTON = 12;
-		int BUTTON_MARGIN = 8;
-		int BUTTON_WIDTH = 200;
+		int BUTTON_MARGIN = 4;
 		final MonitorView that = this;
-		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+		// Usar layout_weight para distribuir equitativamente
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
 
 		LinearLayout layout = (LinearLayout) this.getActivity().findViewById(R.id.buttonLinearLayout);
 		if (layout == null) return;
 
 		layout.removeAllViews();
 		layout.setOrientation(LinearLayout.HORIZONTAL);
-		layout.setGravity(Gravity.CENTER);
+		layout.setGravity(Gravity.CENTER_VERTICAL);
 
 		ButtonColor sync = new ButtonColor(getActivity(), Color.parseColor("#1976D2"));
 
-		sync.setText("Sincronización");
+		sync.setText("Sincro");
 		sync.setTextColor(Color.WHITE);
 		sync.setBackgroundResource(R.drawable.button_primary);
-		sync.setWidth(BUTTON_WIDTH);
-		params.setMargins(BUTTON_MARGIN, 0, BUTTON_MARGIN, 0);
+		params.setMargins(0, 0, BUTTON_MARGIN, 0);
 		sync.setLayoutParams(params);
 		sync.setTextSize(TEXT_SIZE_BUTTON);
 
@@ -348,13 +347,12 @@ public class MonitorView extends Fragment {
 
 		ButtonColor logBookReport = new ButtonColor(getActivity(), Color.parseColor("#4CAF50"));
 
-		logBookReport.setText("Enviar trazabilidad de stock");
+		logBookReport.setText("Stock");
 		logBookReport.setTextColor(Color.WHITE);
 		logBookReport.setBackgroundResource(R.drawable.button_success);
-		logBookReport.setWidth(BUTTON_WIDTH);
 		logBookReport.setTextSize(TEXT_SIZE_BUTTON);
-		params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-		params.setMargins(BUTTON_MARGIN, 0, BUTTON_MARGIN, 0);
+		params = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
+		params.setMargins(0, 0, BUTTON_MARGIN, 0);
 		logBookReport.setLayoutParams(params);
 
 		logBookReport.setOnClickListener(view -> {
@@ -379,13 +377,12 @@ public class MonitorView extends Fragment {
 
 		ButtonColor createBackup = new ButtonColor(getActivity(), Color.parseColor("#FF9800"));
 
-		createBackup.setText("Crear copia de seguridad");
+		createBackup.setText("Backup");
 		createBackup.setTextColor(Color.WHITE);
 		createBackup.setBackgroundResource(R.drawable.button_warning);
-		createBackup.setWidth(BUTTON_WIDTH);
 		createBackup.setTextSize(TEXT_SIZE_BUTTON);
-		params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-		params.setMargins(BUTTON_MARGIN, 0, BUTTON_MARGIN, 0);
+		params = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
+		params.setMargins(0, 0, BUTTON_MARGIN, 0);
 		createBackup.setLayoutParams(params);
 
 		createBackup.setOnClickListener(view -> {
@@ -402,13 +399,12 @@ public class MonitorView extends Fragment {
 
 		ButtonColor restoreBackup = new ButtonColor(getActivity(), Color.parseColor("#757575"));
 
-		restoreBackup.setText("Restaurar copia de seguridad");
+		restoreBackup.setText("Restaurar");
 		restoreBackup.setTextColor(Color.WHITE);
 		restoreBackup.setBackgroundResource(R.drawable.button_secondary);
-		restoreBackup.setWidth(BUTTON_WIDTH);
 		restoreBackup.setTextSize(TEXT_SIZE_BUTTON);
-		params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-		params.setMargins(BUTTON_MARGIN, 0, BUTTON_MARGIN, 0);
+		params = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
+		params.setMargins(0, 0, BUTTON_MARGIN, 0);
 		restoreBackup.setLayoutParams(params);
 
 		restoreBackup.setOnClickListener(view -> {
@@ -460,13 +456,12 @@ public class MonitorView extends Fragment {
 
 		ButtonColor initializeEfectivoButton = new ButtonColor(getActivity(), Color.parseColor("#6A1B9A"));
 
-		initializeEfectivoButton.setText("Inicializar Ingresos Efectivo");
+		initializeEfectivoButton.setText("Efectivo");
 		initializeEfectivoButton.setTextColor(Color.WHITE);
 		initializeEfectivoButton.setBackgroundResource(R.drawable.button_warning);
-		initializeEfectivoButton.setWidth(BUTTON_WIDTH);
 		initializeEfectivoButton.setTextSize(TEXT_SIZE_BUTTON);
-		params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-		params.setMargins(BUTTON_MARGIN, 0, BUTTON_MARGIN, 0);
+		params = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
+		params.setMargins(0, 0, 0, 0);
 		initializeEfectivoButton.setLayoutParams(params);
 
 		initializeEfectivoButton.setOnClickListener(view -> {

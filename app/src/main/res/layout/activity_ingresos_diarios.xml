@@ -1,212 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:layout_marginTop="20dp"
-    android:background="@color/Edicards" >
+    android:background="#FFFFFF">
 
+    <!-- Header moderno -->
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="5dp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="#4CAF50"
+        android:padding="16dp"
+        android:elevation="4dp"
+        android:gravity="center">
 
-        <LinearLayout
-            android:layout_width="fill_parent"
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
+            android:text="Ingreso Diario"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:gravity="center"
+            android:layout_marginBottom="8dp"/>
 
-            <TextView
-                android:id="@+id/lblFechaIngresosDiarios"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:text="Fecha del ultimo día sin ingresar"
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
-
-            <TextView
-                android:id="@+id/txtFechaIngresosDiarios"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/lblIngresosDiarios"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:text="Saldo en efectivo"
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
-
-            <EditText
-                android:id="@+id/txtIngresosDiarios"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:singleLine="true"
-                android:text=""
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/lblGastosDiarios"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:text="Gastos Diarios:    "
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
-
-            <EditText
-                android:id="@+id/txtGastosDiarios"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:singleLine="true"
-                android:text=""
-                android:inputType="numberDecimal"
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/lblTotalIngresar"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:text="Total a ingresar:       "
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
-
-            <EditText
-                android:id="@+id/txtTotalIngresar"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:singleLine="true"
-                android:text=""
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <TextView
-                android:id="@+id/lblTipoAplicar"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:text="Aplicar cantidad exacta:       "
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/text_small" />
-
-            <CheckBox
-                android:id="@+id/chkTipoAplicar"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:layout_marginLeft="25px"
-                android:layout_marginRight="25px"
-                android:singleLine="true"
-                android:text=""
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold" />
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <net.ifeu.library.Controls.ButtonColor
-                android:id="@+id/btnIngresoDiarioPhoto"
-                android:paddingLeft="15px"
-                android:layout_marginLeft="20px"
-                android:layout_marginRight="20px"
-                android:layout_width="0dp"
-                android:layout_weight="0.5"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_height="80px"
-                android:background="@drawable/background_button"
-                android:textColor="@color/Black"
-                android:text="Tomar foto del comprobante"/>
-
-            <net.ifeu.library.Controls.ButtonColor
-                android:id="@+id/btnSaveIngresoDiario"
-                android:layout_marginLeft="20px"
-                android:layout_marginRight="20px"
-                android:paddingLeft="15px"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_height="80px"
-                android:background="@drawable/background_button"
-                android:textColor="@color/Black"
-                android:onClick="OnApply"
-                android:text="Guardar cambios"/>
-
-            <net.ifeu.library.Controls.ButtonColor
-                android:id="@+id/btnCloseIngresoDiario"
-                android:layout_marginLeft="20px"
-                android:layout_marginRight="20px"
-                android:paddingLeft="15px"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_height="80px"
-                android:background="@drawable/background_button"
-                android:textColor="@color/Black"
-                android:onClick="OnClose"
-                android:text="Cerrar Pantalla"/>
-
-
-        </LinearLayout>
+            android:text="Registro de ingresos y gastos diarios"
+            android:textSize="14sp"
+            android:textColor="#E8F5E9"
+            android:gravity="center"/>
     </LinearLayout>
+
+    <!-- Contenido principal con scroll -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Tarjeta de fecha -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#E3F2FD"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp"
+                android:elevation="2dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Fecha del último día sin ingresar"
+                    android:textSize="12sp"
+                    android:textColor="#757575"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
+
+                <TextView
+                    android:id="@+id/txtFechaIngresosDiarios"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="18sp"
+                    android:textColor="#0277BD"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+            <!-- Campo: Saldo en efectivo -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#F5F5F5"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Saldo en efectivo"
+                    android:textSize="14sp"
+                    android:textColor="#424242"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+
+                <EditText
+                    android:id="@+id/txtIngresosDiarios"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="18sp"
+                    android:textColor="#212121"
+                    android:textStyle="bold"
+                    android:padding="12dp"
+                    android:background="@android:drawable/edit_text"
+                    android:singleLine="true"
+                    android:inputType="numberDecimal"/>
+            </LinearLayout>
+
+            <!-- Campo: Gastos Diarios -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#F5F5F5"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Gastos Diarios"
+                    android:textSize="14sp"
+                    android:textColor="#424242"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+
+                <EditText
+                    android:id="@+id/txtGastosDiarios"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="18sp"
+                    android:textColor="#212121"
+                    android:textStyle="bold"
+                    android:padding="12dp"
+                    android:background="@android:drawable/edit_text"
+                    android:singleLine="true"
+                    android:inputType="numberDecimal"
+                    android:hint="Ingrese los gastos"/>
+            </LinearLayout>
+
+            <!-- Campo: Total a ingresar -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#C8E6C9"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp"
+                android:elevation="2dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Total a ingresar"
+                    android:textSize="14sp"
+                    android:textColor="#1B5E20"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"/>
+
+                <EditText
+                    android:id="@+id/txtTotalIngresar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="24sp"
+                    android:textColor="#2E7D32"
+                    android:textStyle="bold"
+                    android:padding="12dp"
+                    android:background="@android:drawable/edit_text"
+                    android:singleLine="true"/>
+            </LinearLayout>
+
+            <!-- Checkbox: Aplicar cantidad exacta -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="#FFF3E0"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp"
+                android:gravity="center_vertical">
+
+                <CheckBox
+                    android:id="@+id/chkTipoAplicar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Aplicar cantidad exacta (sin redondeo)"
+                    android:textSize="14sp"
+                    android:textColor="#E65100"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Botones de acción fijos en la parte inferior -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:background="#FFFFFF"
+        android:elevation="4dp">
+
+        <net.ifeu.library.Controls.ButtonColor
+            android:id="@+id/btnIngresoDiarioPhoto"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="📷 Foto"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:background="#FF9800"
+            android:padding="14dp"
+            android:layout_marginEnd="6dp"
+            android:elevation="2dp"/>
+
+        <net.ifeu.library.Controls.ButtonColor
+            android:id="@+id/btnSaveIngresoDiario"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="✓ Guardar"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:background="#4CAF50"
+            android:padding="14dp"
+            android:layout_marginStart="3dp"
+            android:layout_marginEnd="3dp"
+            android:elevation="2dp"/>
+
+        <net.ifeu.library.Controls.ButtonColor
+            android:id="@+id/btnCloseIngresoDiario"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Cerrar"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:background="#757575"
+            android:padding="14dp"
+            android:layout_marginStart="6dp"
+            android:elevation="2dp"/>
+    </LinearLayout>
+
 </LinearLayout>

@@ -185,8 +185,9 @@ public class MainActivity extends Activity {
 				public void run() {
 
 					try {
-						getData();
-						sendData();
+						// COMENTADO TEMPORALMENTE PARA PRUEBAS - DESCOMENTAR ANTES DE PRODUCCIÓN
+						//getData();
+						//sendData();
 
 						// Verificar y solicitar ciudad base si es necesario
 						that.verifyCiudadVendedor(() -> {

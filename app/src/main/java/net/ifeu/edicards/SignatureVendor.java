@@ -4,7 +4,9 @@ import static net.ifeu.edicards.Constants.ConstantsEvents.EVENT_CLOSE_OPERATION;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.library.Signature.SignatureView;
+import net.ifeu.library.Utils.Screen.ScreenManager;
 import android.app.Activity;
+import android.app.ActionBar.LayoutParams;
 import android.os.Bundle;
 import android.view.View;
 
@@ -17,12 +19,18 @@ public class SignatureVendor extends Activity {
 	AppConfig _app;
 	Boolean _isSaved = false;
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_signature_vendor);
-		
+
 		setFinishOnTouchOutside (false);
+
+		android.view.WindowManager.LayoutParams params = getWindow().getAttributes();
+		params.height = LayoutParams.FILL_PARENT;
+		params.width  = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.95f).getWidth();
+		getWindow().setAttributes(params);
 
 		_bundle = savedInstanceState;
 		_app = (AppConfig) this.getApplicationContext();

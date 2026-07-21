@@ -95,6 +95,9 @@ public class Reports extends Fragment {
 		// Configurar DatePickers en modo spinner
 		configureDatePickers();
 
+		// Configurar botón de toggle y label de fecha
+		setupDateToggle();
+
 		FillButtonsHeader();
 	}
 
@@ -109,8 +112,8 @@ public class Reports extends Fragment {
 		android.widget.LinearLayout.LayoutParams params1 = new LinearLayout.LayoutParams(
 			LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		_datePicker1.setLayoutParams(params1);
-		_datePicker1.setScaleX(0.60f);
-		_datePicker1.setScaleY(0.60f);
+		_datePicker1.setScaleX(0.45f);
+		_datePicker1.setScaleY(0.45f);
 		_datePicker1.init(_calendar1.get(Calendar.YEAR),
 			_calendar1.get(Calendar.MONTH),
 			_calendar1.get(Calendar.DATE), null);
@@ -120,8 +123,8 @@ public class Reports extends Fragment {
 			LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params2.setMargins(5, 0, 0, 0);
 		_datePicker2.setLayoutParams(params2);
-		_datePicker2.setScaleX(0.60f);
-		_datePicker2.setScaleY(0.60f);
+		_datePicker2.setScaleX(0.45f);
+		_datePicker2.setScaleY(0.45f);
 		_datePicker2.init(_calendar2.get(Calendar.YEAR),
 			_calendar2.get(Calendar.MONTH),
 			_calendar2.get(Calendar.DATE), null);
@@ -136,6 +139,34 @@ public class Reports extends Fragment {
 		layout.addView(_datePicker2);
 
 		datePickersContainer.addView(layout);
+	}
+
+	private void setupDateToggle() {
+		final LinearLayout datePickersContainer = getActivity().findViewById(R.id.datePickersContainer);
+		final android.widget.TextView lblDateRange = getActivity().findViewById(R.id.lblDateRange);
+		final android.widget.Button btnToggle = getActivity().findViewById(R.id.btnToggleDatePickers);
+
+		// Actualizar el label con las fechas actuales
+		updateDateRangeLabel(lblDateRange);
+
+		// Configurar el botón de toggle
+		btnToggle.setOnClickListener(v -> {
+			if (datePickersContainer.getVisibility() == View.VISIBLE) {
+				datePickersContainer.setVisibility(View.GONE);
+				btnToggle.setText("Cambiar Fechas");
+				updateDateRangeLabel(lblDateRange);
+			} else {
+				datePickersContainer.setVisibility(View.VISIBLE);
+				btnToggle.setText("Ocultar");
+			}
+		});
+	}
+
+	private void updateDateRangeLabel(android.widget.TextView label) {
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		String fecha1 = sdf.format(_calendar1.getTime());
+		String fecha2 = sdf.format(_calendar2.getTime());
+		label.setText("Desde: " + fecha1 + " hasta: " + fecha2);
 	}
 
 	private void CreateReportLayout() throws Exception {

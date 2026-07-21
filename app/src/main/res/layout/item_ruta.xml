@@ -61,7 +61,22 @@
                 android:layout_height="wrap_content"
                 android:text="Barcelona, Barcelona"
                 android:textSize="12sp"
-                android:textColor="#424242"/>
+                android:textColor="#424242"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/txtZona"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Zona Centro"
+                android:textSize="11sp"
+                android:textColor="#FFFFFF"
+                android:background="#2196F3"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:visibility="gone"/>
 
         </LinearLayout>
 

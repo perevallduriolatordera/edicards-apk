@@ -168,14 +168,14 @@ public class DepositManager extends Fragment implements  IMediator {
 		// Formas de pago
 
 		params.weight = 1;
-		LabelColor labelPago = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
+		LabelColor labelPago = DepositManagerExtension.UI.addLabel(_appConfig, Color.parseColor("#0277BD"), Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				"Forma de pago", TEXT_SIZE,  params);
 		
 		_comboPago = DepositManagerExtension.UI.addCombo(_appConfig, params, _appConfig.getCache().getAllFormasPagoList(), _deposito.Cliente.FormaPago.Descripcion);
 		
 		// Filiacion
 		
-		LabelColor labelFiliacion = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
+		LabelColor labelFiliacion = DepositManagerExtension.UI.addLabel(_appConfig, Color.parseColor("#0277BD"), Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				"Filiación", TEXT_SIZE, params);
 
 		
@@ -184,7 +184,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		// //Copias
 		
-		LabelColor labelCopias = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+		LabelColor labelCopias = DepositManagerExtension.UI.addLabel(_appConfig, Color.parseColor("#0277BD"), Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				"Copias", TEXT_SIZE, 90, params);
 		List<String> copias = new ArrayList<>();
 		for (int i=1; i < 6; i++) copias.add(String.valueOf(i));
@@ -193,7 +193,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		
 		// Series
 
-		LabelColor labelSeries = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+		LabelColor labelSeries = DepositManagerExtension.UI.addLabel(_appConfig, Color.parseColor("#0277BD"), Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				"Series", TEXT_SIZE, 75, params);
 		
 		List<String> series = new ArrayList<>();
@@ -210,7 +210,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		_checkPagado.setTextColor(Color.WHITE);
 		_checkPagado.setLayoutParams(params);
 		
-		LabelColor labelCantidadPagada = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+		LabelColor labelCantidadPagada = DepositManagerExtension.UI.addLabel(_appConfig, Color.parseColor("#0277BD"), Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				"Cantidad Pagada", TEXT_SIZE, 150, params);
 		
 		_textBoxCantidadPagada = DepositManagerExtension.UI.addEdit(getActivity(), Color.GREEN, Gravity.LEFT,
@@ -218,7 +218,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		// descuento 1
 		
-		LabelColor labelDescuento1 = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
+		LabelColor labelDescuento1 = DepositManagerExtension.UI.addLabel(_appConfig, Color.parseColor("#0277BD"), Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				"Dte. com.", TEXT_SIZE, 75, params);
 
 		DecimalFormat dec = new DecimalFormat("0.00");
@@ -261,7 +261,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		// descuento 2
 		
-		LabelColor labelDescuento2 = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+		LabelColor labelDescuento2 = DepositManagerExtension.UI.addLabel(_appConfig, Color.parseColor("#0277BD"), Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				"Dte. fin.", TEXT_SIZE, 75, params);
 
 		TextBoxColor descuento2 = DepositManagerExtension.UI.addEdit(getActivity(), Color.WHITE, Gravity.LEFT,
@@ -1358,7 +1358,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
 		boolean createHeaderLayout = (_headerLayout == null) || (_headerLayout.getChildCount() == 0);
-		int color = Color.WHITE;
+		int color = Color.parseColor("#0277BD");
 
 		if (createHeaderLayout) {
 			_headerLayout = new LinearLayout(_appConfig);
@@ -1695,7 +1695,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
 		boolean createHeaderLayout = _headerAbonoLayout	 == null;
-		int color = Color.WHITE;
+		int color = Color.parseColor("#0277BD");
 
 		if (createHeaderLayout) {
 			_headerAbonoLayout = new LinearLayout(_appConfig);
@@ -1901,7 +1901,6 @@ public class DepositManager extends Fragment implements  IMediator {
 		_textBoxColorRequestFocus = defectuosasAbono;
 
 	}
-
 	private void showHeader(boolean visible) {
 		if (this.getActivity().findViewById(R.id.headerMainLinearLayout) == null) return;
 		(this.getActivity().findViewById(R.id.headerMainLinearLayout)).setVisibility(visible ? View.VISIBLE : View.INVISIBLE);

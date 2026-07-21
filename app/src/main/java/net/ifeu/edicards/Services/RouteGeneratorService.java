@@ -9,6 +9,7 @@ import net.ifeu.edicards.DataTier.CiudadVendedor;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.RutaGenerada;
+import net.ifeu.edicards.DataTier.Zona;
 import net.ifeu.edicards.Services.Geocoding.IGeocodingStrategy;
 import net.ifeu.edicards.Services.Geocoding.LatLng;
 import net.ifeu.edicards.Services.Geocoding.OpenRouteServiceGeocodingStrategy;
@@ -27,9 +28,11 @@ public class RouteGeneratorService {
 
 	private static final String TAG = "RouteGeneratorService";
 	private static final double MAX_JUMP_KM = 10.0; // Salto máximo permitido entre clientes consecutivos
+	private static final double MAX_DISTANCE_FROM_BASE_KM = 1000.0; // Distancia máxima desde la base para incluir en ruta (excluye coordenadas erróneas)
 
 	private Context context;
 	private String googleApiKey;
+	private ArrayList<Cliente> clientesLejanos; // Clientes fuera del radio MAX_DISTANCE_FROM_BASE_KM
 
 	/**
 	 * Genera una ruta optimizada para los clientes activos del vendedor
@@ -103,7 +106,15 @@ public class RouteGeneratorService {
 
 			Log.d(TAG, "Ciudad base geocodificada: " + baseLocation.toString());
 
-			// 2.5. Pre-ordenar clientes geográficamente (ruta más lineal)
+			// 2.5. Filtrar clientes por distancia máxima a la base (excluir coordenadas erróneas)
+			clientesActivos = filterClientesByDistanceFromBase(clientesActivos, baseLocation);
+
+			if (clientesActivos.isEmpty()) {
+				Log.e(TAG, "No hay clientes con coordenadas válidas para optimizar");
+				return false;
+			}
+
+			// 2.6. Pre-ordenar clientes geográficamente (ruta más lineal)
 			clientesActivos = preOrdenarClientesGeograficamente(clientesActivos, baseLocation);
 
 			// 3. Clustering geográfico de clientes
@@ -183,6 +194,15 @@ public class RouteGeneratorService {
 
 				if (baseLocation == null) {
 					callback.onError("No se pudo geocodificar ciudad base");
+					return;
+				}
+
+				// Filtrar clientes excluyendo coordenadas inválidas
+				callback.onProgress("Filtrando clientes con coordenadas inválidas...");
+				clientesActivos = filterClientesByDistanceFromBase(clientesActivos, baseLocation);
+
+				if (clientesActivos.isEmpty()) {
+					callback.onError("No hay clientes con coordenadas válidas para optimizar");
 					return;
 				}
 
@@ -632,7 +652,155 @@ public class RouteGeneratorService {
 
 		Log.d(TAG, "════════════════════════════════════════");
 
+		// Aplicar optimización 2-opt para eliminar cruces
+		orderedClusters = optimize2Opt(orderedClusters, baseLocation);
+
 		return orderedClusters;
+	}
+
+	/**
+	 * Optimiza ruta de clusters usando algoritmo 2-opt
+	 * Elimina cruces en la ruta intercambiando segmentos
+	 *
+	 * @param clusters Lista de clusters ordenados
+	 * @param baseLocation Ubicación de la base
+	 * @return Lista optimizada sin cruces
+	 */
+	private ArrayList<GeoClusteringService.GeoCluster> optimize2Opt(
+			ArrayList<GeoClusteringService.GeoCluster> clusters,
+			LatLng baseLocation) {
+
+		if (clusters == null || clusters.size() <= 2) {
+			return clusters;
+		}
+
+		Log.d(TAG, "════════════════════════════════════════");
+		Log.d(TAG, "APLICANDO OPTIMIZACIÓN 2-OPT A CLUSTERS");
+
+		ArrayList<GeoClusteringService.GeoCluster> route = new ArrayList<>(clusters);
+		boolean improved = true;
+		int iterations = 0;
+		final int MAX_ITERATIONS = 100;
+
+		double initialDistance = calculateTotalRouteDistance(route, baseLocation);
+		Log.d(TAG, "Distancia inicial: " + String.format("%.1f km", initialDistance / 1000.0));
+
+		while (improved && iterations < MAX_ITERATIONS) {
+			improved = false;
+			iterations++;
+
+			for (int i = 0; i < route.size() - 1; i++) {
+				for (int j = i + 2; j < route.size(); j++) {
+					// Calcular distancia actual
+					double distBefore = 0;
+					if (i == 0) {
+						distBefore += calculateDistance(
+							baseLocation.getLatitude(), baseLocation.getLongitude(),
+							route.get(i).centerLat, route.get(i).centerLon
+						);
+					} else {
+						distBefore += calculateDistance(
+							route.get(i - 1).centerLat, route.get(i - 1).centerLon,
+							route.get(i).centerLat, route.get(i).centerLon
+						);
+					}
+					distBefore += calculateDistance(
+						route.get(i).centerLat, route.get(i).centerLon,
+						route.get(i + 1).centerLat, route.get(i + 1).centerLon
+					);
+					distBefore += calculateDistance(
+						route.get(j - 1).centerLat, route.get(j - 1).centerLon,
+						route.get(j).centerLat, route.get(j).centerLon
+					);
+
+					// Calcular distancia después de intercambiar
+					double distAfter = 0;
+					if (i == 0) {
+						distAfter += calculateDistance(
+							baseLocation.getLatitude(), baseLocation.getLongitude(),
+							route.get(j).centerLat, route.get(j).centerLon
+						);
+					} else {
+						distAfter += calculateDistance(
+							route.get(i - 1).centerLat, route.get(i - 1).centerLon,
+							route.get(j).centerLat, route.get(j).centerLon
+						);
+					}
+					distAfter += calculateDistance(
+						route.get(j).centerLat, route.get(j).centerLon,
+						route.get(i + 1).centerLat, route.get(i + 1).centerLon
+					);
+					distAfter += calculateDistance(
+						route.get(j - 1).centerLat, route.get(j - 1).centerLon,
+						route.get(i).centerLat, route.get(i).centerLon
+					);
+
+					// Si mejora, intercambiar segmento
+					if (distAfter < distBefore) {
+						// Invertir segmento entre i+1 y j
+						int left = i + 1;
+						int right = j;
+						while (left < right) {
+							GeoClusteringService.GeoCluster temp = route.get(left);
+							route.set(left, route.get(right));
+							route.set(right, temp);
+							left++;
+							right--;
+						}
+						improved = true;
+						Log.d(TAG, "  → Mejora encontrada: intercambio [" + i + "-" + j + "] reduce " +
+							String.format("%.1f km", (distBefore - distAfter) / 1000.0));
+					}
+				}
+			}
+		}
+
+		double finalDistance = calculateTotalRouteDistance(route, baseLocation);
+		double improvement = initialDistance - finalDistance;
+
+		Log.d(TAG, "Distancia final: " + String.format("%.1f km", finalDistance / 1000.0));
+		Log.d(TAG, "Mejora total: " + String.format("%.1f km", improvement / 1000.0) +
+			" (" + String.format("%.1f%%", (improvement / initialDistance) * 100) + ")");
+		Log.d(TAG, "Iteraciones: " + iterations);
+		Log.d(TAG, "════════════════════════════════════════");
+
+		return route;
+	}
+
+	/**
+	 * Calcula distancia total de una ruta de clusters
+	 */
+	private double calculateTotalRouteDistance(
+			ArrayList<GeoClusteringService.GeoCluster> route,
+			LatLng baseLocation) {
+
+		if (route == null || route.isEmpty()) {
+			return 0;
+		}
+
+		double totalDist = 0;
+
+		// Distancia de base al primer cluster
+		totalDist += calculateDistance(
+			baseLocation.getLatitude(), baseLocation.getLongitude(),
+			route.get(0).centerLat, route.get(0).centerLon
+		);
+
+		// Distancia entre clusters
+		for (int i = 0; i < route.size() - 1; i++) {
+			totalDist += calculateDistance(
+				route.get(i).centerLat, route.get(i).centerLon,
+				route.get(i + 1).centerLat, route.get(i + 1).centerLon
+			);
+		}
+
+		// Distancia del último cluster a la base
+		totalDist += calculateDistance(
+			route.get(route.size() - 1).centerLat, route.get(route.size() - 1).centerLon,
+			baseLocation.getLatitude(), baseLocation.getLongitude()
+		);
+
+		return totalDist;
 	}
 
 	/**
@@ -644,24 +812,26 @@ public class RouteGeneratorService {
 
 	/**
 	 * Determina el tamaño optimal del grid basado en cantidad de clientes
-	 * Objetivo: Clusters de máximo 20-25 clientes para que Google Maps pueda optimizarlos
+	 * Objetivo: Clusters de ~90 clientes para aprovechar Google Fleet Routing (límite 100)
 	 */
 	private int determineOptimalGridSize(int totalClientes) {
-		// NUEVA ESTRATEGIA: clusters pequeños (≤25 clientes) para poder usar Google Maps
-		// Google Maps tiene límite de 25 waypoints (base + 24 clientes)
+		// ESTRATEGIA: Aprovechar al máximo Google Fleet Routing API
+		// - Google puede optimizar hasta 100 clientes por request con algoritmo TSP superior
+		// - Clusters grandes = menos saltos entre clusters, Google optimiza las transiciones
+		// - Con 400 clientes y clusters de 90 → ~4-5 clusters → solo 4-5 saltos entre clusters
 
 		Log.i(TAG, "════════════════════════════════════════");
 		Log.i(TAG, "DETERMINANDO GRID SIZE ÓPTIMO");
 		Log.i(TAG, "Total clientes: " + totalClientes);
 
-		// Calcular gridSize para tener ~10 clientes por cluster (minimizar saltos)
-		// Con límite MAX_JUMP_KM=10km, clusters más pequeños = menos saltos
-		// Fórmula: gridSize = sqrt(totalClientes / 10)
-		int targetClientsPerCluster = 10;
+		// Calcular gridSize para tener ~90 clientes por cluster (aprovechar límite de 100)
+		// Esto permite que Google Fleet Routing vea mucho más contexto y optimice mejor
+		// Fórmula: gridSize = sqrt(totalClientes / 90)
+		int targetClientsPerCluster = 90;
 		int gridSize = (int) Math.ceil(Math.sqrt((double) totalClientes / targetClientsPerCluster));
 
-		// Asegurar mínimo 3x3 y máximo 30x30
-		gridSize = Math.max(3, Math.min(30, gridSize));
+		// Asegurar mínimo 3x3 y máximo 20x20
+		gridSize = Math.max(3, Math.min(20, gridSize));
 
 		int estimatedClusters = gridSize * gridSize;
 		int estimatedClientsPerCluster = totalClientes / estimatedClusters;
@@ -689,43 +859,14 @@ public class RouteGeneratorService {
 		Log.i(TAG, "════════════════════════════════════════");
 		Log.i(TAG, "OPTIMIZANDO RUTA CON CLUSTERING + " + service);
 		Log.i(TAG, "Total clusters: " + clusters.size());
-		Log.i(TAG, "Estrategia: Vecino más cercano (minimizar saltos entre clusters)");
+		Log.i(TAG, "Estrategia: Permutaciones exhaustivas + 2-opt");
 
-		// Usar algoritmo del vecino más cercano para ordenar clusters
-		ArrayList<GeoClusteringService.GeoCluster> clustersVisitados = new ArrayList<>();
-		ArrayList<GeoClusteringService.GeoCluster> clustersPendientes = new ArrayList<>(clusters);
-
-		// Empezar desde el cluster más cercano a la base
-		double currentLat = baseLocation.getLatitude();
-		double currentLon = baseLocation.getLongitude();
-
-		while (!clustersPendientes.isEmpty()) {
-			// Buscar el cluster más cercano a la posición actual
-			GeoClusteringService.GeoCluster closestCluster = null;
-			double minDistance = Double.MAX_VALUE;
-
-			for (GeoClusteringService.GeoCluster cluster : clustersPendientes) {
-				double distance = cluster.distanceToPoint(currentLat, currentLon);
-				if (distance < minDistance) {
-					minDistance = distance;
-					closestCluster = cluster;
-				}
-			}
-
-			if (closestCluster != null) {
-				clustersVisitados.add(closestCluster);
-				clustersPendientes.remove(closestCluster);
-
-				// Actualizar posición actual al centro del cluster visitado
-				currentLat = closestCluster.centerLat;
-				currentLon = closestCluster.centerLon;
-
-				Log.d(TAG, "Siguiente cluster: " + closestCluster.clusterId +
-					" (distancia: " + String.format("%.1f", minDistance / 1000) + " km)");
-			}
-		}
+		// Encontrar mejor orden de clusters probando todas las permutaciones + 2-opt
+		ArrayList<GeoClusteringService.GeoCluster> clustersVisitados = findBestClusterOrder(clusters, baseLocation);
 
 		// Optimizar cada cluster en el orden calculado
+		// Mantener track de la ubicación actual (empieza en base, luego último cliente visitado)
+		LatLng currentLocation = baseLocation;
 		for (int i = 0; i < clustersVisitados.size(); i++) {
 			GeoClusteringService.GeoCluster cluster = clustersVisitados.get(i);
 			Log.i(TAG, "");
@@ -734,15 +875,31 @@ public class RouteGeneratorService {
 			Log.i(TAG, "  Centro: (" + String.format("%.4f", cluster.centerLat) + ", " +
 					String.format("%.4f", cluster.centerLon) + ")");
 
-			// Optimizar clientes dentro de este cluster
+			// Optimizar clientes desde ubicación actual (base para cluster 1, último cliente para demás)
 			ArrayList<RouteOptimizerService.RutaClienteData> rutaCluster = optimizer.optimizeRoute(
 				cluster.clientes,
-				baseLocation,
+				currentLocation,
 				null,
 				cluster.clusterId  // ← Pasar el ID del cluster
 			);
 
 			if (rutaCluster != null && !rutaCluster.isEmpty()) {
+			// Recalcular distancia del PRIMER cliente del cluster desde currentLocation
+			RouteOptimizerService.RutaClienteData primerCliente = rutaCluster.get(0);
+			double lat = Double.parseDouble(primerCliente.latitud);
+			double lon = Double.parseDouble(primerCliente.longitud);
+			LatLng primerClienteLocation = new LatLng(lat, lon);
+			double distKm = calculateDistance(
+				currentLocation.getLatitude(), currentLocation.getLongitude(),
+				primerClienteLocation.getLatitude(), primerClienteLocation.getLongitude()
+			) / 1000.0;
+			primerCliente.distanciaKm = String.format("%.1f km", distKm);
+
+			if (i > 0) {
+				Log.i(TAG, "  → Distancia desde último cliente del cluster anterior: " +
+					String.format("%.1f km", distKm));
+			}
+
 				// Validar saltos dentro del cluster
 				int saltosGrandes = validarSaltosEnRuta(rutaCluster, MAX_JUMP_KM);
 				if (saltosGrandes > 0) {
@@ -761,6 +918,12 @@ public class RouteGeneratorService {
 					ruta.orden = orden++;
 					rutaCompleta.add(ruta);
 				}
+			// Actualizar currentLocation al último cliente de este cluster
+			RouteOptimizerService.RutaClienteData ultimoCliente = rutaCluster.get(rutaCluster.size() - 1);
+			double ultimoLat = Double.parseDouble(ultimoCliente.latitud);
+			double ultimoLon = Double.parseDouble(ultimoCliente.longitud);
+			currentLocation = new LatLng(ultimoLat, ultimoLon);
+
 				Log.i(TAG, "  ✓ Cluster " + cluster.clusterId + " optimizado: " + rutaCluster.size() + " clientes");
 			} else {
 				Log.w(TAG, "  ✗ No se pudo optimizar cluster " + cluster.clusterId);
@@ -944,9 +1107,9 @@ public class RouteGeneratorService {
 						clientesActivos.add(c);
 						Log.d(TAG, "✓ Cliente con coordenadas: " + c.Nombre + " (" + c.Latitud + ", " + c.Longitud + ")");
 					} else {
-						// Guardar para geocodificar después
+						// Cliente sin coordenadas - se excluye de la ruta
 						clientesParaGeocoding.add(c);
-						Log.w(TAG, "⚠ Cliente SIN coordenadas: " + c.Nombre + " - será geocodificado");
+						Log.w(TAG, "❌ Cliente EXCLUIDO (sin coordenadas): " + c.Nombre);
 					}
 
 				} while (cursor.moveToNext());
@@ -960,56 +1123,14 @@ public class RouteGeneratorService {
 				}
 			}
 
-			// Geocodificar clientes sin coordenadas
+			// Mostrar resumen de clientes excluidos
 			if (!clientesParaGeocoding.isEmpty()) {
-				Log.i(TAG, "");
-				Log.i(TAG, "════════════════════════════════════════");
-				Log.i(TAG, "GEOCODIFICANDO " + clientesParaGeocoding.size() + " CLIENTES CON ORS");
-				Log.i(TAG, "════════════════════════════════════════");
-
-				IGeocodingStrategy geocodingStrategy = new OpenRouteServiceGeocodingStrategy();
-
-				for (Cliente cliente : clientesParaGeocoding) {
-					try {
-						// Geocodificar usando dirección + población + código postal
-						LatLng coordenadas = geocodingStrategy.geocodeAddress(
-							cliente.Direccion1,
-							cliente.Poblacion,
-							cliente.Provincia,
-							cliente.CodigoPostal
-						);
-
-						if (coordenadas != null && coordenadas.getLatitude() != null && coordenadas.getLongitude() != null) {
-							cliente.Latitud = coordenadas.getLatitude();
-							cliente.Longitud = coordenadas.getLongitude();
-							clientesActivos.add(cliente);
-
-							Log.i(TAG, "✓ Geocodificado: " + cliente.Nombre + " -> (" + cliente.Latitud + ", " + cliente.Longitud + ")");
-
-							// Guardar coordenadas en la BD para futuras búsquedas
-							try {
-								String updateSQL = "UPDATE Clientes SET Latitud = " + cliente.Latitud +
-													", Longitud = " + cliente.Longitud +
-													" WHERE CodigoCliente = '" + cliente.CodigoCliente + "'";
-								app.getDatabaseOperations().executeSentence(updateSQL);
-								Log.d(TAG, "Coordenadas guardadas en BD para: " + cliente.Nombre);
-							} catch (Exception e) {
-								Log.w(TAG, "No se pudieron guardar coordenadas en BD: " + e.getMessage());
-							}
-						} else {
-							Log.w(TAG, "✗ No se pudo geocodificar: " + cliente.Nombre);
-						}
-					} catch (Exception e) {
-						Log.w(TAG, "Error geocodificando " + cliente.Nombre + ": " + e.getMessage());
-					}
-
-					// Rate limiting: esperar 100ms entre requests para no saturar ORS
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						Thread.currentThread().interrupt();
-					}
-				}
+				Log.w(TAG, "");
+				Log.w(TAG, "════════════════════════════════════════");
+				Log.w(TAG, "CLIENTES EXCLUIDOS (sin coordenadas): " + clientesParaGeocoding.size());
+				Log.w(TAG, "════════════════════════════════════════");
+				Log.w(TAG, "Para geocodificar estos clientes, ejecute una sincronización desde el menú principal.");
+				Log.w(TAG, "La geocodificación automática ocurre durante la importación de datos.");
 			}
 
 			Log.i(TAG, "");
@@ -1022,6 +1143,76 @@ public class RouteGeneratorService {
 		}
 
 		return clientesActivos;
+	}
+
+	/**
+	 * Filtra clientes excluyendo los que tienen coordenadas inválidas
+	 * Verifica:
+	 * 1. Coordenadas fuera de rango válido (lat: -90/90, lon: -180/180)
+	 * 2. Coordenadas demasiado lejanas de la base (>1000km = probablemente erróneas)
+	 *
+	 * @param clientes Lista de todos los clientes
+	 * @param baseLocation Ubicación de la base
+	 * @return Lista de clientes con coordenadas válidas
+	 */
+	private ArrayList<Cliente> filterClientesByDistanceFromBase(
+			ArrayList<Cliente> clientes,
+			LatLng baseLocation) {
+
+		ArrayList<Cliente> clientesValidos = new ArrayList<>();
+		clientesLejanos = new ArrayList<>();
+
+		Log.i(TAG, "════════════════════════════════════════");
+		Log.i(TAG, "FILTRANDO CLIENTES CON COORDENADAS INVÁLIDAS");
+		Log.i(TAG, "Criterios: rango válido + distancia máxima " + MAX_DISTANCE_FROM_BASE_KM + " km");
+
+		for (Cliente cliente : clientes) {
+			if (cliente.Latitud == null || cliente.Longitud == null) {
+				clientesLejanos.add(cliente);
+				Log.w(TAG, "❌ Cliente EXCLUIDO (sin coordenadas): " + cliente.Nombre);
+				continue;
+			}
+
+			// 1. Verificar si las coordenadas están en rango válido
+			if (cliente.Latitud < -90 || cliente.Latitud > 90 ||
+			    cliente.Longitud < -180 || cliente.Longitud > 180) {
+				clientesLejanos.add(cliente);
+				Log.w(TAG, "❌ Cliente EXCLUIDO (coordenadas fuera de rango): " + cliente.Nombre +
+					" (" + cliente.Latitud + ", " + cliente.Longitud + ")");
+				continue;
+			}
+
+			// 2. Verificar si las coordenadas son 0,0 (inválidas)
+			if ((cliente.Latitud == 0 && cliente.Longitud == 0) ||
+			    (Math.abs(cliente.Latitud) < 0.001 && Math.abs(cliente.Longitud) < 0.001)) {
+				clientesLejanos.add(cliente);
+				Log.w(TAG, "❌ Cliente EXCLUIDO (coordenadas 0,0): " + cliente.Nombre);
+				continue;
+			}
+
+			// 3. Calcular distancia a la base
+			double distanciaMetros = GeoClusteringService.calculateHaversineDistance(
+				baseLocation.getLatitude(), baseLocation.getLongitude(),
+				cliente.Latitud, cliente.Longitud
+			);
+			double distanciaKm = distanciaMetros / 1000.0;
+
+			// 4. Excluir si está demasiado lejos (coordenadas probablemente erróneas)
+			if (distanciaKm > MAX_DISTANCE_FROM_BASE_KM) {
+				clientesLejanos.add(cliente);
+				Log.w(TAG, "❌ Cliente EXCLUIDO (>1000km de la base): " + cliente.Nombre +
+					" - " + String.format("%.0f", distanciaKm) + " km" +
+					" (" + cliente.Latitud + ", " + cliente.Longitud + ")");
+			} else {
+				clientesValidos.add(cliente);
+			}
+		}
+
+		Log.i(TAG, "Clientes VÁLIDOS (para ruta): " + clientesValidos.size());
+		Log.i(TAG, "Clientes EXCLUIDOS (inválidos): " + clientesLejanos.size());
+		Log.i(TAG, "════════════════════════════════════════");
+
+		return clientesValidos;
 	}
 
 	/**
@@ -1085,8 +1276,9 @@ public class RouteGeneratorService {
 					ruta.Latitud = rutaCliente.latitud;
 					ruta.Longitud = rutaCliente.longitud;
 
-					// Cluster (para debugging/Excel)
+					// Cluster / Zona (para debugging/Excel)
 					ruta.ClusterID = rutaCliente.clusterID;
+					ruta.NombreZona = rutaCliente.nombreZona;
 
 					ruta.save();
 
@@ -1096,7 +1288,45 @@ public class RouteGeneratorService {
 				}
 			}
 
-			Log.i(TAG, "Ruta completa guardada en BD - Total: " + (rutaOrdenada.size() + 1) + " (incluyendo base)");
+			// 3. Agregar clientes lejanos al final (excluidos de la optimización)
+			if (clientesLejanos != null && !clientesLejanos.isEmpty()) {
+				Log.i(TAG, "");
+				Log.i(TAG, "════════════════════════════════════════");
+				Log.i(TAG, "AGREGANDO CLIENTES LEJANOS AL FINAL");
+				Log.i(TAG, "Total clientes excluidos: " + clientesLejanos.size());
+				Log.i(TAG, "════════════════════════════════════════");
+
+				for (Cliente cliente : clientesLejanos) {
+					RutaGenerada ruta = Factory.build(RutaGenerada.class, app);
+					ruta.FechaGeneracion = new Date();
+					ruta.OrdenVisita = orden++;
+					ruta.CodigoCliente = cliente.CodigoCliente;
+					ruta.NombreCliente = cliente.Nombre;
+					ruta.DireccionCliente = cliente.Direccion1;
+					ruta.PoblacionCliente = cliente.Poblacion;
+					ruta.ProvinciaCliente = cliente.Provincia;
+					ruta.DistanciaEstimada = "N/A";
+					ruta.CiudadBase = ciudadBase;
+
+					// Geolocalización - marcar como coordenadas inválidas
+					ruta.GeolocalizationStatus = "❌ INVÁLIDAS";
+					ruta.Latitud = (cliente.Latitud != null) ? String.format("%.6f", cliente.Latitud) : "0";
+					ruta.Longitud = (cliente.Longitud != null) ? String.format("%.6f", cliente.Longitud) : "0";
+
+					// Cluster especial para clientes excluidos
+					ruta.ClusterID = 999;
+
+					ruta.save();
+
+					Log.d(TAG, "Cliente excluido agregado al final: " + cliente.Nombre +
+						" (" + ruta.Latitud + ", " + ruta.Longitud + ")");
+				}
+			}
+
+			int totalGuardados = rutaOrdenada.size() + 1 + (clientesLejanos != null ? clientesLejanos.size() : 0);
+			Log.i(TAG, "Ruta completa guardada en BD - Total: " + totalGuardados +
+				" (" + rutaOrdenada.size() + " optimizados + " +
+				(clientesLejanos != null ? clientesLejanos.size() : 0) + " excluidos)");
 
 		} catch (Exception e) {
 			Log.e(TAG, "Error guardando ruta: " + e.getMessage());
@@ -1162,58 +1392,24 @@ public class RouteGeneratorService {
 		}
 
 		int totalAntes = clientes.size();
-		int coordinadasInvalidas = 0;
-		int duplicadosPorCoordenadas = 0;
 
-		// Paso 1: Deduplica por CodigoCliente (mantiene el último)
+		// Deduplica solo por CodigoCliente (mantiene el último)
 		java.util.LinkedHashMap<String, Cliente> clientesUnicos = new java.util.LinkedHashMap<>();
 
 		for (Cliente cliente : clientes) {
 			if (cliente.CodigoCliente != null && !cliente.CodigoCliente.isEmpty()) {
-				// Contar coordenadas inválidas
-				if (!isValidCoordinate(cliente.Latitud, cliente.Longitud)) {
-					coordinadasInvalidas++;
-				}
 				// Si ya existe este código, será sobrescrito por la nueva ocurrencia (la última)
 				clientesUnicos.put(cliente.CodigoCliente, cliente);
 			}
 		}
 
-		// Paso 2: Deduplica por coordenadas idénticas (mantiene el primero)
-		ArrayList<Cliente> resultado = new ArrayList<>();
-		java.util.HashSet<String> coordinatasVistas = new java.util.HashSet<>();
-
-		for (Cliente cliente : clientesUnicos.values()) {
-			// Crear clave única para las coordenadas
-			String coordKey = String.format("%.6f,%.6f", cliente.Latitud, cliente.Longitud);
-
-			if (!coordinatasVistas.contains(coordKey)) {
-				resultado.add(cliente);
-				coordinatasVistas.add(coordKey);
-			} else {
-				duplicadosPorCoordenadas++;
-				Log.w(TAG, "Cliente duplicado removido por coordenadas idénticas: " + cliente.Nombre +
-					" (" + cliente.Latitud + ", " + cliente.Longitud + ")");
-			}
-		}
-
+		ArrayList<Cliente> resultado = new ArrayList<>(clientesUnicos.values());
 		int totalDespues = resultado.size();
 		int duplicadosRemovidos = totalAntes - totalDespues;
 
-		Log.i(TAG, "╔══════════════════════════════════════╗");
-		Log.i(TAG, "║  DEDUPLICACIÓN DE CLIENTES          ║");
-		Log.i(TAG, "║  Clientes antes: " + totalAntes + "                 ║");
 		if (duplicadosRemovidos > 0) {
-			Log.i(TAG, "║  Duplicados removidos: " + duplicadosRemovidos + "            ║");
+			Log.i(TAG, "Deduplicación: " + totalAntes + " → " + totalDespues + " clientes (" + duplicadosRemovidos + " duplicados por código)");
 		}
-		if (duplicadosPorCoordenadas > 0) {
-			Log.w(TAG, "║  Dup. por coordenadas: " + duplicadosPorCoordenadas + "           ║");
-		}
-		if (coordinadasInvalidas > 0) {
-			Log.w(TAG, "║  COORDENADAS INVÁLIDAS: " + coordinadasInvalidas + "          ║");
-		}
-		Log.i(TAG, "║  Clientes únicos: " + totalDespues + "                 ║");
-		Log.i(TAG, "╚══════════════════════════════════════╝");
 
 		return resultado;
 	}
@@ -1226,7 +1422,12 @@ public class RouteGeneratorService {
 	 * @param longitud Longitud a validar
 	 * @return true si las coordenadas están dentro de España, false en caso contrario
 	 */
-	private boolean isValidCoordinate(double latitud, double longitud) {
+	private boolean isValidCoordinate(Double latitud, Double longitud) {
+		// Verificar que no sean null primero
+		if (latitud == null || longitud == null) {
+			return false;
+		}
+
 		// Aceptar cualquier coordenada geográfica válida mundialmente
 		boolean esValida = latitud >= -90 && latitud <= 90 &&
 		                   longitud >= -180 && longitud <= 180;
@@ -1236,5 +1437,447 @@ public class RouteGeneratorService {
 		}
 
 		return esValida;
+	}
+
+	/**
+	 * Genera todas las permutaciones de una lista de clusters
+	 * Con 4-5 clusters: 24-120 permutaciones (factible)
+	 */
+	private ArrayList<ArrayList<GeoClusteringService.GeoCluster>> generatePermutations(
+			ArrayList<GeoClusteringService.GeoCluster> clusters) {
+
+		ArrayList<ArrayList<GeoClusteringService.GeoCluster>> result = new ArrayList<>();
+		permute(clusters, 0, result);
+		return result;
+	}
+
+	private void permute(ArrayList<GeoClusteringService.GeoCluster> arr, int index,
+			ArrayList<ArrayList<GeoClusteringService.GeoCluster>> result) {
+
+		if (index == arr.size() - 1) {
+			result.add(new ArrayList<>(arr));
+			return;
+		}
+
+		for (int i = index; i < arr.size(); i++) {
+			// Swap
+			GeoClusteringService.GeoCluster temp = arr.get(index);
+			arr.set(index, arr.get(i));
+			arr.set(i, temp);
+
+			permute(arr, index + 1, result);
+
+			// Swap back
+			temp = arr.get(index);
+			arr.set(index, arr.get(i));
+			arr.set(i, temp);
+		}
+	}
+
+	/**
+	 * Encuentra el mejor orden de clusters probando todas las permutaciones
+	 * y aplicando 2-opt sobre la mejor
+	 */
+	private ArrayList<GeoClusteringService.GeoCluster> findBestClusterOrder(
+			ArrayList<GeoClusteringService.GeoCluster> clusters,
+			LatLng baseLocation) {
+
+		Log.i(TAG, "");
+		Log.i(TAG, "════════════════════════════════════════");
+		Log.i(TAG, "OPTIMIZANDO ORDEN DE CLUSTERS");
+		Log.i(TAG, "Total clusters: " + clusters.size());
+
+		// Generar todas las permutaciones
+		ArrayList<ArrayList<GeoClusteringService.GeoCluster>> permutations =
+			generatePermutations(new ArrayList<>(clusters));
+
+		Log.i(TAG, "Permutaciones a evaluar: " + permutations.size());
+
+		// Evaluar cada permutación
+		ArrayList<GeoClusteringService.GeoCluster> bestOrder = null;
+		double bestDistance = Double.MAX_VALUE;
+
+		for (ArrayList<GeoClusteringService.GeoCluster> permutation : permutations) {
+			double distance = calculateTotalRouteDistance(permutation, baseLocation);
+			if (distance < bestDistance) {
+				bestDistance = distance;
+				bestOrder = new ArrayList<>(permutation);
+			}
+		}
+
+		Log.i(TAG, "Mejor orden (permutaciones): " + String.format("%.1f km", bestDistance / 1000.0));
+
+		// Aplicar 2-opt sobre el mejor orden para eliminar cruces
+		Log.i(TAG, "Aplicando 2-opt para eliminar cruces...");
+		bestOrder = optimize2Opt(bestOrder, baseLocation);
+
+		double finalDistance = calculateTotalRouteDistance(bestOrder, baseLocation);
+		Log.i(TAG, "Distancia final (después de 2-opt): " + String.format("%.1f km", finalDistance / 1000.0));
+		Log.i(TAG, "Mejora total: " + String.format("%.1f km", (bestDistance - finalDistance) / 1000.0));
+		Log.i(TAG, "════════════════════════════════════════");
+
+		return bestOrder;
+	}
+
+	/**
+	 * Genera rutas optimizadas por zonas (cada zona se optimiza independientemente)
+	 * @param context Contexto de la aplicación
+	 * @param ciudadBase Ciudad base del vendedor
+	 * @param callback Callback para reportar progreso
+	 */
+	public void generateRouteByZonesAsync(Context context, String ciudadBase, RouteGenerationCallback callback) {
+		new Thread(() -> {
+			try {
+				this.context = context;
+				AppConfig app = (AppConfig) context.getApplicationContext();
+				this.googleApiKey = ConstantsEndpoints.GOOGLE_MAPS_API_KEY;
+
+				// 1. Obtener ubicación de la base
+				callback.onProgress("Geocodificando ciudad base...");
+				CiudadVendedor ciudad = Factory.build(CiudadVendedor.class, app);
+				ciudad.load();
+
+				IGeocodingStrategy geocodingStrategy = new OpenRouteServiceGeocodingStrategy();
+				LatLng baseLocation = geocodingStrategy.geocodeAddress(
+					ciudadBase, null, null, ciudad.CodigoPostal
+				);
+
+				if (baseLocation == null) {
+					callback.onError("No se pudo geocodificar ciudad base");
+					return;
+				}
+
+				// 2. Obtener zonas activas
+				callback.onProgress("Obteniendo zonas activas...");
+				net.ifeu.edicards.Services.ZonaManager zonaManager = new net.ifeu.edicards.Services.ZonaManager(app);
+				ArrayList<net.ifeu.edicards.DataTier.Zona> zonas = zonaManager.obtenerZonasActivas();
+
+				if (zonas.isEmpty()) {
+					callback.onError("No hay zonas activas configuradas");
+					return;
+				}
+
+				Log.i(TAG, "Generando rutas para " + zonas.size() + " zonas");
+
+				ArrayList<RouteOptimizerService.RutaClienteData> rutaCompleta = new ArrayList<>();
+				int ordenGlobal = 1;
+
+				// 3. Procesar cada zona independientemente
+				for (net.ifeu.edicards.DataTier.Zona zona : zonas) {
+					callback.onProgress("Procesando zona: " + zona.NombreZona + "...");
+					Log.i(TAG, "═══════════════════════════════════════");
+					Log.i(TAG, "PROCESANDO ZONA: " + zona.NombreZona);
+
+					// Obtener clientes de esta zona con coordenadas válidas
+					ArrayList<Cliente> clientesZona = getClientesPorZona(app, zona.IdZona);
+
+					if (clientesZona.isEmpty()) {
+						Log.w(TAG, "Zona '" + zona.NombreZona + "' no tiene clientes asignados, saltando");
+						continue;
+					}
+
+					Log.i(TAG, "Clientes en zona: " + clientesZona.size());
+
+					// Filtrar por distancia desde base
+					clientesZona = filterClientesByDistanceFromBase(clientesZona, baseLocation);
+
+					if (clientesZona.isEmpty()) {
+						Log.w(TAG, "Zona '" + zona.NombreZona + "' no tiene clientes con coordenadas válidas");
+						continue;
+					}
+
+					// Optimizar clientes de esta zona usando Google Fleet Routing
+					UnifiedRouteOptimizer optimizer = new UnifiedRouteOptimizer(context, googleApiKey);
+					ArrayList<RouteOptimizerService.RutaClienteData> rutaZona = optimizer.optimizeRoute(
+						clientesZona,
+						baseLocation,
+						null,
+						(int) zona.IdZona
+					);
+
+					if (rutaZona == null || rutaZona.isEmpty()) {
+						Log.w(TAG, "No se pudo optimizar la zona '" + zona.NombreZona + "'");
+						continue;
+					}
+
+					// Agregar información de zona y orden global
+					for (RouteOptimizerService.RutaClienteData cliente : rutaZona) {
+						cliente.ordenVisita = ordenGlobal++;
+						cliente.nombreZona = zona.NombreZona;
+						cliente.clusterId = (int) zona.IdZona;
+						rutaCompleta.add(cliente);
+					}
+
+					Log.i(TAG, "Zona '" + zona.NombreZona + "' optimizada: " + rutaZona.size() + " clientes");
+				}
+
+				// 4. Procesar clientes sin zona asignada (zona "Sin asignar")
+				callback.onProgress("Procesando clientes sin zona asignada...");
+				Log.i(TAG, "═══════════════════════════════════════");
+				Log.i(TAG, "PROCESANDO CLIENTES SIN ZONA");
+
+				ArrayList<Cliente> clientesSinZona = getClientesSinZona(app);
+				if (!clientesSinZona.isEmpty()) {
+					Log.i(TAG, "Clientes sin zona: " + clientesSinZona.size());
+
+					clientesSinZona = filterClientesByDistanceFromBase(clientesSinZona, baseLocation);
+
+					if (!clientesSinZona.isEmpty()) {
+						UnifiedRouteOptimizer optimizer = new UnifiedRouteOptimizer(context, googleApiKey);
+						ArrayList<RouteOptimizerService.RutaClienteData> rutaSinZona = optimizer.optimizeRoute(
+							clientesSinZona,
+							baseLocation,
+							null,
+							0
+						);
+
+						if (rutaSinZona != null && !rutaSinZona.isEmpty()) {
+							for (RouteOptimizerService.RutaClienteData cliente : rutaSinZona) {
+								cliente.ordenVisita = ordenGlobal++;
+								cliente.nombreZona = "Sin asignar";
+								cliente.clusterId = 0;
+								rutaCompleta.add(cliente);
+							}
+							Log.i(TAG, "Clientes sin zona optimizados: " + rutaSinZona.size());
+						}
+					}
+				}
+
+				if (rutaCompleta.isEmpty()) {
+					callback.onError("No se pudieron generar rutas para ninguna zona");
+					return;
+				}
+
+				// 5. Guardar ruta en BD
+				callback.onProgress("Guardando ruta en BD...");
+				saveRoute(app, rutaCompleta, ciudadBase);
+
+				Log.i(TAG, "═══════════════════════════════════════");
+				Log.i(TAG, "Rutas por zonas generadas exitosamente: " + rutaCompleta.size() + " clientes");
+				callback.onRouteGenerated();
+
+			} catch (Exception e) {
+				Log.e(TAG, "Error en generateRouteByZonesAsync: " + e.getMessage());
+				e.printStackTrace();
+				callback.onError("Error: " + e.getMessage());
+			}
+		}).start();
+	}
+
+	/**
+	 * Obtiene clientes activos con coordenadas válidas para una zona específica
+	 */
+	private ArrayList<Cliente> getClientesPorZona(AppConfig app, long idZona) throws Exception {
+		ArrayList<Cliente> clientes = new ArrayList<>();
+
+		android.database.Cursor cursor = app.getDatabaseOperations().executeSentence(
+			"SELECT * FROM Clientes WHERE Activo = 1 AND IdZona = " + idZona +
+			" AND Latitud IS NOT NULL AND Latitud != 0 AND Longitud IS NOT NULL AND Longitud != 0"
+		);
+
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+			do {
+				Cliente cliente = Factory.build(Cliente.class, app);
+				if (cliente.setClienteById(cursor.getString(cursor.getColumnIndex("IdCliente")))) {
+					clientes.add(cliente);
+				}
+			} while (cursor.moveToNext());
+			cursor.close();
+		}
+
+		return deduplicarClientes(clientes);
+	}
+
+	/**
+	 * Obtiene clientes activos con coordenadas válidas que NO tienen zona asignada
+	 */
+	private ArrayList<Cliente> getClientesSinZona(AppConfig app) throws Exception {
+		ArrayList<Cliente> clientes = new ArrayList<>();
+
+		android.database.Cursor cursor = app.getDatabaseOperations().executeSentence(
+			"SELECT * FROM Clientes WHERE Activo = 1 AND (IdZona IS NULL OR IdZona = 0)" +
+			" AND Latitud IS NOT NULL AND Latitud != 0 AND Longitud IS NOT NULL AND Longitud != 0"
+		);
+
+		if (cursor != null && cursor.getCount() > 0) {
+			cursor.moveToFirst();
+			do {
+				Cliente cliente = Factory.build(Cliente.class, app);
+				if (cliente.setClienteById(cursor.getString(cursor.getColumnIndex("IdCliente")))) {
+					clientes.add(cliente);
+				}
+			} while (cursor.moveToNext());
+			cursor.close();
+		}
+
+		return deduplicarClientes(clientes);
+	}
+
+	/**
+	 * Genera ruta agrupada por zonas de forma asíncrona
+	 * - Procesa cada zona como un lote separado
+	 * - Los clientes sin zona se procesan al final
+	 * - En la visualización se pueden ver agrupados por zona
+	 *
+	 * @param app Contexto de aplicación
+	 * @param ciudadBase Ciudad base del vendedor
+	 * @param callback Callback para reportar progreso y resultados
+	 */
+	public void generateRouteByZonesAsync(AppConfig app, String ciudadBase, RouteGenerationCallback callback) {
+		new Thread(() -> {
+			try {
+				this.context = app.getApplicationContext();
+				this.googleApiKey = ConstantsEndpoints.GOOGLE_MAPS_API_KEY;
+
+				callback.onProgress("Obteniendo zonas activas...");
+
+				// 1. Obtener todas las zonas activas
+				Zona zona = Factory.build(Zona.class, app);
+				ArrayList<Zona> zonasActivas = zona.getAllZonasActivas();
+
+				Log.i(TAG, "══════════════════════════════════════════");
+				Log.i(TAG, "  GENERACIÓN DE RUTA POR ZONAS");
+				Log.i(TAG, "  Total zonas activas: " + zonasActivas.size());
+				Log.i(TAG, "══════════════════════════════════════════");
+
+				// 2. Geocodificar ciudad base
+				callback.onProgress("Geocodificando ciudad base...");
+				CiudadVendedor ciudad = Factory.build(CiudadVendedor.class, app);
+				ciudad.load();
+
+				IGeocodingStrategy geocodingStrategy = new OpenRouteServiceGeocodingStrategy();
+				LatLng baseLocation = geocodingStrategy.geocodeAddress(
+					ciudadBase, null, null, ciudad.CodigoPostal
+				);
+
+				if (baseLocation == null) {
+					callback.onError("No se pudo geocodificar ciudad base");
+					return;
+				}
+
+				ArrayList<RouteOptimizerService.RutaClienteData> rutaCompleta = new ArrayList<>();
+				int ordenGlobal = 1;
+				Cliente clienteAnterior = null;
+
+				// 3. Procesar cada zona como un lote
+				for (int i = 0; i < zonasActivas.size(); i++) {
+					Zona zonaActual = zonasActivas.get(i);
+
+					callback.onProgress("Procesando zona " + (i + 1) + "/" + zonasActivas.size() + ": " + zonaActual.NombreZona);
+					Log.i(TAG, "");
+					Log.i(TAG, "═══ PROCESANDO ZONA: " + zonaActual.NombreZona + " ═══");
+
+					// Obtener clientes de esta zona
+					ArrayList<Cliente> clientesZona = getClientesPorZona(app, zonaActual.IdZona);
+
+					if (clientesZona == null || clientesZona.isEmpty()) {
+						Log.w(TAG, "  No hay clientes en zona: " + zonaActual.NombreZona);
+						continue;
+					}
+
+					Log.i(TAG, "  Clientes en zona: " + clientesZona.size());
+
+					// Filtrar clientes por distancia válida
+					clientesZona = filterClientesByDistanceFromBase(clientesZona, baseLocation);
+
+					if (clientesZona.isEmpty()) {
+						Log.w(TAG, "  No hay clientes válidos en zona: " + zonaActual.NombreZona);
+						continue;
+					}
+
+					// Optimizar clientes de esta zona
+					callback.onProgress("Optimizando ruta para zona: " + zonaActual.NombreZona + " (" + clientesZona.size() + " clientes)");
+
+					UnifiedRouteOptimizer optimizer = new UnifiedRouteOptimizer(context, googleApiKey);
+
+					// Usar el IdZona como clusterID para que se visualicen agrupados
+					int clusterID = (int) zonaActual.IdZona;
+
+					ArrayList<RouteOptimizerService.RutaClienteData> rutaZona =
+						optimizer.optimizeRoute(clientesZona, baseLocation, clienteAnterior, clusterID);
+
+					if (rutaZona != null && !rutaZona.isEmpty()) {
+						// Agregar clientes optimizados con orden global correcto
+						for (RouteOptimizerService.RutaClienteData rutaCliente : rutaZona) {
+							rutaCliente.orden = ordenGlobal++;
+							// Guardar nombre de zona en el objeto para visualización
+							rutaCliente.nombreZona = zonaActual.NombreZona;
+							rutaCompleta.add(rutaCliente);
+						}
+
+						// Guardar último cliente para conectar con siguiente zona
+						RouteOptimizerService.RutaClienteData ultimoRuta = rutaZona.get(rutaZona.size() - 1);
+						for (Cliente c : clientesZona) {
+							if (c.CodigoCliente.equals(ultimoRuta.codigoCliente)) {
+								clienteAnterior = c;
+								break;
+							}
+						}
+
+						Log.i(TAG, "  ✓ Zona optimizada: " + rutaZona.size() + " clientes");
+					}
+				}
+
+				// 4. Procesar clientes sin zona al final
+				callback.onProgress("Procesando clientes sin zona asignada...");
+				Log.i(TAG, "");
+				Log.i(TAG, "═══ PROCESANDO CLIENTES SIN ZONA ═══");
+
+				ArrayList<Cliente> clientesSinZona = getClientesSinZona(app);
+
+				if (clientesSinZona != null && !clientesSinZona.isEmpty()) {
+					Log.i(TAG, "  Clientes sin zona: " + clientesSinZona.size());
+
+					clientesSinZona = filterClientesByDistanceFromBase(clientesSinZona, baseLocation);
+
+					if (!clientesSinZona.isEmpty()) {
+						UnifiedRouteOptimizer optimizer = new UnifiedRouteOptimizer(context, googleApiKey);
+
+						// Usar un clusterID especial para clientes sin zona (999999)
+						int clusterSinZona = 999999;
+
+						ArrayList<RouteOptimizerService.RutaClienteData> rutaSinZona =
+							optimizer.optimizeRoute(clientesSinZona, baseLocation, clienteAnterior, clusterSinZona);
+
+						if (rutaSinZona != null && !rutaSinZona.isEmpty()) {
+							for (RouteOptimizerService.RutaClienteData rutaCliente : rutaSinZona) {
+								rutaCliente.orden = ordenGlobal++;
+								rutaCliente.nombreZona = "SIN ZONA";
+								rutaCompleta.add(rutaCliente);
+							}
+
+							Log.i(TAG, "  ✓ Clientes sin zona optimizados: " + rutaSinZona.size());
+						}
+					}
+				}
+
+				if (rutaCompleta.isEmpty()) {
+					callback.onError("No se pudo generar ninguna ruta");
+					return;
+				}
+
+				// 5. Asegurar que el primer cliente esté cerca de la base
+				rutaCompleta = ensureFirstClientNearBase(rutaCompleta, baseLocation);
+
+				// 6. Guardar ruta en BD
+				callback.onProgress("Guardando ruta en BD...");
+				saveRoute(app, rutaCompleta, ciudadBase);
+
+				Log.i(TAG, "");
+				Log.i(TAG, "══════════════════════════════════════════");
+				Log.i(TAG, "  ✓ RUTA GENERADA POR ZONAS EXITOSAMENTE");
+				Log.i(TAG, "  Total clientes: " + rutaCompleta.size());
+				Log.i(TAG, "  Total zonas procesadas: " + zonasActivas.size());
+				Log.i(TAG, "══════════════════════════════════════════");
+
+				callback.onRouteGenerated();
+
+			} catch (Exception e) {
+				Log.e(TAG, "Error en generateRouteByZonesAsync: " + e.getMessage());
+				e.printStackTrace();
+				callback.onError("Error: " + e.getMessage());
+			}
+		}).start();
 	}
 }

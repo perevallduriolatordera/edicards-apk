@@ -44,22 +44,45 @@
 
     <!-- Selector de Fecha y Comentarios -->
     <LinearLayout
-        android:id="@+id/calendarMainLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="#FAFAFA"
-        android:padding="12dp"
-        android:layout_marginBottom="16dp">
+        android:padding="8dp"
+        android:layout_marginBottom="8dp">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Seleccionar Fecha"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="#424242"
-            android:layout_marginBottom="8dp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/lblCurrentDate"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Fecha: --/--/----"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#424242"/>
+
+            <Button
+                android:id="@+id/btnToggleDatePicker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cambiar Fecha"
+                android:textSize="12sp"
+                android:padding="8dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/calendarMainLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Cabecera de Tabla -->

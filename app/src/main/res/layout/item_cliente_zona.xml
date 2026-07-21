@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="#FFFFFF"
+    android:layout_marginBottom="1dp">
+
+    <!-- Fila superior: Código y Nombre del cliente -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:id="@+id/txtCodigoCliente"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="C001"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#1976D2"
+            android:background="#E3F2FD"
+            android:padding="4dp"
+            android:layout_marginEnd="8dp"/>
+
+        <TextView
+            android:id="@+id/txtNombreCliente"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Nombre del Cliente"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#2C3E50"
+            android:gravity="center_vertical"/>
+    </LinearLayout>
+
+    <!-- Fila inferior: Población/Provincia y Spinner de Zona -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/txtPoblacionCliente"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Población, Provincia"
+            android:textSize="12sp"
+            android:textColor="#7F8C8D"
+            android:layout_marginEnd="8dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Zona:"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#424242"
+            android:layout_marginEnd="6dp"/>
+
+        <Spinner
+            android:id="@+id/spinnerZona"
+            android:layout_width="140dp"
+            android:layout_height="36dp"
+            android:background="@android:drawable/btn_dropdown"
+            android:padding="4dp"/>
+    </LinearLayout>
+
+</LinearLayout>
