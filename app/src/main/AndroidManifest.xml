@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ifeu.edicards"
     android:versionCode="59"
-    android:versionName="5.9.6 (26 Mayo 2026) --> Limpieza de bugs">
+    android:versionName="5.9.7 (30 Junio 2026) --> Bug retirada de deposito">
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
