@@ -1981,6 +1981,9 @@ public class DepositManager extends Fragment implements  IMediator {
 				} else {
 					linea.UnidadesIniciales = linea.UnidadesRepuestas;
 				}
+			} else {
+				// Para NTV, UnidadesIniciales debe reflejar las unidades repuestas
+				linea.UnidadesIniciales = linea.UnidadesRepuestas;
 			}
 		}
 		refreshTotals();
