@@ -1030,49 +1030,56 @@ public class DepositManager extends Fragment implements  IMediator {
 				creator.createXmlDeposito(_deposito);
 			}
 
-			Map<String, LineaDeposito> processed =new HashMap<>();
+		// VALIDACIÓN: Solo registrar movimientos si NO se han registrado ya
+		// Esto evita duplicación cuando el usuario cancela y vuelve a intentar cerrar
+		if (!_deposito.MovimientosRetiradoRegistrados) {
+				Map<String, LineaDeposito> processed =new HashMap<>();
 			
-			for (LineaDeposito linea : _deposito.Lineas.values()) {
+				for (LineaDeposito linea : _deposito.Lineas.values()) {
 
-				if (!processed.containsKey(linea.Articulo.CodigoArticulo)) {
+					if (!processed.containsKey(linea.Articulo.CodigoArticulo)) {
 
-					int stockInicial = linea.Articulo.Stock;
-					linea.calculateStock();
+						int stockInicial = linea.Articulo.Stock;
+						linea.calculateStock();
 
-					if (linea.UnidadesInicialesFijas > 0) {
-						String codigoArticulo = linea.Articulo.CodigoArticulo;
-						LineaDeposito logBookLinea = new LineaDeposito();
-						logBookLinea.Articulo = new Articulo();
-						logBookLinea.Articulo.CodigoArticulo = codigoArticulo;
-						logBookLinea.Articulo.Descripcion = linea.Articulo.Descripcion;
-						logBookLinea.Articulo.Stock = stockInicial;
-						logBookLinea.UnidadesInicialesFijas = linea.UnidadesInicialesFijas;
-						logBookLinea.UnidadesDevueltas = linea.UnidadesDevueltas;
-						logBookLinea.UnidadesDefectuosas = linea.UnidadesDefectuosas;
-						logBookLinea.UnidadesRepuestas = linea.UnidadesRepuestas;
-						logBookLinea.UnidadesFacturadas = linea.UnidadesFacturadas;
-						logBookLinea.UnidadesAbono = linea.UnidadesAbono;
+						if (linea.UnidadesInicialesFijas > 0) {
+							String codigoArticulo = linea.Articulo.CodigoArticulo;
+							LineaDeposito logBookLinea = new LineaDeposito();
+							logBookLinea.Articulo = new Articulo();
+							logBookLinea.Articulo.CodigoArticulo = codigoArticulo;
+							logBookLinea.Articulo.Descripcion = linea.Articulo.Descripcion;
+							logBookLinea.Articulo.Stock = stockInicial;
+							logBookLinea.UnidadesInicialesFijas = linea.UnidadesInicialesFijas;
+							logBookLinea.UnidadesDevueltas = linea.UnidadesDevueltas;
+							logBookLinea.UnidadesDefectuosas = linea.UnidadesDefectuosas;
+							logBookLinea.UnidadesRepuestas = linea.UnidadesRepuestas;
+							logBookLinea.UnidadesFacturadas = linea.UnidadesFacturadas;
+							logBookLinea.UnidadesAbono = linea.UnidadesAbono;
 							
-						LogBookStock logBookTrace = Factory.build(LogBookStock.class, _appConfig);
-						logBookTrace.setData("DEPOSITO RETIRADO", _deposito.Cliente.CodigoCliente,
-								_deposito.Cliente.Razon, codigoArticulo, linea.Articulo.Descripcion,
-								stockInicial, linea.Articulo.Stock, logBookLinea.UnidadesDevueltas, logBookLinea.UnidadesDefectuosas,
-								logBookLinea.UnidadesRepuestas, logBookLinea.UnidadesFacturadas, logBookLinea.UnidadesInicialesFijas,
-								logBookLinea.UnidadesAbono, logBookLinea.UnidadesDefectuosas);
+							LogBookStock logBookTrace = Factory.build(LogBookStock.class, _appConfig);
+							logBookTrace.setData("DEPOSITO RETIRADO", _deposito.Cliente.CodigoCliente,
+									_deposito.Cliente.Razon, codigoArticulo, linea.Articulo.Descripcion,
+									stockInicial, linea.Articulo.Stock, logBookLinea.UnidadesDevueltas, logBookLinea.UnidadesDefectuosas,
+									logBookLinea.UnidadesRepuestas, logBookLinea.UnidadesFacturadas, logBookLinea.UnidadesInicialesFijas,
+									logBookLinea.UnidadesAbono, logBookLinea.UnidadesDefectuosas);
 
-						logBookTrace.save();
+							logBookTrace.save();
+						}
+						linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.UnidadesDefectuosas;
+						linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
+								+ linea.UnidadesDefectuosas;
+
+						linea.Articulo.Activo = true;
+						linea.Articulo.update();
 					}
-					linea.Articulo.StockDefectuoso = linea.Articulo.StockDefectuoso + linea.UnidadesDefectuosas;
-					linea.Articulo.MovimientoStockDefectuosas = linea.Articulo.MovimientoStockDefectuosas
-							+ linea.UnidadesDefectuosas;
 
-					linea.Articulo.Activo = true;
-					linea.Articulo.update();
+					processed.put(linea.Articulo.CodigoArticulo, linea);
 				}
+				_deposito.DeleteAllLines();
 
-				processed.put(linea.Articulo.CodigoArticulo, linea);
-			}
-			_deposito.DeleteAllLines();
+			// Marcar como registrados para evitar duplicación
+			_deposito.MovimientosRetiradoRegistrados = true;
+		}
 		}
 
 		if (_deposito.isDeposito() && (!_deposito.isDepositoUpdated() || _deposito.isDepositoUpdatedOnlyVentaDirecta())) {
@@ -1116,11 +1123,10 @@ public class DepositManager extends Fragment implements  IMediator {
 					updateEfectivo();
 
 				generateXML();
+			// Mostrar estado actual del efectivo después de completar la operación
+			showCashStatus();
 
-				// Mostrar estado actual del efectivo después de completar la operación
-				showCashStatus();
-
-				// Generem el consentiment GDPR si és necessari
+			// Generem el consentiment GDPR si és necessari
 
 				if (!_deposito.Cliente.hasGDPRSigned()) {
 
@@ -1975,6 +1981,9 @@ public class DepositManager extends Fragment implements  IMediator {
 				} else {
 					linea.UnidadesIniciales = linea.UnidadesRepuestas;
 				}
+			} else {
+				// Para NTV, UnidadesIniciales debe reflejar las unidades repuestas
+				linea.UnidadesIniciales = linea.UnidadesRepuestas;
 			}
 		}
 		refreshTotals();

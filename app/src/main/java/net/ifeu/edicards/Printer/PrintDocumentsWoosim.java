@@ -580,8 +580,28 @@ public class PrintDocumentsWoosim implements IPrint {
 
 			closePage();
 
+		} catch (NegativeArraySizeException e) {
+			// Error específico de la biblioteca Woosim por problemas de conexión Bluetooth
+			StringWriter errors = new StringWriter();
+			errors.write("ERROR DE CONEXIÓN CON LA IMPRESORA\n\n");
+			errors.write("La impresora Woosim ha perdido la conexión.\n\n");
+			errors.write("SOLUCIONES:\n");
+			errors.write("1. Verifica que la impresora esté encendida\n");
+			errors.write("2. Asegúrate de que la impresora esté cerca del dispositivo\n");
+			errors.write("3. Verifica que el Bluetooth esté activo\n");
+			errors.write("4. Intenta reconectar la impresora desde el menú\n\n");
+			errors.write("Detalle técnico: " + e.getMessage());
+			e.printStackTrace(new PrintWriter(errors));
+			return false;
+		} catch (IOException e) {
+			// Errores de impresión de bitmap/firma capturados en submétodos
+			StringWriter errors = new StringWriter();
+			errors.write("ERROR AL IMPRIMIR: " + e.getMessage() + "\n\n");
+			e.printStackTrace(new PrintWriter(errors));
+			return false;
 		} catch (Exception e) {
 			StringWriter errors = new StringWriter();
+			errors.write("ERROR INESPERADO AL IMPRIMIR\n\n");
 			e.printStackTrace(new PrintWriter(errors));
 			return false;
 		}
@@ -625,8 +645,28 @@ public class PrintDocumentsWoosim implements IPrint {
 			this.PrintBitmapSignature();
 			closePage();
 
+		} catch (NegativeArraySizeException e) {
+			// Error específico de la biblioteca Woosim por problemas de conexión Bluetooth
+			StringWriter errors = new StringWriter();
+			errors.write("ERROR DE CONEXIÓN CON LA IMPRESORA\n\n");
+			errors.write("La impresora Woosim ha perdido la conexión.\n\n");
+			errors.write("SOLUCIONES:\n");
+			errors.write("1. Verifica que la impresora esté encendida\n");
+			errors.write("2. Asegúrate de que la impresora esté cerca del dispositivo\n");
+			errors.write("3. Verifica que el Bluetooth esté activo\n");
+			errors.write("4. Intenta reconectar la impresora desde el menú\n\n");
+			errors.write("Detalle técnico: " + e.getMessage());
+			e.printStackTrace(new PrintWriter(errors));
+			return false;
+		} catch (IOException e) {
+			// Errores de impresión de bitmap/firma capturados en submétodos
+			StringWriter errors = new StringWriter();
+			errors.write("ERROR AL IMPRIMIR DEPÓSITO: " + e.getMessage() + "\n\n");
+			e.printStackTrace(new PrintWriter(errors));
+			return false;
 		} catch (Exception e) {
 			StringWriter errors = new StringWriter();
+			errors.write("ERROR INESPERADO AL IMPRIMIR DEPÓSITO\n\n");
 			e.printStackTrace(new PrintWriter(errors));
 			return false;
 		}
@@ -644,25 +684,31 @@ public class PrintDocumentsWoosim implements IPrint {
 			Thread.sleep(500);
 		}
 		catch(InterruptedException e) {}
-		
-		int result = _woosim.printBitmap(Environment
-				.getExternalStorageDirectory().toString()
-				+ "/"
-				+ ConstantsFolders.FOLDER_ROOT
-				+ "/"
-				+ ConstantsFolders.FOLDER_FIRMAS
-				+ "/"
-				+ "C1_" + _GUID + ".bmp");
 
-		if (result == 1) {
-			byte[] lf = { 0x0a };
-			_woosim.controlCommand(lf, lf.length);
-			_woosim.controlCommand(lf, lf.length);
-			byte[] ff = { 0x0c };
-			_woosim.controlCommand(ff, 1);
-			_woosim.printSpool(true);
+		try {
+			int result = _woosim.printBitmap(Environment
+					.getExternalStorageDirectory().toString()
+					+ "/"
+					+ ConstantsFolders.FOLDER_ROOT
+					+ "/"
+					+ ConstantsFolders.FOLDER_FIRMAS
+					+ "/"
+					+ "C1_" + _GUID + ".bmp");
+
+			if (result == 1) {
+				byte[] lf = { 0x0a };
+				_woosim.controlCommand(lf, lf.length);
+				_woosim.controlCommand(lf, lf.length);
+				byte[] ff = { 0x0c };
+				_woosim.controlCommand(ff, 1);
+				_woosim.printSpool(true);
+			}
+		} catch (NegativeArraySizeException e) {
+			throw new IOException("Error de conexión con la impresora al imprimir firma. Verifica que la impresora esté encendida y conectada.", e);
+		} catch (Exception e) {
+			throw new IOException("Error al imprimir firma: " + e.getMessage(), e);
 		}
-		
+
 		try
 		{
 			Thread.sleep(3000);
@@ -677,30 +723,36 @@ public class PrintDocumentsWoosim implements IPrint {
 			Thread.sleep(500);
 		}
 		catch(InterruptedException e) {}
-		
-		int result = _woosim.printBitmap(Environment
-				.getExternalStorageDirectory().toString()
-				+ "/"
-				+ ConstantsFolders.FOLDER_ROOT
-				+ "/"
-				+ ConstantsFolders.FOLDER_FIRMAS
-				+ "/"
-				+ "V1_" + _GUID + ".bmp");
 
-		if (result == 1) {
-			byte[] lf = { 0x0a };
-			_woosim.controlCommand(lf, lf.length);
-			_woosim.controlCommand(lf, lf.length);
-			byte[] ff = { 0x0c };
-			_woosim.controlCommand(ff, 1);
-			_woosim.printSpool(true);
+		try {
+			int result = _woosim.printBitmap(Environment
+					.getExternalStorageDirectory().toString()
+					+ "/"
+					+ ConstantsFolders.FOLDER_ROOT
+					+ "/"
+					+ ConstantsFolders.FOLDER_FIRMAS
+					+ "/"
+					+ "V1_" + _GUID + ".bmp");
+
+			if (result == 1) {
+				byte[] lf = { 0x0a };
+				_woosim.controlCommand(lf, lf.length);
+				_woosim.controlCommand(lf, lf.length);
+				byte[] ff = { 0x0c };
+				_woosim.controlCommand(ff, 1);
+				_woosim.printSpool(true);
+			}
+		} catch (NegativeArraySizeException e) {
+			throw new IOException("Error de conexión con la impresora al imprimir firma del vendedor. Verifica que la impresora esté encendida y conectada.", e);
+		} catch (Exception e) {
+			throw new IOException("Error al imprimir firma del vendedor: " + e.getMessage(), e);
 		}
-		
+
 		try
 		{
 			Thread.sleep(3000);
 		}
-		catch(InterruptedException e) {}	
+		catch(InterruptedException e) {}
 
 	}
 
@@ -708,10 +760,10 @@ public class PrintDocumentsWoosim implements IPrint {
 			double scale, boolean reduction) throws IOException {
 
 		Bitmap bm = BitmapFactory.decodeResource(res, source);
-		
+
 		double width;
 		double height;
-		
+
 		if (reduction)
 		{
 			width = bm.getWidth() / scale;
@@ -722,8 +774,8 @@ public class PrintDocumentsWoosim implements IPrint {
 			width = bm.getWidth() * scale;
 			height = bm.getHeight() * scale;
 		}
-		
-		
+
+
 		BitmapConvertor convertor = new BitmapConvertor();
 		convertor.convertBitmap(bm, Environment.getExternalStorageDirectory()
 				.toString()
@@ -733,23 +785,29 @@ public class PrintDocumentsWoosim implements IPrint {
 				+ ConstantsFolders.FOLDER_FIRMAS + "/" + "TMP" + ".bmp", (int)width,
 				(int)height);
 
-		int result = _woosim.printBitmap(Environment
-				.getExternalStorageDirectory().toString()
-				+ "/"
-				+ ConstantsFolders.FOLDER_ROOT
-				+ "/"
-				+ ConstantsFolders.FOLDER_FIRMAS
-				+ "/"
-				+ "TMP" + ".bmp");
+		try {
+			int result = _woosim.printBitmap(Environment
+					.getExternalStorageDirectory().toString()
+					+ "/"
+					+ ConstantsFolders.FOLDER_ROOT
+					+ "/"
+					+ ConstantsFolders.FOLDER_FIRMAS
+					+ "/"
+					+ "TMP" + ".bmp");
 
-		if (result == 1) {
-			byte[] lf = { 0x0a };
-			_woosim.controlCommand(lf, lf.length);
-			_woosim.controlCommand(lf, lf.length);
-			byte[] ff = { 0x0c };
-			_woosim.controlCommand(ff, 1);
-			_woosim.printSpool(true);
-			_woosim.clearSpool();
+			if (result == 1) {
+				byte[] lf = { 0x0a };
+				_woosim.controlCommand(lf, lf.length);
+				_woosim.controlCommand(lf, lf.length);
+				byte[] ff = { 0x0c };
+				_woosim.controlCommand(ff, 1);
+				_woosim.printSpool(true);
+				_woosim.clearSpool();
+			}
+		} catch (NegativeArraySizeException e) {
+			throw new IOException("Error de conexión con la impresora al imprimir imagen. Verifica que la impresora esté encendida y conectada.", e);
+		} catch (Exception e) {
+			throw new IOException("Error al imprimir imagen: " + e.getMessage(), e);
 		}
 	}
 
@@ -803,10 +861,17 @@ public class PrintDocumentsWoosim implements IPrint {
 	}
 
 	protected void Print() {
-		// byte[] ff ={0x0a};
-		// _woosim.controlCommand(ff, 1);
-		_woosim.printSpool(true);
-		_woosim.clearSpool();
+		try {
+			// byte[] ff ={0x0a};
+			// _woosim.controlCommand(ff, 1);
+			_woosim.printSpool(true);
+			_woosim.clearSpool();
+		} catch (NegativeArraySizeException e) {
+			// Error conocido de la biblioteca Woosim cuando hay problemas de conexión BT
+			throw new RuntimeException("Error de conexión con la impresora. Por favor, verifica que esté encendida y cerca del dispositivo.", e);
+		} catch (Exception e) {
+			throw new RuntimeException("Error inesperado al imprimir: " + e.getMessage(), e);
+		}
 	}
 
 	protected void AlignCenter() {

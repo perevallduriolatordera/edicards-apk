@@ -485,7 +485,7 @@ public class XmlCreator {
 
 		fileos.write("<NIF>".getBytes());
 		if (deposito.NIF != ConstantsTypes.EMPTY_STRING)
-			fileos.write(deposito.NIF.getBytes());
+			fileos.write(getSafeBytes(deposito.NIF));
 		fileos.write("</NIF>".getBytes());
 
 		fileos.write("<Razon>".getBytes());
@@ -507,13 +507,13 @@ public class XmlCreator {
 
 		fileos.write("<CodigoPostal>".getBytes());
 		if (deposito.CodigoPostal != ConstantsTypes.EMPTY_STRING)
-			fileos.write(deposito.CodigoPostal.getBytes());
+			fileos.write(getSafeBytes(deposito.CodigoPostal));
 
 		fileos.write("</CodigoPostal>".getBytes());
 
 		fileos.write("<Poblacion>".getBytes());
 		if (deposito.Poblacion != ConstantsTypes.EMPTY_STRING)
-			fileos.write(deposito.Poblacion.getBytes());
+			fileos.write(getSafeBytes(deposito.Poblacion));
 
 		fileos.write("</Poblacion>".getBytes());
 
@@ -524,19 +524,19 @@ public class XmlCreator {
 
 		fileos.write("<Telefono1>".getBytes());
 		if (deposito.Telefono1 != ConstantsTypes.EMPTY_STRING)
-			fileos.write(deposito.Telefono1.getBytes());
+			fileos.write(getSafeBytes(deposito.Telefono1));
 
 		fileos.write("</Telefono1>".getBytes());
 
 		fileos.write("<Telefono2>".getBytes());
 		if (deposito.Telefono2 != ConstantsTypes.EMPTY_STRING)
-			fileos.write(deposito.Telefono2.getBytes());
+			fileos.write(getSafeBytes(deposito.Telefono2));
 
 		fileos.write("</Telefono2>".getBytes());
 
 		fileos.write("<Fax>".getBytes());
 		if (deposito.Fax != ConstantsTypes.EMPTY_STRING)
-			fileos.write(deposito.Fax.getBytes());
+			fileos.write(getSafeBytes(deposito.Fax));
 
 		fileos.write("</Fax>".getBytes());
 
@@ -725,7 +725,7 @@ public class XmlCreator {
 
 		fileos.write("<NIF>".getBytes());
 		if (deposito.NIF != ConstantsTypes.EMPTY_STRING)
-			fileos.write(deposito.NIF.getBytes());
+			fileos.write(getSafeBytes(deposito.NIF));
 		fileos.write("</NIF>".getBytes());
 
 		fileos.write("<Razon>".getBytes());
@@ -747,13 +747,13 @@ public class XmlCreator {
 
 		fileos.write("<CodigoPostal>".getBytes());
 		if (deposito.CodigoPostal != ConstantsTypes.EMPTY_STRING)
-			fileos.write(deposito.CodigoPostal.getBytes());
+			fileos.write(getSafeBytes(deposito.CodigoPostal));
 
 		fileos.write("</CodigoPostal>".getBytes());
 
 		fileos.write("<Poblacion>".getBytes());
 		if (deposito.Poblacion != ConstantsTypes.EMPTY_STRING)
-			fileos.write(deposito.Poblacion.getBytes());
+			fileos.write(getSafeBytes(deposito.Poblacion));
 
 		fileos.write("</Poblacion>".getBytes());
 
@@ -764,19 +764,19 @@ public class XmlCreator {
 
 		fileos.write("<Telefono1>".getBytes());
 		if (deposito.Telefono1 != ConstantsTypes.EMPTY_STRING)
-			fileos.write(deposito.Telefono1.getBytes());
+			fileos.write(getSafeBytes(deposito.Telefono1));
 
 		fileos.write("</Telefono1>".getBytes());
 
 		fileos.write("<Telefono2>".getBytes());
 		if (deposito.Telefono2 != ConstantsTypes.EMPTY_STRING)
-			fileos.write(deposito.Telefono2.getBytes());
+			fileos.write(getSafeBytes(deposito.Telefono2));
 
 		fileos.write("</Telefono2>".getBytes());
 
 		fileos.write("<Fax>".getBytes());
 		if (deposito.Fax != ConstantsTypes.EMPTY_STRING)
-			fileos.write(deposito.Fax.getBytes());
+			fileos.write(getSafeBytes(deposito.Fax));
 
 		fileos.write("</Fax>".getBytes());
 
@@ -946,11 +946,15 @@ public class XmlCreator {
 		fileos.write("</FechaDeposito>".getBytes());
 
 		fileos.write("<Ejercicio>".getBytes());
-		fileos.write(deposito.Ejercicio.getBytes());
+		fileos.write(deposito.Ejercicio != null ? deposito.Ejercicio.getBytes() : "".getBytes());
 		fileos.write("</Ejercicio>".getBytes());
 
 		fileos.write("<CodigoCliente>".getBytes());
-		fileos.write(deposito.Cliente.CodigoCliente.getBytes());
+		if (deposito.Cliente != null && deposito.Cliente.CodigoCliente != null) {
+			fileos.write(deposito.Cliente.CodigoCliente.getBytes());
+		} else {
+			fileos.write("".getBytes());
+		}
 		fileos.write("</CodigoCliente>".getBytes());
 
 		fileos.write("<Nombre>".getBytes());
@@ -958,7 +962,7 @@ public class XmlCreator {
 		fileos.write("</Nombre>".getBytes());
 
 		fileos.write("<NIF>".getBytes());
-		fileos.write(deposito.NIF.getBytes());
+		fileos.write(getSafeBytes(deposito.NIF));
 		fileos.write("</NIF>".getBytes());
 
 		fileos.write("<Razon>".getBytes());
@@ -974,27 +978,27 @@ public class XmlCreator {
 		fileos.write("</Direccion2>".getBytes());
 
 		fileos.write("<CodigoPostal>".getBytes());
-		fileos.write(deposito.CodigoPostal.getBytes());
+		fileos.write(getSafeBytes(deposito.CodigoPostal));
 		fileos.write("</CodigoPostal>".getBytes());
 
 		fileos.write("<Poblacion>".getBytes());
-		fileos.write(deposito.Poblacion.getBytes());
+		fileos.write(getSafeBytes(deposito.Poblacion));
 		fileos.write("</Poblacion>".getBytes());
 
 		fileos.write("<Provincia>".getBytes());
-		fileos.write(deposito.Provincia.getBytes());
+		fileos.write(getSafeBytes(deposito.Provincia));
 		fileos.write("</Provincia>".getBytes());
 
 		fileos.write("<Telefono1>".getBytes());
-		fileos.write(deposito.Telefono1.getBytes());
+		fileos.write(getSafeBytes(deposito.Telefono1));
 		fileos.write("</Telefono1>".getBytes());
 
 		fileos.write("<Telefono2>".getBytes());
-		fileos.write(deposito.Telefono2.getBytes());
+		fileos.write(getSafeBytes(deposito.Telefono2));
 		fileos.write("</Telefono2>".getBytes());
 
 		fileos.write("<Fax>".getBytes());
-		fileos.write(deposito.Fax.getBytes());
+		fileos.write(getSafeBytes(deposito.Fax));
 		fileos.write("</Fax>".getBytes());
 
 		fileos.write("<Mail>".getBytes());
@@ -1149,7 +1153,7 @@ public class XmlCreator {
 		fileos.write("</Nombre>".getBytes());
 
 		fileos.write("<NIF>".getBytes());
-		fileos.write(deposito.NIF.getBytes());
+		fileos.write(getSafeBytes(deposito.NIF));
 		fileos.write("</NIF>".getBytes());
 
 		fileos.write("<Razon>".getBytes());
@@ -1165,27 +1169,27 @@ public class XmlCreator {
 		fileos.write("</Direccion2>".getBytes());
 
 		fileos.write("<CodigoPostal>".getBytes());
-		fileos.write(deposito.CodigoPostal.getBytes());
+		fileos.write(getSafeBytes(deposito.CodigoPostal));
 		fileos.write("</CodigoPostal>".getBytes());
 
 		fileos.write("<Poblacion>".getBytes());
-		fileos.write(deposito.Poblacion.getBytes());
+		fileos.write(getSafeBytes(deposito.Poblacion));
 		fileos.write("</Poblacion>".getBytes());
 
 		fileos.write("<Provincia>".getBytes());
-		fileos.write(deposito.Provincia.getBytes());
+		fileos.write(getSafeBytes(deposito.Provincia));
 		fileos.write("</Provincia>".getBytes());
 
 		fileos.write("<Telefono1>".getBytes());
-		fileos.write(deposito.Telefono1.getBytes());
+		fileos.write(getSafeBytes(deposito.Telefono1));
 		fileos.write("</Telefono1>".getBytes());
 
 		fileos.write("<Telefono2>".getBytes());
-		fileos.write(deposito.Telefono2.getBytes());
+		fileos.write(getSafeBytes(deposito.Telefono2));
 		fileos.write("</Telefono2>".getBytes());
 
 		fileos.write("<Fax>".getBytes());
-		fileos.write(deposito.Fax.getBytes());
+		fileos.write(getSafeBytes(deposito.Fax));
 		fileos.write("</Fax>".getBytes());
 
 		fileos.write("<Mail>".getBytes());
@@ -1319,7 +1323,14 @@ public class XmlCreator {
 		return result;
 	}
 
+	private byte[] getSafeBytes(String text) {
+		return (text != null && !text.isEmpty()) ? text.getBytes() : "".getBytes();
+	}
+
 	private String getWithCDATA(String text) {
+		if (text == null || text.isEmpty()) {
+			return "<![CDATA[" + "" + "]]>";
+		}
 		return "<![CDATA[" + text + "]]>";
 	}
 

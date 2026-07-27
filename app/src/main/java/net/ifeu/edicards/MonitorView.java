@@ -95,7 +95,7 @@ public class MonitorView extends Fragment {
 
 		if (requestCode == REQUEST_CODE_LOGBOOK_PREVIEW) {
 			if (resultCode == Activity.RESULT_OK) {
-				this.executeSync("Enviar trazabilidad de stock");
+				this.executeExportOnly("Enviar trazabilidad de stock");
 			} else {
 				_appConfig = (AppConfig) this.getActivity().getApplicationContext();
 				this.fillDataMonitor(_appConfig.getWorkingArea().Monitor);
@@ -664,6 +664,73 @@ public class MonitorView extends Fragment {
 					errorMsg.append("Revise los indicadores para más detalles.");
 					
 					_appConfig.getMessageBox().Show("Sincronización",
+							errorMsg.toString(),
+							getActivity(), MessageBoxType.Error);
+
+				}
+
+				_appConfig.getCache().invalidate();
+				_appConfig.getMediator().notify(ConstantsEvents.EVENT_STOCK_CHANGED, null);
+
+			}
+			catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
+	private void executeExportOnly(String message) {
+		try {
+			final MonitorView that = this;
+			that.showWaiting(message);
+
+			final Context context = _appConfig;
+			final ServiceWorker worker = new ServiceWorker();
+			Thread exportThread = new Thread() {
+
+				@Override
+				public void run() {
+
+					try {
+
+						that.ExportSyncResult = worker.RunExport(context);
+						_appConfig = (AppConfig) that.getActivity().getApplicationContext();
+						_appConfig.getWorkingArea().Monitor = worker.Monitor();
+
+					} catch (Exception e) {
+						throw new RuntimeException(e);
+					}
+				}
+
+			};
+
+			exportThread.start();
+			try {
+				exportThread.join();
+
+				_appConfig = (AppConfig) that.getActivity().getApplicationContext();
+				_appConfig.getWorkingArea().Monitor = worker.Monitor();
+				that.fillDataMonitor(_appConfig.getWorkingArea().Monitor);
+
+				boolean exportSuccess = that.ExportSyncResult.isSuccess();
+
+				if (exportSuccess) {
+					_appConfig.getMessageBox().Show("Envío de trazabilidad",
+							"El envío de la trazabilidad de stock ha finalizado CORRECTAMENTE",
+							getActivity(), MessageBoxType.Information);
+				} else {
+					StringBuilder errorMsg = new StringBuilder("El envío de la trazabilidad ha finalizado CON ERRORES:\n\n");
+
+					for (String error : that.ExportSyncResult.getErrorMessages()) {
+						errorMsg.append("• ").append(error).append("\n");
+					}
+
+					errorMsg.append("\nRevise los indicadores para más detalles.");
+
+					_appConfig.getMessageBox().Show("Envío de trazabilidad",
 							errorMsg.toString(),
 							getActivity(), MessageBoxType.Error);
 

@@ -36,9 +36,13 @@ public class MainActivity extends Activity {
 	private ExportResult _exportResult;
 	
 	private static final int REQUEST_EXTERNAL_STORAGE = 1;
+	private static final int REQUEST_CAMERA = 2;
 	private static String[] PERMISSIONS_STORAGE = {
 		Manifest.permission.READ_EXTERNAL_STORAGE,
 		Manifest.permission.WRITE_EXTERNAL_STORAGE
+	};
+	private static String[] PERMISSIONS_CAMERA = {
+		Manifest.permission.CAMERA
 	};
 
 	@Override
@@ -69,7 +73,10 @@ public class MainActivity extends Activity {
 	
 			// Solicitar permisos de almacenamiento
 			checkStoragePermission();
-	
+
+			// Solicitar permisos de cámara
+			checkCameraPermission();
+
 			// Obtenim les dades de l'usuari
 			getUserData();
 
@@ -190,49 +197,65 @@ public class MainActivity extends Activity {
 
 						if (progressDialog != null && progressDialog.isShowing()) {
 							runOnUiThread(() -> {
-								progressDialog.dismiss();
-								
-								// Mostrar errores si los hay, pero continuar al menú principal
-								StringBuilder allErrors = new StringBuilder();
-								boolean hasImportErrors = that._importResult != null && !that._importResult.isSuccess();
-								boolean hasExportErrors = that._exportResult != null && !that._exportResult.isSuccess();
-								
-								if (hasImportErrors || hasExportErrors) {
-									if (hasImportErrors) {
-										allErrors.append("ERRORES DE IMPORTACIÓN:\n");
-										for (String error : that._importResult.getErrorMessages()) {
-											allErrors.append("• ").append(error).append("\n");
-										}
-										allErrors.append("\n");
+								// Verificar que la Activity no ha sido destruida antes de cerrar el diálogo
+								if (!that.isFinishing() && !that.isDestroyed()) {
+									try {
+										progressDialog.dismiss();
+									} catch (IllegalArgumentException e) {
+										// El diálogo ya no está adjunto a la ventana, ignorar
 									}
-									
-									if (hasExportErrors) {
-										allErrors.append("ERRORES DE EXPORTACIÓN:\n");
-										for (String error : that._exportResult.getErrorMessages()) {
-											allErrors.append("• ").append(error).append("\n");
-										}
-										allErrors.append("\n");
-									}
-									
-									allErrors.append("La aplicación funcionará normalmente pero algunos procesos pueden no haberse completado correctamente.");
-									
-									that._appConfig.getMessageBox().ShowModalWithOk("Advertencia - Errores de Sincronización",
-											allErrors.toString(),
-											that, MessageBoxType.Error);
 								}
-								
-								Intent intent = new Intent(MainActivity.this, MainMenu.class);
-								startActivity(intent);
+
+								// Solo continuar si la Activity no ha sido destruida
+								if (!that.isFinishing() && !that.isDestroyed()) {
+									// Mostrar errores si los hay, pero continuar al menú principal
+									StringBuilder allErrors = new StringBuilder();
+									boolean hasImportErrors = that._importResult != null && !that._importResult.isSuccess();
+									boolean hasExportErrors = that._exportResult != null && !that._exportResult.isSuccess();
+
+									if (hasImportErrors || hasExportErrors) {
+										if (hasImportErrors) {
+											allErrors.append("ERRORES DE IMPORTACIÓN:\n");
+											for (String error : that._importResult.getErrorMessages()) {
+												allErrors.append("• ").append(error).append("\n");
+											}
+											allErrors.append("\n");
+										}
+
+										if (hasExportErrors) {
+											allErrors.append("ERRORES DE EXPORTACIÓN:\n");
+											for (String error : that._exportResult.getErrorMessages()) {
+												allErrors.append("• ").append(error).append("\n");
+											}
+											allErrors.append("\n");
+										}
+
+										allErrors.append("La aplicación funcionará normalmente pero algunos procesos pueden no haberse completado correctamente.");
+
+										that._appConfig.getMessageBox().ShowModalWithOk("Advertencia - Errores de Sincronización",
+												allErrors.toString(),
+												that, MessageBoxType.Error);
+									}
+
+									Intent intent = new Intent(MainActivity.this, MainMenu.class);
+									startActivity(intent);
+								}
 							});
 						}
 
 					} catch (Exception e) {
 						// Manejar el error correctamente o mostrar un mensaje al usuario
 						runOnUiThread(() -> {
-							if (progressDialog.isShowing()) {
-								progressDialog.dismiss();
+							if (!that.isFinishing() && !that.isDestroyed()) {
+								if (progressDialog != null && progressDialog.isShowing()) {
+									try {
+										progressDialog.dismiss();
+									} catch (IllegalArgumentException ex) {
+										// El diálogo ya no está adjunto a la ventana, ignorar
+									}
+								}
+								Toast.makeText(that, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
 							}
-							Toast.makeText(that, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
 						});
 					}
 
@@ -370,12 +393,24 @@ public class MainActivity extends Activity {
 	
 	private void checkStoragePermission() {
 		int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-		
+
 		if (permission != PackageManager.PERMISSION_GRANTED) {
 			ActivityCompat.requestPermissions(
 				this,
 				PERMISSIONS_STORAGE,
 				REQUEST_EXTERNAL_STORAGE
+			);
+		}
+	}
+
+	private void checkCameraPermission() {
+		int permission = ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+
+		if (permission != PackageManager.PERMISSION_GRANTED) {
+			ActivityCompat.requestPermissions(
+				this,
+				PERMISSIONS_CAMERA,
+				REQUEST_CAMERA
 			);
 		}
 	}
@@ -392,6 +427,16 @@ public class MainActivity extends Activity {
 				} else {
 					// Permiso denegado
 					Toast.makeText(this, "Se necesitan permisos de almacenamiento para algunas funciones de la app", Toast.LENGTH_LONG).show();
+				}
+				return;
+			}
+			case REQUEST_CAMERA: {
+				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					// Permiso otorgado
+					Toast.makeText(this, "Permiso de cámara otorgado", Toast.LENGTH_SHORT).show();
+				} else {
+					// Permiso denegado
+					Toast.makeText(this, "Se necesita permiso de cámara para tomar fotos del DNI y adjuntos", Toast.LENGTH_LONG).show();
 				}
 				return;
 			}

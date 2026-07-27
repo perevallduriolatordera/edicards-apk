@@ -82,6 +82,7 @@ public class ServiceWorker extends ServiceBase {
 		ExportResult exportResult = new ExportResult();
 		LogBookExceptions logBookExceptions = Factory.build(LogBookExceptions.class, app);
 
+
 		// Asignamos las credenciales
 
 		WSCredentials credentials = new WSCredentials(ConstantsCredentials.WS_AUTHENTICATION_USER, ConstantsCredentials.WS_AUTHENTICATION_PASSWORD);

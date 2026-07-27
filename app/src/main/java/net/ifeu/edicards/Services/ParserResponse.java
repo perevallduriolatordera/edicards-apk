@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
 
@@ -833,7 +834,9 @@ public class ParserResponse extends ParserBase {
 
 							depo.assingFromCliente(cliente);
 							depo.NumDoc = strNumDoc;
-							depo.FechaDeposito = new Date();
+							Calendar calendar = Calendar.getInstance();
+							calendar.add(Calendar.DAY_OF_YEAR, -1);
+							depo.FechaDeposito = calendar.getTime();
 							depo.TipoDeposito = ConstantsTypes.TIPO_DEPOSITO_CONVENCIONAL;
 							depo.Ejercicio = strEjercicio;
 		
