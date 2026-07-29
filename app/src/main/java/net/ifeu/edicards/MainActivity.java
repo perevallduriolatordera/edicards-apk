@@ -247,11 +247,15 @@ public class MainActivity extends Activity {
 						// Manejar el error correctamente o mostrar un mensaje al usuario
 						runOnUiThread(() -> {
 							if (!that.isFinishing() && !that.isDestroyed()) {
-							if (progressDialog != null && progressDialog.isShowing()) {
-								try {
-								progressDialog.dismiss();
+								if (progressDialog != null && progressDialog.isShowing()) {
+									try {
+										progressDialog.dismiss();
+									} catch (IllegalArgumentException ex) {
+										// El diálogo ya no está adjunto a la ventana, ignorar
+									}
+								}
+								Toast.makeText(that, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
 							}
-							Toast.makeText(that, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
 						});
 					}
 

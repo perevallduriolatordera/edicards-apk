@@ -156,18 +156,22 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:background="#0277BD"
-            android:padding="10dp"
+            android:padding="14dp"
             android:layout_marginTop="12dp"
             android:gravity="center_vertical"
-            android:elevation="2dp"/>
+            android:elevation="4dp"/>
 
-        <!-- Fila 7: Adicional -->
+        <!-- Fila 7: Adicional - Zona de edición de artículo seleccionado -->
         <LinearLayout
             android:id="@+id/headerMainLinearLayout7"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical"/>
+            android:gravity="center_vertical"
+            android:background="#E8F5E9"
+            android:padding="12dp"
+            android:layout_marginTop="8dp"
+            android:elevation="2dp"/>
     </LinearLayout>
 
     <!-- Lista de artículos -->
@@ -201,10 +205,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:background="#FFFFFF"
-        android:padding="12dp"
+        android:background="#F5F5F5"
+        android:padding="16dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:elevation="2dp"/>
+        android:elevation="4dp"/>
 
 </LinearLayout>

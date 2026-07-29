@@ -5,4 +5,5 @@ public enum MessageBoxType {
 	Information,
 	Ok,
 	Error,
+	Question,
 }

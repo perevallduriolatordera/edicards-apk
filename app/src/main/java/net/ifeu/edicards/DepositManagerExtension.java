@@ -840,6 +840,7 @@ public class DepositManagerExtension {
 			button.setTextSize(size);
 			button.setWidth(width);
 			button.setLayoutParams(params);
+			button.setHeight(40);  // Aumentado para mejor apariencia
 
 			return button;
 		}
@@ -851,10 +852,10 @@ public class DepositManagerExtension {
 			button.setTextSize(size);
 			button.setWidth(width);
 			button.setLayoutParams(params);
-			button.setHeight(25);
+			button.setHeight(40);  // Aumentado de 25 a 40 para mejor apariencia
 
 			button.setTag(tag);
-			
+
 			return button;
 		}
 

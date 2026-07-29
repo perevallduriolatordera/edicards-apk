@@ -168,34 +168,34 @@ public class DepositManager extends Fragment implements  IMediator {
 		// Formas de pago
 
 		params.weight = 1;
-		LabelColor labelPago = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
+		LabelColor labelPago = DepositManagerExtension.UI.addLabel(_appConfig, Color.BLACK, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				"Forma de pago", TEXT_SIZE,  params);
-		
+
 		_comboPago = DepositManagerExtension.UI.addCombo(_appConfig, params, _appConfig.getCache().getAllFormasPagoList(), _deposito.Cliente.FormaPago.Descripcion);
-		
+
 		// Filiacion
-		
-		LabelColor labelFiliacion = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
+
+		LabelColor labelFiliacion = DepositManagerExtension.UI.addLabel(_appConfig, Color.BLACK, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				"Filiación", TEXT_SIZE, params);
 
-		
+
 		TipoIVA iva = Factory.build(TipoIVA.class, _appConfig);
 		_comboFiliacion = DepositManagerExtension.UI.addCombo(_appConfig, params, iva.getFiliaciones(), iva.getFiliacionByCode(_deposito.Cliente.Filiacion));
 
 		// //Copias
-		
-		LabelColor labelCopias = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+
+		LabelColor labelCopias = DepositManagerExtension.UI.addLabel(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				"Copias", TEXT_SIZE, 90, params);
 		List<String> copias = new ArrayList<>();
 		for (int i=1; i < 6; i++) copias.add(String.valueOf(i));
-		
+
 		_comboCopias = DepositManagerExtension.UI.addCombo(_appConfig, params, copias, "1");
-		
+
 		// Series
 
-		LabelColor labelSeries = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+		LabelColor labelSeries = DepositManagerExtension.UI.addLabel(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				"Series", TEXT_SIZE, 75, params);
-		
+
 		List<String> series = new ArrayList<>();
 		series.add(_appConfig.getUser().SerialInvoiceA);
 		series.add(_appConfig.getUser().SerialInvoiceB);
@@ -207,18 +207,18 @@ public class DepositManager extends Fragment implements  IMediator {
 		_checkPagado = new CheckBox(_appConfig);
 		_checkPagado.setText("Pagado");
 		_checkPagado.setTextSize(TEXT_SIZE);
-		_checkPagado.setTextColor(Color.WHITE);
+		_checkPagado.setTextColor(Color.BLACK);
 		_checkPagado.setLayoutParams(params);
-		
-		LabelColor labelCantidadPagada = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+
+		LabelColor labelCantidadPagada = DepositManagerExtension.UI.addLabel(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				"Cantidad Pagada", TEXT_SIZE, 150, params);
-		
+
 		_textBoxCantidadPagada = DepositManagerExtension.UI.addEdit(getActivity(), Color.GREEN, Gravity.LEFT,
 				"0", TEXT_SIZE, 75, params, false);
 
 		// descuento 1
-		
-		LabelColor labelDescuento1 = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
+
+		LabelColor labelDescuento1 = DepositManagerExtension.UI.addLabel(_appConfig, Color.BLACK, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				"Dte. com.", TEXT_SIZE, 75, params);
 
 		DecimalFormat dec = new DecimalFormat("0.00");
@@ -261,7 +261,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		// descuento 2
 		
-		LabelColor labelDescuento2 = DepositManagerExtension.UI.addLabel(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+		LabelColor labelDescuento2 = DepositManagerExtension.UI.addLabel(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				"Dte. fin.", TEXT_SIZE, 75, params);
 
 		TextBoxColor descuento2 = DepositManagerExtension.UI.addEdit(getActivity(), Color.WHITE, Gravity.LEFT,
@@ -408,10 +408,10 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		// Botón Datos
 
-		int TEXT_SIZE_BUTTON = 12;
-		ButtonColor datos = DepositManagerExtension.UI.addButton(getActivity(), Color.BLUE, "Cliente",
+		int TEXT_SIZE_BUTTON = 14;  // Aumentado de 12 a 14 para mejor legibilidad
+		ButtonColor datos = DepositManagerExtension.UI.addButton(getActivity(), 0xFF1976D2, "Cliente",
 				TEXT_SIZE_BUTTON, ScreenManager.getViewWidthByLength(_appConfig, 20, TEXT_SIZE_BUTTON, Gravity.LEFT), params, getResources().getDrawable(R.drawable.ic_customer_data));
-		
+
 		final DepositManager that = this;
 		datos.setOnClickListener(arg0 -> {
 
@@ -425,10 +425,10 @@ public class DepositManager extends Fragment implements  IMediator {
 				}
 
 		});
-		
+
 		// Botón Totales
 
-		ButtonColor totales = DepositManagerExtension.UI.addButton(getActivity(), Color.WHITE, "Resumen",
+		ButtonColor totales = DepositManagerExtension.UI.addButton(getActivity(), 0xFF757575, "Resumen",
 				TEXT_SIZE_BUTTON, ScreenManager.getViewWidthByLength(_appConfig, 20, TEXT_SIZE_BUTTON, Gravity.LEFT), params, getResources().getDrawable(R.drawable.ic_totals));
 
 		totales.setOnClickListener(arg0 -> {
@@ -444,8 +444,8 @@ public class DepositManager extends Fragment implements  IMediator {
 		});
 
 		// Botón Albarán
-		
-		ButtonColor albaran = DepositManagerExtension.UI.addButton(getActivity(), Color.RED, "Cerrar operación",
+
+		ButtonColor albaran = DepositManagerExtension.UI.addButton(getActivity(), 0xFF43A047, "Cerrar operación",
 				TEXT_SIZE_BUTTON, ScreenManager.getViewWidthByLength(_appConfig, 20, TEXT_SIZE_BUTTON, Gravity.LEFT), params, getResources().getDrawable(R.drawable.ic_save));
 
 		albaran.setOnClickListener(arg0 -> {
@@ -520,7 +520,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		});
 
 		// Botón Nuevo
-		ButtonColor nuevo = DepositManagerExtension.UI.addButton(getActivity(), Color.MAGENTA, "Nuevo depósito",
+		ButtonColor nuevo = DepositManagerExtension.UI.addButton(getActivity(), 0xFFE91E63, "Nuevo depósito",
 				TEXT_SIZE_BUTTON, ScreenManager.getViewWidthByLength(_appConfig, 20, TEXT_SIZE_BUTTON, Gravity.LEFT), params, getResources().getDrawable(R.drawable.ic_new));
 
 		nuevo.setTag("NUEVO");
@@ -541,12 +541,12 @@ public class DepositManager extends Fragment implements  IMediator {
 		AutoCompleteTextView searchArticulos = new AutoCompleteTextView(getContext());
 		searchArticulos.setWidth(ScreenManager.getViewWidthByLength(_appConfig, 30, TEXT_SIZE, Gravity.LEFT));
 		searchArticulos.setTextColor(getResources().getColor(R.color.Black));
-		searchArticulos.setHint("nombre del artículo");
+		searchArticulos.setHint("Buscar artículo...");
 		searchArticulos.setThreshold(1);
 		searchArticulos.setCompletionHint("Pulse el artículo que desea visualizar");
 		this.createAutoComplete(searchArticulos);
 
-		ButtonColor buttonSearchArticulos = DepositManagerExtension.UI.addButton(getActivity(), Color.RED, "",
+		ButtonColor buttonSearchArticulos = DepositManagerExtension.UI.addButton(getActivity(), 0xFFFF6F00, "",
 				TEXT_SIZE_BUTTON, ScreenManager.getViewWidthByLength(_appConfig, 20, TEXT_SIZE_BUTTON, Gravity.LEFT), params, getResources().getDrawable(R.drawable.ic_view_all));
 
 		buttonSearchArticulos.setOnClickListener( v-> {
@@ -1358,7 +1358,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
 		boolean createHeaderLayout = (_headerLayout == null) || (_headerLayout.getChildCount() == 0);
-		int color = Color.WHITE;
+		int color = Color.BLACK;  // Cambiado de WHITE a BLACK para visibilidad
 
 		if (createHeaderLayout) {
 			_headerLayout = new LinearLayout(_appConfig);
@@ -1695,7 +1695,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
 		boolean createHeaderLayout = _headerAbonoLayout	 == null;
-		int color = Color.WHITE;
+		int color = Color.BLACK;  // Cambiado de WHITE a BLACK para visibilidad
 
 		if (createHeaderLayout) {
 			_headerAbonoLayout = new LinearLayout(_appConfig);
@@ -1928,35 +1928,40 @@ public class DepositManager extends Fragment implements  IMediator {
 	}
 
 	private void createHeaderLabels() {
-		
+
 		LinearLayout mainLinearLayout = this.getActivity()
 				.findViewById(R.id.headerLabelsLinearLayout);
-		
+
 		mainLinearLayout.removeAllViews();
-		
+		mainLinearLayout.setVisibility(View.VISIBLE);  // Asegurar visibilidad
+
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		params.setMargins(4, 4, 4, 4);  // Añadir margen entre labels
+
+		// Tamaño de texto ajustado para mejor legibilidad sin ocupar demasiado espacio
+		int HEADER_TEXT_SIZE = 13;
 
 		DepositManagerExtension.UI.addViewsToLayout(mainLinearLayout,
 				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-						"Código".toUpperCase(), TEXT_SIZE, 8, params),
+						"Código".toUpperCase(), HEADER_TEXT_SIZE, 8, params, true),
 				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-						"Artículo".toUpperCase(), TEXT_SIZE, 12, params),
+						"Artículo".toUpperCase(), HEADER_TEXT_SIZE, 12, params, true),
 				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-						"Dep. Inicial".toUpperCase(), TEXT_SIZE, 13, params),
+						"Dep. Inicial".toUpperCase(), HEADER_TEXT_SIZE, 13, params, true),
 				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-						"Contadas".toUpperCase(), TEXT_SIZE, 13, params),
+						"Contadas".toUpperCase(), HEADER_TEXT_SIZE, 13, params, true),
 				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-						"Reciclado".toUpperCase(), TEXT_SIZE, 13, params),
+						"Reciclado".toUpperCase(), HEADER_TEXT_SIZE, 13, params, true),
 				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-						"Pvp".toUpperCase(), TEXT_SIZE, 13, params),
+						"Pvp".toUpperCase(), HEADER_TEXT_SIZE, 13, params, true),
 				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-						"Facturadas".toUpperCase(), TEXT_SIZE, 13, params),
+						"Facturadas".toUpperCase(), HEADER_TEXT_SIZE, 13, params, true),
 				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-						"Repuestas".toUpperCase(), TEXT_SIZE, 13, params),
+						"Repuestas".toUpperCase(), HEADER_TEXT_SIZE, 13, params, true),
 				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-								"PVP Post.".toUpperCase(), TEXT_SIZE, 13, params),
+								"PVP Post.".toUpperCase(), HEADER_TEXT_SIZE, 13, params, true),
 				DepositManagerExtension.UI.addLabelByText(_appConfig, Color.WHITE, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-								"Total".toUpperCase(), TEXT_SIZE, 13, params));
+								"Total".toUpperCase(), HEADER_TEXT_SIZE, 13, params, true));
 
 	}
 

@@ -1,0 +1,148 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                   RESUMEN: SERVICIOS DE GEOLOCALIZACIÓN                      ║
+║                            Edicards APK - Julio 2026                         ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+┌─ SERVICIOS ACTIVOS ──────────────────────────────────────────────────────────┐
+│                                                                                │
+│  1. Google Maps Routes API                                                    │
+│     └─ Optimización de rutas con tráfico en tiempo real                      │
+│     └─ API Key: AIzaSyASQNHn8m2gnnYTvlRUuEYt8fWMJAN5aA8                      │
+│     └─ Ubicación: local.properties (línea 18)                                │
+│                                                                                │
+│  2. OpenRouteService (ORS)                                                    │
+│     └─ Geocodificación de direcciones                                        │
+│     └─ Fallback para optimización de rutas                                   │
+│     └─ Usuario: murmur64                                                      │
+│     └─ Org ID: 5b3ce3597851110001cf6248                                      │
+│     └─ Ubicación: local.properties (línea 13)                                │
+│                                                                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ LÍMITES MENSUALES ──────────────────────────────────────────────────────────┐
+│                                                                                │
+│  Google Maps Routes API:                                                      │
+│    ✓ Free Tier: 10,000 requests/mes GRATIS                                   │
+│    ✓ Rate Limit: 3,000 requests/minuto                                       │
+│    ✓ Sin límite máximo (solo presupuesto)                                    │
+│                                                                                │
+│  OpenRouteService:                                                            │
+│    ✓ Free Plan: 40,000 requests/mes                                          │
+│    ✓ Rate Limit: 40 requests/minuto                                          │
+│    ✓ Límite diario: 2,500 requests/día                                       │
+│    ⚠ Acumulativo entre Geocoding + Matrix APIs                               │
+│                                                                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ USO ACTUAL ESTIMADO ────────────────────────────────────────────────────────┐
+│                                                                                │
+│  Escenario: 15 comerciales con 500 clientes cada uno                         │
+│                                                                                │
+│  Google Maps Routes API:                                                      │
+│    └─ 1 ruta/semana:   2,100 requests/mes   ✅ GRATIS (< 10,000)            │
+│    └─ 2 rutas/semana:  4,200 requests/mes   ✅ GRATIS (< 10,000)            │
+│    └─ 3 rutas/semana:  6,300 requests/mes   ✅ GRATIS (< 10,000)            │
+│    └─ 5 rutas/semana:  10,500 requests/mes  💰 $2.50/mes                    │
+│    └─ 1 ruta/día:      15,750 requests/mes  💰 $28.75/mes                   │
+│                                                                                │
+│  OpenRouteService:                                                            │
+│    └─ Geocoding:       ~3,000 requests/mes (con caché)                       │
+│    └─ Matrix (TSP):    ~105 requests/mes                                     │
+│    └─ Total:           ~3,105 requests/mes  ✅ GRATIS (< 40,000)            │
+│                                                                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ COSTOS MENSUALES ───────────────────────────────────────────────────────────┐
+│                                                                                │
+│  Escenario              │ Google Maps  │ ORS      │ Total     │ Por Rep      │
+│  ──────────────────────────────────────────────────────────────────────────  │
+│  Actual (1-3/semana)    │     $0       │   €0     │    $0     │   $0/mes    │
+│  Intensivo (5/semana)   │   $2.50      │   €0     │  $2.50    │ $0.17/mes   │
+│  Muy Intensivo (1/día)  │  $28.75      │   €0     │ $28.75    │ $1.92/mes   │
+│                                                                                │
+│  Proyección Anual:                                                            │
+│    Uso actual (1-3/semana):    $0/año                                        │
+│    Uso intensivo (5/semana):   $30/año                                       │
+│    Uso muy intensivo (1/día):  $345/año                                      │
+│                                                                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ NOTA IMPORTANTE ────────────────────────────────────────────────────────────┐
+│                                                                                │
+│  Los documentos existentes en el repo mencionan costos de $945-$2,850/mes.   │
+│  Esto sugiere que podría estar usando:                                        │
+│                                                                                │
+│    • Compute Routes Pro (en lugar de Essentials)                             │
+│    • O características avanzadas que no están en el free tier                │
+│                                                                                │
+│  ⚠ RECOMENDACIÓN: Verificar en Google Cloud Console qué tier exacto se usa  │
+│    → https://console.cloud.google.com/billing                                │
+│                                                                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ CUENTAS Y ACCESOS ──────────────────────────────────────────────────────────┐
+│                                                                                │
+│  Google Cloud Console:                                                        │
+│    URL: https://console.cloud.google.com/                                    │
+│    Proyecto: Edicards Routes                                                 │
+│    Billing: https://console.cloud.google.com/billing                         │
+│    APIs: https://console.cloud.google.com/apis/dashboard                     │
+│                                                                                │
+│  OpenRouteService Dashboard:                                                 │
+│    URL: https://openrouteservice.org/dev/#/home                              │
+│    Usuario: murmur64                                                         │
+│    Plan: Free Tier                                                           │
+│                                                                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ MONITOREO RECOMENDADO ──────────────────────────────────────────────────────┐
+│                                                                                │
+│  Frecuencia: 1 vez por semana (5 minutos)                                    │
+│                                                                                │
+│  Checklist:                                                                   │
+│    □ Revisar costos en Google Cloud Console                                  │
+│    □ Verificar requests consumidos en ORS Dashboard                          │
+│    □ Comprobar que no hay errores 429 en logs                                │
+│    □ Validar alertas de presupuesto (email)                                  │
+│                                                                                │
+│  Alertas Configuradas:                                                        │
+│    • Google Cloud: Budget alert en $50/mes                                   │
+│      (alertas al 50%, 90%, 100%)                                             │
+│    • ORS: Revisión manual mensual (no tiene alertas automáticas)            │
+│                                                                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ SEGURIDAD ──────────────────────────────────────────────────────────────────┐
+│                                                                                │
+│  ✅ API Keys almacenadas en local.properties (NO versionado)                 │
+│  ✅ Google Maps key restringida a paquete Android                            │
+│  ⚠ Rotar keys cada 6 meses (último cambio: revisar)                         │
+│  ⚠ No exponer keys en logs o mensajes de error                              │
+│                                                                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ OPTIMIZACIONES IMPLEMENTADAS ───────────────────────────────────────────────┐
+│                                                                                │
+│  ✓ Caché de geocodificación (ahorro: ~80% en requests repetidos)            │
+│  ✓ Fallback automático de Google a ORS                                      │
+│  ✓ Clustering geográfico (6x6 grid = ~36 clusters)                          │
+│  ✓ TSP local para clusters grandes (≥30 clientes)                           │
+│                                                                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+┌─ DOCUMENTACIÓN COMPLETA ─────────────────────────────────────────────────────┐
+│                                                                                │
+│  Para información detallada, ver:                                             │
+│    → docs/SERVICIOS_GEOLOCALIZACION_Y_RUTAS.md                               │
+│                                                                                │
+│  Otros documentos relevantes:                                                 │
+│    → MONTHLY_COST_ANALYSIS.md                                                │
+│    → GOOGLE_CLOUD_SETUP_GUIDE.md                                             │
+│    → ROUTE_OPTIMIZATION_SETUP.md                                             │
+│                                                                                │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+  Última actualización: Julio 2026
+  Próxima revisión: Agosto 2026
+═══════════════════════════════════════════════════════════════════════════════

@@ -2,12 +2,15 @@ package net.ifeu.edicards;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -28,6 +31,8 @@ public class AsignarClientesZonaDialog extends Activity {
 	private ZonaManager zonaManager;
 	private ListView listViewClientes;
 	private Spinner spinnerFiltroZona;
+	private EditText txtFiltroPoblacion;
+	private Spinner spinnerAsignacionMasiva;
 	private TextView txtContadorClientes;
 
 	private ArrayList<Cliente> todosClientes;
@@ -36,6 +41,7 @@ public class AsignarClientesZonaDialog extends Activity {
 	private ClienteZonaAdapter adapter;
 
 	private Long zonaFiltroSeleccionada = null; // null = todas las zonas
+	private String poblacionFiltro = ""; // filtro de población
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -55,10 +61,31 @@ public class AsignarClientesZonaDialog extends Activity {
 
 		listViewClientes = findViewById(R.id.listViewClientes);
 		spinnerFiltroZona = findViewById(R.id.spinnerFiltroZona);
+		txtFiltroPoblacion = findViewById(R.id.txtFiltroPoblacion);
+		spinnerAsignacionMasiva = findViewById(R.id.spinnerAsignacionMasiva);
 		txtContadorClientes = findViewById(R.id.txtContadorClientes);
 		ButtonColor btnCerrar = findViewById(R.id.btnCerrar);
+		ButtonColor btnLimpiarFiltro = findViewById(R.id.btnLimpiarFiltro);
+		ButtonColor btnAsignarTodos = findViewById(R.id.btnAsignarTodos);
 
 		btnCerrar.setOnClickListener(v -> finish());
+		btnLimpiarFiltro.setOnClickListener(v -> limpiarFiltroPoblacion());
+		btnAsignarTodos.setOnClickListener(v -> asignarTodosFiltrados());
+
+		// Listener para filtro de población
+		txtFiltroPoblacion.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				poblacionFiltro = s.toString().trim();
+				aplicarFiltros();
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {}
+		});
 
 		cargarDatos();
 	}
@@ -75,6 +102,9 @@ public class AsignarClientesZonaDialog extends Activity {
 
 			// Configurar spinner de filtro
 			configurarFiltroZona();
+
+			// Configurar spinner de asignación masiva
+			configurarSpinnerAsignacionMasiva();
 
 			// Configurar lista de clientes
 			adapter = new ClienteZonaAdapter();
@@ -108,7 +138,8 @@ public class AsignarClientesZonaDialog extends Activity {
 		spinnerFiltroZona.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				aplicarFiltro(position);
+				establecerFiltroZona(position);
+				aplicarFiltros();
 			}
 
 			@Override
@@ -116,35 +147,149 @@ public class AsignarClientesZonaDialog extends Activity {
 		});
 	}
 
-	private void aplicarFiltro(int position) {
-		clientesFiltrados.clear();
+	private void configurarSpinnerAsignacionMasiva() {
+		ArrayList<String> nombresZonas = new ArrayList<>();
+		nombresZonas.add("-- Seleccionar zona --");
 
+		for (Zona zona : zonas) {
+			if (zona.Activa) {  // Solo zonas activas
+				nombresZonas.add(zona.NombreZona);
+			}
+		}
+
+		ArrayAdapter<String> adapterAsignacion = new ArrayAdapter<>(
+			this, android.R.layout.simple_spinner_item, nombresZonas);
+		adapterAsignacion.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinnerAsignacionMasiva.setAdapter(adapterAsignacion);
+	}
+
+	private void establecerFiltroZona(int position) {
 		if (position == 0) {
 			// Todas las zonas
-			clientesFiltrados.addAll(todosClientes);
 			zonaFiltroSeleccionada = null;
 		} else if (position == 1) {
 			// Sin asignar
-			for (Cliente cliente : todosClientes) {
-				if (cliente.IdZona == null) {
-					clientesFiltrados.add(cliente);
-				}
-			}
-			zonaFiltroSeleccionada = null;
+			zonaFiltroSeleccionada = Long.valueOf(-1); // Usamos -1 para indicar "sin asignar"
 		} else {
 			// Zona específica
 			Zona zonaSeleccionada = zonas.get(position - 2);
 			zonaFiltroSeleccionada = zonaSeleccionada.IdZona;
+		}
+	}
 
-			for (Cliente cliente : todosClientes) {
-				if (cliente.IdZona != null && cliente.IdZona.equals(zonaSeleccionada.IdZona)) {
-					clientesFiltrados.add(cliente);
-				}
+	private void aplicarFiltros() {
+		clientesFiltrados.clear();
+
+		for (Cliente cliente : todosClientes) {
+			boolean pasaFiltroZona = false;
+			boolean pasaFiltroPoblacion = false;
+
+			// Filtro de zona
+			if (zonaFiltroSeleccionada == null) {
+				// Todas las zonas
+				pasaFiltroZona = true;
+			} else if (zonaFiltroSeleccionada == -1) {
+				// Sin asignar
+				pasaFiltroZona = (cliente.IdZona == null);
+			} else {
+				// Zona específica
+				pasaFiltroZona = (cliente.IdZona != null && cliente.IdZona.equals(zonaFiltroSeleccionada));
+			}
+
+			// Filtro de población
+			if (poblacionFiltro.isEmpty()) {
+				pasaFiltroPoblacion = true;
+			} else {
+				String poblacionCliente = (cliente.Poblacion != null ? cliente.Poblacion : "").toLowerCase();
+				pasaFiltroPoblacion = poblacionCliente.contains(poblacionFiltro.toLowerCase());
+			}
+
+			// Solo añadir si pasa ambos filtros
+			if (pasaFiltroZona && pasaFiltroPoblacion) {
+				clientesFiltrados.add(cliente);
 			}
 		}
 
 		adapter.notifyDataSetChanged();
 		actualizarContador();
+	}
+
+	private void limpiarFiltroPoblacion() {
+		txtFiltroPoblacion.setText("");
+		poblacionFiltro = "";
+		aplicarFiltros();
+	}
+
+	private void asignarTodosFiltrados() {
+		int posicionZona = spinnerAsignacionMasiva.getSelectedItemPosition();
+
+		if (posicionZona == 0) {
+			Toast.makeText(this, "Por favor, selecciona una zona", Toast.LENGTH_SHORT).show();
+			return;
+		}
+
+		if (clientesFiltrados.isEmpty()) {
+			Toast.makeText(this, "No hay clientes filtrados para asignar", Toast.LENGTH_SHORT).show();
+			return;
+		}
+
+		// Encontrar la zona activa correspondiente
+		Zona zonaSeleccionada = null;
+		int countActivas = 0;
+		for (Zona zona : zonas) {
+			if (zona.Activa) {
+				countActivas++;
+				if (countActivas == posicionZona) {
+					zonaSeleccionada = zona;
+					break;
+				}
+			}
+		}
+
+		if (zonaSeleccionada == null) {
+			Toast.makeText(this, "Error al obtener la zona seleccionada", Toast.LENGTH_SHORT).show();
+			return;
+		}
+
+		// Confirmar con el usuario
+		final Zona zonaFinal = zonaSeleccionada;
+		String mensaje = "¿Asignar " + clientesFiltrados.size() + " clientes a la zona '"
+			+ zonaFinal.NombreZona + "'?";
+
+		boolean confirmar = appConfig.getMessageBox().ShowWithResult(
+			"Confirmar asignación masiva",
+			mensaje,
+			this,
+			net.ifeu.library.Utils.MessageBox.MessageBoxType.Question
+		);
+
+		if (confirmar) {
+			int asignados = 0;
+			int errores = 0;
+
+			for (Cliente cliente : clientesFiltrados) {
+				try {
+					zonaManager.asignarClienteAZona(cliente.IdCliente, zonaFinal.IdZona);
+					cliente.IdZona = zonaFinal.IdZona;
+					asignados++;
+				} catch (Exception e) {
+					errores++;
+				}
+			}
+
+			String resultado = asignados + " clientes asignados correctamente";
+			if (errores > 0) {
+				resultado += "\n" + errores + " errores";
+			}
+
+			Toast.makeText(this, resultado, Toast.LENGTH_LONG).show();
+
+			// Resetear spinner de asignación masiva
+			spinnerAsignacionMasiva.setSelection(0);
+
+			// Actualizar la vista
+			adapter.notifyDataSetChanged();
+		}
 	}
 
 	private void actualizarContador() {

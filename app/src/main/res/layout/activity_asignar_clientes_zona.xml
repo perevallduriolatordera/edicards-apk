@@ -17,30 +17,116 @@
         android:gravity="center"
         android:paddingBottom="12dp"/>
 
-    <!-- Filtro por zona -->
+    <!-- Filtros -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="12dp"
+        android:background="#F5F5F5"
+        android:padding="8dp">
+
+        <!-- Filtro por zona -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Filtrar por zona:"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="8dp"/>
+
+            <Spinner
+                android:id="@+id/spinnerFiltroZona"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:drawable/btn_dropdown"/>
+        </LinearLayout>
+
+        <!-- Filtro por población -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Filtrar población:"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="8dp"/>
+
+            <EditText
+                android:id="@+id/txtFiltroPoblacion"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Escribe para buscar..."
+                android:textSize="14sp"
+                android:padding="8dp"
+                android:background="@android:color/white"
+                android:inputType="textCapWords"/>
+
+            <net.ifeu.library.Controls.ButtonColor
+                android:id="@+id/btnLimpiarFiltro"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:text="Limpiar"
+                android:textSize="12sp"
+                android:textColor="@android:color/white"
+                android:background="#E74C3C"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Asignación masiva -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginBottom="12dp"
-        android:background="#F5F5F5"
+        android:layout_marginBottom="8dp"
+        android:background="#E8F5E9"
         android:padding="8dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Filtrar por zona:"
-            android:textSize="14sp"
+            android:text="Asignar todos los filtrados a:"
+            android:textSize="13sp"
             android:textStyle="bold"
+            android:textColor="#2E7D32"
             android:layout_marginEnd="8dp"/>
 
         <Spinner
-            android:id="@+id/spinnerFiltroZona"
+            android:id="@+id/spinnerAsignacionMasiva"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@android:drawable/btn_dropdown"/>
+
+        <net.ifeu.library.Controls.ButtonColor
+            android:id="@+id/btnAsignarTodos"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Asignar Todos"
+            android:textSize="12sp"
+            android:textColor="@android:color/white"
+            android:background="#27AE60"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:layout_marginStart="8dp"/>
     </LinearLayout>
 
     <!-- Contador de clientes -->
