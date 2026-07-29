@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ifeu.edicards"
     android:versionCode="60"
-    android:versionName="6.0.4 (30 Junio 2026) --> Reordenamos despues de resultados google">
+    android:versionName="6.0.4 (30 Junio 2026) --> Reordenamos despues de resultados google + Merge master fixes">
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 

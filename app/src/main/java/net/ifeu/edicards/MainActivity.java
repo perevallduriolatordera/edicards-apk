@@ -195,7 +195,17 @@ public class MainActivity extends Activity {
 
 							if (progressDialog != null && progressDialog.isShowing()) {
 								runOnUiThread(() -> {
-									progressDialog.dismiss();
+									// Verificar que la Activity no ha sido destruida antes de cerrar el diálogo
+									if (!that.isFinishing() && !that.isDestroyed()) {
+										try {
+											progressDialog.dismiss();
+										} catch (IllegalArgumentException e) {
+											// El diálogo ya no está adjunto a la ventana, ignorar
+										}
+									}
+
+									// Solo continuar si la Activity no ha sido destruida
+									if (!that.isFinishing() && !that.isDestroyed()) {
 
 									// Mostrar errores si los hay, pero continuar al menú principal
 									StringBuilder allErrors = new StringBuilder();
@@ -228,6 +238,7 @@ public class MainActivity extends Activity {
 
 									Intent intent = new Intent(MainActivity.this, MainMenu.class);
 									startActivity(intent);
+									}
 								});
 							}
 						});
@@ -235,7 +246,9 @@ public class MainActivity extends Activity {
 					} catch (Exception e) {
 						// Manejar el error correctamente o mostrar un mensaje al usuario
 						runOnUiThread(() -> {
-							if (progressDialog.isShowing()) {
+							if (!that.isFinishing() && !that.isDestroyed()) {
+							if (progressDialog != null && progressDialog.isShowing()) {
+								try {
 								progressDialog.dismiss();
 							}
 							Toast.makeText(that, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
