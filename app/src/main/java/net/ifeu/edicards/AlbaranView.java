@@ -42,19 +42,89 @@ public class AlbaranView extends Activity {
     private void fillAlbaran() throws Exception
     {
     	_appConfig = (AppConfig) this.getApplicationContext();
-    	 
+
     	LinearLayout mainLinearLayout = (LinearLayout) this.findViewById(R.id.mainLinearLayout);
     	mainLinearLayout.removeAllViews();
     	mainLinearLayout.setOrientation(LinearLayout.VERTICAL);
-    	mainLinearLayout.setBackgroundColor(Color.BLACK);
-    	    	   		 
+    	mainLinearLayout.setBackgroundColor(Color.WHITE);
+    	mainLinearLayout.setPadding(16, 16, 16, 16);
+
+		// Header azul
+		final LinearLayout headerLayout = new LinearLayout(this);
+		headerLayout.setBackgroundColor(Color.parseColor("#0277BD"));
+		headerLayout.setOrientation(LinearLayout.HORIZONTAL);
+		headerLayout.setPadding(16, 12, 16, 12);
+		android.widget.LinearLayout.LayoutParams headerParams = new LinearLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		headerParams.setMargins(0, 0, 0, 16);
+		headerLayout.setLayoutParams(headerParams);
+
+		LabelColor titleLabel = new LabelColor(this, Color.WHITE, Gravity.CENTER);
+		titleLabel.setText("ALBARÁN - Detalle de Facturación");
+		titleLabel.setTextSize(18);
+		android.widget.LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		titleLabel.setLayoutParams(titleParams);
+		headerLayout.addView(titleLabel);
+		mainLinearLayout.addView(headerLayout);
+
+		// Headers de columnas
+		final LinearLayout columnHeaderLayout = new LinearLayout(this);
+		columnHeaderLayout.setBackgroundColor(Color.parseColor("#01579B"));
+		columnHeaderLayout.setOrientation(LinearLayout.HORIZONTAL);
+		columnHeaderLayout.setPadding(12, 10, 12, 10);
+		android.widget.LinearLayout.LayoutParams columnHeaderParams = new LinearLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		columnHeaderParams.setMargins(0, 0, 0, 8);
+		columnHeaderLayout.setLayoutParams(columnHeaderParams);
+
+		android.widget.LinearLayout.LayoutParams colParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+				LayoutParams.WRAP_CONTENT);
+
+		LabelColor colCodigo = new LabelColor(this, Color.WHITE, Gravity.LEFT);
+		colCodigo.setText("Código");
+		colCodigo.setTextSize(13);
+		colCodigo.setWidth(150);
+		colCodigo.setLayoutParams(colParams);
+		columnHeaderLayout.addView(colCodigo);
+
+		LabelColor colDescripcion = new LabelColor(this, Color.WHITE, Gravity.LEFT);
+		colDescripcion.setText("Descripción");
+		colDescripcion.setTextSize(13);
+		colDescripcion.setWidth(300);
+		colDescripcion.setLayoutParams(colParams);
+		columnHeaderLayout.addView(colDescripcion);
+
+		LabelColor colUnidades = new LabelColor(this, Color.WHITE, Gravity.RIGHT);
+		colUnidades.setText("Unidades");
+		colUnidades.setTextSize(13);
+		colUnidades.setWidth(150);
+		colUnidades.setLayoutParams(colParams);
+		columnHeaderLayout.addView(colUnidades);
+
+		LabelColor colPVP = new LabelColor(this, Color.WHITE, Gravity.RIGHT);
+		colPVP.setText("PVP");
+		colPVP.setTextSize(13);
+		colPVP.setWidth(150);
+		colPVP.setLayoutParams(colParams);
+		columnHeaderLayout.addView(colPVP);
+
+		LabelColor colTotal = new LabelColor(this, Color.WHITE, Gravity.RIGHT);
+		colTotal.setText("Total");
+		colTotal.setTextSize(13);
+		colTotal.setWidth(150);
+		colTotal.setLayoutParams(colParams);
+		columnHeaderLayout.addView(colTotal);
+
+		mainLinearLayout.addView(columnHeaderLayout);
+
 	 	final LinearLayout layout = new LinearLayout(this);
-	 	layout.setBackgroundColor(Color.BLACK);
+	 	layout.setBackgroundColor(Color.WHITE);
 		layout.removeAllViews();
-		
+
     	layout.setOrientation(LinearLayout.VERTICAL);
     	android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
-    	
+
     	_appConfig.getWorkingArea().CurrentDeposito.Calculate();
 
 		List<LineaDeposito> tempList = new ArrayList<>(_appConfig.getWorkingArea().CurrentDeposito.Lineas.values());
@@ -69,11 +139,12 @@ public class AlbaranView extends Activity {
     		layout2.removeAllViews();
     		
         	layout2.setOrientation(LinearLayout.HORIZONTAL);
-        	layout2.setBackgroundColor(Color.BLACK);
+        	layout2.setBackgroundColor(Color.WHITE);
+       	layout2.setPadding(12, 8, 12, 8);
     		
     		if (linea.UnidadesFacturadas > 0)
     		{
-    			LabelColor codigoArticuloLabel = new LabelColor(this,Color.WHITE, Gravity.LEFT);
+    			LabelColor codigoArticuloLabel = new LabelColor(this,Color.parseColor("#212121"), Gravity.LEFT);
         		codigoArticuloLabel.setRawInputType(InputType.TYPE_CLASS_NUMBER);
         		codigoArticuloLabel.setText(linea.Articulo.CodigoArticulo);
         		codigoArticuloLabel.setTextSize(TEXT_SIZE);
@@ -82,7 +153,7 @@ public class AlbaranView extends Activity {
         		
         		layout2.addView(codigoArticuloLabel);
         		
-        		LabelColor descripcionLabel = new LabelColor(this,Color.WHITE, Gravity.LEFT);
+        		LabelColor descripcionLabel = new LabelColor(this,Color.parseColor("#212121"), Gravity.LEFT);
         		descripcionLabel.setRawInputType(InputType.TYPE_CLASS_NUMBER);
         		descripcionLabel.setText(linea.Articulo.Descripcion);
         		descripcionLabel.setTextSize(TEXT_SIZE);
@@ -91,16 +162,16 @@ public class AlbaranView extends Activity {
         		
         		layout2.addView(descripcionLabel);
         		
-        		LabelColor unidadesLabel = new LabelColor(this,Color.WHITE, Gravity.RIGHT);
+        		LabelColor unidadesLabel = new LabelColor(this,Color.parseColor("#1976D2"), Gravity.RIGHT);
         		unidadesLabel.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-        		unidadesLabel.setText(linea.UnidadesFacturadas + " unidades");
+        		unidadesLabel.setText(linea.UnidadesFacturadas + " uds.");
         		unidadesLabel.setTextSize(TEXT_SIZE);
         		unidadesLabel.setWidth(150);
         		unidadesLabel.setLayoutParams(params);
             	
         		layout2.addView(unidadesLabel);
             	
-            	LabelColor pvpLabel = new LabelColor(this,Color.WHITE, Gravity.RIGHT);
+            	LabelColor pvpLabel = new LabelColor(this,Color.parseColor("#388E3C"), Gravity.RIGHT);
             	pvpLabel.setRawInputType(InputType.TYPE_CLASS_NUMBER);
             	pvpLabel.setText(linea.PVP + " €");
             	pvpLabel.setTextSize(TEXT_SIZE);
@@ -111,7 +182,7 @@ public class AlbaranView extends Activity {
             	
             	double totalLinea = RoundTo2Decimals(linea.PVP * linea.UnidadesFacturadas);
             	
-            	LabelColor pvpTotalLinea = new LabelColor(this,Color.WHITE, Gravity.RIGHT);
+            	LabelColor pvpTotalLinea = new LabelColor(this,Color.parseColor("#388E3C"), Gravity.RIGHT);
             	pvpTotalLinea.setRawInputType(InputType.TYPE_CLASS_NUMBER);
             	pvpTotalLinea.setText(totalLinea + " €");
             	pvpTotalLinea.setTextSize(TEXT_SIZE);
@@ -130,9 +201,10 @@ public class AlbaranView extends Activity {
         		layout2Bis.removeAllViews();
         		
             	layout2Bis.setOrientation(LinearLayout.HORIZONTAL);
-            	layout2Bis.setBackgroundColor(Color.BLACK);
+            	layout2Bis.setBackgroundColor(Color.parseColor("#FFEBEE"));
+            	layout2Bis.setPadding(12, 8, 12, 8);
             	
-        		LabelColor codigoArticuloLabelAbono = new LabelColor(this,Color.WHITE, Gravity.LEFT);
+        		LabelColor codigoArticuloLabelAbono = new LabelColor(this,Color.parseColor("#212121"), Gravity.LEFT);
         		codigoArticuloLabelAbono.setRawInputType(InputType.TYPE_CLASS_NUMBER);
         		codigoArticuloLabelAbono.setText(linea.Articulo.CodigoArticulo);
         		codigoArticuloLabelAbono.setTextSize(TEXT_SIZE);
@@ -141,7 +213,7 @@ public class AlbaranView extends Activity {
         		
         		layout2Bis.addView(codigoArticuloLabelAbono);
         		
-        		LabelColor descripcionLabelAbono = new LabelColor(this,Color.WHITE, Gravity.LEFT);
+        		LabelColor descripcionLabelAbono = new LabelColor(this,Color.parseColor("#212121"), Gravity.LEFT);
         		descripcionLabelAbono.setRawInputType(InputType.TYPE_CLASS_NUMBER);
         		descripcionLabelAbono.setText(linea.Articulo.Descripcion);
         		descripcionLabelAbono.setTextSize(TEXT_SIZE);
@@ -150,16 +222,16 @@ public class AlbaranView extends Activity {
         		
         		layout2Bis.addView(descripcionLabelAbono);
         		
-        		LabelColor unidadesLabelAbono = new LabelColor(this,Color.WHITE, Gravity.RIGHT);
+        		LabelColor unidadesLabelAbono = new LabelColor(this,Color.parseColor("#D32F2F"), Gravity.RIGHT);
         		unidadesLabelAbono.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-        		unidadesLabelAbono.setText(linea.UnidadesAbono + " unidades");
+        		unidadesLabelAbono.setText(linea.UnidadesAbono + " uds.");
         		unidadesLabelAbono.setTextSize(TEXT_SIZE);
         		unidadesLabelAbono.setWidth(150);
         		unidadesLabelAbono.setLayoutParams(params);
             	
         		layout2Bis.addView(unidadesLabelAbono);
             	
-            	LabelColor pvpLabelAbono = new LabelColor(this,Color.WHITE, Gravity.RIGHT);
+            	LabelColor pvpLabelAbono = new LabelColor(this,Color.parseColor("#D32F2F"), Gravity.RIGHT);
             	pvpLabelAbono.setRawInputType(InputType.TYPE_CLASS_NUMBER);
             	pvpLabelAbono.setText(linea.PVPAbono * -1 + " €");
             	pvpLabelAbono.setTextSize(TEXT_SIZE);
@@ -170,7 +242,7 @@ public class AlbaranView extends Activity {
             	
             	double totalLinea = RoundTo2Decimals(linea.PVPAbono * -1 * linea.UnidadesAbono);
             	
-            	LabelColor pvpTotalLinea = new LabelColor(this,Color.WHITE, Gravity.RIGHT);
+            	LabelColor pvpTotalLinea = new LabelColor(this,Color.parseColor("#388E3C"), Gravity.RIGHT);
             	pvpTotalLinea.setRawInputType(InputType.TYPE_CLASS_NUMBER);
             	pvpTotalLinea.setText(totalLinea + " €");
             	pvpTotalLinea.setTextSize(TEXT_SIZE);
@@ -185,7 +257,7 @@ public class AlbaranView extends Activity {
     	}
     	
     	android.widget.LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT);
-		params2.setMargins(0, 30, 0, 0);
+		params2.setMargins(0, 24, 0, 0);
     	
     	// Totales
     	
@@ -193,9 +265,10 @@ public class AlbaranView extends Activity {
 		layoutTotales.removeAllViews();
 		
     	layoutTotales.setOrientation(LinearLayout.HORIZONTAL);
-    	layoutTotales.setBackgroundColor(Color.BLACK);
-    	
-    	LabelColor TotalBase = new LabelColor(this,Color.YELLOW, Gravity.LEFT);
+    	layoutTotales.setBackgroundColor(Color.parseColor("#E3F2FD"));
+    	layoutTotales.setPadding(12, 12, 12, 12);
+
+    	LabelColor TotalBase = new LabelColor(this,Color.parseColor("#0277BD"), Gravity.LEFT);
 		TotalBase.setRawInputType(InputType.TYPE_CLASS_NUMBER);
 		TotalBase.setText("Base: " + _appConfig.getWorkingArea().CurrentDeposito.Totales.TotalBase + " €");
 		TotalBase.setTextSize(TEXT_SIZE);
@@ -211,7 +284,7 @@ public class AlbaranView extends Activity {
 		else
 			total = _appConfig.getWorkingArea().CurrentDeposito.Totales.TotalBase;
 
-    	LabelColor TotalAlbaran = new LabelColor(this,Color.YELLOW, Gravity.LEFT);
+    	LabelColor TotalAlbaran = new LabelColor(this,Color.parseColor("#0277BD"), Gravity.LEFT);
     	TotalAlbaran.setRawInputType(InputType.TYPE_CLASS_NUMBER);
     	TotalAlbaran.setText("Total: " + total + " €");
     	TotalAlbaran.setTextSize(TEXT_SIZE);
@@ -227,15 +300,18 @@ public class AlbaranView extends Activity {
 		layout3.removeAllViews();
 		
     	layout3.setOrientation(LinearLayout.HORIZONTAL);
-    	layout3.setBackgroundColor(Color.BLACK);
-    	
-		ButtonColor closeButton = new ButtonColor(this, Color.WHITE);
+    	layout3.setBackgroundColor(Color.WHITE);
+    	layout3.setGravity(Gravity.CENTER);
+
+		ButtonColor closeButton = new ButtonColor(this, Color.parseColor("#D32F2F"));
 
 		closeButton.setText("Cerrar");
-		int TEXT_SIZE_BUTTON = 14;
+		int TEXT_SIZE_BUTTON = 16;
 		closeButton.setTextSize(TEXT_SIZE_BUTTON);
-		int BUTTONS_WIDTH = 130;
+		closeButton.setTextColor(Color.WHITE);
+		int BUTTONS_WIDTH = 200;
 		closeButton.setWidth(BUTTONS_WIDTH);
+		closeButton.setHeight(50);
 
 		
 		closeButton.setLayoutParams(params2);
