@@ -224,7 +224,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		DecimalFormat dec = new DecimalFormat("0.00");
 
 		TextBoxColor descuento1 = DepositManagerExtension.UI.addEdit(getActivity(), Color.WHITE, Gravity.LEFT,
-				dec.format(_cliente.DescuentoProntoPago), TEXT_SIZE, 60, params, false);
+				dec.format(_cliente.DescuentoProntoPago), TEXT_SIZE, 60, params, true);
 		
 		descuento1.setOnFocusChangeListener((view, hasFocus) -> {
 			if (!hasFocus) {
@@ -265,7 +265,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				"Dte. fin.", TEXT_SIZE, 75, params);
 
 		TextBoxColor descuento2 = DepositManagerExtension.UI.addEdit(getActivity(), Color.WHITE, Gravity.LEFT,
-				dec.format(_cliente.DescuentoFinanciero), TEXT_SIZE, 60, params, false);
+				dec.format(_cliente.DescuentoFinanciero), TEXT_SIZE, 60, params, true);
 	
 		descuento2.setOnFocusChangeListener((view, hasFocus) -> {
 			if (!hasFocus) {

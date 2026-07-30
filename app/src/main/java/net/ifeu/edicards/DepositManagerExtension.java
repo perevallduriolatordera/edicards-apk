@@ -801,7 +801,8 @@ public class DepositManagerExtension {
 			edit.setLayoutParams(params);
 			
 			if (focusable)
-				edit.setFocusableInTouchMode(true);
+				edit.setFocusable(true);
+			edit.setFocusableInTouchMode(true);
 			else
 				edit.setFocusable(false);
 			
@@ -824,7 +825,8 @@ public class DepositManagerExtension {
 			edit.setLayoutParams(params);
 			
 			if (focusable)
-				edit.setFocusableInTouchMode(true);
+				edit.setFocusable(true);
+			edit.setFocusableInTouchMode(true);
 			else
 				edit.setFocusable(false);
 			
