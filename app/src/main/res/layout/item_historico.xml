@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
+    android:layout_marginBottom="8dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    android:elevation="3dp">
+
+    <!-- Fila principal: Badge tipo + Info + Total -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Badge de tipo (NUEVO/EXISTENTE/BAJA) -->
+        <TextView
+            android:id="@+id/txtTipoBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="NUEVO"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:background="#E91E63"
+            android:textColor="@android:color/white"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            android:layout_marginEnd="12dp"/>
+
+        <!-- Info principal del cliente -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txtNombreCliente"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Nombre del Cliente"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#1A1A1A"
+                android:layout_marginBottom="4dp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/txtPoblacion"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Barcelona"
+                    android:textSize="12sp"
+                    android:textColor="#424242"
+                    android:layout_marginEnd="8dp"/>
+
+                <TextView
+                    android:id="@+id/txtCP"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="08001"
+                    android:textSize="12sp"
+                    android:textColor="#757575"
+                    android:layout_marginEnd="12dp"/>
+
+                <TextView
+                    android:id="@+id/txtNumeroAlbaran"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Albarán núm: 1234"
+                    android:textSize="11sp"
+                    android:textColor="#1976D2"
+                    android:textStyle="bold"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Total destacado -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="12dp"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total"
+                android:textSize="10sp"
+                android:textColor="#757575"
+                android:layout_marginBottom="2dp"/>
+
+            <TextView
+                android:id="@+id/txtTotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="125.50 €"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#4CAF50"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Fila de botones -->
+    <LinearLayout
+        android:id="@+id/layoutBotones"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="12dp"
+        android:gravity="end">
+
+        <!-- Los botones se agregan dinámicamente desde código -->
+
+    </LinearLayout>
+
+</LinearLayout>

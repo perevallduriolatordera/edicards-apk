@@ -40,6 +40,49 @@
         android:layout_marginBottom="12dp"
         android:elevation="2dp">
 
+        <!-- Fila 0: Botón colapsar/expandir -->
+        <LinearLayout
+            android:id="@+id/headerCollapseBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="#E3F2FD"
+            android:padding="8dp"
+            android:layout_marginBottom="12dp"
+            android:gravity="center_vertical"
+            android:elevation="2dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="▼ FORMULARIO DEPÓSITO"
+                android:textSize="14sp"
+                android:textColor="#0277BD"
+                android:textStyle="bold"
+                android:gravity="start"/>
+
+            <TextView
+                android:id="@+id/btnToggleHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Contraer ▲"
+                android:textSize="13sp"
+                android:textColor="#0277BD"
+                android:textStyle="bold"
+                android:padding="8dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="#B3E5FC"/>
+        </LinearLayout>
+
+        <!-- Contenedor de contenido colapsable -->
+        <LinearLayout
+            android:id="@+id/headerCollapsableContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
         <!-- Fila 1: Cliente, Total Base, Total Factura, Tipo Entrega -->
         <LinearLayout
             android:id="@+id/headerMainLinearLayout1"
@@ -172,6 +215,10 @@
             android:padding="12dp"
             android:layout_marginTop="8dp"
             android:elevation="2dp"/>
+
+        </LinearLayout>
+        <!-- Fin del contenedor colapsable -->
+
     </LinearLayout>
 
     <!-- Lista de artículos -->

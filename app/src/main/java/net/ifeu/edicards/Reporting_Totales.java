@@ -8,6 +8,7 @@ import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.IngresoDiario;
 import net.ifeu.edicards.DataTier.Reporting;
+import net.ifeu.library.Controls.ButtonColor;
 import net.ifeu.library.Controls.LabelColor;
 import net.ifeu.library.Utils.Screen.ScreenManager;
 
@@ -86,23 +87,45 @@ public class Reporting_Totales extends Activity {
     
     private void fillTotales()
     {
-    	
+
     	DecimalFormat df = new DecimalFormat("0.00");
-    	
+
     	_appConfig = (AppConfig) this.getApplicationContext();
     	Reporting reporting = _appConfig.getWorkingArea().CurrentReporting;
-    	
+
     	if (reporting == null) {
     		return;
     	}
-    	    	 
+
     	LinearLayout mainLinearLayout = (LinearLayout) this.findViewById(R.id.mainLinearLayout);
     	mainLinearLayout.removeAllViews();
     	mainLinearLayout.setOrientation(LinearLayout.VERTICAL);
-    	    	   		 
+		mainLinearLayout.setBackgroundColor(Color.WHITE);
+		mainLinearLayout.setPadding(16, 16, 16, 16);
+
+		// Header azul
+		final LinearLayout headerLayout = new LinearLayout(this);
+		headerLayout.setBackgroundColor(Color.parseColor("#1976D2"));
+		headerLayout.setOrientation(LinearLayout.HORIZONTAL);
+		headerLayout.setPadding(16, 12, 16, 12);
+		android.widget.LinearLayout.LayoutParams headerParams = new LinearLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		headerParams.setMargins(0, 0, 0, 16);
+		headerLayout.setLayoutParams(headerParams);
+
+		LabelColor titleLabel = new LabelColor(this, Color.WHITE, Gravity.CENTER);
+		titleLabel.setText("TOTALES - RESUMEN ESTADÍSTICAS");
+		titleLabel.setTextSize(18);
+		android.widget.LinearLayout.LayoutParams titleParams = new LinearLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		titleLabel.setLayoutParams(titleParams);
+		headerLayout.addView(titleLabel);
+		mainLinearLayout.addView(headerLayout);
+
 	 	final LinearLayout layout = new LinearLayout(this);
 		layout.removeAllViews();
 		layout.setOrientation(LinearLayout.VERTICAL);
+		layout.setBackgroundColor(Color.WHITE);
     	
     	LinearLayout layout2 = new LinearLayout(this);
 		layout2.removeAllViews();
@@ -193,9 +216,47 @@ public class Reporting_Totales extends Activity {
     	layout2.addView(this.addCounter("Total PENDIENTE INGRESAR", df.format(pendiente) + " €", Color.BLACK, true));
     	
     	layout.addView(layout2);
-    	
+
+		// Botón Cerrar
+		final LinearLayout layout3 = new LinearLayout(this);
+		layout3.removeAllViews();
+
+		layout3.setOrientation(LinearLayout.HORIZONTAL);
+		layout3.setBackgroundColor(Color.WHITE);
+		layout3.setGravity(Gravity.CENTER);
+		layout3.setPadding(16, 24, 16, 24);
+
+		android.widget.LinearLayout.LayoutParams layout3Params = new LinearLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		layout3.setLayoutParams(layout3Params);
+
+		ButtonColor closeButton = new ButtonColor(this, Color.parseColor("#D32F2F"));
+
+		closeButton.setText("CERRAR");
+		int TEXT_SIZE_BUTTON = 16;
+		closeButton.setTextSize(TEXT_SIZE_BUTTON);
+		closeButton.setTextColor(Color.WHITE);
+		closeButton.setPadding(40, 16, 40, 16);
+		closeButton.setGravity(Gravity.CENTER);
+
+		android.widget.LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
+				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		buttonParams.setMargins(0, 0, 0, 0);
+		closeButton.setLayoutParams(buttonParams);
+
+		closeButton.setOnClickListener(arg0 -> {
+			try {
+				finish();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		});
+
+		layout3.addView(closeButton);
+
     	mainLinearLayout.addView(layout);
- 
+		mainLinearLayout.addView(layout3);
+
     }
     
     private double getIngresos()  {

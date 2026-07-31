@@ -119,8 +119,33 @@ public class DepositManager extends Fragment implements  IMediator {
 				.findViewById(R.id.mainLinearLayoutArticles);
 
 		_articlesListView = this.getActivity().findViewById(R.id.listViewArticles);
+
 		showCustomerSearchDialog();
 
+	}
+
+	private void setupHeaderToggle() {
+		try {
+			TextView btnToggle = getActivity().findViewById(R.id.btnToggleHeader);
+			LinearLayout collapsableContent = getActivity().findViewById(R.id.headerCollapsableContent);
+
+			if (btnToggle != null && collapsableContent != null) {
+				btnToggle.setOnClickListener(v -> {
+					if (collapsableContent.getVisibility() == View.VISIBLE) {
+						// Colapsar
+						collapsableContent.setVisibility(View.GONE);
+						btnToggle.setText("Expandir ▼");
+					} else {
+						// Expandir
+						collapsableContent.setVisibility(View.VISIBLE);
+						btnToggle.setText("Contraer ▲");
+					}
+				});
+			}
+		} catch (Exception e) {
+			// Si hay error al configurar el toggle, simplemente lo ignoramos
+			// El header funcionará normalmente sin la funcionalidad de colapsar
+		}
 	}
 
 	@Override
@@ -223,9 +248,23 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		DecimalFormat dec = new DecimalFormat("0.00");
 
-		TextBoxColor descuento1 = DepositManagerExtension.UI.addEdit(getActivity(), Color.WHITE, Gravity.LEFT,
+		TextBoxColor descuento1 = DepositManagerExtension.UI.addEdit(getActivity(), Color.BLACK, Gravity.LEFT,
 				dec.format(_cliente.DescuentoProntoPago), TEXT_SIZE, 60, params, true);
-		
+
+		descuento1.setEnabled(true);
+		descuento1.setClickable(true);
+		descuento1.setFocusable(true);
+		descuento1.setFocusableInTouchMode(true);
+		descuento1.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+
+		// Crear borde para que se vea que es editable
+		android.graphics.drawable.GradientDrawable border1 = new android.graphics.drawable.GradientDrawable();
+		border1.setColor(Color.parseColor("#F5F5F5")); // Fondo gris muy claro
+		border1.setStroke(2, Color.parseColor("#BDBDBD")); // Borde gris
+		border1.setCornerRadius(4);
+		descuento1.setBackground(border1);
+		descuento1.setPadding(8, 8, 8, 8);
+
 		descuento1.setOnFocusChangeListener((view, hasFocus) -> {
 			if (!hasFocus) {
 
@@ -264,9 +303,23 @@ public class DepositManager extends Fragment implements  IMediator {
 		LabelColor labelDescuento2 = DepositManagerExtension.UI.addLabel(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 				"Dte. fin.", TEXT_SIZE, 75, params);
 
-		TextBoxColor descuento2 = DepositManagerExtension.UI.addEdit(getActivity(), Color.WHITE, Gravity.LEFT,
+		TextBoxColor descuento2 = DepositManagerExtension.UI.addEdit(getActivity(), Color.BLACK, Gravity.LEFT,
 				dec.format(_cliente.DescuentoFinanciero), TEXT_SIZE, 60, params, true);
-	
+
+		descuento2.setEnabled(true);
+		descuento2.setClickable(true);
+		descuento2.setFocusable(true);
+		descuento2.setFocusableInTouchMode(true);
+		descuento2.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+
+		// Crear borde para que se vea que es editable
+		android.graphics.drawable.GradientDrawable border2 = new android.graphics.drawable.GradientDrawable();
+		border2.setColor(Color.parseColor("#F5F5F5")); // Fondo gris muy claro
+		border2.setStroke(2, Color.parseColor("#BDBDBD")); // Borde gris
+		border2.setCornerRadius(4);
+		descuento2.setBackground(border2);
+		descuento2.setPadding(8, 8, 8, 8);
+
 		descuento2.setOnFocusChangeListener((view, hasFocus) -> {
 			if (!hasFocus) {
 
@@ -1905,6 +1958,11 @@ public class DepositManager extends Fragment implements  IMediator {
 	private void showHeader(boolean visible) {
 		if (this.getActivity().findViewById(R.id.headerMainLinearLayout) == null) return;
 		(this.getActivity().findViewById(R.id.headerMainLinearLayout)).setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+
+		// Configurar el botón de toggle cuando el header sea visible por primera vez
+		if (visible) {
+			setupHeaderToggle();
+		}
 	}
 
 	private void showArticlesGrid(boolean visible) {

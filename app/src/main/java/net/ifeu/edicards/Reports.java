@@ -463,68 +463,57 @@ public class Reports extends Fragment {
 			if (hist.Tipo == ConstantsTypes.TIPO_HISTORICO_CLIENTE_BAJA)
 				colorText = Color.RED;
 
-			final LinearLayout layout1 = new LinearLayout(this.getActivity());
-			layout1.setOrientation(LinearLayout.VERTICAL);
+			// Inflar el nuevo layout profesional
+			android.view.LayoutInflater inflater = android.view.LayoutInflater.from(this.getActivity());
+			final LinearLayout itemView = (LinearLayout) inflater.inflate(R.layout.item_historico, null);
 
-			final LinearLayout layout2 = new LinearLayout(this.getActivity());
-			layout2.setOrientation(LinearLayout.HORIZONTAL);			
-	    	layout2.setBackgroundResource(R.drawable.card_background);
+			// Configurar badge de tipo
+			android.widget.TextView txtTipoBadge = itemView.findViewById(R.id.txtTipoBadge);
+			String tipoBadgeText;
+			int badgeColor;
 
-	    	layout2.setPadding(20, 10, 20, 10);
+			if (hist.Tipo == ConstantsTypes.TIPO_HISTORICO_CLIENTE_EXISTENTE) {
+				tipoBadgeText = "EXISTENTE";
+				badgeColor = Color.parseColor("#1976D2");
+			} else if (hist.Tipo == ConstantsTypes.TIPO_HISTORICO_CLIENTE_NUEVO) {
+				tipoBadgeText = "NUEVO";
+				badgeColor = Color.parseColor("#E91E63");
+			} else if (hist.Tipo == ConstantsTypes.TIPO_HISTORICO_CLIENTE_BAJA) {
+				tipoBadgeText = "BAJA";
+				badgeColor = Color.parseColor("#F44336");
+			} else {
+				tipoBadgeText = "EXISTENTE";
+				badgeColor = Color.parseColor("#1976D2");
+			}
 
-			LabelColor poblacion = new LabelColor(this.getActivity(),
-					colorText, true);
-			
-			poblacion.setText(hist.PoblacionPresentacion);
-			poblacion.setTextSize(TEXT_SIZE);
-			poblacion.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.1f).getWidth());
-			poblacion.setLayoutParams(params);
+			txtTipoBadge.setText(tipoBadgeText);
+			txtTipoBadge.setBackgroundColor(badgeColor);
 
-			layout2.addView(poblacion);
+			// Configurar datos del cliente
+			android.widget.TextView txtNombreCliente = itemView.findViewById(R.id.txtNombreCliente);
+			txtNombreCliente.setText(hist.NombrePresentacion);
 
-			LabelColor cp = new LabelColor(this.getActivity(), colorText, true);
-			cp.setText(hist.CodigoPostalPresentacion);
-			cp.setTextSize(TEXT_SIZE);
-			cp.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.1f).getWidth());
-			cp.setLayoutParams(params);
+			android.widget.TextView txtPoblacion = itemView.findViewById(R.id.txtPoblacion);
+			txtPoblacion.setText(hist.PoblacionPresentacion);
 
-			layout2.addView(cp);
+			android.widget.TextView txtCP = itemView.findViewById(R.id.txtCP);
+			txtCP.setText(hist.CodigoPostalPresentacion);
 
-			LabelColor nombre = new LabelColor(this.getActivity(), colorText,
-					true);
-			nombre.setText(hist.NombrePresentacion);
-			nombre.setTextSize(TEXT_SIZE);
-			nombre.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.3f).getWidth());
-			nombre.setLayoutParams(params);
-
-			layout2.addView(nombre);
-
-			LabelColor numeroAlbaran = new LabelColor(this.getActivity(),
-					colorText, true);
-
+			android.widget.TextView txtNumeroAlbaran = itemView.findViewById(R.id.txtNumeroAlbaran);
 			String numAlb;
-
 			if (hist.NumeroAlbaran == null)
 				numAlb = "Solo depósito";
 			else
 				numAlb = "Albarán núm: " + hist.NumeroAlbaran;
-
-			numeroAlbaran.setText(numAlb);
-			numeroAlbaran.setTextSize(TEXT_SIZE);
-			numeroAlbaran.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.1f).getWidth());
-			numeroAlbaran.setLayoutParams(params);
-
-			layout2.addView(numeroAlbaran);
+			txtNumeroAlbaran.setText(numAlb);
 
 			DecimalFormat df = new DecimalFormat("0.00");
-			LabelColor total = new LabelColor(this.getActivity(), colorText,
-					true);
-			total.setText("(" +df.format(hist.Total) + " €)");
-			total.setTextSize(TEXT_SIZE);
-			total.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.1f).getWidth());
-			total.setLayoutParams(params);
+			android.widget.TextView txtTotal = itemView.findViewById(R.id.txtTotal);
+			txtTotal.setText(df.format(hist.Total) + " €");
 
-			layout2.addView(total);
+			// Agregar botones al layout de botones
+			LinearLayout layoutBotones = itemView.findViewById(R.id.layoutBotones);
+
 
 			color = Color.parseColor("#1976D2");
 			ButtonColor reImpresion = new ButtonColor(this.getActivity(), color, getResources().getDrawable(R.drawable.ic_send));
@@ -665,7 +654,7 @@ public class Reports extends Fragment {
 				}
 			});
 
-			layout2.addView(reImpresion);
+			layoutBotones.addView(reImpresion);
 
 			color = Color.parseColor("#FF9800");
 			ButtonColor anular = new ButtonColor(this.getActivity(), color, getResources().getDrawable(R.drawable.ic_recycled));
@@ -734,10 +723,9 @@ public class Reports extends Fragment {
 
 			});
 
-			layout2.addView(anular);
+			layoutBotones.addView(anular);
 
-			layout1.addView(layout2);
-			layout.addView(layout1);
+			layout.addView(itemView);
 
 		}
 
@@ -1266,6 +1254,12 @@ public class Reports extends Fragment {
 					_datePicker1.getDayOfMonth());
 			_calendar2.set(_datePicker2.getYear(), _datePicker2.getMonth(),
 					_datePicker2.getDayOfMonth());
+
+			// Actualizar la label con las nuevas fechas
+			final android.widget.TextView lblDateRange = getActivity().findViewById(R.id.lblDateRange);
+			if (lblDateRange != null) {
+				updateDateRangeLabel(lblDateRange);
+			}
 
 			CreateReportLayout();
 		} catch (Exception e) {
