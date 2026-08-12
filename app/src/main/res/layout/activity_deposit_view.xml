@@ -1,22 +1,21 @@
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="#FFFFFF" >
 
   <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/svcScroll"
     android:clickable="true"
     android:layout_weight="1"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:background="#FFFFFF">
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         	  android:id="@+id/mainLinearLayout"
-              android:layout_width="fill_parent"
-              android:layout_height="250dp"
-              android:layout_marginTop="5dp"
-              android:layout_marginLeft="15dp"
-              android:layout_marginRight="15dp"
-              android:background="@drawable/border_layout"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:background="#FFFFFF"
               android:orientation="vertical" >
 
 </LinearLayout>

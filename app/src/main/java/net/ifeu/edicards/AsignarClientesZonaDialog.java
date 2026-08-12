@@ -1,7 +1,9 @@
 package net.ifeu.edicards;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -289,6 +291,10 @@ public class AsignarClientesZonaDialog extends Activity {
 
 			// Actualizar la vista
 			adapter.notifyDataSetChanged();
+
+			// Notificar que se han asignado zonas para refrescar la pantalla de rutas
+			Intent intent = new Intent(RutasViewerFragment.ACTION_ZONA_ASIGNADA);
+			LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 		}
 	}
 
@@ -413,6 +419,10 @@ public class AsignarClientesZonaDialog extends Activity {
 								? "Cliente desasignado de zona"
 								: "Cliente asignado a zona";
 							Toast.makeText(AsignarClientesZonaDialog.this, mensaje, Toast.LENGTH_SHORT).show();
+
+							// Notificar que se ha asignado una zona para refrescar la pantalla de rutas
+							Intent intent = new Intent(RutasViewerFragment.ACTION_ZONA_ASIGNADA);
+							LocalBroadcastManager.getInstance(AsignarClientesZonaDialog.this).sendBroadcast(intent);
 						}
 
 					} catch (Exception e) {

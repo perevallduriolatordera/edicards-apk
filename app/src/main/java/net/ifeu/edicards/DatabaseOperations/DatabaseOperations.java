@@ -391,6 +391,7 @@ public class DatabaseOperations {
 			createCiudadVendedorTable();
 			createRutasGeneradasTable();
 			createZonasTable();
+			createClientesComentariosTable();
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -1155,11 +1156,42 @@ public class DatabaseOperations {
 		}
 	}
 
+	private void createClientesComentariosTable() throws Exception {
+		if (_databaseConnection.getDatabase().isOpen()) {
+			try {
+				_databaseConnection.getDatabase().execSQL(
+					"create table if not exists " + ConstantsDatabase.TABLE_CLIENTES_COMENTARIOS +
+					" ( IdComentario integer primary key autoincrement, " +
+					"CodigoCliente text not null, " +
+					"Comentario text not null, " +
+					"FechaCreacion datetime not null, " +
+					"Usuario text);"
+				);
+			} catch (Exception e) {
+				throw new Exception("Error creando la tabla " +
+					ConstantsDatabase.TABLE_CLIENTES_COMENTARIOS + ". Motivo: " + e.getMessage());
+			}
+		} else {
+			throw new Exception("Error creando la tabla " +
+				ConstantsDatabase.TABLE_CLIENTES_COMENTARIOS +
+				". Motivo: La Base de datos no ha podido ser abierta.");
+		}
+	}
+
 	private void alterStructure()  {
 		addGeocodingColumnsIfNecessary();
 
 		if (_databaseConnection.getDatabase().isOpen())
 		{
+			// Añadir columna EsFavorito a tabla Clientes (para clientes preferentes)
+			try {
+				_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_CLIENTES + " ADD COLUMN EsFavorito integer default 0 ");
+			}
+			catch (Exception e) {
+				if (!e.getMessage().startsWith("duplicate column name"))
+					throw new RuntimeException(e);
+			}
+
 			// Añadir columna IdZona a tabla Clientes
 			try {
 				_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_CLIENTES + " ADD COLUMN IdZona integer default null ");

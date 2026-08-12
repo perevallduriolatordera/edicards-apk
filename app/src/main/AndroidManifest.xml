@@ -145,6 +145,16 @@
             android:label="Vista previa de trazabilidad"
             android:theme="@android:style/Theme.Dialog"
             android:exported="false" />
+
+        <activity android:name=".EstadoClientesDialog"
+            android:label="Estado de Clientes"
+            android:theme="@android:style/Theme.Dialog"
+            android:exported="false" />
+
+        <!-- Google Maps API Key -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${MAPS_API_KEY}" />
     </application>
 
     <!-- Permisos -->
@@ -159,4 +169,8 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Permisos para Google Maps -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 </manifest>

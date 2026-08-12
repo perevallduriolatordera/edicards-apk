@@ -28,9 +28,12 @@ public class AlbaranView extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_deposit_view);
         
-        android.view.WindowManager.LayoutParams params = getWindow().getAttributes(); 
+        android.view.WindowManager.LayoutParams params = getWindow().getAttributes();
         params.height = LayoutParams.FILL_PARENT;
-        params.width  = 1000;
+        android.view.Display display = getWindowManager().getDefaultDisplay();
+        android.graphics.Point size = new android.graphics.Point();
+        display.getSize(size);
+        params.width = (int) (size.x * 0.95); // 95% del ancho de pantalla
         getWindow().setAttributes(params);
         
         try {
@@ -268,27 +271,29 @@ public class AlbaranView extends Activity {
     	layoutTotales.setBackgroundColor(Color.parseColor("#E3F2FD"));
     	layoutTotales.setPadding(12, 12, 12, 12);
 
-    	LabelColor TotalBase = new LabelColor(this,Color.parseColor("#0277BD"), Gravity.LEFT);
+    	LabelColor TotalBase = new LabelColor(this,Color.parseColor("#01579B"), Gravity.LEFT);
 		TotalBase.setRawInputType(InputType.TYPE_CLASS_NUMBER);
 		TotalBase.setText("Base: " + _appConfig.getWorkingArea().CurrentDeposito.Totales.TotalBase + " €");
-		TotalBase.setTextSize(TEXT_SIZE);
-		TotalBase.setWidth(150);
+		TotalBase.setTextSize(16);
+		TotalBase.setTypeface(null, android.graphics.Typeface.BOLD);
+		TotalBase.setWidth(250);
 		TotalBase.setLayoutParams(params2);
-    	
+
 		layoutTotales.addView(TotalBase);
-		
+
 		double total;
-		
+
 		if (_appConfig.getWorkingArea().CurrentDeposito.Serie.equals(_appConfig.getUser().SerialInvoiceA))
 			total = _appConfig.getWorkingArea().CurrentDeposito.Totales.Total;
 		else
 			total = _appConfig.getWorkingArea().CurrentDeposito.Totales.TotalBase;
 
-    	LabelColor TotalAlbaran = new LabelColor(this,Color.parseColor("#0277BD"), Gravity.LEFT);
+    	LabelColor TotalAlbaran = new LabelColor(this,Color.parseColor("#01579B"), Gravity.LEFT);
     	TotalAlbaran.setRawInputType(InputType.TYPE_CLASS_NUMBER);
     	TotalAlbaran.setText("Total: " + total + " €");
-    	TotalAlbaran.setTextSize(TEXT_SIZE);
-    	TotalAlbaran.setWidth(150);
+    	TotalAlbaran.setTextSize(16);
+    	TotalAlbaran.setTypeface(null, android.graphics.Typeface.BOLD);
+    	TotalAlbaran.setWidth(250);
     	TotalAlbaran.setLayoutParams(params2);
     	
     	layoutTotales.addView(TotalAlbaran);
@@ -302,19 +307,25 @@ public class AlbaranView extends Activity {
     	layout3.setOrientation(LinearLayout.HORIZONTAL);
     	layout3.setBackgroundColor(Color.WHITE);
     	layout3.setGravity(Gravity.CENTER);
+    	layout3.setPadding(16, 24, 16, 24);
+
+		android.widget.LinearLayout.LayoutParams layout3Params = new LinearLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		layout3.setLayoutParams(layout3Params);
 
 		ButtonColor closeButton = new ButtonColor(this, Color.parseColor("#D32F2F"));
 
-		closeButton.setText("Cerrar");
+		closeButton.setText("CERRAR");
 		int TEXT_SIZE_BUTTON = 16;
 		closeButton.setTextSize(TEXT_SIZE_BUTTON);
 		closeButton.setTextColor(Color.WHITE);
-		int BUTTONS_WIDTH = 200;
-		closeButton.setWidth(BUTTONS_WIDTH);
-		closeButton.setHeight(50);
+		closeButton.setPadding(40, 16, 40, 16);
+		closeButton.setGravity(Gravity.CENTER);
 
-		
-		closeButton.setLayoutParams(params2);
+		android.widget.LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
+				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		buttonParams.setMargins(0, 0, 0, 0);
+		closeButton.setLayoutParams(buttonParams);
 
 		closeButton.setOnClickListener(arg0 -> {
 			

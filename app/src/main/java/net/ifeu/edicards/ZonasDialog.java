@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -82,7 +83,7 @@ public class ZonasDialog extends Activity {
 			TextView txtNombreZona = itemView.findViewById(R.id.txtNombreZona);
 			TextView txtNumClientes = itemView.findViewById(R.id.txtNumClientes);
 			ButtonColor btnVerClientes = itemView.findViewById(R.id.btnVerClientesZona);
-		ButtonColor btnEditar = itemView.findViewById(R.id.btnEditarZona);
+			ButtonColor btnEditar = itemView.findViewById(R.id.btnEditarZona);
 			ButtonColor btnActivar = itemView.findViewById(R.id.btnActivarZona);
 			ButtonColor btnDesactivar = itemView.findViewById(R.id.btnDesactivarZona);
 			ButtonColor btnBorrar = itemView.findViewById(R.id.btnBorrarZona);
@@ -115,7 +116,7 @@ public class ZonasDialog extends Activity {
 
 			// Configurar listeners
 			btnVerClientes.setOnClickListener(v -> abrirAsignacionClientes());
-		btnEditar.setOnClickListener(v -> mostrarDialogEditarZona(zona));
+			btnEditar.setOnClickListener(v -> mostrarDialogEditarZona(zona));
 			btnActivar.setOnClickListener(v -> mostrarConfirmacionActivar(zona));
 			btnDesactivar.setOnClickListener(v -> mostrarConfirmacionDesactivar(zona));
 			btnBorrar.setOnClickListener(v -> mostrarConfirmacionBorrar(zona, numClientes));
@@ -147,6 +148,10 @@ public class ZonasDialog extends Activity {
 				zonaManager.crearZona(nombreZona);
 				Toast.makeText(this, "Zona creada: " + nombreZona, Toast.LENGTH_SHORT).show();
 				cargarZonas();
+
+				// Notificar cambio para refrescar la pantalla de rutas
+				Intent intent = new Intent(RutasViewerFragment.ACTION_ZONA_ASIGNADA);
+				LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 			} catch (Exception e) {
 				Toast.makeText(this, "Error al crear zona: " + e.getMessage(), Toast.LENGTH_LONG).show();
 			}
@@ -178,6 +183,10 @@ public class ZonasDialog extends Activity {
 				zonaManager.actualizarNombreZona(zona.IdZona, nuevoNombre);
 				Toast.makeText(this, "Zona actualizada", Toast.LENGTH_SHORT).show();
 				cargarZonas();
+
+				// Notificar cambio para refrescar la pantalla de rutas
+				Intent intent = new Intent(RutasViewerFragment.ACTION_ZONA_ASIGNADA);
+				LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 			} catch (Exception e) {
 				Toast.makeText(this, "Error al actualizar zona: " + e.getMessage(), Toast.LENGTH_LONG).show();
 			}
@@ -197,6 +206,10 @@ public class ZonasDialog extends Activity {
 					zonaManager.desactivarZona(zona.IdZona);
 					Toast.makeText(this, "Zona desactivada", Toast.LENGTH_SHORT).show();
 					cargarZonas();
+
+					// Notificar cambio para refrescar la pantalla de rutas
+					Intent intent = new Intent(RutasViewerFragment.ACTION_ZONA_ASIGNADA);
+					LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 				} catch (Exception e) {
 					Toast.makeText(this, "Error al desactivar zona: " + e.getMessage(), Toast.LENGTH_LONG).show();
 				}
@@ -214,6 +227,10 @@ public class ZonasDialog extends Activity {
 					zonaManager.activarZona(zona.IdZona);
 					Toast.makeText(this, "Zona activada", Toast.LENGTH_SHORT).show();
 					cargarZonas();
+
+					// Notificar cambio para refrescar la pantalla de rutas
+					Intent intent = new Intent(RutasViewerFragment.ACTION_ZONA_ASIGNADA);
+					LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 				} catch (Exception e) {
 					Toast.makeText(this, "Error al activar zona: " + e.getMessage(), Toast.LENGTH_LONG).show();
 				}
@@ -240,6 +257,10 @@ public class ZonasDialog extends Activity {
 						zonaManager.eliminarZona(zona.IdZona);
 						Toast.makeText(this, "Zona borrada permanentemente", Toast.LENGTH_SHORT).show();
 						cargarZonas();
+
+						// Notificar cambio para refrescar la pantalla de rutas
+						Intent intent = new Intent(RutasViewerFragment.ACTION_ZONA_ASIGNADA);
+						LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 					} catch (Exception e) {
 						Toast.makeText(this, "Error al borrar zona: " + e.getMessage(), Toast.LENGTH_LONG).show();
 					}

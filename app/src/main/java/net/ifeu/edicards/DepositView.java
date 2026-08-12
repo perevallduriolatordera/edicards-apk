@@ -30,7 +30,10 @@ public class DepositView extends Activity {
 
 		android.view.WindowManager.LayoutParams params = getWindow().getAttributes();
 		params.height = LayoutParams.FILL_PARENT;
-		params.width = 800;
+		android.view.Display display = getWindowManager().getDefaultDisplay();
+		android.graphics.Point size = new android.graphics.Point();
+		display.getSize(size);
+		params.width = (int) (size.x * 0.95); // 95% del ancho de pantalla
 		getWindow().setAttributes((android.view.WindowManager.LayoutParams) params);
 
 		try {
@@ -190,20 +193,24 @@ public class DepositView extends Activity {
 		layout3.setOrientation(LinearLayout.HORIZONTAL);
 		layout3.setBackgroundColor(Color.WHITE);
 		layout3.setGravity(Gravity.CENTER);
+		layout3.setPadding(16, 24, 16, 24);
+
+		android.widget.LinearLayout.LayoutParams layout3Params = new LinearLayout.LayoutParams(
+				LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		layout3.setLayoutParams(layout3Params);
 
 		ButtonColor closeButton = new ButtonColor(this, Color.parseColor("#D32F2F"));
 
-		closeButton.setText("Cerrar");
+		closeButton.setText("CERRAR");
 		int TEXT_SIZE_BUTTON = 16;
 		closeButton.setTextSize(TEXT_SIZE_BUTTON);
 		closeButton.setTextColor(Color.WHITE);
-		int BUTTONS_WIDTH = 200;
-		closeButton.setWidth(BUTTONS_WIDTH);
-		closeButton.setHeight(50);
+		closeButton.setPadding(40, 16, 40, 16);
+		closeButton.setGravity(Gravity.CENTER);
 
-		android.widget.LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
-				LayoutParams.WRAP_CONTENT);
-		params2.setMargins(0, 24, 0, 0);
+		android.widget.LinearLayout.LayoutParams params2 = new LinearLayout.LayoutParams(
+				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		params2.setMargins(0, 0, 0, 0);
 		closeButton.setLayoutParams(params2);
 
 		closeButton.setOnClickListener(arg0 -> {

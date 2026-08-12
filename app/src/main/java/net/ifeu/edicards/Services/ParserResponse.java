@@ -970,10 +970,61 @@ public class ParserResponse extends ParserBase {
 	}
 
 	/**
+	 * Valida y corrige automáticamente coordenadas para España
+	 * Detecta coordenadas invertidas (lat/lon intercambiados) y las corrige
+	 * @param cliente Cliente cuyas coordenadas se van a validar/corregir
+	 * @return true si se corrigieron las coordenadas, false en caso contrario
+	 */
+	private boolean validarYCorregirCoordenadasEspana(Cliente cliente) {
+		if (cliente.Latitud == null || cliente.Longitud == null) {
+			return false; // No hay nada que corregir
+		}
+
+		// Rangos válidos para España
+		// Península + Baleares: Lat 34-44°N, Lon -11° a 5°E
+		// Canarias: Lat 27-30°N, Lon -18° a -13°W
+		boolean enPeninsula = (cliente.Latitud >= 34.0 && cliente.Latitud <= 44.0) &&
+		                      (cliente.Longitud >= -11.0 && cliente.Longitud <= 5.0);
+		boolean enCanarias = (cliente.Latitud >= 27.0 && cliente.Latitud <= 30.0) &&
+		                     (cliente.Longitud >= -18.0 && cliente.Longitud <= -13.0);
+
+		// Si ya están correctas, no hacer nada
+		if (enPeninsula || enCanarias) {
+			return false;
+		}
+
+		// Verificar si están invertidas: probar intercambiando lat/lon
+		boolean enPenInvertida = (cliente.Longitud >= 34.0 && cliente.Longitud <= 44.0) &&
+		                         (cliente.Latitud >= -11.0 && cliente.Latitud <= 5.0);
+		boolean enCanInvertida = (cliente.Longitud >= 27.0 && cliente.Longitud <= 30.0) &&
+		                         (cliente.Latitud >= -18.0 && cliente.Latitud <= -13.0);
+
+		if (enPenInvertida || enCanInvertida) {
+			// COORDENADAS INVERTIDAS DETECTADAS - Auto-corregir
+			Double temp = cliente.Latitud;
+			cliente.Latitud = cliente.Longitud;
+			cliente.Longitud = temp;
+
+			Log.w("ParserResponse", "✓ AUTO-CORRECCIÓN: Coordenadas invertidas detectadas y corregidas");
+			Log.w("ParserResponse", "  Cliente: " + cliente.CodigoCliente + " (" + cliente.Nombre + ")");
+			Log.w("ParserResponse", "  Antes: Lat=" + cliente.Longitud + ", Lon=" + cliente.Latitud);
+			Log.w("ParserResponse", "  Ahora: Lat=" + cliente.Latitud + ", Lon=" + cliente.Longitud);
+			return true; // Se corrigió
+		}
+
+		return false; // No se pudo corregir automáticamente
+	}
+
+	/**
 	 * Geocodifica un cliente si no tiene coordenadas
 	 * @param cliente Cliente a geocodificar
 	 */
 	private void geocodificarClienteIfNeeded(Cliente cliente) {
+		// PASO 1: Intentar auto-corregir coordenadas invertidas
+		if (validarYCorregirCoordenadasEspana(cliente)) {
+			// Las coordenadas fueron corregidas, no es necesario geocodificar
+			return;
+		}
 		// Geocodificar si NO tiene coordenadas válidas (null, 0, o fuera de rango)
 		boolean needsGeocoding = (cliente.Latitud == null || cliente.Latitud == 0 || cliente.Longitud == null || cliente.Longitud == 0) ||
 								(!isValidCoordinate(cliente.Latitud, cliente.Longitud));

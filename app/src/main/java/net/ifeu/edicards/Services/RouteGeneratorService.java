@@ -1078,11 +1078,11 @@ public class RouteGeneratorService {
 		ArrayList<Cliente> clientesParaGeocoding = new ArrayList<>();
 
 		try {
-			// Obtener TODOS los clientes activos (con o sin coordenadas)
+			// Obtener SOLO clientes activos CON zona asignada (con o sin coordenadas)
 			android.database.Cursor cursor = app.getDatabaseOperations().executeSentence(
-				"SELECT * FROM Clientes WHERE Activo = 1");
+				"SELECT * FROM Clientes WHERE Activo = 1 AND IdZona IS NOT NULL AND IdZona != 0");
 
-			Log.d(TAG, "Buscando todos los clientes activos...");
+			Log.d(TAG, "Buscando clientes activos con zona asignada...");
 
 			if (cursor != null && cursor.getCount() > 0) {
 				cursor.moveToFirst();
@@ -1440,6 +1440,129 @@ public class RouteGeneratorService {
 	}
 
 	/**
+	 * Ordena zonas por distancia a la base (de menor a mayor distancia)
+	 * Calcula la distancia promedio de los clientes de cada zona a la base
+	 */
+	private void ordenarZonasPorDistancia(AppConfig app, ArrayList<Zona> zonas, LatLng baseLocation) {
+		// Clase auxiliar para almacenar zona con su distancia
+		class ZonaConDistancia {
+			Zona zona;
+			double distanciaPromedio;
+
+			ZonaConDistancia(Zona zona, double distancia) {
+				this.zona = zona;
+				this.distanciaPromedio = distancia;
+			}
+		}
+
+		ArrayList<ZonaConDistancia> zonasConDistancia = new ArrayList<>();
+
+		// Calcular distancia promedio para cada zona
+		for (Zona zona : zonas) {
+			try {
+				ArrayList<Cliente> clientesZona = getClientesPorZona(app, zona.IdZona);
+
+				if (clientesZona == null || clientesZona.isEmpty()) {
+					// Si no tiene clientes, poner al final
+					zonasConDistancia.add(new ZonaConDistancia(zona, Double.MAX_VALUE));
+					continue;
+				}
+
+				// Calcular distancia promedio de los clientes de esta zona a la base
+				double sumaDistancias = 0;
+				int clientesValidos = 0;
+
+				for (Cliente cliente : clientesZona) {
+					if (cliente.Latitud != null && cliente.Longitud != null) {
+						double distancia = calculateDistance(
+							baseLocation.getLatitude(), baseLocation.getLongitude(),
+							cliente.Latitud, cliente.Longitud
+						);
+						sumaDistancias += distancia;
+						clientesValidos++;
+					}
+				}
+
+				double distanciaPromedio = clientesValidos > 0 ? (sumaDistancias / clientesValidos) : Double.MAX_VALUE;
+				zonasConDistancia.add(new ZonaConDistancia(zona, distanciaPromedio));
+
+				Log.d(TAG, "  Zona '" + zona.NombreZona + "': " + clientesValidos + " clientes, distancia promedio = " +
+					String.format("%.2f", distanciaPromedio) + " km");
+
+			} catch (Exception e) {
+				Log.e(TAG, "Error calculando distancia para zona " + zona.NombreZona + ": " + e.getMessage());
+				zonasConDistancia.add(new ZonaConDistancia(zona, Double.MAX_VALUE));
+			}
+		}
+
+		// Ordenar por distancia promedio (menor a mayor)
+		java.util.Collections.sort(zonasConDistancia, new java.util.Comparator<ZonaConDistancia>() {
+			@Override
+			public int compare(ZonaConDistancia z1, ZonaConDistancia z2) {
+				return Double.compare(z1.distanciaPromedio, z2.distanciaPromedio);
+			}
+		});
+
+		// Reemplazar lista original con zonas ordenadas
+		zonas.clear();
+		for (ZonaConDistancia zcd : zonasConDistancia) {
+			zonas.add(zcd.zona);
+		}
+
+		Log.i(TAG, "");
+		Log.i(TAG, "  ✓ Zonas ordenadas por distancia:");
+		for (int i = 0; i < zonasConDistancia.size(); i++) {
+			ZonaConDistancia zcd = zonasConDistancia.get(i);
+			String distStr = zcd.distanciaPromedio == Double.MAX_VALUE ? "SIN CLIENTES" :
+				String.format("%.2f km", zcd.distanciaPromedio);
+			Log.i(TAG, "    " + (i + 1) + ". " + zcd.zona.NombreZona + " - " + distStr);
+		}
+	}
+
+	/**
+	 * Valida que las coordenadas sean coherentes para España
+	 * España peninsular + Baleares: Lat 35°-44°N, Lon -10° a 5°E
+	 * Canarias: Lat 27°-30°N, Lon -18° a -13°W
+	 * @param latitud Latitud a validar
+	 * @param longitud Longitud a validar
+	 * @return null si es válida, mensaje de error si es inválida
+	 */
+	private String validarCoordenadasEspana(Double latitud, Double longitud) {
+		if (latitud == null || longitud == null) {
+			return "Coordenadas nulas";
+		}
+
+		// Validación mundial básica
+		if (latitud < -90 || latitud > 90 || longitud < -180 || longitud > 180) {
+			return "Fuera del rango mundial (lat: " + latitud + ", lon: " + longitud + ")";
+		}
+
+		// Verificar si las coordenadas están invertidas (común error)
+		// Si la "latitud" está en rango de longitud de España y viceversa
+		boolean posiblementeInvertidas = false;
+		if (latitud >= -18 && latitud <= 5 && longitud >= 27 && longitud <= 44) {
+			posiblementeInvertidas = true;
+		}
+
+		// España Peninsular + Baleares: Lat 34-44°N, Lon -11° a 5°E
+		boolean enPeninsula = (latitud >= 34.0 && latitud <= 44.0) &&
+		                      (longitud >= -11.0 && longitud <= 5.0);
+
+		// Islas Canarias: Lat 27-30°N, Lon -18° a -13°W
+		boolean enCanarias = (latitud >= 27.0 && latitud <= 30.0) &&
+		                     (longitud >= -18.0 && longitud <= -13.0);
+
+		if (!enPeninsula && !enCanarias) {
+			if (posiblementeInvertidas) {
+				return "Coordenadas INVERTIDAS (lat=" + latitud + ", lon=" + longitud + ") - revisar";
+			}
+			return "Fuera de España (lat=" + latitud + ", lon=" + longitud + ")";
+		}
+
+		return null; // Válida
+	}
+
+	/**
 	 * Genera todas las permutaciones de una lista de clusters
 	 * Con 4-5 clusters: 24-120 permutaciones (factible)
 	 */
@@ -1611,12 +1734,20 @@ public class RouteGeneratorService {
 					Log.i(TAG, "Zona '" + zona.NombreZona + "' optimizada: " + rutaZona.size() + " clientes");
 				}
 
-				// 4. Procesar clientes sin zona asignada (zona "Sin asignar")
-				callback.onProgress("Procesando clientes sin zona asignada...");
+				// 4. EXCLUIR clientes sin zona asignada del cálculo de rutas
+				// Los clientes sin zona asignada NO se incluyen en la ruta
+				callback.onProgress("Verificando zonas asignadas...");
 				Log.i(TAG, "═══════════════════════════════════════");
-				Log.i(TAG, "PROCESANDO CLIENTES SIN ZONA");
+				Log.i(TAG, "CLIENTES SIN ZONA EXCLUIDOS DEL CÁLCULO");
 
 				ArrayList<Cliente> clientesSinZona = getClientesSinZona(app);
+				if (!clientesSinZona.isEmpty()) {
+					Log.i(TAG, "Clientes sin zona asignada (excluidos): " + clientesSinZona.size());
+					// NO se procesan ni se añaden a la ruta
+				}
+
+				// CÓDIGO ANTERIOR COMENTADO - Ya no se procesan clientes sin zona
+				/*
 				if (!clientesSinZona.isEmpty()) {
 					Log.i(TAG, "Clientes sin zona: " + clientesSinZona.size());
 
@@ -1642,6 +1773,7 @@ public class RouteGeneratorService {
 						}
 					}
 				}
+				*/
 
 				if (rutaCompleta.isEmpty()) {
 					callback.onError("No se pudieron generar rutas para ninguna zona");
@@ -1670,20 +1802,79 @@ public class RouteGeneratorService {
 	private ArrayList<Cliente> getClientesPorZona(AppConfig app, long idZona) throws Exception {
 		ArrayList<Cliente> clientes = new ArrayList<>();
 
-		android.database.Cursor cursor = app.getDatabaseOperations().executeSentence(
-			"SELECT * FROM Clientes WHERE Activo = 1 AND IdZona = " + idZona +
-			" AND Latitud IS NOT NULL AND Latitud != 0 AND Longitud IS NOT NULL AND Longitud != 0"
+		// Primero contar cuántos clientes hay en la zona (sin filtro de coordenadas)
+		android.database.Cursor cursorTotal = app.getDatabaseOperations().executeSentence(
+			"SELECT COUNT(*) FROM Clientes WHERE Activo = 1 AND IdZona = " + idZona
 		);
+		int totalEnZona = 0;
+		if (cursorTotal != null && cursorTotal.moveToFirst()) {
+			totalEnZona = cursorTotal.getInt(0);
+			cursorTotal.close();
+		}
+
+		// Diagnóstico: ver qué valores tienen las coordenadas de TODOS los clientes de esta zona
+		android.database.Cursor cursorDiag = app.getDatabaseOperations().executeSentence(
+			"SELECT CodigoCliente, Nombre, Latitud, Longitud FROM Clientes WHERE Activo = 1 AND IdZona = " + idZona
+		);
+		if (cursorDiag != null && cursorDiag.getCount() > 0) {
+			cursorDiag.moveToFirst();
+			Log.d(TAG, "  === DIAGNÓSTICO: TODOS los clientes en zona " + idZona + " ===");
+			int conCoords = 0;
+			int sinCoords = 0;
+			do {
+				String codigo = cursorDiag.getString(0);
+				String nombre = cursorDiag.getString(1);
+				Double latDbl = cursorDiag.isNull(2) ? null : cursorDiag.getDouble(2);
+				Double lonDbl = cursorDiag.isNull(3) ? null : cursorDiag.getDouble(3);
+
+				if (latDbl != null && latDbl != 0.0 && lonDbl != null && lonDbl != 0.0) {
+					conCoords++;
+					Log.d(TAG, "    ✓ " + codigo + " (" + nombre + "): Lat=" + latDbl + ", Lon=" + lonDbl);
+				} else {
+					sinCoords++;
+					String razon = (latDbl == null || lonDbl == null) ? "NULL" : "CERO";
+					Log.d(TAG, "    ✗ " + codigo + " (" + nombre + "): Lat=" + latDbl + ", Lon=" + lonDbl + " [" + razon + "]");
+				}
+			} while (cursorDiag.moveToNext());
+			Log.d(TAG, "  === RESUMEN: " + conCoords + " con coords válidas, " + sinCoords + " sin coords ===");
+			cursorDiag.close();
+		}
+
+		// Intentar query más simple: solo filtrar por zona y activo, luego filtrar coordenadas en código
+		android.database.Cursor cursor = app.getDatabaseOperations().executeSentence(
+			"SELECT * FROM Clientes WHERE Activo = 1 AND IdZona = " + idZona
+		);
+
+		Log.d(TAG, "  Total clientes en zona: " + totalEnZona + " | Recuperados sin filtro coords: " + (cursor != null ? cursor.getCount() : 0));
 
 		if (cursor != null && cursor.getCount() > 0) {
 			cursor.moveToFirst();
+			int conCoordenadas = 0;
+			int sinCoordenadas = 0;
+			int coordenadasInvalidas = 0;
 			do {
 				Cliente cliente = Factory.build(Cliente.class, app);
 				if (cliente.setClienteById(cursor.getString(cursor.getColumnIndex("IdCliente")))) {
-					clientes.add(cliente);
+					// Verificar que existan coordenadas
+					if (cliente.Latitud != null && cliente.Latitud != 0.0 && cliente.Longitud != null && cliente.Longitud != 0.0) {
+						// Validar que las coordenadas sean válidas para España
+						String validacion = validarCoordenadasEspana(cliente.Latitud, cliente.Longitud);
+						if (validacion == null) {
+							// Coordenadas válidas
+							clientes.add(cliente);
+							conCoordenadas++;
+						} else {
+							// Coordenadas inválidas
+							coordenadasInvalidas++;
+							Log.w(TAG, "    ✗ Cliente " + cliente.CodigoCliente + " (" + cliente.Nombre + "): " + validacion);
+						}
+					} else {
+						sinCoordenadas++;
+					}
 				}
 			} while (cursor.moveToNext());
 			cursor.close();
+			Log.d(TAG, "  Después de filtrar: Válidas=" + conCoordenadas + " | Sin coords=" + sinCoordenadas + " | Inválidas=" + coordenadasInvalidas);
 		}
 
 		return deduplicarClientes(clientes);
@@ -1756,11 +1947,18 @@ public class RouteGeneratorService {
 					return;
 				}
 
+				// 3. ORDENAR ZONAS POR DISTANCIA A LA BASE
+				callback.onProgress("Ordenando zonas por proximidad a la base...");
+				Log.i(TAG, "");
+				Log.i(TAG, "═══ ORDENANDO ZONAS POR DISTANCIA ═══");
+
+				ordenarZonasPorDistancia(app, zonasActivas, baseLocation);
+
 				ArrayList<RouteOptimizerService.RutaClienteData> rutaCompleta = new ArrayList<>();
 				int ordenGlobal = 1;
 				Cliente clienteAnterior = null;
 
-				// 3. Procesar cada zona como un lote
+				// 4. Procesar cada zona como un lote (ya ordenadas por distancia)
 				for (int i = 0; i < zonasActivas.size(); i++) {
 					Zona zonaActual = zonasActivas.get(i);
 
@@ -1819,15 +2017,18 @@ public class RouteGeneratorService {
 					}
 				}
 
-				// 4. Procesar clientes sin zona al final
-				callback.onProgress("Procesando clientes sin zona asignada...");
+				// 5. EXCLUIR clientes sin zona del cálculo de rutas
+				// Los clientes sin zona asignada NO se incluyen en la ruta
+				callback.onProgress("Verificando zonas asignadas...");
 				Log.i(TAG, "");
-				Log.i(TAG, "═══ PROCESANDO CLIENTES SIN ZONA ═══");
+				Log.i(TAG, "═══ CLIENTES SIN ZONA EXCLUIDOS DEL CÁLCULO ═══");
 
 				ArrayList<Cliente> clientesSinZona = getClientesSinZona(app);
 
 				if (clientesSinZona != null && !clientesSinZona.isEmpty()) {
-					Log.i(TAG, "  Clientes sin zona: " + clientesSinZona.size());
+					Log.i(TAG, "  Clientes sin zona asignada (excluidos): " + clientesSinZona.size());
+				// NO se procesan ni se añaden a la ruta
+				/* CÓDIGO ANTERIOR COMENTADO - Ya no se procesan clientes sin zona
 
 					clientesSinZona = filterClientesByDistanceFromBase(clientesSinZona, baseLocation);
 
@@ -1851,6 +2052,8 @@ public class RouteGeneratorService {
 						}
 					}
 				}
+				*/
+			}
 
 				if (rutaCompleta.isEmpty()) {
 					callback.onError("No se pudo generar ninguna ruta");

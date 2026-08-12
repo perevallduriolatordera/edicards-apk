@@ -1704,11 +1704,13 @@ public class DepositManager extends Fragment implements  IMediator {
 			LayoutParams buttonParams = new LayoutParams(params);
 			buttonParams.setMargins(10,10,10,10);
 
-			ButtonColor modoAbono = createHeaderLayout ? DepositManagerExtension.UI.addButton(getActivity(), Color.GREEN, "ABONO",
-					10, ScreenManager.getViewWidthByLength(_appConfig, 10, TEXT_SIZE, Gravity.LEFT), buttonParams, lineaDeposito)
+			ButtonColor modoAbono = createHeaderLayout ? DepositManagerExtension.UI.addButton(getActivity(), Color.parseColor("#F44336"), "▼ ABONO",
+					10, ScreenManager.getViewWidthByLength(_appConfig, 10, TEXT_SIZE, Gravity.CENTER), buttonParams, lineaDeposito)
 					: (ButtonColor) _headerLayout.getChildAt(10);
 
 			modoAbono.setTag(lineaDeposito);
+		modoAbono.setTextColor(Color.WHITE);
+		modoAbono.setGravity(Gravity.CENTER);
 
 			modoAbono.setVisibility(_modalidad == DepositoModalidad.Edicards ?
 					View.INVISIBLE : View.VISIBLE);
@@ -1926,12 +1928,14 @@ public class DepositManager extends Fragment implements  IMediator {
 		// Botón Venta
 
 		LayoutParams buttonParams = new LayoutParams(params);
-		buttonParams.setMargins(10,10,10,10);
-		ButtonColor modoVenta = createHeaderLayout ?  DepositManagerExtension.UI.addButton(getActivity(), Color.GREEN, "VENTA",
-				10, ScreenManager.getViewWidthByLength(_appConfig, 10, TEXT_SIZE, Gravity.LEFT), buttonParams, lineaDeposito)
+		buttonParams.setMargins(50,10,10,10); // Margen izquierdo aumentado para separarlo del campo total
+		ButtonColor modoVenta = createHeaderLayout ?  DepositManagerExtension.UI.addButton(getActivity(), Color.parseColor("#4CAF50"), "▲ VENTA",
+				10, ScreenManager.getViewWidthByLength(_appConfig, 10, TEXT_SIZE, Gravity.CENTER), buttonParams, lineaDeposito)
 				: (ButtonColor) _headerAbonoLayout.getChildAt(9);
 
 		modoVenta.setTag(lineaDeposito);
+	modoVenta.setTextColor(Color.WHITE);
+	modoVenta.setGravity(Gravity.CENTER);
 		modoVenta.setOnClickListener(arg0 -> {
 
 			_abonoMode = false;

@@ -31,6 +31,9 @@ android {
         // Inyectar Google Maps Routes API Key desde local.properties
         def googleMapsApiKey = localProperties.getProperty('google.maps.api.key', '')
         buildConfigField "String", "GOOGLE_MAPS_API_KEY", "\"${googleMapsApiKey}\""
+
+        // Inyectar API key en AndroidManifest.xml
+        manifestPlaceholders = [MAPS_API_KEY: googleMapsApiKey]
     }
 
     buildTypes {
@@ -89,6 +92,9 @@ dependencies {
     implementation 'com.google.zxing:core:3.4.1'
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
     implementation 'commons-net:commons-net:3.5'
+
+    // Google Maps para visualización de rutas (versión compatible con support library)
+    implementation 'com.google.android.gms:play-services-maps:16.1.0'
 
     //implementation 'androidx.multidex:multidex:2.0.1'
 }

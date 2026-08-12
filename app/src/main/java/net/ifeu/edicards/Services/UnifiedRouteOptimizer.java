@@ -116,17 +116,24 @@ public class UnifiedRouteOptimizer {
         try {
             // Construir lista de waypoints (lat,lng como strings)
             ArrayList<String> waypoints = new ArrayList<>();
+            // IMPORTANTE: Lista para mapear índices de waypoints a clientes
+            ArrayList<Cliente> clientesConCoordenadas = new ArrayList<>();
 
             // Agregar base
             waypoints.add(baseLocation.getLatitude() + "," + baseLocation.getLongitude());
 
-            // Agregar clientes
+            // Agregar SOLO clientes con coordenadas válidas
             for (Cliente c : clientes) {
-                if (c.Latitud != null && c.Longitud != null) {
+                if (c.Latitud != null && c.Longitud != null &&
+                    c.Latitud != 0.0 && c.Longitud != 0.0) {
                     waypoints.add(c.Latitud + "," + c.Longitud);
+                    clientesConCoordenadas.add(c);  // Sincronizar índices
+                } else {
+                    Log.w(TAG, "⚠ Cliente SIN coordenadas (EXCLUIDO de waypoints): " + c.Nombre);
                 }
             }
 
+            Log.i(TAG, "Total clientes: " + clientes.size() + " | Con coordenadas: " + clientesConCoordenadas.size());
             Log.i(TAG, "Optimizando " + waypoints.size() + " waypoints con Google Maps");
 
             // Llamar al optimizador de Google Maps
@@ -147,10 +154,13 @@ public class UnifiedRouteOptimizer {
                 // Saltar índice 0 (base)
                 if (idx == 0) continue;
 
-                // Obtener cliente (idx-1 porque 0 es base)
-                if (idx - 1 >= clientes.size()) continue;
+                // Obtener cliente usando la lista sincronizada (idx-1 porque 0 es base)
+                if (idx - 1 >= clientesConCoordenadas.size()) {
+                    Log.w(TAG, "⚠ Índice fuera de rango: " + idx + " (total: " + clientesConCoordenadas.size() + ")");
+                    continue;
+                }
 
-                Cliente cliente = clientes.get(idx - 1);
+                Cliente cliente = clientesConCoordenadas.get(idx - 1);
 
                 RouteOptimizerService.RutaClienteData rutaCliente =
                     new RouteOptimizerService.RutaClienteData();
@@ -170,6 +180,9 @@ public class UnifiedRouteOptimizer {
                 LatLng currentLocation = new LatLng(cliente.Latitud, cliente.Longitud);
                 double distKm = calcularDistanciaHaversine(prevLocation, currentLocation) / 1000.0;
                 rutaCliente.distanciaKm = String.format("%.1f km", distKm);
+
+                Log.d(TAG, "  → Cliente #" + rutaCliente.orden + ": " + cliente.Nombre +
+                    " | Distancia: " + rutaCliente.distanciaKm + " | Coords: (" + cliente.Latitud + ", " + cliente.Longitud + ")");
 
                 resultado.add(rutaCliente);
                 prevLocation = currentLocation;

@@ -800,9 +800,10 @@ public class DepositManagerExtension {
 			imm.showSoftInput(edit, InputMethodManager.SHOW_IMPLICIT);
 			edit.setLayoutParams(params);
 			
-			if (focusable)
+			if (focusable) {
 				edit.setFocusable(true);
-			edit.setFocusableInTouchMode(true);
+				edit.setFocusableInTouchMode(true);
+			}
 			else
 				edit.setFocusable(false);
 			
@@ -824,9 +825,10 @@ public class DepositManagerExtension {
 			imm.showSoftInput(edit, InputMethodManager.SHOW_IMPLICIT);
 			edit.setLayoutParams(params);
 			
-			if (focusable)
+			if (focusable) {
 				edit.setFocusable(true);
-			edit.setFocusableInTouchMode(true);
+				edit.setFocusableInTouchMode(true);
+			}
 			else
 				edit.setFocusable(false);
 			

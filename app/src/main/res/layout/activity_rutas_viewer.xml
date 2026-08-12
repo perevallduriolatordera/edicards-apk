@@ -7,19 +7,22 @@
     android:background="#FFFFFF">
 
     <LinearLayout
+        android:id="@+id/headerRuta"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="#E3F2FD"
         android:padding="16dp"
         android:layout_marginBottom="16dp"
-        android:gravity="center">
+        android:gravity="center"
+        android:clickable="true"
+        android:focusable="true">
 
         <TextView
             android:id="@+id/lblTituloRutas"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ruta Optimizada de Clientes"
+            android:text="Ruta Optimizada de Clientes 🔄"
             android:textSize="22sp"
             android:textStyle="bold"
             android:textColor="#1976D2"
@@ -56,86 +59,220 @@
                 android:textStyle="bold"
                 android:textColor="#1976D2"/>
         </LinearLayout>
+
+        <!-- Botón para ocultar/mostrar controles -->
+        <Button
+            android:id="@+id/btnToggleControles"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:text="▼ Ocultar controles"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:background="#90CAF9"
+            android:textColor="#1565C0"
+            android:layout_marginTop="8dp"
+            android:padding="0dp"/>
     </LinearLayout>
 
-    <!-- Botones de Acción en Horizontal -->
+    <!-- Contenedor de todos los controles (ocultable) -->
     <LinearLayout
+        android:id="@+id/contenedorControles"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="8dp"
-        android:background="#F5F5F5"
-        android:padding="6dp"
-        android:gravity="center_vertical">
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btnRegenerarRuta"
-            android:layout_width="0dp"
-            android:layout_weight="1"
+        <!-- Selector de ordenación -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Regenerar Ruta"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp"
-            android:textSize="12sp"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp"
+            android:background="#E3F2FD"
+            android:padding="8dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ordenar por:"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#1976D2"
+                android:layout_marginEnd="8dp"/>
+
+            <Spinner
+                android:id="@+id/spinnerOrdenacion"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:drawable/btn_dropdown"
+                android:padding="8dp"/>
+        </LinearLayout>
+
+        <!-- Buscador de clientes -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp"
+            android:background="#FFF3E0"
+            android:padding="8dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔍"
+                android:textSize="18sp"
+                android:layout_marginEnd="8dp"/>
+
+            <EditText
+                android:id="@+id/txtBuscador"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Buscar por nombre, dirección, población..."
+                android:textSize="14sp"
+                android:textColor="#000000"
+                android:textColorHint="#9E9E9E"
+                android:padding="8dp"
+                android:background="@android:color/white"
+                android:singleLine="true"
+                android:imeOptions="actionSearch"/>
+
+            <Button
+                android:id="@+id/btnLimpiarBusqueda"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:text="✕"
+                android:textSize="18sp"
+                android:background="#FF9800"
+                android:textColor="@android:color/white"
+                android:layout_marginStart="8dp"
+                android:padding="0dp"/>
+
+            <Button
+                android:id="@+id/btnFiltroFavoritos"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:text="☆"
+                android:textSize="24sp"
+                android:background="#FFFFFF"
+                android:textColor="#9E9E9E"
+                android:layout_marginStart="8dp"
+                android:padding="0dp"/>
+        </LinearLayout>
+
+        <!-- Botones de Acción en Horizontal -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp"
+            android:background="#F5F5F5"
+            android:padding="6dp"
+            android:gravity="center_vertical">
+
+            <Button
+                android:id="@+id/btnRegenerarRuta"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Regenerar Ruta"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:background="#1976D2"
+                android:textColor="#FFFFFF"
+                android:layout_marginEnd="4dp"/>
+
+            <Button
+                android:id="@+id/btnExportarExcel"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Exportar a Excel"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:background="#4CAF50"
+                android:textColor="#FFFFFF"
+                android:layout_marginEnd="4dp"/>
+
+            <Button
+                android:id="@+id/btnGestionarZonas"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Zonas"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:background="#9C27B0"
+                android:textColor="#FFFFFF"
+                android:layout_marginEnd="4dp"/>
+
+            <Button
+                android:id="@+id/btnLimpiarCoordenadas"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Limpiar coordenadas"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:textSize="11sp"
+                android:background="#FF9800"
+                android:textColor="#FFFFFF"
+                android:layout_marginEnd="4dp"/>
+
+            <Button
+                android:id="@+id/btnEstadoClientes"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Estado Clientes"
+                android:paddingTop="6dp"
+                android:paddingBottom="6dp"
+                android:textSize="10sp"
+                android:background="#00BCD4"
+                android:textColor="#FFFFFF"/>
+        </LinearLayout>
+
+        <!-- Botón Toggle Mapa/Lista -->
+        <Button
+            android:id="@+id/btnToggleMapa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ver Mapa"
+            android:textSize="14sp"
             android:textStyle="bold"
-            android:background="#1976D2"
+            android:background="#2196F3"
             android:textColor="#FFFFFF"
-            android:layout_marginEnd="4dp"/>
+            android:layout_marginBottom="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"/>
 
-        <Button
-            android:id="@+id/btnExportarExcel"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="Exportar a Excel"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            android:background="#4CAF50"
-            android:textColor="#FFFFFF"
-            android:layout_marginEnd="4dp"/>
-
-        <Button
-            android:id="@+id/btnGestionarZonas"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="Zonas"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            android:background="#9C27B0"
-            android:textColor="#FFFFFF"
-            android:layout_marginEnd="4dp"/>
-
-        <Button
-            android:id="@+id/btnLimpiarCoordenadas"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="Limpiar coordenadas"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp"
-            android:textSize="11sp"
-            android:background="#FF9800"
-            android:textColor="#FFFFFF"
-            android:layout_marginEnd="4dp"/>
-
-        <Button
-            android:id="@+id/btnEstadoGeocodificacion"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text="Estado Geo"
-            android:paddingTop="6dp"
-            android:paddingBottom="6dp"
-            android:textSize="11sp"
-            android:background="#00BCD4"
-            android:textColor="#FFFFFF"/>
     </LinearLayout>
 
+    <!-- Contenedor del Mapa (inicialmente oculto) -->
+    <FrameLayout
+        android:id="@+id/mapContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone">
+
+        <fragment
+            android:id="@+id/mapFragment"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </FrameLayout>
+
+    <!-- ListView de Rutas (visible por defecto) -->
     <ListView
         android:id="@+id/listViewRutas"
         android:layout_width="match_parent"
