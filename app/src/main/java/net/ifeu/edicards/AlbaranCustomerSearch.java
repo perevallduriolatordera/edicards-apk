@@ -169,8 +169,9 @@ public class AlbaranCustomerSearch extends Activity {
 	 protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 		if (_appConfig.getWorkingArea().CurrentCliente != null) {
-			finish();
+			// Notificar ANTES de finish() para evitar errores de transición de Activities
 			_appConfig.getMediator().notify(ConstantsEvents.EVENT_CUSTOMER_SELECTED, _appConfig.getWorkingArea().CurrentCliente);
+			finish();
 		} else {
 			_appConfig.getMessageBox().Show("Atención",
 					"No se han encontrado resultados",
