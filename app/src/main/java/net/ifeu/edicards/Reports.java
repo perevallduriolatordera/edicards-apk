@@ -1073,6 +1073,7 @@ public class Reports extends Fragment {
 				"Enviando...Espere unos instantes", true);
 
 		final Context context = _appConfig;
+		final android.app.Activity activity = this.getActivity();
 
 		new Thread() {
 
@@ -1086,7 +1087,20 @@ public class Reports extends Fragment {
 					throw new RuntimeException(e);
 				}
 
-				progressDialog.dismiss();
+				// Verificar que la Activity no ha sido destruida antes de cerrar el diálogo
+				if (activity != null) {
+					activity.runOnUiThread(() -> {
+						if (!activity.isFinishing() && !activity.isDestroyed()) {
+							try {
+								if (progressDialog != null && progressDialog.isShowing()) {
+									progressDialog.dismiss();
+								}
+							} catch (IllegalArgumentException e) {
+								// El diálogo ya no está adjunto a la ventana, ignorar
+							}
+						}
+					});
+				}
 
 			}
 

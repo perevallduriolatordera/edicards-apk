@@ -408,27 +408,39 @@ public class DepositManagerExtension {
 					}
 					
 					final ExportResult finalResult = exportResult;
-					
+
 					activity.runOnUiThread(() -> {
-						progressDialog.dismiss();
-						
-						// Mostrar errores si los hay
-						if (finalResult != null && !finalResult.isSuccess()) {
-							StringBuilder errorMsg = new StringBuilder("La exportación se completó con errores:\n\n");
-							for (String error : finalResult.getErrorMessages()) {
-								errorMsg.append("• ").append(error).append("\n");
+						// Verificar que la Activity no ha sido destruida antes de cerrar el diálogo
+						if (!activity.isFinishing() && !activity.isDestroyed()) {
+							try {
+								if (progressDialog != null && progressDialog.isShowing()) {
+									progressDialog.dismiss();
+								}
+							} catch (IllegalArgumentException e) {
+								// El diálogo ya no está adjunto a la ventana, ignorar
 							}
-							errorMsg.append("\nAlgunos datos pueden no haberse enviado correctamente.");
-							
-							config.getMessageBox().ShowModalWithOk("Advertencia - Errores de Exportación",
-									errorMsg.toString(),
-									activity, net.ifeu.library.Utils.MessageBox.MessageBoxType.Error);
-						} else {
-							// Mostrar mensaje de
-							// éxito si no hay errores
-							config.getMessageBox().Show("Exportación",
-									"Los datos se han enviado correctamente a la central.",
-									activity, net.ifeu.library.Utils.MessageBox.MessageBoxType.Information);
+						}
+
+						// Solo mostrar mensajes si la Activity sigue activa
+						if (!activity.isFinishing() && !activity.isDestroyed()) {
+							// Mostrar errores si los hay
+							if (finalResult != null && !finalResult.isSuccess()) {
+								StringBuilder errorMsg = new StringBuilder("La exportación se completó con errores:\n\n");
+								for (String error : finalResult.getErrorMessages()) {
+									errorMsg.append("• ").append(error).append("\n");
+								}
+								errorMsg.append("\nAlgunos datos pueden no haberse enviado correctamente.");
+
+								config.getMessageBox().ShowModalWithOk("Advertencia - Errores de Exportación",
+										errorMsg.toString(),
+										activity, net.ifeu.library.Utils.MessageBox.MessageBoxType.Error);
+							} else {
+								// Mostrar mensaje de
+								// éxito si no hay errores
+								config.getMessageBox().Show("Exportación",
+										"Los datos se han enviado correctamente a la central.",
+										activity, net.ifeu.library.Utils.MessageBox.MessageBoxType.Information);
+							}
 						}
 					});
 
