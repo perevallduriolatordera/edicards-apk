@@ -66,14 +66,16 @@ public class MessageBox {
         alertDialog.setMessage(text);
         alertDialog.setPositiveButton("Sí", (dialog, arg1) -> {
             setResult(true);
-            handler.sendMessage(handler.obtainMessage());
+            // Cerrar el diálogo ANTES de enviar el mensaje para evitar errores de transición
             dialog.dismiss();
+            handler.sendMessage(handler.obtainMessage());
         });
 
         alertDialog.setNegativeButton("No", (dialog, arg1) -> {
 			setResult(false);
-			handler.sendMessage(handler.obtainMessage());
+			// Cerrar el diálogo ANTES de enviar el mensaje para evitar errores de transición
 			dialog.dismiss();
+			handler.sendMessage(handler.obtainMessage());
 	});
         
         alertDialog.setCancelable(false);
@@ -100,8 +102,9 @@ public class MessageBox {
         alertDialog.setTitle(title);
         alertDialog.setMessage(text);
         alertDialog.setPositiveButton("Aceptar", (dialog, arg1) -> {
-            handler.sendMessage(handler.obtainMessage());
+            // Cerrar el diálogo ANTES de enviar el mensaje para evitar errores de transición
             dialog.dismiss();
+            handler.sendMessage(handler.obtainMessage());
         });
         
         alertDialog.setCancelable(false);
@@ -157,14 +160,16 @@ public class MessageBox {
 			Editable value = textBox.getText();
 			_value = value.toString();
 
-			handler.sendMessage(handler.obtainMessage());
+			// Cerrar el diálogo ANTES de enviar el mensaje para evitar errores de transición
 			dialog.dismiss();
+			handler.sendMessage(handler.obtainMessage());
 		}).setNegativeButton("Cancelar", (dialog, whichButton) -> {
 
 			_value = ConstantsTypes.EMPTY_STRING;
 
-			handler.sendMessage(handler.obtainMessage());
+			// Cerrar el diálogo ANTES de enviar el mensaje para evitar errores de transición
 			dialog.dismiss();
+			handler.sendMessage(handler.obtainMessage());
 		}).create().show();
 		
 		 // loop till a runtime exception is triggered.
