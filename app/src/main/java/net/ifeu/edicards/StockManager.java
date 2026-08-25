@@ -293,6 +293,7 @@ public class StockManager extends Fragment implements IMediator {
 				true);
 
 		final Context context = _appConfig;
+		final Activity activity = this._activity;
 
 		new Thread() {
 
@@ -306,7 +307,20 @@ public class StockManager extends Fragment implements IMediator {
 
 				}
 
-				progressDialog.dismiss();
+				// Verificar que la Activity no ha sido destruida antes de cerrar el diálogo
+				if (activity != null) {
+					activity.runOnUiThread(() -> {
+						if (!activity.isFinishing() && !activity.isDestroyed()) {
+							try {
+								if (progressDialog != null && progressDialog.isShowing()) {
+									progressDialog.dismiss();
+								}
+							} catch (IllegalArgumentException e) {
+								// El diálogo ya no está adjunto a la ventana, ignorar
+							}
+						}
+					});
+				}
 
 			}
 
