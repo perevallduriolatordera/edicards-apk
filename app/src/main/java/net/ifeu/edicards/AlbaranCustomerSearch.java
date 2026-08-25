@@ -69,7 +69,18 @@ public class AlbaranCustomerSearch extends Activity {
 						throw new RuntimeException(e);
 					}
 
-					progressDialog.dismiss();
+					// Verificar que la Activity no ha sido destruida antes de cerrar el diálogo
+					runOnUiThread(() -> {
+						if (!isFinishing() && !isDestroyed()) {
+							try {
+								if (progressDialog != null && progressDialog.isShowing()) {
+									progressDialog.dismiss();
+								}
+							} catch (IllegalArgumentException e) {
+								// El diálogo ya no está adjunto a la ventana, ignorar
+							}
+						}
+					});
 
 			}
 
