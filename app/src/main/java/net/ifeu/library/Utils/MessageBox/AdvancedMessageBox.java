@@ -46,15 +46,17 @@ public class AdvancedMessageBox {
 
             public void onClick(DialogInterface dialog, int arg1) {
                 setResult(true);
-                handler.sendMessage(handler.obtainMessage());
+                // Cerrar el diálogo ANTES de enviar el mensaje para evitar errores de transición
                 dialog.dismiss();
+                handler.sendMessage(handler.obtainMessage());
             }});
 
         this._dialog.setNegativeButton(response2, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int arg1) {
                 setResult(false);
-                handler.sendMessage(handler.obtainMessage());
+                // Cerrar el diálogo ANTES de enviar el mensaje para evitar errores de transición
                 dialog.dismiss();
+                handler.sendMessage(handler.obtainMessage());
             }});
 
         this._dialog.setCancelable(false);
