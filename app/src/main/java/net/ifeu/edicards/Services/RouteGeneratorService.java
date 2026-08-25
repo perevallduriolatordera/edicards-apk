@@ -8,6 +8,7 @@ import net.ifeu.edicards.Constants.ConstantsEndpoints;
 import net.ifeu.edicards.DataTier.CiudadVendedor;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.Factories.Factory;
+import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.RutaGenerada;
 import net.ifeu.edicards.DataTier.Zona;
 import net.ifeu.edicards.Services.Geocoding.IGeocodingStrategy;
@@ -1227,11 +1228,61 @@ public class RouteGeneratorService {
 		try {
 			RutaGenerada rutaGenerada = Factory.build(RutaGenerada.class, app);
 
-			// Eliminar rutas anteriores de esta semana
+			// Cargar ruta existente ANTES de eliminarla para conservar el orden manual
+			ArrayList<RutaGenerada> rutaExistente = rutaGenerada.getRutaCurrentWeek();
+			java.util.HashMap<String, Integer> ordenExistente = new java.util.HashMap<>();
+
+			if (rutaExistente != null && !rutaExistente.isEmpty()) {
+				Log.i(TAG, "Ruta existente encontrada con " + rutaExistente.size() + " clientes");
+				for (RutaGenerada ruta : rutaExistente) {
+					// Guardar el orden actual de cada cliente (excluyendo BASE)
+					if (ruta.CodigoCliente != null && !ruta.CodigoCliente.equals("BASE")) {
+						ordenExistente.put(ruta.CodigoCliente, ruta.OrdenVisita);
+						Log.d(TAG, "Cliente existente: " + ruta.CodigoCliente + " en posición " + ruta.OrdenVisita);
+					}
+				}
+			} else {
+				Log.i(TAG, "No hay ruta existente, se creará una nueva desde cero");
+			}
+
+			// Ahora sí, eliminar rutas anteriores de esta semana
 			rutaGenerada.deleteCurrentWeekRoutes();
 
-			// Log de debugging
-			Log.i(TAG, "Guardando ruta con " + rutaOrdenada.size() + " clientes + base");
+			// Separar clientes en existentes y nuevos
+			ArrayList<RouteOptimizerService.RutaClienteData> clientesExistentes = new ArrayList<>();
+			ArrayList<RouteOptimizerService.RutaClienteData> clientesNuevos = new ArrayList<>();
+
+			for (RouteOptimizerService.RutaClienteData rutaCliente : rutaOrdenada) {
+				if (ordenExistente.containsKey(rutaCliente.codigoCliente)) {
+					// Cliente ya estaba en la ruta, conservar su orden
+					clientesExistentes.add(rutaCliente);
+				} else {
+					// Cliente nuevo, necesita ser insertado
+					clientesNuevos.add(rutaCliente);
+				}
+			}
+
+			Log.i(TAG, "Clientes existentes (conservar orden): " + clientesExistentes.size());
+			Log.i(TAG, "Clientes nuevos (insertar): " + clientesNuevos.size());
+
+			// Ordenar clientes existentes según su orden anterior
+			java.util.Collections.sort(clientesExistentes, new java.util.Comparator<RouteOptimizerService.RutaClienteData>() {
+				@Override
+				public int compare(RouteOptimizerService.RutaClienteData o1, RouteOptimizerService.RutaClienteData o2) {
+					Integer orden1 = ordenExistente.get(o1.codigoCliente);
+					Integer orden2 = ordenExistente.get(o2.codigoCliente);
+					return Integer.compare(orden1 != null ? orden1 : 0, orden2 != null ? orden2 : 0);
+				}
+			});
+
+			// Crear lista final combinando existentes + nuevos al final
+			ArrayList<RouteOptimizerService.RutaClienteData> rutaFinal = new ArrayList<>();
+			rutaFinal.addAll(clientesExistentes);
+			rutaFinal.addAll(clientesNuevos);
+
+			Log.i(TAG, "Guardando ruta con " + rutaFinal.size() + " clientes + base");
+			Log.i(TAG, "  - Conservando orden de: " + clientesExistentes.size() + " clientes");
+			Log.i(TAG, "  - Añadiendo al final: " + clientesNuevos.size() + " clientes nuevos");
 
 			int orden = 1;
 
@@ -1254,8 +1305,8 @@ public class RouteGeneratorService {
 			rutaBase.save();
 			Log.d(TAG, "SaveRoute - Orden: 1, Cliente: " + ciudadBase + " (BASE)");
 
-			// 2. Guardar cada cliente de la ruta
-			for (RouteOptimizerService.RutaClienteData rutaCliente : rutaOrdenada) {
+			// 2. Guardar cada cliente de la ruta (conservando orden existente + nuevos al final)
+			for (RouteOptimizerService.RutaClienteData rutaCliente : rutaFinal) {
 				// Buscar cliente por código en la BD
 				Cliente cliente = findClienteByCodigo(app, rutaCliente.codigoCliente);
 
@@ -1280,9 +1331,17 @@ public class RouteGeneratorService {
 					ruta.ClusterID = rutaCliente.clusterID;
 					ruta.NombreZona = rutaCliente.nombreZona;
 
+					// Fecha de última visita (para Excel)
+					Historico ultimoAlbaran = cliente.getUltimoAlbaran(cliente.CodigoCliente);
+					ruta.FechaUltimaVisita = (ultimoAlbaran != null) ? ultimoAlbaran.Fecha : null;
+
+					// Marcar si es cliente nuevo en esta generación (se persiste en BD)
+					ruta.EsClienteNuevo = !ordenExistente.containsKey(cliente.CodigoCliente);
+
 					ruta.save();
 
-					Log.d(TAG, "SaveRoute - Orden: " + (orden - 1) + ", Cliente: " + cliente.Nombre + ", Distancia: " + rutaCliente.distanciaKm);
+					String nuevoTag = ruta.EsClienteNuevo ? " [NUEVO]" : "";
+					Log.d(TAG, "SaveRoute - Orden: " + (orden - 1) + ", Cliente: " + cliente.Nombre + nuevoTag + ", Distancia: " + rutaCliente.distanciaKm);
 				} else {
 					Log.w(TAG, "Cliente no encontrado: " + rutaCliente.codigoCliente);
 				}
@@ -1316,6 +1375,13 @@ public class RouteGeneratorService {
 					// Cluster especial para clientes excluidos
 					ruta.ClusterID = 999;
 
+					// Fecha de última visita (para Excel)
+					Historico ultimoAlbaran = cliente.getUltimoAlbaran(cliente.CodigoCliente);
+					ruta.FechaUltimaVisita = (ultimoAlbaran != null) ? ultimoAlbaran.Fecha : null;
+
+					// Marcar si es cliente nuevo en esta generación (no se persiste en BD)
+					ruta.EsClienteNuevo = !ordenExistente.containsKey(cliente.CodigoCliente);
+
 					ruta.save();
 
 					Log.d(TAG, "Cliente excluido agregado al final: " + cliente.Nombre +
@@ -1323,10 +1389,11 @@ public class RouteGeneratorService {
 				}
 			}
 
-			int totalGuardados = rutaOrdenada.size() + 1 + (clientesLejanos != null ? clientesLejanos.size() : 0);
-			Log.i(TAG, "Ruta completa guardada en BD - Total: " + totalGuardados +
-				" (" + rutaOrdenada.size() + " optimizados + " +
-				(clientesLejanos != null ? clientesLejanos.size() : 0) + " excluidos)");
+			int totalGuardados = rutaFinal.size() + 1 + (clientesLejanos != null ? clientesLejanos.size() : 0);
+			Log.i(TAG, "Ruta completa guardada en BD - Total: " + totalGuardados);
+			Log.i(TAG, "  - " + clientesExistentes.size() + " clientes con orden conservado");
+			Log.i(TAG, "  - " + clientesNuevos.size() + " clientes nuevos añadidos al final");
+			Log.i(TAG, "  - " + (clientesLejanos != null ? clientesLejanos.size() : 0) + " clientes lejanos excluidos");
 
 		} catch (Exception e) {
 			Log.e(TAG, "Error guardando ruta: " + e.getMessage());

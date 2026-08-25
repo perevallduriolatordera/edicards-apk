@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF">
+
+    <!-- Cabecera con nombre del cliente -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#1976D2"
+        android:padding="16dp"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/txtNombreCliente"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nombre del Cliente"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"/>
+
+        <TextView
+            android:id="@+id/txtCodigoCliente"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Código: 00000"
+            android:textSize="14sp"
+            android:textColor="#BBDEFB"
+            android:layout_marginTop="4dp"/>
+    </LinearLayout>
+
+    <!-- ScrollView para el contenido -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- SECCIÓN 1: Datos Básicos -->
+            <LinearLayout
+                android:id="@+id/seccionDatosBasicos"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#F5F5F5"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="📋 Datos Básicos"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#1976D2"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/txtDireccion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Dirección"
+                    android:textSize="14sp"
+                    android:textColor="#424242"
+                    android:layout_marginBottom="4dp"/>
+
+                <TextView
+                    android:id="@+id/txtPoblacion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Población"
+                    android:textSize="14sp"
+                    android:textColor="#424242"
+                    android:layout_marginBottom="4dp"/>
+
+                <TextView
+                    android:id="@+id/txtTelefono"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Teléfono"
+                    android:textSize="14sp"
+                    android:textColor="#424242"
+                    android:layout_marginBottom="4dp"/>
+
+                <TextView
+                    android:id="@+id/txtEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Email"
+                    android:textSize="14sp"
+                    android:textColor="#424242"
+                    android:layout_marginBottom="4dp"/>
+
+                <TextView
+                    android:id="@+id/txtCCC"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="CCC"
+                    android:textSize="14sp"
+                    android:textColor="#424242"/>
+            </LinearLayout>
+
+            <!-- SECCIÓN 2: Depósito Actual -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#FFF3E0"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="📦 Depósito Actual"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#F57C00"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/txtInfoDeposito"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Sin depósito actual"
+                    android:textSize="14sp"
+                    android:textColor="#424242"
+                    android:layout_marginBottom="8dp"/>
+
+                <Button
+                    android:id="@+id/btnIrADeposito"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Ver el Depósito"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:background="#FF9800"
+                    android:textColor="#FFFFFF"
+                    android:padding="12dp"/>
+            </LinearLayout>
+
+            <!-- SECCIÓN 3: Último Albarán -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#E8F5E9"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="📄 Último Albarán"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#388E3C"
+                    android:layout_marginBottom="8dp"/>
+
+                <TextView
+                    android:id="@+id/txtInfoAlbaran"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Sin albaranes"
+                    android:textSize="14sp"
+                    android:textColor="#424242"
+                    android:layout_marginBottom="8dp"/>
+
+                <Button
+                    android:id="@+id/btnIrAAlbaran"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Ver el Albarán"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:background="#4CAF50"
+                    android:textColor="#FFFFFF"
+                    android:padding="12dp"/>
+            </LinearLayout>
+
+            <!-- SECCIÓN 4: Recordatorios -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#FFF3E0"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🔔 Recordatorios"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#F57C00"/>
+
+                    <Button
+                        android:id="@+id/btnAgregarRecordatorio"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="+ Añadir"
+                        android:textSize="12sp"
+                        android:background="#FF9800"
+                        android:textColor="#FFFFFF"
+                        android:padding="8dp"/>
+                </LinearLayout>
+
+                <ListView
+                    android:id="@+id/listViewRecordatorios"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:background="#FFFFFF"
+                    android:divider="#E0E0E0"
+                    android:dividerHeight="1dp"/>
+            </LinearLayout>
+
+            <!-- SECCIÓN 5: Comentarios -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#E1F5FE"
+                android:padding="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="💬 Comentarios"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="#0277BD"/>
+
+                    <Button
+                        android:id="@+id/btnAgregarComentario"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="+ Añadir"
+                        android:textSize="12sp"
+                        android:background="#03A9F4"
+                        android:textColor="#FFFFFF"
+                        android:padding="8dp"/>
+                </LinearLayout>
+
+                <ListView
+                    android:id="@+id/listViewComentarios"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:background="#FFFFFF"
+                    android:divider="#E0E0E0"
+                    android:dividerHeight="1dp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Botón Cerrar -->
+    <Button
+        android:id="@+id/btnCerrar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cerrar"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:background="#757575"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="16dp"
+        android:padding="12dp"/>
+
+</LinearLayout>

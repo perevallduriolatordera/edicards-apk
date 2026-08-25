@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nuevo Recordatorio"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#1976D2"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Tipo de Recordatorio -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Tipo de Recordatorio:"
+        android:textSize="14sp"
+        android:textColor="#424242"
+        android:layout_marginBottom="4dp"/>
+
+    <Spinner
+        android:id="@+id/spinnerTipoRecordatorio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:padding="8dp"
+        android:background="#F5F5F5"/>
+
+    <!-- Descripción -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Descripción:"
+        android:textSize="14sp"
+        android:textColor="#424242"
+        android:layout_marginBottom="4dp"/>
+
+    <EditText
+        android:id="@+id/editDescripcionRecordatorio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Escribe una descripción (opcional)"
+        android:minLines="3"
+        android:maxLines="5"
+        android:gravity="top|start"
+        android:padding="8dp"
+        android:background="#F5F5F5"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- Fecha -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Fecha:"
+        android:textSize="14sp"
+        android:textColor="#424242"
+        android:layout_marginBottom="4dp"/>
+
+    <Button
+        android:id="@+id/btnFechaRecordatorio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Seleccionar Fecha"
+        android:textSize="14sp"
+        android:background="#E3F2FD"
+        android:textColor="#1976D2"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- Hora -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hora:"
+        android:textSize="14sp"
+        android:textColor="#424242"
+        android:layout_marginBottom="4dp"/>
+
+    <Button
+        android:id="@+id/btnHoraRecordatorio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Seleccionar Hora"
+        android:textSize="14sp"
+        android:background="#E3F2FD"
+        android:textColor="#1976D2"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Botones de acción -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/btnCancelarRecordatorio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancelar"
+            android:textSize="14sp"
+            android:background="#757575"
+            android:textColor="#FFFFFF"
+            android:padding="12dp"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btnGuardarRecordatorio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Guardar"
+            android:textSize="14sp"
+            android:background="#1976D2"
+            android:textColor="#FFFFFF"
+            android:padding="12dp"/>
+    </LinearLayout>
+
+</LinearLayout>

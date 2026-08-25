@@ -1,5 +1,6 @@
 package net.ifeu.edicards.DataTier;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 
@@ -835,6 +836,68 @@ public class Cliente extends Persistent implements IPersistable {
 	}
 
 	/**
+	 * Obtiene el último albarán (Historico) completo de un cliente
+	 * @param codigoCliente Código del cliente
+	 * @return Historico completo o null si no hay albaranes
+	 */
+	public Historico getUltimoAlbaran(String codigoCliente) {
+		Cursor cursor = null;
+		try {
+			// Primero obtener el IdCliente
+			cursor = super.getDatabaseOperations().executeSentence(
+				"SELECT IdCliente FROM Clientes WHERE CodigoCliente = '" + codigoCliente + "' LIMIT 1");
+
+			if (cursor == null || !cursor.moveToFirst()) {
+				return null;
+			}
+
+			String idCliente = cursor.getString(0);
+			cursor.close();
+
+			// Buscar el último albarán en Historicos
+			cursor = super.getDatabaseOperations().executeSentence(
+				"SELECT * FROM " + ConstantsDatabase.TABLE_HISTORICOS + " " +
+				"WHERE IdCliente = " + idCliente + " " +
+				"AND NumeroAlbaran IS NOT NULL AND NumeroAlbaran != '' " +
+				"ORDER BY Fecha DESC LIMIT 1");
+
+			if (cursor != null && cursor.moveToFirst()) {
+				SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+
+				Historico historico = Factory.build(Historico.class, appConfig);
+				historico.IdHistorico = cursor.getLong(cursor.getColumnIndex("IdHistorico"));
+				historico.Fecha = formatter.parse(cursor.getString(cursor.getColumnIndex("Fecha")));
+				historico.Serie = cursor.getString(cursor.getColumnIndex("Serie"));
+				historico.NumeroAlbaran = cursor.getString(cursor.getColumnIndex("NumeroAlbaran"));
+				historico.NombrePresentacion = cursor.getString(cursor.getColumnIndex("NombrePresentacion"));
+				historico.PoblacionPresentacion = cursor.getString(cursor.getColumnIndex("PoblacionPresentacion"));
+				historico.CodigoPostalPresentacion = cursor.getString(cursor.getColumnIndex("CodigoPostalPresentacion"));
+				historico.CantidadPagada = cursor.getDouble(cursor.getColumnIndex("CantidadPagada"));
+				historico.Total = cursor.getDouble(cursor.getColumnIndex("Total"));
+				historico.Tipo = cursor.getInt(cursor.getColumnIndex("Tipo"));
+				historico.GUID = cursor.getString(cursor.getColumnIndex("GUID"));
+				historico.Serializacion = cursor.getString(cursor.getColumnIndex("Serializacion"));
+
+				// Asignar el cliente actual
+				historico.Cliente = this;
+
+				cursor.close();
+
+				// Cargar las líneas del albarán
+				LineaHistorico lineaHistorico = Factory.build(LineaHistorico.class, appConfig);
+				historico.Lineas = lineaHistorico.getLineasHistoricoByHistorico(historico);
+
+				return historico;
+			}
+		} catch (Exception e) {
+			android.util.Log.e("Cliente", "Error obteniendo último albarán: " + e.getMessage());
+		} finally {
+			if (cursor != null) cursor.close();
+		}
+		return null;
+	}
+
+	/**
 	 * Obtiene la última fecha de albarán de un cliente
 	 * @param codigoCliente Código del cliente
 	 * @return Fecha como String o null
@@ -842,13 +905,35 @@ public class Cliente extends Persistent implements IPersistable {
 	public String getUltimaFechaAlbaran(String codigoCliente) {
 		Cursor cursor = null;
 		try {
+			// Primero obtener el IdCliente
 			cursor = super.getDatabaseOperations().executeSentence(
-				"SELECT MAX(FechaAlbaran) FROM Albaranes WHERE CodigoCliente = '" + codigoCliente + "'");
-			if (cursor != null && cursor.moveToFirst() && !cursor.isNull(0)) {
-				return cursor.getString(0);
+				"SELECT IdCliente FROM Clientes WHERE CodigoCliente = '" + codigoCliente + "' LIMIT 1");
+
+			if (cursor == null || !cursor.moveToFirst()) {
+				return null;
+			}
+
+			String idCliente = cursor.getString(0);
+			cursor.close();
+
+			// Buscar el último albarán en Historicos
+			cursor = super.getDatabaseOperations().executeSentence(
+				"SELECT Fecha, NumeroAlbaran, Serie FROM " + ConstantsDatabase.TABLE_HISTORICOS + " " +
+				"WHERE IdCliente = " + idCliente + " " +
+				"AND NumeroAlbaran IS NOT NULL AND NumeroAlbaran != '' " +
+				"ORDER BY Fecha DESC LIMIT 1");
+
+			if (cursor != null && cursor.moveToFirst()) {
+				String fecha = cursor.getString(0);
+				String numAlbaran = cursor.getString(1);
+				String serie = cursor.getString(2);
+				if (fecha != null && numAlbaran != null && !numAlbaran.isEmpty()) {
+					String serieStr = (serie != null && !serie.isEmpty()) ? serie + "-" : "";
+					return fecha + " (Nº " + serieStr + numAlbaran + ")";
+				}
 			}
 		} catch (Exception e) {
-			// Tabla Albaranes puede no existir
+			android.util.Log.e("Cliente", "Error obteniendo último albarán: " + e.getMessage());
 		} finally {
 			if (cursor != null) cursor.close();
 		}

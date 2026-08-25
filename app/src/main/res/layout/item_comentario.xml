@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:id="@+id/txtFechaComentario"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="01/01/2024 10:30"
+            android:textSize="12sp"
+            android:textColor="#757575"/>
+
+        <Button
+            android:id="@+id/btnEditarComentario"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="✏️"
+            android:textSize="16sp"
+            android:background="#E3F2FD"
+            android:layout_marginEnd="4dp"
+            android:padding="0dp"/>
+
+        <Button
+            android:id="@+id/btnEliminarComentario"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="🗑️"
+            android:textSize="16sp"
+            android:background="#FFEBEE"
+            android:padding="0dp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txtComentario"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Texto del comentario"
+        android:textSize="14sp"
+        android:textColor="#212121"
+        android:layout_marginBottom="4dp"/>
+
+    <TextView
+        android:id="@+id/txtUsuarioComentario"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Usuario"
+        android:textSize="11sp"
+        android:textStyle="italic"
+        android:textColor="#9E9E9E"/>
+
+</LinearLayout>

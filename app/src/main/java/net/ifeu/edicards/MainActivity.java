@@ -186,7 +186,7 @@ public class MainActivity extends Activity {
 
 					try {
 						// COMENTADO TEMPORALMENTE PARA PRUEBAS - DESCOMENTAR ANTES DE PRODUCCIÓN
-						//getData();
+						getData();
 						//sendData();
 
 						// Verificar y solicitar ciudad base si es necesario

@@ -9,9 +9,11 @@ import android.util.Log;
 import net.ifeu.edicards.DataTier.RutaGenerada;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -31,6 +33,13 @@ public class ExportToExcelService {
 	private static final String TAG = "ExportToExcelService";
 	private Context context;
 	private String appVersion = "N/A";
+
+	// Estilos de celdas para colores según antigüedad de visita
+	private CellStyle styleVisitaReciente;   // Verde - última semana
+	private CellStyle styleVisitaNormal;      // Amarillo - última quincena
+	private CellStyle styleVisitaAntigua;     // Naranja - último mes
+	private CellStyle styleVisitaMuyAntigua;  // Rojo - más de un mes
+	private CellStyle styleSinVisita;         // Gris - nunca visitado
 
 	/**
 	 * Constructor que recibe el contexto para obtener la versión de la app
@@ -81,6 +90,9 @@ public class ExportToExcelService {
 			// Crear workbook
 			Workbook workbook = new HSSFWorkbook();
 			Sheet sheet = workbook.createSheet("Ruta Optimizada");
+
+			// Inicializar estilos de colores
+			initializeStyles(workbook);
 
 			// Crear encabezados
 			createHeaders(sheet, workbook);
@@ -154,6 +166,36 @@ public class ExportToExcelService {
 	}
 
 	/**
+	 * Inicializa los estilos de color para las celdas según antigüedad de visita
+	 */
+	private void initializeStyles(Workbook workbook) {
+		// Verde - Visita reciente (última semana)
+		styleVisitaReciente = workbook.createCellStyle();
+		styleVisitaReciente.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
+		styleVisitaReciente.setFillPattern(CellStyle.SOLID_FOREGROUND);
+
+		// Amarillo - Visita normal (última quincena)
+		styleVisitaNormal = workbook.createCellStyle();
+		styleVisitaNormal.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
+		styleVisitaNormal.setFillPattern(CellStyle.SOLID_FOREGROUND);
+
+		// Naranja - Visita antigua (último mes)
+		styleVisitaAntigua = workbook.createCellStyle();
+		styleVisitaAntigua.setFillForegroundColor(IndexedColors.LIGHT_ORANGE.getIndex());
+		styleVisitaAntigua.setFillPattern(CellStyle.SOLID_FOREGROUND);
+
+		// Rojo - Visita muy antigua (más de un mes)
+		styleVisitaMuyAntigua = workbook.createCellStyle();
+		styleVisitaMuyAntigua.setFillForegroundColor(IndexedColors.CORAL.getIndex());
+		styleVisitaMuyAntigua.setFillPattern(CellStyle.SOLID_FOREGROUND);
+
+		// Gris - Sin visitas
+		styleSinVisita = workbook.createCellStyle();
+		styleSinVisita.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+		styleSinVisita.setFillPattern(CellStyle.SOLID_FOREGROUND);
+	}
+
+	/**
 	 * Crea encabezados de la tabla
 	 */
 	private void createHeaders(Sheet sheet, Workbook workbook) {
@@ -178,6 +220,7 @@ public class ExportToExcelService {
 			"Direccion",
 			"Poblacion",
 			"Provincia",
+			"Ultima Visita",
 			"Distancia (km)",
 			"Geo Status",
 			"Latitud",
@@ -231,6 +274,20 @@ public class ExportToExcelService {
 		Cell cellProvincia = row.createCell(cellNum++);
 		cellProvincia.setCellValue(ruta.ProvinciaCliente != null ? ruta.ProvinciaCliente : "");
 
+		// Ultima Visita (con color según antigüedad)
+		Cell cellUltimaVisita = row.createCell(cellNum++);
+		if (ruta.FechaUltimaVisita != null) {
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+			cellUltimaVisita.setCellValue(dateFormat.format(ruta.FechaUltimaVisita));
+
+			// Aplicar color según antigüedad
+			CellStyle style = getStyleForVisitAge(ruta.FechaUltimaVisita);
+			cellUltimaVisita.setCellStyle(style);
+		} else {
+			cellUltimaVisita.setCellValue("Sin visitas");
+			cellUltimaVisita.setCellStyle(styleSinVisita);
+		}
+
 		// Distancia
 		Cell cellDistancia = row.createCell(cellNum++);
 		cellDistancia.setCellValue(ruta.DistanciaEstimada != null ? ruta.DistanciaEstimada : "");
@@ -257,6 +314,32 @@ public class ExportToExcelService {
 	}
 
 	/**
+	 * Determina el estilo de color basado en la antigüedad de la última visita
+	 */
+	private CellStyle getStyleForVisitAge(Date fechaUltimaVisita) {
+		if (fechaUltimaVisita == null) {
+			return styleSinVisita;
+		}
+
+		long diff = new Date().getTime() - fechaUltimaVisita.getTime();
+		long diffDays = diff / (24 * 60 * 60 * 1000);
+
+		if (diffDays <= 7) {
+			// Verde - última semana
+			return styleVisitaReciente;
+		} else if (diffDays <= 15) {
+			// Amarillo - última quincena
+			return styleVisitaNormal;
+		} else if (diffDays <= 30) {
+			// Naranja - último mes
+			return styleVisitaAntigua;
+		} else {
+			// Rojo - más de un mes
+			return styleVisitaMuyAntigua;
+		}
+	}
+
+	/**
 	 * Establece anchos fijos para las columnas
 	 * Evita usar autoSizeColumn() que depende de AWT (no disponible en Android)
 	 */
@@ -264,16 +347,18 @@ public class ExportToExcelService {
 		// Establecer anchos fijos para cada columna (en unidades de 1/256 de ancho de carácter)
 		sheet.setColumnWidth(0, 8 * 256);    // Orden
 		sheet.setColumnWidth(1, 10 * 256);   // Cluster
-		sheet.setColumnWidth(2, 15 * 256);   // Codigo Cliente
-		sheet.setColumnWidth(3, 20 * 256);   // Nombre Cliente
-		sheet.setColumnWidth(4, 25 * 256);   // Direccion
-		sheet.setColumnWidth(5, 15 * 256);   // Poblacion
-		sheet.setColumnWidth(6, 15 * 256);   // Provincia
-		sheet.setColumnWidth(7, 15 * 256);   // Distancia (km)
-		sheet.setColumnWidth(8, 15 * 256);   // Geo Status
-		sheet.setColumnWidth(9, 18 * 256);   // Latitud
-		sheet.setColumnWidth(10, 18 * 256);  // Longitud
-		sheet.setColumnWidth(11, 18 * 256);  // Fecha Generacion
-		sheet.setColumnWidth(12, 12 * 256);  // Version App
+		sheet.setColumnWidth(2, 15 * 256);   // Zona
+		sheet.setColumnWidth(3, 15 * 256);   // Codigo Cliente
+		sheet.setColumnWidth(4, 25 * 256);   // Nombre Cliente
+		sheet.setColumnWidth(5, 30 * 256);   // Direccion
+		sheet.setColumnWidth(6, 18 * 256);   // Poblacion
+		sheet.setColumnWidth(7, 15 * 256);   // Provincia
+		sheet.setColumnWidth(8, 15 * 256);   // Ultima Visita (con color)
+		sheet.setColumnWidth(9, 15 * 256);   // Distancia (km)
+		sheet.setColumnWidth(10, 15 * 256);  // Geo Status
+		sheet.setColumnWidth(11, 18 * 256);  // Latitud
+		sheet.setColumnWidth(12, 18 * 256);  // Longitud
+		sheet.setColumnWidth(13, 18 * 256);  // Fecha Generacion
+		sheet.setColumnWidth(14, 12 * 256);  // Version App
 	}
 }

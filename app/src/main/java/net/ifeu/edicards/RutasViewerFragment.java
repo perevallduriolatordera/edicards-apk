@@ -319,6 +319,8 @@ public class RutasViewerFragment extends Fragment {
 			RutaGenerada ruta = Factory.build(RutaGenerada.class, app);
 			rutaActual = ruta.getRutaCurrentWeek();
 
+			android.util.Log.d("RutasViewerFragment", "rutaActual cargada con " + (rutaActual != null ? rutaActual.size() : 0) + " clientes");
+
 			if (rutaActual == null || rutaActual.isEmpty()) {
 				if (mostrarMensajes) {
 					app.getMessageBox().Show("Rutas",
@@ -540,6 +542,15 @@ public class RutasViewerFragment extends Fragment {
 			return;
 		}
 
+		// Crear copia ordenada por OrdenVisita para exportar
+		ArrayList<RutaGenerada> rutaParaExportar = new ArrayList<>(rutaActual);
+		java.util.Collections.sort(rutaParaExportar, new java.util.Comparator<RutaGenerada>() {
+			@Override
+			public int compare(RutaGenerada o1, RutaGenerada o2) {
+				return Integer.compare(o1.OrdenVisita, o2.OrdenVisita);
+			}
+		});
+
 		// Mostrar progress dialog
 		final ProgressDialog progressDialog = new ProgressDialog(getActivity());
 		progressDialog.setMessage("Exportando ruta a Excel...");
@@ -550,7 +561,7 @@ public class RutasViewerFragment extends Fragment {
 		new Thread(() -> {
 			try {
 				ExportToExcelService exportService = new ExportToExcelService(getActivity());
-				String rutaArchivo = exportService.exportRutasToExcel(rutaActual);
+				String rutaArchivo = exportService.exportRutasToExcel(rutaParaExportar);
 
 				// Actualizar UI en main thread
 				getActivity().runOnUiThread(() -> {
@@ -713,7 +724,9 @@ public class RutasViewerFragment extends Fragment {
 
 		@Override
 		public int getCount() {
-			return rutas.size();
+			int count = rutas != null ? rutas.size() : 0;
+			android.util.Log.d("RutaAdapter", "getCount() devuelve: " + count);
+			return count;
 		}
 
 		@Override
@@ -741,11 +754,13 @@ public class RutasViewerFragment extends Fragment {
 			TextView txtPoblacion = convertView.findViewById(R.id.txtPoblacion);
 			TextView txtDistancia = convertView.findViewById(R.id.txtDistancia);
 			TextView txtZona = convertView.findViewById(R.id.txtZona);
+			TextView txtClienteNuevo = convertView.findViewById(R.id.txtClienteNuevo);
 			TextView txtUltimaVisita = convertView.findViewById(R.id.txtUltimaVisita);
 			TextView txtCoordenadas = convertView.findViewById(R.id.txtCoordenadas);
 			android.widget.Button btnMoverArriba = convertView.findViewById(R.id.btnMoverArriba);
 			android.widget.Button btnMoverAbajo = convertView.findViewById(R.id.btnMoverAbajo);
 			android.widget.Button btnFavorito = convertView.findViewById(R.id.btnFavorito);
+			android.widget.Button btnVerFicha = convertView.findViewById(R.id.btnVerFicha);
 
 			txtOrden.setText(String.valueOf(ruta.OrdenVisita));
 
@@ -842,6 +857,14 @@ public class RutasViewerFragment extends Fragment {
 				txtZona.setVisibility(android.view.View.GONE);
 			}
 
+			// Mostrar indicador de cliente nuevo si corresponde
+			if (ruta.EsClienteNuevo) {
+				txtClienteNuevo.setVisibility(android.view.View.VISIBLE);
+				android.util.Log.d("RutaAdapter", "Cliente NUEVO mostrado: " + ruta.NombreCliente);
+			} else {
+				txtClienteNuevo.setVisibility(android.view.View.GONE);
+			}
+
 			// Configurar botón de favorito
 			try {
 				Cliente clienteModel = Factory.build(Cliente.class, app);
@@ -917,6 +940,16 @@ public class RutasViewerFragment extends Fragment {
 					txtUltimaVisita.setVisibility(android.view.View.VISIBLE);
 				}
 			}
+
+			// Configurar botón Ver Ficha
+			btnVerFicha.setOnClickListener(new android.view.View.OnClickListener() {
+				@Override
+				public void onClick(android.view.View v) {
+					Intent intent = new Intent(getActivity(), FichaClienteDialog.class);
+					intent.putExtra("codigoCliente", ruta.CodigoCliente);
+					startActivity(intent);
+				}
+			});
 
 			return convertView;
 		}

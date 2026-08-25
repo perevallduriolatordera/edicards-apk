@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 
 import net.ifeu.edicards.Constants.ConstantsDatabase;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Persistance.IPersistable;
 import net.ifeu.edicards.DataTier.Persistance.Persistent;
 import net.ifeu.library.Utils.DateTime.DateTimeUtils;
@@ -35,6 +36,12 @@ public class RutaGenerada extends Persistent implements IPersistable {
 	public int ClusterID;  // ID del cluster geográfico (se persiste en BD y se muestra en Excel)
 	public String NombreZona;  // Nombre de la zona (para rutas por zonas, no se persiste en BD)
 
+	// Fecha de última visita (para Excel, no se persiste en BD)
+	public Date FechaUltimaVisita;
+
+	// Indicador de cliente nuevo en esta generación (para UI, se persiste en BD)
+	public boolean EsClienteNuevo = false;
+
 	@Override
 	public void InitializePersistance(net.ifeu.edicards.Application.AppConfig appConfigParam) {
 		super.InitializePersistance(appConfigParam);
@@ -58,6 +65,7 @@ public class RutaGenerada extends Persistent implements IPersistable {
 		values.put("Latitud", this.Latitud);
 		values.put("Longitud", this.Longitud);
 		values.put("ClusterID", this.ClusterID);
+		values.put("EsClienteNuevo", this.EsClienteNuevo ? 1 : 0);
 
 		try {
 			this.IdRuta = super.getDatabaseOperations().insert(
@@ -117,11 +125,25 @@ public class RutaGenerada extends Persistent implements IPersistable {
 
 		Date firstDate = DateTimeUtils.getFirstDayOfCurrentWeek(today);
 
+		// Primero intentar buscar rutas de la semana actual
 		Cursor cursor = super.getDatabaseOperations().executeSentence(
 			"SELECT * FROM " + ConstantsDatabase.TABLE_RUTAS_GENERADAS +
 			" WHERE substr(FechaGeneracion,1,4)||substr(FechaGeneracion,6,2)||substr(FechaGeneracion,9,2) " +
 			"BETWEEN '" + formatter.format(firstDate) + "' AND '" + formatter.format(today) + "'" +
 			" ORDER BY OrdenVisita ASC");
+
+		// Si no hay rutas en la semana actual, buscar la última ruta generada
+		if (cursor == null || cursor.getCount() == 0) {
+			if (cursor != null) cursor.close();
+
+			android.util.Log.d("RutaGenerada", "No hay rutas en la semana actual, buscando última ruta generada");
+
+			cursor = super.getDatabaseOperations().executeSentence(
+				"SELECT * FROM " + ConstantsDatabase.TABLE_RUTAS_GENERADAS +
+				" WHERE FechaGeneracion = (" +
+				"  SELECT MAX(FechaGeneracion) FROM " + ConstantsDatabase.TABLE_RUTAS_GENERADAS +
+				") ORDER BY OrdenVisita ASC");
+		}
 
 		ArrayList<RutaGenerada> list = new ArrayList<>();
 
@@ -152,6 +174,22 @@ public class RutaGenerada extends Persistent implements IPersistable {
 					ruta.ClusterID = (clusterIdIndex >= 0 && !cursor.isNull(clusterIdIndex))
 						? cursor.getInt(clusterIdIndex)
 						: 0;
+
+					// Cargar EsClienteNuevo (con fallback a false si la columna no existe o es null)
+					int esClienteNuevoIndex = cursor.getColumnIndex("EsClienteNuevo");
+					ruta.EsClienteNuevo = (esClienteNuevoIndex >= 0 && !cursor.isNull(esClienteNuevoIndex))
+						? (cursor.getInt(esClienteNuevoIndex) == 1)
+						: false;
+
+					// Cargar fecha de última visita (para Excel)
+					try {
+						Cliente cliente = Factory.build(Cliente.class, appConfig);
+						Historico ultimoAlbaran = cliente.getUltimoAlbaran(ruta.CodigoCliente);
+						ruta.FechaUltimaVisita = (ultimoAlbaran != null) ? ultimoAlbaran.Fecha : null;
+					} catch (Exception e) {
+						android.util.Log.w("RutaGenerada", "Error cargando fecha última visita para " + ruta.CodigoCliente + ": " + e.getMessage());
+						ruta.FechaUltimaVisita = null;
+					}
 
 					list.add(ruta);
 				} while (cursor.moveToNext());

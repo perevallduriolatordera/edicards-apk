@@ -392,6 +392,7 @@ public class DatabaseOperations {
 			createRutasGeneradasTable();
 			createZonasTable();
 			createClientesComentariosTable();
+			createClientesRecordatoriosTable();
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -1178,6 +1179,33 @@ public class DatabaseOperations {
 		}
 	}
 
+	private void createClientesRecordatoriosTable() throws Exception {
+		if (_databaseConnection.getDatabase().isOpen()) {
+			try {
+				_databaseConnection.getDatabase().execSQL(
+					"create table if not exists " + ConstantsDatabase.TABLE_CLIENTES_RECORDATORIOS +
+					" ( IdRecordatorio integer primary key autoincrement, " +
+					"CodigoCliente text not null, " +
+					"TipoRecordatorio text not null, " +
+					"Descripcion text, " +
+					"FechaRecordatorio datetime not null, " +
+					"HoraRecordatorio text not null, " +
+					"FechaCreacion datetime not null, " +
+					"Usuario text, " +
+					"Completado integer default 0, " +
+					"FechaCompletado datetime);"
+				);
+			} catch (Exception e) {
+				throw new Exception("Error creando la tabla " +
+					ConstantsDatabase.TABLE_CLIENTES_RECORDATORIOS + ". Motivo: " + e.getMessage());
+			}
+		} else {
+			throw new Exception("Error creando la tabla " +
+				ConstantsDatabase.TABLE_CLIENTES_RECORDATORIOS +
+				". Motivo: La Base de datos no ha podido ser abierta.");
+		}
+	}
+
 	private void alterStructure()  {
 		addGeocodingColumnsIfNecessary();
 
@@ -1264,6 +1292,14 @@ public class DatabaseOperations {
 			
 				try {
 					_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_RUTAS_GENERADAS + " ADD COLUMN Longitud text default null ");
+				}
+				catch (Exception e) {
+					if (!e.getMessage().startsWith("duplicate column name"))
+						throw new RuntimeException(e);
+				}
+
+				try {
+					_databaseConnection.getDatabase().execSQL("alter table " + ConstantsDatabase.TABLE_RUTAS_GENERADAS + " ADD COLUMN EsClienteNuevo integer NOT NULL default 0 ");
 				}
 				catch (Exception e) {
 					if (!e.getMessage().startsWith("duplicate column name"))

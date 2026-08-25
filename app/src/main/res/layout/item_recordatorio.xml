@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="#FFFFFF"
+    android:layout_marginBottom="4dp">
+
+    <!-- Fila superior: Tipo + Fecha/Hora -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="6dp">
+
+        <TextView
+            android:id="@+id/txtTipoRecordatorio"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Llamar"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textColor="#1976D2"/>
+
+        <TextView
+            android:id="@+id/txtFechaHoraRecordatorio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="15/12/2024 10:00"
+            android:textSize="13sp"
+            android:textColor="#666666"/>
+    </LinearLayout>
+
+    <!-- Descripción (si existe) -->
+    <TextView
+        android:id="@+id/txtDescripcionRecordatorio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Descripción del recordatorio"
+        android:textSize="13sp"
+        android:textColor="#424242"
+        android:layout_marginBottom="8dp"
+        android:visibility="gone"/>
+
+    <!-- Botones de acción -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/btnCompletarRecordatorio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Completar"
+            android:textSize="11sp"
+            android:background="#4CAF50"
+            android:textColor="#FFFFFF"
+            android:padding="8dp"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btnEditarRecordatorio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Editar"
+            android:textSize="11sp"
+            android:background="#FF9800"
+            android:textColor="#FFFFFF"
+            android:padding="8dp"
+            android:layout_marginEnd="8dp"/>
+
+        <Button
+            android:id="@+id/btnEliminarRecordatorio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Eliminar"
+            android:textSize="11sp"
+            android:background="#D32F2F"
+            android:textColor="#FFFFFF"
+            android:padding="8dp"/>
+    </LinearLayout>
+
+</LinearLayout>
