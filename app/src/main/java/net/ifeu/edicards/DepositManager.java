@@ -2031,7 +2031,7 @@ public class DepositManager extends Fragment implements  IMediator {
 				.findViewById(R.id.headerLabelsLinearLayout);
 
 		mainLinearLayout.removeAllViews();
-		mainLinearLayout.setVisibility(View.VISIBLE);  // Asegurar visibilidad
+		mainLinearLayout.setVisibility(View.GONE);  // Asegurar visibilidad
 
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 		params.setMargins(4, 4, 4, 4);  // Añadir margen entre labels
