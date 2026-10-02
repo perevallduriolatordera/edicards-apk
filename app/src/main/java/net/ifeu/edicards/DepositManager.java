@@ -214,7 +214,10 @@ public class DepositManager extends Fragment implements  IMediator {
 		List<String> copias = new ArrayList<>();
 		for (int i=1; i < 6; i++) copias.add(String.valueOf(i));
 
-		_comboCopias = DepositManagerExtension.UI.addCombo(_appConfig, params, copias, "1");
+		// LayoutParams específico para combo Copias (más pequeño)
+		LayoutParams paramsCopias = new LinearLayout.LayoutParams(100, LayoutParams.WRAP_CONTENT);
+		paramsCopias.setMargins(0, 5, 0, 0);
+		_comboCopias = DepositManagerExtension.UI.addCombo(_appConfig, paramsCopias, copias, "1");
 
 		// Series
 
@@ -225,7 +228,10 @@ public class DepositManager extends Fragment implements  IMediator {
 		series.add(_appConfig.getUser().SerialInvoiceA);
 		series.add(_appConfig.getUser().SerialInvoiceB);
 
-		_comboSerie = DepositManagerExtension.UI.addCombo(_appConfig, params, series, _appConfig.getUser().SerialInvoiceA);
+		// LayoutParams específico para combo Series (más pequeño)
+		LayoutParams paramsSeries = new LinearLayout.LayoutParams(120, LayoutParams.WRAP_CONTENT);
+		paramsSeries.setMargins(0, 5, 0, 0);
+		_comboSerie = DepositManagerExtension.UI.addCombo(_appConfig, paramsSeries, series, _appConfig.getUser().SerialInvoiceA);
 
 		// //Pagado
 
