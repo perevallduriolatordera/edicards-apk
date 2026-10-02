@@ -1989,6 +1989,28 @@ public class DepositManager extends Fragment implements  IMediator {
 		}
 	}
 
+	private LinearLayout createFieldContainer(String labelText, View field) {
+		LinearLayout container = new LinearLayout(_appConfig);
+		container.setOrientation(LinearLayout.VERTICAL);
+		
+		// Crear label pequeño centrado
+		TextView label = new TextView(_appConfig);
+		label.setText(labelText);
+		label.setTextSize(8);
+		label.setTextColor(Color.parseColor("#757575")); // Gris
+		label.setGravity(Gravity.CENTER);
+		
+		LayoutParams labelParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+		labelParams.setMargins(0, 0, 0, 2);
+		label.setLayoutParams(labelParams);
+		
+		// Añadir label y campo al contenedor
+		container.addView(label);
+		container.addView(field);
+		
+		return container;
+	}
+
 	private void createHeaderLabels() {
 
 		LinearLayout mainLinearLayout = this.getActivity()
