@@ -62,8 +62,10 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener, 
 
 		_tabHost.setOnTabChangedListener(this);
 		_tabHost.setCurrentTab(_currentTab);
-		// manually start loading stuff in the first tab
-		updateTab(TAB_STOCK, StockManager.class);
+		// manually start loading stuff in the first tab (solo si no hay tab seleccionada)
+		if (_currentTab == 0) {
+			updateTab(TAB_STOCK, StockManager.class);
+		}
 	}
 
 	@Override 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -101,37 +103,37 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener, 
 	public void onTabChanged(String tabId) {
 
 		if (TAB_INFORMES.equals(tabId)) {
+			_currentTab = 2;  // Índice correcto en setupTabs
 			updateTab(tabId, Reports.class);
-			_currentTab = 2;
 			return;
 		}
 
 		if (TAB_DIETAS.equals(tabId)) {
+			_currentTab = 3;  // Índice correcto en setupTabs (era 1, pero debería ser 3)
 			updateTab(tabId, GastosManager.class);
-			_currentTab = 1;
 			return;
 		}
 		if (TAB_CLIENTES.equals(tabId)) {
+			_currentTab = 4;  // Índice correcto en setupTabs (ya era correcto)
 			updateTab(tabId, CustomerSearch.class);
-			_currentTab = 3;
 			return;
 		}
 		if (TAB_ARTICULOS.equals(tabId)) {
+			_currentTab = 5;  // Índice correcto en setupTabs (era 4, pero debería ser 5)
 			updateTab(tabId, ArticleSearch.class);
-			_currentTab = 4;
 			return;
 		}
 		if (TAB_STOCK.equals(tabId)) {
+			_currentTab = 0;  // Índice correcto en setupTabs (era 5, pero debería ser 0)
 			updateTab(tabId, StockManager.class);
-			_currentTab = 5;
 
 			return;
 		}
 		if (TAB_DEPOSITOS.equals(tabId)) {
 
 			try {
+				_currentTab = 1;  // Índice correcto en setupTabs (era 6, pero debería ser 1)
 				updateTab(tabId, DepositManager.class);
-				_currentTab = 6;
 
 				return;
 			} catch (Exception e) {
@@ -139,20 +141,20 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener, 
 			}
 		}
 		if (TAB_CLOSE.equals(tabId)) {
+			_currentTab = 8;  // Índice correcto en setupTabs (ya era correcto)
 			updateTab(tabId, null);
-			_currentTab = 8;
 			return;
 		}
 
 		if (TAB_RUTAS.equals(tabId)) {
+			_currentTab = 6;  // Índice correcto en setupTabs (era 7, pero debería ser 6)
 			updateTab(tabId, RutasViewerFragment.class);
-			_currentTab = 7;
 			return;
 		}
 
 		if (TAB_SINCRO.equals(tabId)) {
+			_currentTab = 7;  // Índice correcto en setupTabs (era 11, pero debería ser 7)
 			updateTab(tabId, MonitorView.class);
-			_currentTab = 11;
 		}
 
 	}
@@ -209,6 +211,17 @@ public class MainMenuFragments extends Fragment implements OnTabChangeListener, 
 	public void notify(String event, Object payload) {
 		if (event == ConstantsEvents.EVENT_DEPOSIT_CLOSED) {
 			onTabChanged(TAB_DEPOSITOS);
+			// Actualizar visualmente la pestaña seleccionada
+			if (_tabHost != null) {
+				_tabHost.setCurrentTab(1); // 1 es el índice de TAB_DEPOSITOS en setupTabs
+			}
+		}
+		if (event == ConstantsEvents.EVENT_OPEN_DEPOSIT) {
+			onTabChanged(TAB_DEPOSITOS);
+			// Actualizar visualmente la pestaña seleccionada
+			if (_tabHost != null) {
+				_tabHost.setCurrentTab(1); // 1 es el índice de TAB_DEPOSITOS en setupTabs
+			}
 		}
 
 	}

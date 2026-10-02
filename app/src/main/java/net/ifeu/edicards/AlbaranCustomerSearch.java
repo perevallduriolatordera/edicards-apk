@@ -170,7 +170,11 @@ public class AlbaranCustomerSearch extends Activity {
 
 		if (_appConfig.getWorkingArea().CurrentCliente != null) {
 			finish();
-			_appConfig.getMediator().notify(ConstantsEvents.EVENT_CUSTOMER_SELECTED, _appConfig.getWorkingArea().CurrentCliente);
+			// Posponer notify() para que se ejecute DESPUÉS de que la transición de Activity se complete
+			// Esto previene el crash "TopResumedActivityChangeItem" en Android 16
+			new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+				_appConfig.getMediator().notify(ConstantsEvents.EVENT_CUSTOMER_SELECTED, _appConfig.getWorkingArea().CurrentCliente);
+			});
 		} else {
 			_appConfig.getMessageBox().Show("Atención",
 					"No se han encontrado resultados",

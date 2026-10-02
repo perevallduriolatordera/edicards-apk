@@ -16,9 +16,9 @@ import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Articulo;
 import net.ifeu.edicards.DataTier.Cliente;
+import net.ifeu.edicards.Services.Geocoding.GoogleMapsGeocodingStrategy;
 import net.ifeu.edicards.Services.Geocoding.IGeocodingStrategy;
 import net.ifeu.edicards.Services.Geocoding.LatLng;
-import net.ifeu.edicards.Services.Geocoding.OpenRouteServiceGeocodingStrategy;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.FormaPago;
@@ -893,9 +893,15 @@ public class ParserResponse extends ParserBase {
 
 							depo.assingFromCliente(cliente);
 							depo.NumDoc = strNumDoc;
-							Calendar calendar = Calendar.getInstance();
-							calendar.add(Calendar.DAY_OF_YEAR, -1);
-							depo.FechaDeposito = calendar.getTime();
+
+							// IMPORTANTE: NO establecer FechaDeposito para depósitos placeholder
+							// Estos depósitos se crean solo como contenedores de líneas durante la importación
+							// Si el cliente nunca ha sido visitado, FechaDeposito debe ser null
+							// para que getUltimaFechaDeposito() devuelva null y la UI muestre "NUEVO"
+							// Calendar calendar = Calendar.getInstance();
+							// calendar.add(Calendar.DAY_OF_YEAR, -1);
+							// depo.FechaDeposito = calendar.getTime();
+
 							depo.TipoDeposito = ConstantsTypes.TIPO_DEPOSITO_CONVENCIONAL;
 							depo.Ejercicio = strEjercicio;
 		
@@ -1043,7 +1049,7 @@ public class ParserResponse extends ParserBase {
 					Log.i("ParserResponse", "Coords anteriores: Lat=" + cliente.Latitud + ", Lon=" + cliente.Longitud);
 				}
 
-				IGeocodingStrategy geocodingStrategy = new OpenRouteServiceGeocodingStrategy();
+				IGeocodingStrategy geocodingStrategy = new GoogleMapsGeocodingStrategy();
 				LatLng coordinates = geocodingStrategy.geocodeAddress(
 					cliente.Direccion1,
 					cliente.Poblacion,

@@ -1,45 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#FFFFFF"
-    android:padding="16dp">
+    android:fillViewport="true"
+    android:background="#FFFFFF">
 
-    <!-- Cabecera Moderna -->
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <!-- Cabecera Ultra-Compacta -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:background="#E3F2FD"
-        android:padding="12dp"
-        android:layout_marginBottom="24dp"
-        android:gravity="center">
+        android:padding="6dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center_vertical">
 
         <ImageView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:src="@drawable/edicards_logo_bitmap"
-            android:layout_gravity="center"
-            android:layout_marginBottom="12dp"/>
+            android:layout_marginEnd="8dp"/>
 
-        <TextView
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="EDICARDS"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:textColor="#1976D2"
-            android:gravity="center"
-            android:layout_marginBottom="4dp"/>
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Sistema de Gestión"
-            android:textSize="14sp"
-            android:textColor="#1976D2"
-            android:gravity="center"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="EDICARDS"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#1976D2"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sistema de Gestión"
+                android:textSize="11sp"
+                android:textColor="#1976D2"/>
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Formulario de Login -->
@@ -47,17 +55,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp"
+        android:padding="10dp"
         android:background="#F5F5F5">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Iniciar Sesión"
-            android:textSize="18sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             android:textColor="#424242"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="8dp"
             android:gravity="center"/>
 
         <!-- Campo Usuario -->
@@ -66,21 +74,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Usuario"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:textColor="#616161"
             android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="4dp"/>
 
         <EditText
             android:id="@+id/txtUser"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Identificador del usuario"
-            android:padding="12dp"
-            android:textSize="16sp"
+            android:padding="8dp"
+            android:textSize="14sp"
             android:textColor="#212121"
             android:background="@android:drawable/edit_text"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="10dp">
             <requestFocus />
         </EditText>
 
@@ -90,22 +98,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Contraseña"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:textColor="#616161"
             android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="4dp"/>
 
         <EditText
             android:id="@+id/txtPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Introduzca su contraseña"
-            android:padding="12dp"
-            android:textSize="16sp"
+            android:padding="8dp"
+            android:textSize="14sp"
             android:textColor="#212121"
             android:background="@android:drawable/edit_text"
             android:inputType="textPassword"
-            android:layout_marginBottom="24dp"/>
+            android:layout_marginBottom="12dp"/>
 
         <!-- Botones -->
         <LinearLayout
@@ -113,31 +121,31 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="2dp">
 
             <ImageButton
                 android:id="@+id/btnAccept"
                 android:layout_width="0dp"
-                android:layout_height="60dp"
+                android:layout_height="45dp"
                 android:layout_weight="1"
                 android:src="@drawable/ic_access"
                 android:background="@drawable/button_success"
                 android:scaleType="centerInside"
-                android:padding="12dp"
-                android:layout_marginEnd="8dp"
+                android:padding="8dp"
+                android:layout_marginEnd="6dp"
                 android:onClick="OnAcceptClick"
                 android:contentDescription="Entrar"/>
 
             <ImageButton
                 android:id="@+id/btnCancel"
                 android:layout_width="0dp"
-                android:layout_height="60dp"
+                android:layout_height="45dp"
                 android:layout_weight="1"
                 android:src="@drawable/ic_close"
                 android:background="@drawable/button_warning"
                 android:scaleType="centerInside"
-                android:padding="12dp"
-                android:layout_marginStart="8dp"
+                android:padding="8dp"
+                android:layout_marginStart="6dp"
                 android:onClick="OnCancelClick"
                 android:contentDescription="Salir"/>
         </LinearLayout>
@@ -148,14 +156,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp"
-        android:layout_marginTop="16dp">
+        android:padding="6dp"
+        android:layout_marginTop="6dp">
 
         <TextView
             android:id="@+id/lblVersion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
+            android:textSize="10sp"
             android:textColor="#757575"
             android:text=""/>
 
@@ -163,7 +171,7 @@
             android:id="@+id/lblRevision"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
+            android:textSize="10sp"
             android:textColor="#757575"
             android:text=""/>
 
@@ -171,7 +179,7 @@
             android:id="@+id/lblWifi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
+            android:textSize="10sp"
             android:textColor="#757575"
             android:text=""/>
 
@@ -179,7 +187,7 @@
             android:id="@+id/lblDataMobile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
+            android:textSize="10sp"
             android:textColor="#757575"
             android:text=""/>
 
@@ -187,7 +195,7 @@
             android:id="@+id/lblBlueTooth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
+            android:textSize="10sp"
             android:textColor="#757575"
             android:text=""/>
     </LinearLayout>
@@ -200,3 +208,4 @@
         android:layout_weight="1"/>
 
 </LinearLayout>
+</ScrollView>

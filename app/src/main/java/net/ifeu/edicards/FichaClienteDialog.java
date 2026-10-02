@@ -21,6 +21,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.Constants.ConstantsTypes;
 import net.ifeu.edicards.DataTier.Cliente;
 import net.ifeu.edicards.DataTier.ClienteComentario;
 import net.ifeu.edicards.DataTier.ClienteInfo;
@@ -28,6 +29,7 @@ import net.ifeu.edicards.DataTier.ClienteRecordatorio;
 import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Deposito;
 import net.ifeu.edicards.DataTier.Historico;
+import net.ifeu.edicards.DataTier.LineaDeposito;
 import net.ifeu.edicards.DataTier.LineaHistorico;
 import net.ifeu.edicards.Services.RecordatorioAlarmManager;
 import net.ifeu.library.Utils.MessageBox.MessageBoxType;
@@ -45,6 +47,7 @@ public class FichaClienteDialog extends Activity {
 	private ClienteInfo clienteInfo;
 	private Deposito depositoActual;
 	private Historico albaranActual;
+	private ArrayList<Historico> albaranes;
 
 	// Views de datos básicos
 	private TextView txtNombreCliente;
@@ -57,11 +60,12 @@ public class FichaClienteDialog extends Activity {
 
 	// Views de depósito
 	private TextView txtInfoDeposito;
-	private Button btnIrADeposito;
+	private Button btnVerDeposito;
+	private Button btnEditarDeposito;
 
-	// Views de albarán
-	private TextView txtInfoAlbaran;
-	private Button btnIrAAlbaran;
+	// Views de albaranes (lista de los últimos 4 años)
+	private ListView listViewAlbaranes;
+	private AlbaranesAdapter albaranesAdapter;
 
 	// Views de recordatorios
 	private ListView listViewRecordatorios;
@@ -117,13 +121,13 @@ public class FichaClienteDialog extends Activity {
 
 		// Depósito
 		txtInfoDeposito = findViewById(R.id.txtInfoDeposito);
-		btnIrADeposito = findViewById(R.id.btnIrADeposito);
-		btnIrADeposito.setOnClickListener(v -> irADeposito());
+		btnVerDeposito = findViewById(R.id.btnVerDeposito);
+		btnEditarDeposito = findViewById(R.id.btnEditarDeposito);
+		btnVerDeposito.setOnClickListener(v -> verDeposito());
+		btnEditarDeposito.setOnClickListener(v -> editarDeposito());
 
-		// Albarán
-		txtInfoAlbaran = findViewById(R.id.txtInfoAlbaran);
-		btnIrAAlbaran = findViewById(R.id.btnIrAAlbaran);
-		btnIrAAlbaran.setOnClickListener(v -> irAAlbaran());
+		// Albaranes (lista de los últimos 4 años)
+		listViewAlbaranes = findViewById(R.id.listViewAlbaranes);
 
 		// Recordatorios
 		listViewRecordatorios = findViewById(R.id.listViewRecordatorios);
@@ -156,7 +160,7 @@ public class FichaClienteDialog extends Activity {
 
 			cargarDatosBasicos();
 			cargarInfoDeposito();
-			cargarInfoAlbaran();
+			cargarAlbaranes();
 			cargarRecordatorios();
 			cargarComentarios();
 
@@ -198,45 +202,55 @@ public class FichaClienteDialog extends Activity {
 			depositoActual = Factory.build(Deposito.class, appConfig);
 			boolean tieneDeposito = depositoActual.setFirstDepositoByCliente(cliente.CodigoCliente);
 
+			android.util.Log.d("FichaClienteDialog", "cargarInfoDeposito - CodigoCliente: " + cliente.CodigoCliente);
+			android.util.Log.d("FichaClienteDialog", "cargarInfoDeposito - tieneDeposito: " + tieneDeposito);
 			if (tieneDeposito) {
-				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-				String fecha = formatter.format(depositoActual.FechaDeposito);
-				txtInfoDeposito.setText("Depósito del " + fecha + "\nDoc: " + depositoActual.NumDoc);
-				btnIrADeposito.setVisibility(android.view.View.VISIBLE);
+				android.util.Log.d("FichaClienteDialog", "cargarInfoDeposito - FechaDeposito: " + depositoActual.FechaDeposito);
+				android.util.Log.d("FichaClienteDialog", "cargarInfoDeposito - NumDoc: " + depositoActual.NumDoc);
+				android.util.Log.d("FichaClienteDialog", "cargarInfoDeposito - IdDeposito: " + depositoActual.IdDeposito);
+			}
+
+			if (tieneDeposito) {
+				// El depósito existe - puede tener fecha o no (placeholder para clientes nuevos)
+				if (depositoActual.FechaDeposito != null) {
+					// Depósito con fecha - cliente ya visitado
+					SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+					String fecha = formatter.format(depositoActual.FechaDeposito);
+					txtInfoDeposito.setText("Depósito del " + fecha + "\nDoc: " + depositoActual.NumDoc);
+				} else {
+					// Depósito sin fecha - placeholder para cliente nuevo (nunca visitado)
+					txtInfoDeposito.setText("Depósito pendiente (Cliente nuevo)\nDoc: " + depositoActual.NumDoc);
+				}
+				btnVerDeposito.setVisibility(android.view.View.VISIBLE);
+				btnEditarDeposito.setVisibility(android.view.View.VISIBLE);
 			} else {
+				// No existe ningún depósito en la base de datos
 				txtInfoDeposito.setText("Sin depósito actual");
-				btnIrADeposito.setVisibility(android.view.View.GONE);
+				btnVerDeposito.setVisibility(android.view.View.GONE);
+				btnEditarDeposito.setVisibility(android.view.View.GONE);
 				depositoActual = null;
 			}
 		} catch (Exception e) {
 			txtInfoDeposito.setText("Error cargando depósito");
-			btnIrADeposito.setVisibility(android.view.View.GONE);
+			btnVerDeposito.setVisibility(android.view.View.GONE);
+			btnEditarDeposito.setVisibility(android.view.View.GONE);
 			depositoActual = null;
-			android.util.Log.e("FichaClienteDialog", "Error depósito: " + e.getMessage());
+			android.util.Log.e("FichaClienteDialog", "Error depósito: " + e.getMessage(), e);
 		}
 	}
 
-	private void cargarInfoAlbaran() {
+	private void cargarAlbaranes() {
 		try {
-			// Usar el método del modelo para obtener el último albarán
-			albaranActual = cliente.getUltimoAlbaran(codigoCliente);
+			// Obtener albaranes de los últimos 4 años
+			albaranes = cliente.getAlbaranesUltimos4Anos(codigoCliente);
 
-			if (albaranActual != null) {
-				SimpleDateFormat displayFormatter = new SimpleDateFormat("dd/MM/yyyy");
-				String fecha = displayFormatter.format(albaranActual.Fecha);
-				String serieStr = (albaranActual.Serie != null && !albaranActual.Serie.isEmpty())
-					? albaranActual.Serie + "-" : "";
-				txtInfoAlbaran.setText("Albarán del " + fecha + "\nNº " + serieStr + albaranActual.NumeroAlbaran);
-				btnIrAAlbaran.setVisibility(android.view.View.VISIBLE);
-			} else {
-				txtInfoAlbaran.setText("Sin albaranes registrados");
-				btnIrAAlbaran.setVisibility(android.view.View.GONE);
-			}
+			albaranesAdapter = new AlbaranesAdapter();
+			listViewAlbaranes.setAdapter(albaranesAdapter);
+
 		} catch (Exception e) {
-			txtInfoAlbaran.setText("Error cargando albarán");
-			btnIrAAlbaran.setVisibility(android.view.View.GONE);
-			albaranActual = null;
-			android.util.Log.e("FichaClienteDialog", "Error albarán: " + e.getMessage(), e);
+			Toast.makeText(this, "Error cargando albaranes: " + e.getMessage(),
+				Toast.LENGTH_SHORT).show();
+			android.util.Log.e("FichaClienteDialog", "Error albaranes: " + e.getMessage(), e);
 		}
 	}
 
@@ -270,7 +284,7 @@ public class FichaClienteDialog extends Activity {
 		}
 	}
 
-	private void irADeposito() {
+	private void verDeposito() {
 		try {
 			if (depositoActual == null) {
 				Toast.makeText(this, "No hay depósito disponible para este cliente",
@@ -281,25 +295,127 @@ public class FichaClienteDialog extends Activity {
 			// Cargar el depósito en el WorkingArea para que DepositView lo pueda mostrar
 			appConfig.getWorkingArea().CurrentDeposito = depositoActual;
 
+			// Abrir el popup de resumen del depósito
 			Intent intent = new Intent(this, DepositView.class);
 			startActivity(intent);
 		} catch (Exception e) {
-			Toast.makeText(this, "Error abriendo depósito: " + e.getMessage(),
+			Toast.makeText(this, "Error abriendo resumen de depósito: " + e.getMessage(),
 				Toast.LENGTH_SHORT).show();
 			android.util.Log.e("FichaClienteDialog", "Error: " + e.getMessage(), e);
 		}
 	}
 
-	private void irAAlbaran() {
+	private void editarDeposito() {
 		try {
-			if (albaranActual == null) {
-				Toast.makeText(this, "No hay albarán disponible para este cliente",
+			android.util.Log.d("FichaClienteDialog", "editarDeposito() iniciado");
+
+			if (depositoActual == null) {
+				Toast.makeText(this, "No hay depósito disponible para este cliente",
+					Toast.LENGTH_SHORT).show();
+				return;
+			}
+
+			android.util.Log.d("FichaClienteDialog", "Depósito actual: " + depositoActual.NumDoc);
+			android.util.Log.d("FichaClienteDialog", "Cliente: " + cliente.CodigoCliente);
+
+			// Cargar el depósito y cliente en el WorkingArea
+			appConfig.getWorkingArea().CurrentDeposito = depositoActual;
+			appConfig.getWorkingArea().CurrentCliente = cliente;
+
+			android.util.Log.d("FichaClienteDialog", "WorkingArea cargado, enviando evento");
+
+			// Enviar evento para que MainMenu abra la pestaña de depósitos con DepositManager
+			appConfig.getMediator().notify(net.ifeu.edicards.Constants.ConstantsEvents.EVENT_OPEN_DEPOSIT, null);
+
+			android.util.Log.d("FichaClienteDialog", "Evento enviado, cerrando diálogo");
+
+			// Cerrar este diálogo para volver al menú principal
+			finish();
+
+			android.util.Log.d("FichaClienteDialog", "editarDeposito() completado");
+		} catch (Exception e) {
+			String errorMsg = e.getMessage() != null ? e.getMessage() : e.getClass().getName();
+			Toast.makeText(this, "Error abriendo depósito: " + errorMsg,
+				Toast.LENGTH_SHORT).show();
+			android.util.Log.e("FichaClienteDialog", "Error en editarDeposito: " + errorMsg, e);
+			e.printStackTrace();
+		}
+	}
+
+	private void irAAlbaran(Historico albaran) {
+		try {
+			if (albaran == null) {
+				Toast.makeText(this, "No hay albarán disponible",
 					Toast.LENGTH_SHORT).show();
 				return;
 			}
 
 			// Cargar el albarán en el WorkingArea para que AlbaranView lo pueda mostrar
-			appConfig.getWorkingArea().CurrentHistorico = albaranActual;
+			appConfig.getWorkingArea().CurrentHistorico = albaran;
+
+			// DEBUG: Verificar cuántas líneas tiene el albarán
+			android.util.Log.d("FichaClienteDialog", "Albarán " + albaran.NumeroAlbaran + " tiene " + albaran.Lineas.size() + " líneas");
+
+			// Crear un depósito temporal desde el histórico para AlbaranView
+			// AlbaranView espera CurrentDeposito, así que creamos uno con los datos del histórico
+			Deposito depositoTemp = Factory.build(Deposito.class, appConfig);
+
+			// DEBUG: Verificar si el depósito temporal viene con líneas pre-cargadas
+			android.util.Log.d("FichaClienteDialog", "Depósito temporal recién creado tiene " + depositoTemp.Lineas.size() + " líneas (debería ser 0)");
+
+			// IMPORTANTE: Limpiar líneas por si acaso Factory.build() carga algo
+			depositoTemp.Lineas.clear();
+
+			depositoTemp.Serie = albaran.Serie;
+			depositoTemp.NumeroAlbaran = albaran.NumeroAlbaran;
+			depositoTemp.FechaDeposito = albaran.Fecha;
+			depositoTemp.Cliente = albaran.Cliente;
+
+			// Cargar las líneas del histórico como líneas de depósito
+			// IMPORTANTE: Solo procesar líneas FACTURADAS (tipo 1) para el albarán
+			// Las líneas de depósito (stock, unidades iniciales, etc.) NO deben aparecer en el albarán
+			// IMPORTANTE: Usar índice único como clave, no CodigoArticulo,
+			// porque puede haber múltiples líneas del mismo artículo
+			// PROBLEMA: Las líneas FACTURADAS se guardan con PVP = 0 en el histórico
+			// Necesitamos obtener el PVP de las líneas UNIDADES_INICIALES del mismo artículo
+			// Primero crear un mapa de PVP por artículo desde las líneas de UNIDADES_INICIALES
+			java.util.HashMap<Long, Float> pvpPorArticulo = new java.util.HashMap<>();
+			for (LineaHistorico lineaHist : albaran.Lineas.values()) {
+				if (lineaHist.Tipo == ConstantsTypes.TIPO_LINEA_HISTORICO_UNIDADES_INICIALES) {
+					pvpPorArticulo.put(lineaHist.Articulo.IdArticulo, lineaHist.PVP);
+				}
+			}
+
+			int lineaIndex = 0;
+			for (LineaHistorico lineaHist : albaran.Lineas.values()) {
+				// Filtrar solo líneas facturadas (tipo 1)
+				if (lineaHist.Tipo == ConstantsTypes.TIPO_LINEA_HISTORICO_FACTURADAS) {
+					LineaDeposito lineaDep = Factory.build(LineaDeposito.class, appConfig);
+					lineaDep.Articulo = lineaHist.Articulo;
+					lineaDep.UnidadesFacturadas = lineaHist.Unidades;
+
+					// Obtener el PVP de las líneas de UNIDADES_INICIALES
+					Float pvp = pvpPorArticulo.get(lineaHist.Articulo.IdArticulo);
+					if (pvp != null) {
+						lineaDep.PVP = pvp;
+					} else {
+						// Si no hay PVP en unidades iniciales, usar el PVP actual del artículo
+						lineaDep.PVP = (float) lineaHist.Articulo.PVP;
+						android.util.Log.w("FichaClienteDialog", "PVP no encontrado en histórico para " + lineaHist.Articulo.CodigoArticulo + ", usando PVP actual");
+					}
+
+					lineaDep.Descuento1 = 0; // Los históricos no guardan descuentos
+					depositoTemp.Lineas.put("linea_" + lineaIndex++, lineaDep);
+				}
+			}
+
+			// DEBUG: Verificar cuántas líneas se agregaron al depósito temporal
+			android.util.Log.d("FichaClienteDialog", "Depósito temporal tiene " + depositoTemp.Lineas.size() + " líneas");
+
+			// Calcular totales
+			depositoTemp.Calculate();
+
+			appConfig.getWorkingArea().CurrentDeposito = depositoTemp;
 
 			Intent intent = new Intent(this, AlbaranView.class);
 			startActivity(intent);
@@ -859,6 +975,58 @@ public class FichaClienteDialog extends Activity {
 
 			btnEditar.setOnClickListener(v -> editarComentario(comentario));
 			btnEliminar.setOnClickListener(v -> eliminarComentario(comentario));
+
+			return convertView;
+		}
+	}
+
+	// Adapter para la lista de albaranes
+	private class AlbaranesAdapter extends BaseAdapter {
+
+		@Override
+		public int getCount() {
+			return albaranes != null ? albaranes.size() : 0;
+		}
+
+		@Override
+		public Object getItem(int position) {
+			return albaranes.get(position);
+		}
+
+		@Override
+		public long getItemId(int position) {
+			return position;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			if (convertView == null) {
+				LayoutInflater inflater = LayoutInflater.from(FichaClienteDialog.this);
+				convertView = inflater.inflate(android.R.layout.simple_list_item_2, parent, false);
+			}
+
+			Historico albaran = albaranes.get(position);
+
+			TextView text1 = convertView.findViewById(android.R.id.text1);
+			TextView text2 = convertView.findViewById(android.R.id.text2);
+
+			// Línea 1: Número de albarán
+			String serieStr = (albaran.Serie != null && !albaran.Serie.isEmpty())
+				? albaran.Serie + "-" : "";
+			text1.setText("Albarán Nº " + serieStr + albaran.NumeroAlbaran);
+			text1.setTextSize(16);
+			text1.setTextColor(0xFF1976D2);
+
+			// Línea 2: Fecha y total
+			SimpleDateFormat displayFormatter = new SimpleDateFormat("dd/MM/yyyy");
+			String fecha = displayFormatter.format(albaran.Fecha);
+			String totalStr = String.format("%.2f€", albaran.Total);
+			text2.setText(fecha + "  •  Total: " + totalStr);
+			text2.setTextSize(14);
+			text2.setTextColor(0xFF666666);
+
+			// Click para ver detalle
+			convertView.setOnClickListener(v -> irAAlbaran(albaran));
 
 			return convertView;
 		}

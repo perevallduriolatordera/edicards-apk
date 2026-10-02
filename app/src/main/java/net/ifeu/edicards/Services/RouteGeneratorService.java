@@ -11,9 +11,9 @@ import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.Historico;
 import net.ifeu.edicards.DataTier.RutaGenerada;
 import net.ifeu.edicards.DataTier.Zona;
+import net.ifeu.edicards.Services.Geocoding.GoogleMapsGeocodingStrategy;
 import net.ifeu.edicards.Services.Geocoding.IGeocodingStrategy;
 import net.ifeu.edicards.Services.Geocoding.LatLng;
-import net.ifeu.edicards.Services.Geocoding.OpenRouteServiceGeocodingStrategy;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -92,7 +92,7 @@ public class RouteGeneratorService {
 			ciudad.load();
 
 			// Geocodificar ubicación de la base si no está ya en caché
-			IGeocodingStrategy geocodingStrategy = new OpenRouteServiceGeocodingStrategy();
+			IGeocodingStrategy geocodingStrategy = new GoogleMapsGeocodingStrategy();
 			LatLng baseLocation = geocodingStrategy.geocodeAddress(
 				ciudadBase,
 				null,
@@ -188,7 +188,7 @@ public class RouteGeneratorService {
 				CiudadVendedor ciudad = Factory.build(CiudadVendedor.class, app);
 				ciudad.load();
 
-				IGeocodingStrategy geocodingStrategy = new OpenRouteServiceGeocodingStrategy();
+				IGeocodingStrategy geocodingStrategy = new GoogleMapsGeocodingStrategy();
 				LatLng baseLocation = geocodingStrategy.geocodeAddress(
 					ciudadBase, null, null, ciudad.CodigoPostal
 				);
@@ -1727,7 +1727,7 @@ public class RouteGeneratorService {
 				CiudadVendedor ciudad = Factory.build(CiudadVendedor.class, app);
 				ciudad.load();
 
-				IGeocodingStrategy geocodingStrategy = new OpenRouteServiceGeocodingStrategy();
+				IGeocodingStrategy geocodingStrategy = new GoogleMapsGeocodingStrategy();
 				LatLng baseLocation = geocodingStrategy.geocodeAddress(
 					ciudadBase, null, null, ciudad.CodigoPostal
 				);
@@ -2004,15 +2004,55 @@ public class RouteGeneratorService {
 				CiudadVendedor ciudad = Factory.build(CiudadVendedor.class, app);
 				ciudad.load();
 
-				IGeocodingStrategy geocodingStrategy = new OpenRouteServiceGeocodingStrategy();
-				LatLng baseLocation = geocodingStrategy.geocodeAddress(
-					ciudadBase, null, null, ciudad.CodigoPostal
-				);
+				Log.i(TAG, "Geocodificando ciudad base:");
+				Log.i(TAG, "  Ciudad: " + (ciudadBase != null ? ciudadBase : "NULL"));
+				Log.i(TAG, "  Código Postal: " + (ciudad.CodigoPostal != null ? ciudad.CodigoPostal : "NULL"));
 
-				if (baseLocation == null) {
-					callback.onError("No se pudo geocodificar ciudad base");
+				IGeocodingStrategy geocodingStrategy = new GoogleMapsGeocodingStrategy();
+				LatLng baseLocation = null;
+
+				try {
+					baseLocation = geocodingStrategy.geocodeAddress(
+						ciudadBase, null, null, ciudad.CodigoPostal
+					);
+				} catch (Exception e) {
+					Log.e(TAG, "Error geocodificando ciudad base: " + e.getMessage());
+					e.printStackTrace();
+
+					StringBuilder errorMsg = new StringBuilder();
+					errorMsg.append("No se pudo geocodificar la ciudad base.\n\n");
+					errorMsg.append("=== INFORMACIÓN DE CIUDAD BASE ===\n");
+					errorMsg.append("Ciudad configurada: ").append(ciudadBase != null ? ciudadBase : "NO CONFIGURADA").append("\n");
+					errorMsg.append("Código Postal: ").append(ciudad.CodigoPostal != null ? ciudad.CodigoPostal : "NO CONFIGURADO").append("\n\n");
+					errorMsg.append("Error: ").append(e.getMessage()).append("\n\n");
+					errorMsg.append("Posibles causas:\n");
+					errorMsg.append("1. Nombre de ciudad mal escrito\n");
+					errorMsg.append("2. Ciudad no existe en Google Maps\n");
+					errorMsg.append("3. Error de Google Geocoding API\n");
+					errorMsg.append("4. Sin conexión a Internet\n\n");
+					errorMsg.append("SOLUCIÓN: Verificar configuración de ciudad base");
+
+					callback.onError(errorMsg.toString());
 					return;
 				}
+
+				if (baseLocation == null) {
+					StringBuilder errorMsg = new StringBuilder();
+					errorMsg.append("No se pudo geocodificar la ciudad base.\n\n");
+					errorMsg.append("=== INFORMACIÓN DE CIUDAD BASE ===\n");
+					errorMsg.append("Ciudad configurada: ").append(ciudadBase != null ? ciudadBase : "NO CONFIGURADA").append("\n");
+					errorMsg.append("Código Postal: ").append(ciudad.CodigoPostal != null ? ciudad.CodigoPostal : "NO CONFIGURADO").append("\n\n");
+					errorMsg.append("Posibles causas:\n");
+					errorMsg.append("1. Nombre de ciudad mal escrito o incompleto\n");
+					errorMsg.append("2. Ciudad no reconocida por Google Maps\n");
+					errorMsg.append("3. Falta el código postal\n\n");
+					errorMsg.append("SOLUCIÓN: Verificar y corregir la configuración de ciudad base");
+
+					callback.onError(errorMsg.toString());
+					return;
+				}
+
+				Log.i(TAG, "✓ Ciudad base geocodificada: " + baseLocation.getLatitude() + ", " + baseLocation.getLongitude());
 
 				// 3. ORDENAR ZONAS POR DISTANCIA A LA BASE
 				callback.onProgress("Ordenando zonas por proximidad a la base...");
@@ -2026,61 +2066,90 @@ public class RouteGeneratorService {
 				Cliente clienteAnterior = null;
 
 				// 4. Procesar cada zona como un lote (ya ordenadas por distancia)
+				StringBuilder erroresOptimizacion = new StringBuilder();
+				int zonasConError = 0;
+
 				for (int i = 0; i < zonasActivas.size(); i++) {
 					Zona zonaActual = zonasActivas.get(i);
 
-					callback.onProgress("Procesando zona " + (i + 1) + "/" + zonasActivas.size() + ": " + zonaActual.NombreZona);
-					Log.i(TAG, "");
-					Log.i(TAG, "═══ PROCESANDO ZONA: " + zonaActual.NombreZona + " ═══");
+					try {
+						callback.onProgress("Procesando zona " + (i + 1) + "/" + zonasActivas.size() + ": " + zonaActual.NombreZona);
+						Log.i(TAG, "");
+						Log.i(TAG, "═══ PROCESANDO ZONA: " + zonaActual.NombreZona + " ═══");
 
-					// Obtener clientes de esta zona
-					ArrayList<Cliente> clientesZona = getClientesPorZona(app, zonaActual.IdZona);
+						// Obtener clientes de esta zona
+						ArrayList<Cliente> clientesZona = getClientesPorZona(app, zonaActual.IdZona);
 
-					if (clientesZona == null || clientesZona.isEmpty()) {
-						Log.w(TAG, "  No hay clientes en zona: " + zonaActual.NombreZona);
-						continue;
-					}
-
-					Log.i(TAG, "  Clientes en zona: " + clientesZona.size());
-
-					// Filtrar clientes por distancia válida
-					clientesZona = filterClientesByDistanceFromBase(clientesZona, baseLocation);
-
-					if (clientesZona.isEmpty()) {
-						Log.w(TAG, "  No hay clientes válidos en zona: " + zonaActual.NombreZona);
-						continue;
-					}
-
-					// Optimizar clientes de esta zona
-					callback.onProgress("Optimizando ruta para zona: " + zonaActual.NombreZona + " (" + clientesZona.size() + " clientes)");
-
-					UnifiedRouteOptimizer optimizer = new UnifiedRouteOptimizer(context, googleApiKey);
-
-					// Usar el IdZona como clusterID para que se visualicen agrupados
-					int clusterID = (int) zonaActual.IdZona;
-
-					ArrayList<RouteOptimizerService.RutaClienteData> rutaZona =
-						optimizer.optimizeRoute(clientesZona, baseLocation, clienteAnterior, clusterID);
-
-					if (rutaZona != null && !rutaZona.isEmpty()) {
-						// Agregar clientes optimizados con orden global correcto
-						for (RouteOptimizerService.RutaClienteData rutaCliente : rutaZona) {
-							rutaCliente.orden = ordenGlobal++;
-							// Guardar nombre de zona en el objeto para visualización
-							rutaCliente.nombreZona = zonaActual.NombreZona;
-							rutaCompleta.add(rutaCliente);
+						if (clientesZona == null || clientesZona.isEmpty()) {
+							Log.w(TAG, "  No hay clientes en zona: " + zonaActual.NombreZona);
+							continue;
 						}
 
-						// Guardar último cliente para conectar con siguiente zona
-						RouteOptimizerService.RutaClienteData ultimoRuta = rutaZona.get(rutaZona.size() - 1);
-						for (Cliente c : clientesZona) {
-							if (c.CodigoCliente.equals(ultimoRuta.codigoCliente)) {
-								clienteAnterior = c;
-								break;
+						Log.i(TAG, "  Clientes en zona: " + clientesZona.size());
+
+						// Filtrar clientes por distancia válida
+						clientesZona = filterClientesByDistanceFromBase(clientesZona, baseLocation);
+
+						if (clientesZona.isEmpty()) {
+							Log.w(TAG, "  No hay clientes válidos en zona: " + zonaActual.NombreZona);
+							continue;
+						}
+
+						// Optimizar clientes de esta zona
+						callback.onProgress("Optimizando ruta para zona: " + zonaActual.NombreZona + " (" + clientesZona.size() + " clientes)");
+
+						UnifiedRouteOptimizer optimizer = new UnifiedRouteOptimizer(context, googleApiKey);
+
+						// Usar el IdZona como clusterID para que se visualicen agrupados
+						int clusterID = (int) zonaActual.IdZona;
+
+						ArrayList<RouteOptimizerService.RutaClienteData> rutaZona =
+							optimizer.optimizeRoute(clientesZona, baseLocation, clienteAnterior, clusterID);
+
+						if (rutaZona != null && !rutaZona.isEmpty()) {
+							// Agregar clientes optimizados con orden global correcto
+							for (RouteOptimizerService.RutaClienteData rutaCliente : rutaZona) {
+								rutaCliente.orden = ordenGlobal++;
+								// Guardar nombre de zona en el objeto para visualización
+								rutaCliente.nombreZona = zonaActual.NombreZona;
+								rutaCompleta.add(rutaCliente);
 							}
+
+							// Guardar último cliente para conectar con siguiente zona
+							RouteOptimizerService.RutaClienteData ultimoRuta = rutaZona.get(rutaZona.size() - 1);
+							for (Cliente c : clientesZona) {
+								if (c.CodigoCliente.equals(ultimoRuta.codigoCliente)) {
+									clienteAnterior = c;
+									break;
+								}
+							}
+
+							Log.i(TAG, "  ✓ Zona optimizada: " + rutaZona.size() + " clientes");
+						} else {
+							Log.w(TAG, "  ⚠ Zona devolvió resultado vacío: " + zonaActual.NombreZona);
 						}
 
-						Log.i(TAG, "  ✓ Zona optimizada: " + rutaZona.size() + " clientes");
+					} catch (Exception e) {
+						// Capturar errores de Google Services o de optimización
+						String errorMsg = e.getMessage() != null ? e.getMessage() : "Error desconocido";
+						Log.e(TAG, "  ❌ ERROR optimizando zona " + zonaActual.NombreZona + ": " + errorMsg);
+						e.printStackTrace();
+
+						zonasConError++;
+						erroresOptimizacion.append("Zona '").append(zonaActual.NombreZona).append("': ")
+							.append(errorMsg).append("\n");
+
+						// Si es error de Google API, reportar inmediatamente
+						if (errorMsg.contains("Google") || errorMsg.contains("API") ||
+						    errorMsg.contains("401") || errorMsg.contains("403") || errorMsg.contains("429")) {
+							callback.onError("Error de Google Services:\n" + errorMsg +
+								"\n\nVerifique:\n" +
+								"1. API Key de Google Maps\n" +
+								"2. APIs habilitadas en Google Cloud Console\n" +
+								"3. Límites de uso/cuotas\n" +
+								"4. Conexión a Internet");
+							return;
+						}
 					}
 				}
 
@@ -2123,7 +2192,141 @@ public class RouteGeneratorService {
 			}
 
 				if (rutaCompleta.isEmpty()) {
-					callback.onError("No se pudo generar ninguna ruta");
+					// Proporcionar información de diagnóstico DETALLADA
+					StringBuilder diagnostico = new StringBuilder();
+					diagnostico.append("No se pudo generar ninguna ruta.\n\n");
+
+					// Si hubo errores de optimización, mostrarlos primero
+					if (zonasConError > 0) {
+						diagnostico.append("=== ERRORES DE OPTIMIZACIÓN ===\n");
+						diagnostico.append("Zonas con errores: ").append(zonasConError).append("\n");
+						diagnostico.append(erroresOptimizacion.toString()).append("\n");
+					}
+
+					// Contar total de clientes activos en BD
+					int totalClientesActivos = 0;
+					int totalClientesConCoordenadas = 0;
+					int totalClientesConZona = 0;
+					int totalClientesSinZona = 0;
+
+					try {
+						android.database.Cursor cursorTotal = app.getDatabaseOperations().executeSentence(
+							"SELECT COUNT(*) as total FROM Clientes WHERE Activo = 1"
+						);
+						if (cursorTotal != null && cursorTotal.moveToFirst()) {
+							totalClientesActivos = cursorTotal.getInt(0);
+							cursorTotal.close();
+						}
+
+						android.database.Cursor cursorConCoord = app.getDatabaseOperations().executeSentence(
+							"SELECT COUNT(*) as total FROM Clientes WHERE Activo = 1 AND Latitud IS NOT NULL AND Latitud != 0 AND Longitud IS NOT NULL AND Longitud != 0"
+						);
+						if (cursorConCoord != null && cursorConCoord.moveToFirst()) {
+							totalClientesConCoordenadas = cursorConCoord.getInt(0);
+							cursorConCoord.close();
+						}
+
+						android.database.Cursor cursorConZona = app.getDatabaseOperations().executeSentence(
+							"SELECT COUNT(*) as total FROM Clientes WHERE Activo = 1 AND IdZona IS NOT NULL AND IdZona > 0"
+						);
+						if (cursorConZona != null && cursorConZona.moveToFirst()) {
+							totalClientesConZona = cursorConZona.getInt(0);
+							cursorConZona.close();
+						}
+
+						android.database.Cursor cursorSinZona = app.getDatabaseOperations().executeSentence(
+							"SELECT COUNT(*) as total FROM Clientes WHERE Activo = 1 AND (IdZona IS NULL OR IdZona = 0)"
+						);
+						if (cursorSinZona != null && cursorSinZona.moveToFirst()) {
+							totalClientesSinZona = cursorSinZona.getInt(0);
+							cursorSinZona.close();
+						}
+					} catch (Exception e) {
+						Log.e(TAG, "Error obteniendo estadísticas: " + e.getMessage());
+					}
+
+					diagnostico.append("=== ESTADO DE LA BASE DE DATOS ===\n");
+					diagnostico.append("Total clientes activos: ").append(totalClientesActivos).append("\n");
+					diagnostico.append("Con coordenadas válidas: ").append(totalClientesConCoordenadas).append("\n");
+					diagnostico.append("Con zona asignada: ").append(totalClientesConZona).append("\n");
+					diagnostico.append("Sin zona asignada: ").append(totalClientesSinZona).append("\n\n");
+
+					diagnostico.append("=== ZONAS ACTIVAS ===\n");
+					diagnostico.append("Total zonas activas: ").append(zonasActivas.size()).append("\n");
+
+					if (zonasActivas.isEmpty()) {
+						diagnostico.append("⚠️ PROBLEMA: No hay zonas activas\n");
+						diagnostico.append("SOLUCIÓN: Crear zonas desde el menú de zonas\n");
+					} else {
+						// Mostrar detalle de cada zona
+						for (Zona z : zonasActivas) {
+							try {
+								ArrayList<Cliente> clientesZona = getClientesPorZona(app, z.IdZona);
+								int conCoord = 0;
+								int sinCoord = 0;
+								int excluidos = 0;
+
+								if (clientesZona != null) {
+									for (Cliente c : clientesZona) {
+										if (c.Latitud != null && c.Latitud != 0 && c.Longitud != null && c.Longitud != 0) {
+											conCoord++;
+										} else {
+											sinCoord++;
+										}
+									}
+
+									// Contar excluidos por filtro de distancia
+									ArrayList<Cliente> clientesFiltrados = filterClientesByDistanceFromBase(clientesZona, baseLocation);
+									excluidos = clientesZona.size() - clientesFiltrados.size();
+								}
+
+								diagnostico.append("  • ").append(z.NombreZona).append(": ");
+								diagnostico.append(clientesZona != null ? clientesZona.size() : 0).append(" clientes");
+								diagnostico.append(" (").append(conCoord).append(" con coord, ");
+								diagnostico.append(sinCoord).append(" sin coord, ");
+								diagnostico.append(excluidos).append(" excluidos)\n");
+
+							} catch (Exception e) {
+								diagnostico.append("  • ").append(z.NombreZona).append(": Error obteniendo datos\n");
+							}
+						}
+					}
+
+					diagnostico.append("\n=== CLIENTES EXCLUIDOS ===\n");
+					if (clientesLejanos != null && !clientesLejanos.isEmpty()) {
+						diagnostico.append("Total excluidos: ").append(clientesLejanos.size()).append("\n");
+						diagnostico.append("Primeros 5 excluidos:\n");
+						for (int i = 0; i < Math.min(5, clientesLejanos.size()); i++) {
+							Cliente c = clientesLejanos.get(i);
+							diagnostico.append("  • ").append(c.Nombre);
+							if (c.Latitud != null && c.Longitud != null) {
+								diagnostico.append(" (").append(c.Latitud).append(", ").append(c.Longitud).append(")");
+							} else {
+								diagnostico.append(" (sin coordenadas)");
+							}
+							diagnostico.append("\n");
+						}
+					} else {
+						diagnostico.append("No hay clientes excluidos\n");
+					}
+
+					diagnostico.append("\n=== DIAGNÓSTICO ===\n");
+					if (zonasActivas.isEmpty()) {
+						diagnostico.append("❌ PROBLEMA: No hay zonas activas\n");
+					} else if (totalClientesConZona == 0) {
+						diagnostico.append("❌ PROBLEMA: Ningún cliente tiene zona asignada\n");
+						diagnostico.append("SOLUCIÓN: Asignar clientes a zonas desde el menú\n");
+					} else if (totalClientesConCoordenadas == 0) {
+						diagnostico.append("❌ PROBLEMA: Ningún cliente tiene coordenadas\n");
+						diagnostico.append("SOLUCIÓN: Geocodificar clientes\n");
+					} else {
+						diagnostico.append("⚠️ Todos los clientes fueron excluidos por el filtro\n");
+						diagnostico.append("Posible causa: coordenadas incorrectas o muy lejos de la base\n");
+					}
+
+					String msgDiagnostico = diagnostico.toString();
+					Log.e(TAG, msgDiagnostico);
+					callback.onError(msgDiagnostico);
 					return;
 				}
 

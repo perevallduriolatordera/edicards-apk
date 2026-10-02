@@ -5,16 +5,16 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="8dp">
 
-    <!-- Cabecera Moderna -->
+    <!-- Cabecera Compacta -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="#0277BD"
-        android:padding="16dp"
-        android:layout_marginBottom="16dp"
+        android:padding="6dp"
+        android:layout_marginBottom="8dp"
         android:gravity="center"
         android:elevation="4dp">
 
@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Gestión de Depósitos"
-            android:textSize="22sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             android:textColor="#FFFFFF"
             android:gravity="center"/>
@@ -34,21 +34,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#FFFFFF"
-        android:padding="16dp"
+        android:padding="8dp"
         android:visibility="gone"
         android:orientation="vertical"
-        android:layout_marginBottom="12dp"
+        android:layout_marginBottom="8dp"
         android:elevation="2dp">
 
-        <!-- Fila 0: Botón colapsar/expandir -->
+        <!-- Fila 0: Botón colapsar/expandir (Compacto) -->
         <LinearLayout
             android:id="@+id/headerCollapseBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:background="#E3F2FD"
-            android:padding="8dp"
-            android:layout_marginBottom="12dp"
+            android:padding="4dp"
+            android:layout_marginBottom="6dp"
             android:gravity="center_vertical"
             android:elevation="2dp">
 
@@ -57,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="▼ FORMULARIO DEPÓSITO"
-                android:textSize="14sp"
+                android:textSize="12sp"
                 android:textColor="#0277BD"
                 android:textStyle="bold"
                 android:gravity="start"/>
@@ -67,10 +67,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Contraer ▲"
-                android:textSize="13sp"
+                android:textSize="11sp"
                 android:textColor="#0277BD"
                 android:textStyle="bold"
-                android:padding="8dp"
+                android:padding="4dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="#B3E5FC"/>
@@ -89,77 +89,77 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="6dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Cliente:"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 android:textColor="#424242"
                 android:textStyle="bold"
-                android:layout_marginEnd="8dp"/>
+                android:layout_marginEnd="6dp"/>
 
             <TextView
                 android:id="@+id/lblCliente"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 android:textColor="#0277BD"
                 android:textStyle="bold"
-                android:layout_marginEnd="16dp"/>
+                android:layout_marginEnd="12dp"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Total Base:"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 android:textColor="#424242"
                 android:textStyle="bold"
-                android:layout_marginEnd="8dp"/>
+                android:layout_marginEnd="6dp"/>
 
             <TextView
                 android:id="@+id/lblBase"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 android:textColor="#212121"
                 android:textStyle="bold"
-                android:layout_marginEnd="16dp"/>
+                android:layout_marginEnd="12dp"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Total:"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:textColor="#424242"
                 android:textStyle="bold"
-                android:layout_marginEnd="8dp"/>
+                android:layout_marginEnd="6dp"/>
 
             <TextView
                 android:id="@+id/lblTotalFactura"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textColor="#4CAF50"
                 android:textStyle="bold"
-                android:layout_marginEnd="16dp"/>
+                android:layout_marginEnd="12dp"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Entrega:"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 android:textColor="#424242"
                 android:textStyle="bold"
-                android:layout_marginEnd="8dp"/>
+                android:layout_marginEnd="6dp"/>
 
             <TextView
                 android:id="@+id/lblTipoEntrega"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 android:textColor="#FF6F00"
                 android:textStyle="bold"/>
         </LinearLayout>
@@ -170,7 +170,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="6dp"
             android:gravity="center_vertical"/>
 
         <!-- Fila 3: Controles adicionales -->
@@ -179,7 +179,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="6dp"
             android:gravity="center_vertical"/>
 
         <!-- Fila 4: Controles opcionales -->
@@ -189,20 +189,21 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:visibility="gone"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="6dp"
             android:gravity="center_vertical"/>
 
-        <!-- Cabecera de tabla de artículos -->
+        <!-- Cabecera de tabla de artículos (OCULTO - ya no se usa) -->
         <LinearLayout
             android:id="@+id/headerLabelsLinearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:background="#0277BD"
-            android:padding="14dp"
-            android:layout_marginTop="12dp"
+            android:padding="8dp"
+            android:layout_marginTop="8dp"
             android:gravity="center_vertical"
-            android:elevation="4dp"/>
+            android:elevation="4dp"
+            android:visibility="gone"/>
 
         <!-- Fila 7: Adicional - Zona de edición de artículo seleccionado -->
         <LinearLayout
@@ -212,8 +213,8 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:background="#E8F5E9"
-            android:padding="12dp"
-            android:layout_marginTop="8dp"
+            android:padding="8dp"
+            android:layout_marginTop="6dp"
             android:elevation="2dp"/>
 
         </LinearLayout>
@@ -251,9 +252,9 @@
         android:id="@+id/headerButtonsLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         android:background="#F5F5F5"
-        android:padding="16dp"
+        android:padding="10dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:elevation="4dp"/>

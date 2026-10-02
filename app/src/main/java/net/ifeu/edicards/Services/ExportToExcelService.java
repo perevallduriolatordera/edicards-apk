@@ -6,6 +6,11 @@ import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.util.Log;
 
+import net.ifeu.edicards.Application.AppConfig;
+import net.ifeu.edicards.DataTier.Cliente;
+import net.ifeu.edicards.DataTier.ClienteComentario;
+import net.ifeu.edicards.DataTier.ClienteRecordatorio;
+import net.ifeu.edicards.DataTier.Factories.Factory;
 import net.ifeu.edicards.DataTier.RutaGenerada;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -33,13 +38,15 @@ public class ExportToExcelService {
 	private static final String TAG = "ExportToExcelService";
 	private Context context;
 	private String appVersion = "N/A";
+	private AppConfig appConfig;
+	private List<RutaGenerada> todasLasRutas; // Para calcular cuartiles
 
-	// Estilos de celdas para colores según antigüedad de visita
-	private CellStyle styleVisitaReciente;   // Verde - última semana
-	private CellStyle styleVisitaNormal;      // Amarillo - última quincena
-	private CellStyle styleVisitaAntigua;     // Naranja - último mes
-	private CellStyle styleVisitaMuyAntigua;  // Rojo - más de un mes
-	private CellStyle styleSinVisita;         // Gris - nunca visitado
+	// Estilos de celdas para colores según cuartiles (más claros para Excel)
+	private CellStyle styleCuartil1;   // Verde claro - 25% más recientes
+	private CellStyle styleCuartil2;   // Naranja claro - siguiente 25%
+	private CellStyle styleCuartil3;   // Naranja oscuro - siguiente 25%
+	private CellStyle styleCuartil4;   // Rojo claro - 25% más antiguos
+	private CellStyle styleSinVisita;  // Rojo claro - nunca visitado
 
 	/**
 	 * Constructor que recibe el contexto para obtener la versión de la app
@@ -47,6 +54,7 @@ public class ExportToExcelService {
 	public ExportToExcelService(Context context) {
 		this.context = context;
 		this.appVersion = getAppVersion();
+		this.appConfig = (AppConfig) context.getApplicationContext();
 	}
 
 	/**
@@ -74,6 +82,9 @@ public class ExportToExcelService {
 			Log.w(TAG, "Lista de rutas vacía, no se puede exportar");
 			return null;
 		}
+
+		// Guardar referencia a todas las rutas para calcular cuartiles
+		this.todasLasRutas = rutas;
 
 		try {
 			// Crear carpeta si no existe
@@ -166,32 +177,33 @@ public class ExportToExcelService {
 	}
 
 	/**
-	 * Inicializa los estilos de color para las celdas según antigüedad de visita
+	 * Inicializa los estilos de color para las celdas según cuartiles de antigüedad
+	 * Colores más claros para mejor legibilidad en Excel
 	 */
 	private void initializeStyles(Workbook workbook) {
-		// Verde - Visita reciente (última semana)
-		styleVisitaReciente = workbook.createCellStyle();
-		styleVisitaReciente.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
-		styleVisitaReciente.setFillPattern(CellStyle.SOLID_FOREGROUND);
+		// Verde claro - Cuartil 1 (25% más recientes)
+		styleCuartil1 = workbook.createCellStyle();
+		styleCuartil1.setFillForegroundColor(IndexedColors.LIGHT_GREEN.getIndex());
+		styleCuartil1.setFillPattern(CellStyle.SOLID_FOREGROUND);
 
-		// Amarillo - Visita normal (última quincena)
-		styleVisitaNormal = workbook.createCellStyle();
-		styleVisitaNormal.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
-		styleVisitaNormal.setFillPattern(CellStyle.SOLID_FOREGROUND);
+		// Naranja claro - Cuartil 2 (siguiente 25%)
+		styleCuartil2 = workbook.createCellStyle();
+		styleCuartil2.setFillForegroundColor(IndexedColors.LIGHT_YELLOW.getIndex());
+		styleCuartil2.setFillPattern(CellStyle.SOLID_FOREGROUND);
 
-		// Naranja - Visita antigua (último mes)
-		styleVisitaAntigua = workbook.createCellStyle();
-		styleVisitaAntigua.setFillForegroundColor(IndexedColors.LIGHT_ORANGE.getIndex());
-		styleVisitaAntigua.setFillPattern(CellStyle.SOLID_FOREGROUND);
+		// Naranja oscuro - Cuartil 3 (siguiente 25%)
+		styleCuartil3 = workbook.createCellStyle();
+		styleCuartil3.setFillForegroundColor(IndexedColors.LIGHT_ORANGE.getIndex());
+		styleCuartil3.setFillPattern(CellStyle.SOLID_FOREGROUND);
 
-		// Rojo - Visita muy antigua (más de un mes)
-		styleVisitaMuyAntigua = workbook.createCellStyle();
-		styleVisitaMuyAntigua.setFillForegroundColor(IndexedColors.CORAL.getIndex());
-		styleVisitaMuyAntigua.setFillPattern(CellStyle.SOLID_FOREGROUND);
+		// Rojo claro - Cuartil 4 (25% más antiguos)
+		styleCuartil4 = workbook.createCellStyle();
+		styleCuartil4.setFillForegroundColor(IndexedColors.ROSE.getIndex());
+		styleCuartil4.setFillPattern(CellStyle.SOLID_FOREGROUND);
 
-		// Gris - Sin visitas
+		// Rojo claro - Sin visitas (NULL)
 		styleSinVisita = workbook.createCellStyle();
-		styleSinVisita.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+		styleSinVisita.setFillForegroundColor(IndexedColors.ROSE.getIndex());
 		styleSinVisita.setFillPattern(CellStyle.SOLID_FOREGROUND);
 	}
 
@@ -205,12 +217,12 @@ public class ExportToExcelService {
 		CellStyle headerStyle = workbook.createCellStyle();
 		Font headerFont = workbook.createFont();
 		headerFont.setBoldweight(Font.BOLDWEIGHT_BOLD);
-		headerFont.setColor((short) 255); // Blanco
+		headerFont.setColor(IndexedColors.WHITE.getIndex()); // Blanco
 		headerStyle.setFont(headerFont);
-		headerStyle.setFillForegroundColor((short) 64); // Azul oscuro
+		headerStyle.setFillForegroundColor(IndexedColors.DARK_BLUE.getIndex()); // Azul oscuro
 		headerStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);
 
-		// Nombres de columnas
+		// Nombres de columnas (solo hasta la columna L - Recordatorios)
 		String[] headers = {
 			"Orden",
 			"Cluster",
@@ -222,11 +234,8 @@ public class ExportToExcelService {
 			"Provincia",
 			"Ultima Visita",
 			"Distancia (km)",
-			"Geo Status",
-			"Latitud",
-			"Longitud",
-			"Fecha Generacion",
-			"Version App"
+			"Comentarios",
+			"Recordatorios"
 		};
 
 		for (int i = 0; i < headers.length; i++) {
@@ -240,102 +249,195 @@ public class ExportToExcelService {
 	 * Rellena una fila con datos de una ruta
 	 */
 	private void fillRow(Row row, RutaGenerada ruta) {
+		// Determinar el estilo de color para TODA la fila basado en cuartiles
+		CellStyle rowStyle = getStyleForVisitAge(ruta.FechaUltimaVisita);
+
 		int cellNum = 0;
 
 		// Orden
 		Cell cellOrden = row.createCell(cellNum++);
 		cellOrden.setCellValue(ruta.OrdenVisita);
+		cellOrden.setCellStyle(rowStyle);
 
 		// Cluster
 		Cell cellCluster = row.createCell(cellNum++);
 		cellCluster.setCellValue(ruta.ClusterID);
+		cellCluster.setCellStyle(rowStyle);
 
 		// Zona
 		Cell cellZona = row.createCell(cellNum++);
 		cellZona.setCellValue(ruta.NombreZona != null ? ruta.NombreZona : "");
+		cellZona.setCellStyle(rowStyle);
 
 		// Codigo Cliente
 		Cell cellCodigo = row.createCell(cellNum++);
 		cellCodigo.setCellValue(ruta.CodigoCliente != null ? ruta.CodigoCliente : "");
+		cellCodigo.setCellStyle(rowStyle);
 
 		// Nombre Cliente
 		Cell cellNombre = row.createCell(cellNum++);
 		cellNombre.setCellValue(ruta.NombreCliente != null ? ruta.NombreCliente : "");
+		cellNombre.setCellStyle(rowStyle);
 
 		// Direccion
 		Cell cellDireccion = row.createCell(cellNum++);
 		cellDireccion.setCellValue(ruta.DireccionCliente != null ? ruta.DireccionCliente : "");
+		cellDireccion.setCellStyle(rowStyle);
 
 		// Poblacion
 		Cell cellPoblacion = row.createCell(cellNum++);
 		cellPoblacion.setCellValue(ruta.PoblacionCliente != null ? ruta.PoblacionCliente : "");
+		cellPoblacion.setCellStyle(rowStyle);
 
 		// Provincia
 		Cell cellProvincia = row.createCell(cellNum++);
 		cellProvincia.setCellValue(ruta.ProvinciaCliente != null ? ruta.ProvinciaCliente : "");
+		cellProvincia.setCellStyle(rowStyle);
 
-		// Ultima Visita (con color según antigüedad)
+		// Ultima Visita
 		Cell cellUltimaVisita = row.createCell(cellNum++);
 		if (ruta.FechaUltimaVisita != null) {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 			cellUltimaVisita.setCellValue(dateFormat.format(ruta.FechaUltimaVisita));
-
-			// Aplicar color según antigüedad
-			CellStyle style = getStyleForVisitAge(ruta.FechaUltimaVisita);
-			cellUltimaVisita.setCellStyle(style);
 		} else {
 			cellUltimaVisita.setCellValue("Sin visitas");
-			cellUltimaVisita.setCellStyle(styleSinVisita);
 		}
+		cellUltimaVisita.setCellStyle(rowStyle);
 
 		// Distancia
 		Cell cellDistancia = row.createCell(cellNum++);
 		cellDistancia.setCellValue(ruta.DistanciaEstimada != null ? ruta.DistanciaEstimada : "");
+		cellDistancia.setCellStyle(rowStyle);
 
-		// Geo Status
-		Cell cellGeoStatus = row.createCell(cellNum++);
-		cellGeoStatus.setCellValue(ruta.GeolocalizationStatus != null ? ruta.GeolocalizationStatus : "⚠ SIN COORDS");
+		// Comentarios (concatenados con " - ")
+		Cell cellComentarios = row.createCell(cellNum++);
+		String comentarios = obtenerComentariosCliente(ruta.CodigoCliente);
+		cellComentarios.setCellValue(comentarios);
+		cellComentarios.setCellStyle(rowStyle);
 
-		// Latitud
-		Cell cellLatitud = row.createCell(cellNum++);
-		cellLatitud.setCellValue(ruta.Latitud != null ? ruta.Latitud : "");
+		// Recordatorios (concatenados con " - ")
+		Cell cellRecordatorios = row.createCell(cellNum++);
+		String recordatorios = obtenerRecordatoriosCliente(ruta.CodigoCliente);
+		cellRecordatorios.setCellValue(recordatorios);
+		cellRecordatorios.setCellStyle(rowStyle);
 
-		// Longitud
-		Cell cellLongitud = row.createCell(cellNum++);
-		cellLongitud.setCellValue(ruta.Longitud != null ? ruta.Longitud : "");
-
-		// Fecha Generacion
-		Cell cellFecha = row.createCell(cellNum++);
-		cellFecha.setCellValue(ruta.FechaGeneracion != null ? ruta.FechaGeneracion.toString() : "");
-
-		// Version App
-		Cell cellVersion = row.createCell(cellNum++);
-		cellVersion.setCellValue(appVersion);
+		// Columnas M, N, O, P... eliminadas (Geo Status, Latitud, Longitud, Fecha Generacion, Version App)
 	}
 
 	/**
-	 * Determina el estilo de color basado en la antigüedad de la última visita
+	 * Determina el estilo de color basado en cuartiles de antigüedad de visita
+	 * Sistema idéntico al de RutasViewerFragment
 	 */
 	private CellStyle getStyleForVisitAge(Date fechaUltimaVisita) {
+		// EXCEPCIÓN: Nunca visitado (NULL) siempre en rojo claro
 		if (fechaUltimaVisita == null) {
 			return styleSinVisita;
 		}
 
+		// Calcular días desde última visita
 		long diff = new Date().getTime() - fechaUltimaVisita.getTime();
-		long diffDays = diff / (24 * 60 * 60 * 1000);
+		int diasDesdeVisita = (int) (diff / (24 * 60 * 60 * 1000));
 
-		if (diffDays <= 7) {
-			// Verde - última semana
-			return styleVisitaReciente;
-		} else if (diffDays <= 15) {
-			// Amarillo - última quincena
-			return styleVisitaNormal;
-		} else if (diffDays <= 30) {
-			// Naranja - último mes
-			return styleVisitaAntigua;
+		// Obtener todos los días de visita (excluyendo NULL y BASE)
+		java.util.List<Integer> diasVisitas = new java.util.ArrayList<>();
+		for (RutaGenerada ruta : todasLasRutas) {
+			// Saltar el cliente BASE (OrdenVisita = 1)
+			if (ruta.OrdenVisita == 1) continue;
+
+			if (ruta.FechaUltimaVisita != null) {
+				long diffRuta = new Date().getTime() - ruta.FechaUltimaVisita.getTime();
+				int diasRuta = (int) (diffRuta / (24 * 60 * 60 * 1000));
+				diasVisitas.add(diasRuta);
+			}
+		}
+
+		// Si no hay datos, usar color neutro
+		if (diasVisitas.isEmpty()) {
+			return styleCuartil2; // Amarillo como neutro
+		}
+
+		// Ordenar de menor a mayor (más reciente a más antiguo)
+		java.util.Collections.sort(diasVisitas);
+
+		// Calcular cuartiles
+		int totalClientes = diasVisitas.size();
+		int q1Index = totalClientes / 4;
+		int q2Index = totalClientes / 2;
+		int q3Index = (3 * totalClientes) / 4;
+
+		int q1 = q1Index < diasVisitas.size() ? diasVisitas.get(q1Index) : 0;
+		int q2 = q2Index < diasVisitas.size() ? diasVisitas.get(q2Index) : 0;
+		int q3 = q3Index < diasVisitas.size() ? diasVisitas.get(q3Index) : 0;
+
+		// Asignar estilo según cuartil
+		if (diasDesdeVisita <= q1) {
+			return styleCuartil1; // Verde - 25% más recientes
+		} else if (diasDesdeVisita <= q2) {
+			return styleCuartil2; // Naranja claro - siguiente 25%
+		} else if (diasDesdeVisita <= q3) {
+			return styleCuartil3; // Naranja oscuro - siguiente 25%
 		} else {
-			// Rojo - más de un mes
-			return styleVisitaMuyAntigua;
+			return styleCuartil4; // Rojo claro - 25% más antiguos
+		}
+	}
+
+	/**
+	 * Obtiene todos los comentarios de un cliente concatenados con " - "
+	 */
+	private String obtenerComentariosCliente(String codigoCliente) {
+		try {
+			ClienteComentario comentarioModel = Factory.build(ClienteComentario.class, appConfig);
+			java.util.ArrayList<ClienteComentario> comentarios = comentarioModel.getComentariosByCliente(codigoCliente);
+
+			if (comentarios == null || comentarios.isEmpty()) {
+				return "";
+			}
+
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < comentarios.size(); i++) {
+				sb.append(comentarios.get(i).Comentario);
+				if (i < comentarios.size() - 1) {
+					sb.append(" - ");
+				}
+			}
+			return sb.toString();
+
+		} catch (Exception e) {
+			Log.e(TAG, "Error obteniendo comentarios: " + e.getMessage());
+			return "";
+		}
+	}
+
+	/**
+	 * Obtiene todos los recordatorios de un cliente concatenados con " - "
+	 */
+	private String obtenerRecordatoriosCliente(String codigoCliente) {
+		try {
+			ClienteRecordatorio recordatorioModel = Factory.build(ClienteRecordatorio.class, appConfig);
+			java.util.ArrayList<ClienteRecordatorio> recordatorios = recordatorioModel.getRecordatoriosByCliente(codigoCliente);
+
+			if (recordatorios == null || recordatorios.isEmpty()) {
+				return "";
+			}
+
+			StringBuilder sb = new StringBuilder();
+			SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+			for (int i = 0; i < recordatorios.size(); i++) {
+				ClienteRecordatorio rec = recordatorios.get(i);
+				String fecha = dateFormat.format(rec.FechaRecordatorio);
+				sb.append(rec.TipoRecordatorio).append(" (").append(fecha).append(")");
+				if (rec.Descripcion != null && !rec.Descripcion.isEmpty()) {
+					sb.append(": ").append(rec.Descripcion);
+				}
+				if (i < recordatorios.size() - 1) {
+					sb.append(" - ");
+				}
+			}
+			return sb.toString();
+
+		} catch (Exception e) {
+			Log.e(TAG, "Error obteniendo recordatorios: " + e.getMessage());
+			return "";
 		}
 	}
 
@@ -353,12 +455,10 @@ public class ExportToExcelService {
 		sheet.setColumnWidth(5, 30 * 256);   // Direccion
 		sheet.setColumnWidth(6, 18 * 256);   // Poblacion
 		sheet.setColumnWidth(7, 15 * 256);   // Provincia
-		sheet.setColumnWidth(8, 15 * 256);   // Ultima Visita (con color)
+		sheet.setColumnWidth(8, 15 * 256);   // Ultima Visita
 		sheet.setColumnWidth(9, 15 * 256);   // Distancia (km)
-		sheet.setColumnWidth(10, 15 * 256);  // Geo Status
-		sheet.setColumnWidth(11, 18 * 256);  // Latitud
-		sheet.setColumnWidth(12, 18 * 256);  // Longitud
-		sheet.setColumnWidth(13, 18 * 256);  // Fecha Generacion
-		sheet.setColumnWidth(14, 12 * 256);  // Version App
+		sheet.setColumnWidth(10, 40 * 256);  // Comentarios (más ancho)
+		sheet.setColumnWidth(11, 40 * 256);  // Recordatorios (más ancho)
+		// Columnas 12+ eliminadas
 	}
 }

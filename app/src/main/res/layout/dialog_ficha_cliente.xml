@@ -136,19 +136,42 @@
                     android:textColor="#424242"
                     android:layout_marginBottom="8dp"/>
 
-                <Button
-                    android:id="@+id/btnIrADeposito"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Ver el Depósito"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:background="#FF9800"
-                    android:textColor="#FFFFFF"
-                    android:padding="12dp"/>
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <Button
+                        android:id="@+id/btnVerDeposito"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Ver Resumen"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:background="#FF9800"
+                        android:textColor="#FFFFFF"
+                        android:padding="12dp"
+                        android:layout_marginRight="4dp"/>
+
+                    <Button
+                        android:id="@+id/btnEditarDeposito"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Editar Depósito"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:background="#1976D2"
+                        android:textColor="#FFFFFF"
+                        android:padding="12dp"
+                        android:layout_marginLeft="4dp"/>
+
+                </LinearLayout>
             </LinearLayout>
 
-            <!-- SECCIÓN 3: Último Albarán -->
+            <!-- SECCIÓN 3: Albaranes (últimos 4 años) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -160,31 +183,19 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="📄 Último Albarán"
+                    android:text="📄 Albaranes (últimos 4 años)"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="#388E3C"
                     android:layout_marginBottom="8dp"/>
 
-                <TextView
-                    android:id="@+id/txtInfoAlbaran"
+                <ListView
+                    android:id="@+id/listViewAlbaranes"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Sin albaranes"
-                    android:textSize="14sp"
-                    android:textColor="#424242"
-                    android:layout_marginBottom="8dp"/>
-
-                <Button
-                    android:id="@+id/btnIrAAlbaran"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Ver el Albarán"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:background="#4CAF50"
-                    android:textColor="#FFFFFF"
-                    android:padding="12dp"/>
+                    android:layout_height="250dp"
+                    android:background="#FFFFFF"
+                    android:divider="#E0E0E0"
+                    android:dividerHeight="1dp"/>
             </LinearLayout>
 
             <!-- SECCIÓN 4: Recordatorios -->

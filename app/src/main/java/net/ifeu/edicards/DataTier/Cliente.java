@@ -925,12 +925,10 @@ public class Cliente extends Persistent implements IPersistable {
 
 			if (cursor != null && cursor.moveToFirst()) {
 				String fecha = cursor.getString(0);
-				String numAlbaran = cursor.getString(1);
-				String serie = cursor.getString(2);
-				if (fecha != null && numAlbaran != null && !numAlbaran.isEmpty()) {
-					String serieStr = (serie != null && !serie.isEmpty()) ? serie + "-" : "";
-					return fecha + " (Nº " + serieStr + numAlbaran + ")";
-				}
+				// IMPORTANTE: Solo devolver la fecha sin información adicional
+				// para que pueda parsearse con SimpleDateFormat("dd/MM/yyyy")
+				// en RutasViewerFragment
+				return fecha;
 			}
 		} catch (Exception e) {
 			android.util.Log.e("Cliente", "Error obteniendo último albarán: " + e.getMessage());
@@ -991,5 +989,74 @@ public class Cliente extends Persistent implements IPersistable {
 		return clientes;
 	}
 
+	/**
+	 * Obtiene los albaranes de los últimos 4 años de un cliente
+	 * @param codigoCliente Código del cliente
+	 * @return ArrayList de Historicos ordenados por fecha descendente
+	 */
+	public java.util.ArrayList<Historico> getAlbaranesUltimos4Anos(String codigoCliente) {
+		java.util.ArrayList<Historico> albaranes = new java.util.ArrayList<>();
+		Cursor cursor = null;
+		try {
+			// Calcular fecha de hace 4 años
+			java.util.Calendar cal = java.util.Calendar.getInstance();
+			cal.add(java.util.Calendar.YEAR, -4);
+			SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
+			String fecha4AnosAtras = formatter.format(cal.getTime());
+
+			// Primero obtener el IdCliente
+			cursor = super.getDatabaseOperations().executeSentence(
+				"SELECT IdCliente FROM Clientes WHERE CodigoCliente = '" + codigoCliente + "' LIMIT 1");
+			if (cursor == null || !cursor.moveToFirst()) {
+				return albaranes;
+			}
+			String idCliente = cursor.getString(0);
+			cursor.close();
+
+			// Buscar albaranes de los últimos 4 años
+			cursor = super.getDatabaseOperations().executeSentence(
+				"SELECT * FROM " + ConstantsDatabase.TABLE_HISTORICOS + " " +
+				"WHERE IdCliente = " + idCliente + " " +
+				"AND NumeroAlbaran IS NOT NULL AND NumeroAlbaran != '' " +
+				"AND Fecha >= '" + fecha4AnosAtras + "' " +
+				"ORDER BY Fecha DESC");
+
+			if (cursor != null && cursor.moveToFirst()) {
+				do {
+					Historico historico = Factory.build(Historico.class, appConfig);
+					historico.IdHistorico = cursor.getLong(cursor.getColumnIndex("IdHistorico"));
+					historico.Fecha = formatter.parse(cursor.getString(cursor.getColumnIndex("Fecha")));
+					historico.Serie = cursor.getString(cursor.getColumnIndex("Serie"));
+					historico.NumeroAlbaran = cursor.getString(cursor.getColumnIndex("NumeroAlbaran"));
+					historico.NombrePresentacion = cursor.getString(cursor.getColumnIndex("NombrePresentacion"));
+					historico.PoblacionPresentacion = cursor.getString(cursor.getColumnIndex("PoblacionPresentacion"));
+					historico.CodigoPostalPresentacion = cursor.getString(cursor.getColumnIndex("CodigoPostalPresentacion"));
+					historico.CantidadPagada = cursor.getDouble(cursor.getColumnIndex("CantidadPagada"));
+					historico.Total = cursor.getDouble(cursor.getColumnIndex("Total"));
+					historico.Tipo = cursor.getInt(cursor.getColumnIndex("Tipo"));
+					historico.GUID = cursor.getString(cursor.getColumnIndex("GUID"));
+					historico.Serializacion = cursor.getString(cursor.getColumnIndex("Serializacion"));
+					historico.Cliente = this;
+
+					// IMPORTANTE: Cargar las líneas del histórico
+					try {
+						LineaHistorico lineaHistorico = Factory.build(LineaHistorico.class, appConfig);
+						historico.Lineas = lineaHistorico.getLineasHistoricoByHistorico(historico);
+						android.util.Log.d("Cliente", "Albarán " + historico.NumeroAlbaran + " cargado con " + historico.Lineas.size() + " líneas");
+					} catch (Exception ex) {
+						android.util.Log.e("Cliente", "Error cargando líneas del albarán " + historico.NumeroAlbaran + ": " + ex.getMessage(), ex);
+						historico.Lineas = new java.util.LinkedHashMap<>(); // Asegurar que no sea null
+					}
+
+					albaranes.add(historico);
+				} while (cursor.moveToNext());
+			}
+		} catch (Exception e) {
+			android.util.Log.e("Cliente", "Error obteniendo albaranes últimos 4 años: " + e.getMessage(), e);
+		} finally {
+			if (cursor != null) cursor.close();
+		}
+		return albaranes;
+	}
 
 }

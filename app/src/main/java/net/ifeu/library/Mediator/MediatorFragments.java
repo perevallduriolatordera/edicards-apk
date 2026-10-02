@@ -22,7 +22,10 @@ public class MediatorFragments {
     }
 
     public void notify(String event, Object payload) {
-        for (IMediator mediator : receivers) {
+        // Crear una copia de la lista para evitar ConcurrentModificationException
+        // cuando un receiver modifica la lista durante la iteración
+        List<IMediator> receiversCopy = new ArrayList<>(receivers);
+        for (IMediator mediator : receiversCopy) {
             mediator.notify(event, payload);
         }
     }

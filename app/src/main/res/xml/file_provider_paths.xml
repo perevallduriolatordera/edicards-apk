@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Carpeta de almacenamiento externo completa -->
+    <external-path name="external_files" path="." />
+
+    <!-- Carpeta específica de edicards -->
+    <external-path name="edicards_folder" path="edicards/" />
+</paths>

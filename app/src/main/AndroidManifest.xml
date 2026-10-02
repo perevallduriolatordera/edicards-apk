@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ifeu.edicards"
     android:versionCode="60"
-    android:versionName="6.0.4 (30 Junio 2026) --> Reordenamos despues de resultados google + Merge master fixes">
+    android:versionName="6.0.5 (15 Septiembre 2026) --> Mejoras de mensajeria">
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
@@ -18,6 +18,7 @@
             android:launchMode="singleTop"
             android:label="@string/title_activity_main"
             android:theme="@android:style/Theme.Holo"
+            android:windowSoftInputMode="adjustResize"
             android:exported="true">
                 <intent-filter>
                     <action android:name="android.intent.action.MAIN" />
@@ -155,6 +156,17 @@
             android:label="Ficha del Cliente"
             android:theme="@android:style/Theme.Dialog"
             android:exported="false" />
+
+        <!-- FileProvider para compartir archivos (Excel, PDFs, etc) -->
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_provider_paths" />
+        </provider>
 
         <!-- BroadcastReceiver para notificaciones de recordatorios -->
         <receiver android:name=".Services.RecordatorioNotificationReceiver"

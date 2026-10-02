@@ -64,6 +64,7 @@ public class RutasViewerFragment extends Fragment {
 	private Button btnExportarExcel;
 	private Button btnGestionarZonas;
 	private Button btnEstadoClientes;
+	private Button btnCiudadBase;
 	private TextView lblFechaGeneracion;
 	private TextView lblTotalClientes;
 	private android.widget.Spinner spinnerOrdenacion;
@@ -123,6 +124,7 @@ public class RutasViewerFragment extends Fragment {
 		btnGestionarZonas = (Button) getActivity().findViewById(R.id.btnGestionarZonas);
 		btnLimpiarCoordenadas = (Button) getActivity().findViewById(R.id.btnLimpiarCoordenadas);
 		btnEstadoClientes = (Button) getActivity().findViewById(R.id.btnEstadoClientes);
+		btnCiudadBase = (Button) getActivity().findViewById(R.id.btnCiudadBase);
 		lblFechaGeneracion = (TextView) getActivity().findViewById(R.id.lblFechaGeneracion);
 		lblTotalClientes = (TextView) getActivity().findViewById(R.id.lblTotalClientes);
 		spinnerOrdenacion = (android.widget.Spinner) getActivity().findViewById(R.id.spinnerOrdenacion);
@@ -280,6 +282,13 @@ public class RutasViewerFragment extends Fragment {
 			});
 		}
 
+		// Botón ciudad base
+		if (btnCiudadBase != null) {
+			btnCiudadBase.setOnClickListener(view -> {
+				modificarCiudadBase();
+			});
+		}
+
 		// Inicializar mapa
 		mapContainer = getActivity().findViewById(R.id.mapContainer);
 		btnToggleMapa = (Button) getActivity().findViewById(R.id.btnToggleMapa);
@@ -375,6 +384,9 @@ public class RutasViewerFragment extends Fragment {
 			listViewRutas.setAdapter(null);
 		}
 		listViewRutas.setAdapter(adapter);
+
+			// Habilitar drag & drop en el ListView
+			configurarDragAndDrop();
 
 		} catch (Exception e) {
 			app.getMessageBox().Show("Error",
@@ -568,9 +580,8 @@ public class RutasViewerFragment extends Fragment {
 					progressDialog.dismiss();
 
 					if (rutaArchivo != null) {
-						app.getMessageBox().Show("Éxito",
-							"Ruta exportada correctamente a:\n" + rutaArchivo,
-							getActivity(), MessageBoxType.Ok);
+						// Abrir el archivo automáticamente
+						abrirArchivoExcel(rutaArchivo);
 					} else {
 						app.getMessageBox().Show("Error",
 							"No se pudo exportar la ruta",
@@ -587,6 +598,62 @@ public class RutasViewerFragment extends Fragment {
 				});
 			}
 		}).start();
+	}
+
+	/**
+	 * Abre un archivo Excel con la aplicación predeterminada
+	 * @param rutaArchivo Ruta completa del archivo Excel
+	 */
+	private void abrirArchivoExcel(String rutaArchivo) {
+		try {
+			java.io.File file = new java.io.File(rutaArchivo);
+
+			if (!file.exists()) {
+				app.getMessageBox().Show("Error",
+					"El archivo no existe: " + rutaArchivo,
+					getActivity(), MessageBoxType.Error);
+				return;
+			}
+
+			// Obtener URI usando FileProvider
+			android.net.Uri fileUri = android.support.v4.content.FileProvider.getUriForFile(
+				getActivity(),
+				getActivity().getPackageName() + ".fileprovider",
+				file
+			);
+
+			// Crear Intent para abrir el archivo
+			android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW);
+			intent.setDataAndType(fileUri, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+			intent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION);
+			intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK);
+
+			// Verificar si hay una app que pueda abrir el archivo
+			android.content.pm.PackageManager pm = getActivity().getPackageManager();
+			if (intent.resolveActivity(pm) != null) {
+				startActivity(intent);
+
+				// Mostrar mensaje de éxito
+				android.widget.Toast.makeText(
+					getActivity(),
+					"Archivo exportado: " + file.getName(),
+					android.widget.Toast.LENGTH_LONG
+				).show();
+			} else {
+				// No hay app para abrir Excel, mostrar mensaje con la ruta
+				app.getMessageBox().Show("Exportado",
+					"No hay ninguna aplicación de Excel instalada.\n\n" +
+					"Archivo guardado en:\n" + rutaArchivo,
+					getActivity(), MessageBoxType.Ok);
+			}
+
+		} catch (Exception e) {
+			android.util.Log.e("RutasViewerFragment", "Error abriendo archivo Excel: " + e.getMessage());
+			app.getMessageBox().Show("Error",
+				"Error abriendo archivo: " + e.getMessage() + "\n\n" +
+				"Archivo guardado en:\n" + rutaArchivo,
+				getActivity(), MessageBoxType.Error);
+		}
 	}
 
 	/**
@@ -691,25 +758,65 @@ public class RutasViewerFragment extends Fragment {
 	 * @param diasDesdeUltimaVisita Días transcurridos, o -1 si nunca visitado
 	 * @return Color en formato ARGB
 	 */
+	/**
+	 * Calcula el color de fondo para un cliente basado en cuartiles de antigüedad de visita
+	 *
+	 * Sistema de colores:
+	 * - Verde: 25% visitados más recientemente
+	 * - Naranja claro: Siguiente 25%
+	 * - Naranja oscuro: Siguiente 25%
+	 * - Rojo oscuro: 25% con más tiempo sin visitar
+	 * - Excepción: NULL (nunca visitados) siempre en rojo oscuro
+	 */
 	private int getColorPorAntiguedadVisita(int diasDesdeUltimaVisita) {
+		// EXCEPCIÓN: Clientes nunca visitados (NULL) siempre en rojo oscuro
 		if (diasDesdeUltimaVisita < 0) {
-			// Nunca visitado - Rojo intenso con transparencia
-			return 0xFFFF4444;
-		} else if (diasDesdeUltimaVisita <= DIAS_VISITA_MUY_RECIENTE) {
-			// Menos de 15 días - Verde intenso
+			return 0xFFB71C1C; // Rojo oscuro
+		}
+
+		// Obtener todos los días de visita de clientes (excluyendo NULL y BASE)
+		java.util.List<Integer> diasVisitas = new java.util.ArrayList<>();
+		for (RutaGenerada ruta : rutaFiltrada) {
+			// Saltar el cliente BASE (posición 0)
+			if (rutaFiltrada.indexOf(ruta) == 0) continue;
+
+			InfoUltimaVisita info = getInfoUltimaVisita(ruta.CodigoCliente);
+			if (info != null && info.dias >= 0) {
+				diasVisitas.add(info.dias);
+			}
+		}
+
+		// Si no hay suficientes datos, usar color neutro
+		if (diasVisitas.isEmpty()) {
+			return 0xFFBDBDBD; // Gris
+		}
+
+		// Ordenar de menor a mayor (más reciente a más antiguo)
+		java.util.Collections.sort(diasVisitas);
+
+		// Calcular cuartiles (Q1=25%, Q2=50%, Q3=75%)
+		int totalClientes = diasVisitas.size();
+		int q1Index = totalClientes / 4;
+		int q2Index = totalClientes / 2;
+		int q3Index = (3 * totalClientes) / 4;
+
+		int q1 = q1Index < diasVisitas.size() ? diasVisitas.get(q1Index) : 0;
+		int q2 = q2Index < diasVisitas.size() ? diasVisitas.get(q2Index) : 0;
+		int q3 = q3Index < diasVisitas.size() ? diasVisitas.get(q3Index) : 0;
+
+		// Asignar color según el cuartil
+		if (diasDesdeUltimaVisita <= q1) {
+			// Primer cuartil (25% más recientes) - Verde
 			return 0xFF4CAF50;
-		} else if (diasDesdeUltimaVisita <= DIAS_VISITA_RECIENTE) {
-			// 15-30 días - Verde claro
-			return 0xFF81C784;
-		} else if (diasDesdeUltimaVisita <= DIAS_VISITA_MEDIA) {
-			// 30-60 días - Amarillo
-			return 0xFFFFEB3B;
-		} else if (diasDesdeUltimaVisita <= DIAS_VISITA_ANTIGUA) {
-			// 60-90 días - Naranja
+		} else if (diasDesdeUltimaVisita <= q2) {
+			// Segundo cuartil - Naranja claro
+			return 0xFFFFB74D;
+		} else if (diasDesdeUltimaVisita <= q3) {
+			// Tercer cuartil - Naranja oscuro
 			return 0xFFFF9800;
 		} else {
-			// Más de 90 días - Rojo
-			return 0xFFF44336;
+			// Cuarto cuartil (25% más antiguos) - Rojo oscuro
+			return 0xFFB71C1C;
 		}
 	}
 
@@ -896,46 +1003,43 @@ public class RutasViewerFragment extends Fragment {
 			if (esClienteBase) {
 				// Cliente BASE: fondo blanco, sin información de visitas
 				convertView.setBackgroundColor(0xFFFFFFFF); // Blanco
-				txtUltimaVisita.setText("🏠 PUNTO BASE");
+				txtUltimaVisita.setText("BASE");
 				txtUltimaVisita.setBackgroundColor(0xFF9E9E9E); // Gris neutro
 				txtUltimaVisita.setVisibility(android.view.View.VISIBLE);
 			} else {
-				// Clientes normales: calcular y aplicar color según antigüedad de visita
+				// Clientes normales: calcular y aplicar color según cuartil de antigüedad de visita
 				InfoUltimaVisita infoVisita = getInfoUltimaVisita(ruta.CodigoCliente);
 				int diasDesdeVisita = infoVisita != null ? infoVisita.dias : -1;
 				int colorFondo = getColorPorAntiguedadVisita(diasDesdeVisita);
 
-				// Aplicar color con transparencia para que el texto siga siendo legible
-				convertView.setBackgroundColor((colorFondo & 0x00FFFFFF) | 0x30000000);  // 30% de opacidad
+				// Aplicar color de fondo con transparencia ligera para mantener legibilidad
+				convertView.setBackgroundColor((colorFondo & 0x00FFFFFF) | 0x40000000);  // 40% de opacidad
 
-				// Configurar etiqueta de última visita
+				// Configurar etiqueta de última visita (FORMATO COMPACTO)
 				if (infoVisita != null) {
-					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-					String fechaStr = sdf.format(infoVisita.fecha);
 					String textoVisita;
 
-					// MOSTRAR SIEMPRE LA FECHA para poder verificar
+					// Formato ultra-compacto: solo días
 					if (diasDesdeVisita == 0) {
-						textoVisita = "Última visita: Hoy (" + fechaStr + ")";
+						textoVisita = "Hoy";
 					} else if (diasDesdeVisita == 1) {
-						textoVisita = "Última visita: Ayer (" + fechaStr + ")";
+						textoVisita = "Ayer";
+					} else if (diasDesdeVisita < 30) {
+						textoVisita = diasDesdeVisita + "d";
+					} else if (diasDesdeVisita < 365) {
+						int meses = diasDesdeVisita / 30;
+						textoVisita = meses + "m";
 					} else {
-						textoVisita = "Última visita: hace " + diasDesdeVisita + " días (" + fechaStr + ")";
+						int años = diasDesdeVisita / 365;
+						textoVisita = años + "a";
 					}
-
-					// DEBUG: Log para verificar las fechas
-					android.util.Log.d("RutasViewerFragment",
-						"Cliente: " + ruta.NombreCliente +
-						" | Código: " + ruta.CodigoCliente +
-						" | Última visita: " + fechaStr +
-						" | Días: " + diasDesdeVisita);
 
 					txtUltimaVisita.setText(textoVisita);
 					txtUltimaVisita.setBackgroundColor(colorFondo); // Mismo color que el fondo
 					txtUltimaVisita.setVisibility(android.view.View.VISIBLE);
 				} else {
 					// Nunca visitado
-					txtUltimaVisita.setText("⚠️ Cliente nunca visitado");
+					txtUltimaVisita.setText("NUEVO");
 					txtUltimaVisita.setBackgroundColor(0xFFFF4444); // Rojo intenso
 					txtUltimaVisita.setVisibility(android.view.View.VISIBLE);
 				}
@@ -951,45 +1055,81 @@ public class RutasViewerFragment extends Fragment {
 				}
 			});
 
+			// Hacer toda la fila clickable para abrir la ficha del cliente
+			convertView.setOnClickListener(new android.view.View.OnClickListener() {
+				@Override
+				public void onClick(android.view.View v) {
+					Intent intent = new Intent(getActivity(), FichaClienteDialog.class);
+					intent.putExtra("codigoCliente", ruta.CodigoCliente);
+					startActivity(intent);
+				}
+			});
+
+			// Añadir feedback visual al tocar la fila
+			convertView.setClickable(true);
+			convertView.setFocusable(true);
+
 			return convertView;
 		}
 	}
 
 	/**
 	 * Mueve una ruta una posición hacia arriba en el orden
+	 * El item seleccionado SUBE VISUALMENTE una posición
 	 */
 	private void moverRutaArriba(int position) {
-		if (position <= 0 || rutaActual == null) return;
+		if (position <= 0 || rutaFiltrada == null || rutaActual == null) return;
 
 		try {
-			RutaGenerada ruta = rutaActual.get(position);
-			RutaGenerada rutaAnterior = rutaActual.get(position - 1);
+			// Obtener el item que queremos mover
+			RutaGenerada rutaAMover = rutaFiltrada.get(position);
 
-			// Intercambiar los valores de OrdenVisita
-			int ordenTemp = ruta.OrdenVisita;
-			ruta.OrdenVisita = rutaAnterior.OrdenVisita;
-			rutaAnterior.OrdenVisita = ordenTemp;
+			// Remover de la posición actual en rutaFiltrada
+			rutaFiltrada.remove(position);
 
-			// Actualizar en la base de datos
-			ruta.update();
-			rutaAnterior.update();
+			// Insertar en la posición anterior (sube visualmente)
+			int nuevaPosicion = position - 1;
+			rutaFiltrada.add(nuevaPosicion, rutaAMover);
 
-			// Intercambiar en la lista local
-			rutaActual.set(position, rutaAnterior);
-			rutaActual.set(position - 1, ruta);
-
-			// Notificar al adapter
-			if (adapter != null) {
-				adapter.notifyDataSetChanged();
+			// RECALCULAR todos los OrdenVisita según la nueva posición en rutaFiltrada
+			for (int i = 0; i < rutaFiltrada.size(); i++) {
+				RutaGenerada r = rutaFiltrada.get(i);
+				r.OrdenVisita = i + 1; // OrdenVisita empieza en 1
+				r.update(); // Guardar en BD
 			}
+
+			// Sincronizar rutaActual: reordenar por OrdenVisita
+			java.util.Collections.sort(rutaActual, (r1, r2) -> Integer.compare(r1.OrdenVisita, r2.OrdenVisita));
+
+			// IMPORTANTE: Forzar el spinner a "Orden de ruta" para que no deshaga los cambios
+			if (spinnerOrdenacion != null) {
+				spinnerOrdenacion.setSelection(0, false); // false = no dispara el listener
+			}
+
+			// Recrear adapter con la lista actualizada
+			adapter = new RutaAdapter(getActivity(), rutaFiltrada);
+			listViewRutas.setAdapter(adapter);
+
+			// MANTENER el scroll en la posición del item movido
+			// Usamos post() para ejecutar después de que el ListView se haya actualizado
+			final int posicionFinal = nuevaPosicion;
+			listViewRutas.post(new Runnable() {
+				@Override
+				public void run() {
+					// Scroll suave a la nueva posición del item
+					listViewRutas.smoothScrollToPosition(posicionFinal);
+					// Asegurar que el item esté visible
+					listViewRutas.setSelection(posicionFinal);
+				}
+			});
 
 			// Actualizar el mapa si está visible
 			if (mostrandoMapa && googleMap != null) {
 				dibujarRutaEnMapa();
 			}
 
-			android.util.Log.i("RutasViewerFragment", "Ruta movida arriba: " + ruta.NombreCliente +
-				" de posición " + ordenTemp + " a " + ruta.OrdenVisita);
+			android.util.Log.i("RutasViewerFragment", "✓ Ruta movida arriba: " + rutaAMover.NombreCliente +
+				" de posición " + (position + 1) + " a " + nuevaPosicion);
 
 		} catch (Exception e) {
 			android.util.Log.e("RutasViewerFragment", "Error moviendo ruta arriba: " + e.getMessage());
@@ -1001,39 +1141,61 @@ public class RutasViewerFragment extends Fragment {
 
 	/**
 	 * Mueve una ruta una posición hacia abajo en el orden
+	 * El item seleccionado BAJA VISUALMENTE una posición
 	 */
 	private void moverRutaAbajo(int position) {
-		if (rutaActual == null || position >= rutaActual.size() - 1) return;
+		if (rutaFiltrada == null || rutaActual == null || position >= rutaFiltrada.size() - 1) return;
 
 		try {
-			RutaGenerada ruta = rutaActual.get(position);
-			RutaGenerada rutaSiguiente = rutaActual.get(position + 1);
+			// Obtener el item que queremos mover
+			RutaGenerada rutaAMover = rutaFiltrada.get(position);
 
-			// Intercambiar los valores de OrdenVisita
-			int ordenTemp = ruta.OrdenVisita;
-			ruta.OrdenVisita = rutaSiguiente.OrdenVisita;
-			rutaSiguiente.OrdenVisita = ordenTemp;
+			// Remover de la posición actual en rutaFiltrada
+			rutaFiltrada.remove(position);
 
-			// Actualizar en la base de datos
-			ruta.update();
-			rutaSiguiente.update();
+			// Insertar en la posición siguiente (baja visualmente)
+			int nuevaPosicion = position + 1;
+			rutaFiltrada.add(nuevaPosicion, rutaAMover);
 
-			// Intercambiar en la lista local
-			rutaActual.set(position, rutaSiguiente);
-			rutaActual.set(position + 1, ruta);
-
-			// Notificar al adapter
-			if (adapter != null) {
-				adapter.notifyDataSetChanged();
+			// RECALCULAR todos los OrdenVisita según la nueva posición en rutaFiltrada
+			for (int i = 0; i < rutaFiltrada.size(); i++) {
+				RutaGenerada r = rutaFiltrada.get(i);
+				r.OrdenVisita = i + 1; // OrdenVisita empieza en 1
+				r.update(); // Guardar en BD
 			}
+
+			// Sincronizar rutaActual: reordenar por OrdenVisita
+			java.util.Collections.sort(rutaActual, (r1, r2) -> Integer.compare(r1.OrdenVisita, r2.OrdenVisita));
+
+			// IMPORTANTE: Forzar el spinner a "Orden de ruta" para que no deshaga los cambios
+			if (spinnerOrdenacion != null) {
+				spinnerOrdenacion.setSelection(0, false); // false = no dispara el listener
+			}
+
+			// Recrear adapter con la lista actualizada
+			adapter = new RutaAdapter(getActivity(), rutaFiltrada);
+			listViewRutas.setAdapter(adapter);
+
+			// MANTENER el scroll en la posición del item movido
+			// Usamos post() para ejecutar después de que el ListView se haya actualizado
+			final int posicionFinal = nuevaPosicion;
+			listViewRutas.post(new Runnable() {
+				@Override
+				public void run() {
+					// Scroll suave a la nueva posición del item
+					listViewRutas.smoothScrollToPosition(posicionFinal);
+					// Asegurar que el item esté visible
+					listViewRutas.setSelection(posicionFinal);
+				}
+			});
 
 			// Actualizar el mapa si está visible
 			if (mostrandoMapa && googleMap != null) {
 				dibujarRutaEnMapa();
 			}
 
-			android.util.Log.i("RutasViewerFragment", "Ruta movida abajo: " + ruta.NombreCliente +
-				" de posición " + ordenTemp + " a " + ruta.OrdenVisita);
+			android.util.Log.i("RutasViewerFragment", "✓ Ruta movida abajo: " + rutaAMover.NombreCliente +
+				" de posición " + (position + 1) + " a " + nuevaPosicion);
 
 		} catch (Exception e) {
 			android.util.Log.e("RutasViewerFragment", "Error moviendo ruta abajo: " + e.getMessage());
@@ -1222,6 +1384,207 @@ public class RutasViewerFragment extends Fragment {
 	}
 
 	/**
+	 * Configura el drag & drop para reordenar items en el ListView
+	 */
+	private void configurarDragAndDrop() {
+		listViewRutas.setOnItemLongClickListener(new android.widget.AdapterView.OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(android.widget.AdapterView<?> parent, android.view.View view, int position, long id) {
+				// No permitir drag & drop del cliente BASE (posición 0)
+				if (position == 0) {
+					android.widget.Toast.makeText(getActivity(),
+						"No se puede mover el punto BASE",
+						android.widget.Toast.LENGTH_SHORT).show();
+					return false;
+				}
+
+				// Iniciar drag
+				final int dragPosition = position;
+
+				// Crear ClipData con la posición
+				android.content.ClipData.Item item = new android.content.ClipData.Item(String.valueOf(dragPosition));
+				android.content.ClipData dragData = new android.content.ClipData(
+					"rutaPosition",
+					new String[] { android.content.ClipDescription.MIMETYPE_TEXT_PLAIN },
+					item
+				);
+
+				// Crear DragShadowBuilder
+				android.view.View.DragShadowBuilder shadowBuilder = new android.view.View.DragShadowBuilder(view);
+
+				// Iniciar drag
+				view.startDrag(dragData, shadowBuilder, view, 0);
+
+				// Feedback visual: semi-transparente durante el drag
+				view.setAlpha(0.5f);
+
+				return true;
+			}
+		});
+
+		listViewRutas.setOnDragListener(new android.view.View.OnDragListener() {
+			private int dropPosition = -1;
+			private android.view.View lastHighlightedView = null;
+
+			@Override
+			public boolean onDrag(android.view.View v, android.view.DragEvent event) {
+				switch (event.getAction()) {
+					case android.view.DragEvent.ACTION_DRAG_STARTED:
+						return true;
+
+					case android.view.DragEvent.ACTION_DRAG_ENTERED:
+						// El drag entró en el ListView
+						return true;
+
+					case android.view.DragEvent.ACTION_DRAG_LOCATION:
+						// Actualizar highlight según la posición del drag
+						float y = event.getY();
+						int position = listViewRutas.pointToPosition(0, (int) y);
+
+						// Limpiar highlight anterior
+						if (lastHighlightedView != null) {
+							lastHighlightedView.setBackgroundColor(0x00000000); // Transparente
+							lastHighlightedView = null;
+						}
+
+						// Highlight nuevo item si es válido
+						if (position >= 0 && position != 0) { // No permitir drop en BASE
+							dropPosition = position;
+							android.view.View itemView = getViewByPosition(position, listViewRutas);
+							if (itemView != null) {
+								itemView.setBackgroundColor(0x4400FF00); // Verde semi-transparente
+								lastHighlightedView = itemView;
+							}
+						}
+						return true;
+
+					case android.view.DragEvent.ACTION_DROP:
+						// Limpiar highlight
+						if (lastHighlightedView != null) {
+							lastHighlightedView.setBackgroundColor(0x00000000);
+							lastHighlightedView = null;
+						}
+
+						// Obtener posición de origen
+						android.content.ClipData clipData = event.getClipData();
+						if (clipData != null && clipData.getItemCount() > 0) {
+							String posStr = clipData.getItemAt(0).getText().toString();
+							int fromPosition = Integer.parseInt(posStr);
+
+							// Realizar el drop si la posición es válida
+							if (dropPosition >= 0 && dropPosition != 0 && fromPosition != dropPosition) {
+								moverItemDragDrop(fromPosition, dropPosition);
+							}
+						}
+						return true;
+
+					case android.view.DragEvent.ACTION_DRAG_ENDED:
+						// Limpiar highlight
+						if (lastHighlightedView != null) {
+							lastHighlightedView.setBackgroundColor(0x00000000);
+							lastHighlightedView = null;
+						}
+
+						// Restaurar opacidad del item original
+						android.view.View draggedView = (android.view.View) event.getLocalState();
+						if (draggedView != null) {
+							draggedView.setAlpha(1.0f);
+						}
+						return true;
+
+					default:
+						return false;
+				}
+			}
+		});
+	}
+
+	/**
+	 * Obtiene la vista de un item en el ListView por su posición
+	 */
+	private android.view.View getViewByPosition(int position, ListView listView) {
+		final int firstListItemPosition = listView.getFirstVisiblePosition();
+		final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
+
+		if (position < firstListItemPosition || position > lastListItemPosition) {
+			return null;
+		}
+
+		final int childIndex = position - firstListItemPosition;
+		return listView.getChildAt(childIndex);
+	}
+
+	/**
+	 * Mueve un item usando drag & drop
+	 */
+	private void moverItemDragDrop(int fromPosition, int toPosition) {
+		if (rutaFiltrada == null || rutaActual == null) return;
+		if (fromPosition == 0 || toPosition == 0) return; // No mover BASE
+
+		try {
+			// Obtener el item que vamos a mover
+			RutaGenerada itemAMover = rutaFiltrada.get(fromPosition);
+
+			// Remover de la posición original
+			rutaFiltrada.remove(fromPosition);
+
+			// Insertar en la nueva posición
+			rutaFiltrada.add(toPosition, itemAMover);
+
+			// RECALCULAR todos los OrdenVisita según la nueva posición
+			for (int i = 0; i < rutaFiltrada.size(); i++) {
+				RutaGenerada r = rutaFiltrada.get(i);
+				r.OrdenVisita = i + 1; // OrdenVisita empieza en 1
+				r.update(); // Guardar en BD
+			}
+
+			// Sincronizar rutaActual: reordenar por OrdenVisita
+			java.util.Collections.sort(rutaActual, (r1, r2) -> Integer.compare(r1.OrdenVisita, r2.OrdenVisita));
+
+			// Forzar el spinner a "Orden de ruta"
+			if (spinnerOrdenacion != null) {
+				spinnerOrdenacion.setSelection(0, false);
+			}
+
+			// Recrear adapter
+			adapter = new RutaAdapter(getActivity(), rutaFiltrada);
+			listViewRutas.setAdapter(adapter);
+
+			// Volver a configurar drag & drop después de recrear el adapter
+			configurarDragAndDrop();
+
+			// Scroll a la nueva posición
+			final int posicionFinal = toPosition;
+			listViewRutas.post(new Runnable() {
+				@Override
+				public void run() {
+					listViewRutas.smoothScrollToPosition(posicionFinal);
+					listViewRutas.setSelection(posicionFinal);
+				}
+			});
+
+			// Actualizar el mapa si está visible
+			if (mostrandoMapa && googleMap != null) {
+				dibujarRutaEnMapa();
+			}
+
+			// Feedback al usuario
+			android.widget.Toast.makeText(getActivity(),
+				"✓ " + itemAMover.NombreCliente + " movido a posición " + (toPosition + 1),
+				android.widget.Toast.LENGTH_SHORT).show();
+
+			android.util.Log.i("RutasViewerFragment", "✓ Drag & Drop: " + itemAMover.NombreCliente +
+				" de posición " + (fromPosition + 1) + " a " + (toPosition + 1));
+
+		} catch (Exception e) {
+			android.util.Log.e("RutasViewerFragment", "Error en drag & drop: " + e.getMessage());
+			android.widget.Toast.makeText(getActivity(),
+				"Error al reordenar",
+				android.widget.Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	/**
 	 * Muestra un diálogo con el estado de geocodificación de los clientes
 	 */
 	private void abrirEstadoClientes() {
@@ -1233,6 +1596,138 @@ public class RutasViewerFragment extends Fragment {
 				"Error al abrir estado de clientes: " + e.getMessage(),
 				getActivity(), MessageBoxType.Error);
 			android.util.Log.e("RutasViewerFragment", "Error en abrirEstadoClientes", e);
+		}
+	}
+
+	/**
+	 * Mostrar diálogo para modificar la ciudad base
+	 */
+	private void modificarCiudadBase() {
+		try {
+			// Cargar ciudad base actual
+			CiudadVendedor ciudadActual = Factory.build(CiudadVendedor.class, app);
+			ciudadActual.load();
+
+			// Crear diálogo con campos editables
+			android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getActivity());
+			builder.setTitle("Configurar Ciudad Base");
+
+			// Crear layout para el diálogo
+			android.widget.LinearLayout layout = new android.widget.LinearLayout(getActivity());
+			layout.setOrientation(android.widget.LinearLayout.VERTICAL);
+			layout.setPadding(50, 40, 50, 10);
+
+			// Label y campo para Ciudad
+			android.widget.TextView lblCiudad = new android.widget.TextView(getActivity());
+			lblCiudad.setText("Ciudad:");
+			lblCiudad.setTextSize(16);
+			lblCiudad.setTextColor(android.graphics.Color.parseColor("#1976D2"));
+			lblCiudad.setPadding(0, 0, 0, 8);
+			layout.addView(lblCiudad);
+
+			final android.widget.EditText inputCiudad = new android.widget.EditText(getActivity());
+			inputCiudad.setText(ciudadActual.CiudadBase != null ? ciudadActual.CiudadBase : "");
+			inputCiudad.setHint("Ej: Barcelona, Madrid, Valencia");
+			inputCiudad.setSingleLine(true);
+			inputCiudad.setPadding(20, 20, 20, 20);
+			inputCiudad.setTextColor(android.graphics.Color.BLACK);
+			inputCiudad.setHintTextColor(android.graphics.Color.GRAY);
+			inputCiudad.setBackgroundColor(android.graphics.Color.WHITE);
+			layout.addView(inputCiudad);
+
+			// Espacio
+			android.widget.Space space1 = new android.widget.Space(getActivity());
+			space1.setMinimumHeight(30);
+			layout.addView(space1);
+
+			// Label y campo para Código Postal
+			android.widget.TextView lblCodigoPostal = new android.widget.TextView(getActivity());
+			lblCodigoPostal.setText("Código Postal:");
+			lblCodigoPostal.setTextSize(16);
+			lblCodigoPostal.setTextColor(android.graphics.Color.parseColor("#1976D2"));
+			lblCodigoPostal.setPadding(0, 0, 0, 8);
+			layout.addView(lblCodigoPostal);
+
+			final android.widget.EditText inputCodigoPostal = new android.widget.EditText(getActivity());
+			inputCodigoPostal.setText(ciudadActual.CodigoPostal != null ? ciudadActual.CodigoPostal : "");
+			inputCodigoPostal.setHint("Ej: 08001, 28001");
+			inputCodigoPostal.setSingleLine(true);
+			inputCodigoPostal.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+			inputCodigoPostal.setPadding(20, 20, 20, 20);
+			inputCodigoPostal.setTextColor(android.graphics.Color.BLACK);
+			inputCodigoPostal.setHintTextColor(android.graphics.Color.GRAY);
+			inputCodigoPostal.setBackgroundColor(android.graphics.Color.WHITE);
+			layout.addView(inputCodigoPostal);
+
+			// Espacio
+			android.widget.Space space2 = new android.widget.Space(getActivity());
+			space2.setMinimumHeight(20);
+			layout.addView(space2);
+
+			// Info actual
+			android.widget.TextView lblInfo = new android.widget.TextView(getActivity());
+			lblInfo.setText("Ciudad actual: " +
+				(ciudadActual.CiudadBase != null ? ciudadActual.CiudadBase : "NO CONFIGURADA") +
+				"\nCódigo Postal: " +
+				(ciudadActual.CodigoPostal != null ? ciudadActual.CodigoPostal : "NO CONFIGURADO"));
+			lblInfo.setTextSize(12);
+			lblInfo.setTextColor(android.graphics.Color.parseColor("#757575"));
+			lblInfo.setPadding(0, 0, 0, 0);
+			layout.addView(lblInfo);
+
+			builder.setView(layout);
+
+			// Botón guardar
+			builder.setPositiveButton("Guardar", (dialog, which) -> {
+				String nuevaCiudad = inputCiudad.getText().toString().trim();
+				String nuevoCP = inputCodigoPostal.getText().toString().trim();
+
+				if (nuevaCiudad.isEmpty()) {
+					app.getMessageBox().Show("Error",
+						"Debe introducir un nombre de ciudad",
+						getActivity(), MessageBoxType.Error);
+					return;
+				}
+
+				try {
+					// Actualizar ciudad base
+					ciudadActual.CiudadBase = nuevaCiudad;
+					ciudadActual.CodigoPostal = nuevoCP;
+					ciudadActual.Usuario = app.getUser().User;
+
+					if (ciudadActual.IdCiudadVendedor > 0) {
+						ciudadActual.update();
+					} else {
+						ciudadActual.save();
+					}
+
+					app.getMessageBox().Show("Éxito",
+						"Ciudad base actualizada:\n" +
+						"Ciudad: " + nuevaCiudad + "\n" +
+						"CP: " + (nuevoCP.isEmpty() ? "(sin CP)" : nuevoCP),
+						getActivity(), MessageBoxType.Information);
+
+					android.util.Log.i("RutasViewerFragment",
+						"Ciudad base actualizada: " + nuevaCiudad + " (" + nuevoCP + ")");
+
+				} catch (Exception e) {
+					app.getMessageBox().Show("Error",
+						"Error al guardar ciudad base: " + e.getMessage(),
+						getActivity(), MessageBoxType.Error);
+					android.util.Log.e("RutasViewerFragment", "Error guardando ciudad base", e);
+				}
+			});
+
+			// Botón cancelar
+			builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
+
+			builder.show();
+
+		} catch (Exception e) {
+			app.getMessageBox().Show("Error",
+				"Error al abrir configuración de ciudad base: " + e.getMessage(),
+				getActivity(), MessageBoxType.Error);
+			android.util.Log.e("RutasViewerFragment", "Error en modificarCiudadBase", e);
 		}
 	}
 

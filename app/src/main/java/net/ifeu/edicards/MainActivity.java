@@ -173,24 +173,24 @@ public class MainActivity extends Activity {
 	private void StartMainMenu() {
 
 		try {
-			final ProgressDialog progressDialog;
-			progressDialog = ProgressDialog.show(this, "Actualizando Datos de Central", "Cargando...Espere unos instantes",
-					true);
+			// Verificar y solicitar ciudad base ANTES de iniciar la sincronización
+			verifyCiudadVendedor(() -> {
+				// Una vez verificada la ciudad base, iniciar la sincronización
+				final ProgressDialog progressDialog;
+				progressDialog = ProgressDialog.show(MainActivity.this, "Actualizando Datos de Central", "Cargando...Espere unos instantes",
+						true);
 
-			final MainActivity that = this;
+				final MainActivity that = this;
 
-			new Thread() {
+				new Thread() {
 
-				@Override
-				public void run() {
+					@Override
+					public void run() {
 
-					try {
-						// COMENTADO TEMPORALMENTE PARA PRUEBAS - DESCOMENTAR ANTES DE PRODUCCIÓN
-						getData();
-						//sendData();
+						try {
+							getData();
+							sendData();
 
-						// Verificar y solicitar ciudad base si es necesario
-						that.verifyCiudadVendedor(() -> {
 							that._appConfig.getWorkingArea().Monitor = that._serviceWorker.Monitor();
 
 							if (progressDialog != null && progressDialog.isShowing()) {
@@ -241,27 +241,27 @@ public class MainActivity extends Activity {
 									}
 								});
 							}
-						});
 
-					} catch (Exception e) {
-						// Manejar el error correctamente o mostrar un mensaje al usuario
-						runOnUiThread(() -> {
-							if (!that.isFinishing() && !that.isDestroyed()) {
-								if (progressDialog != null && progressDialog.isShowing()) {
-									try {
-										progressDialog.dismiss();
-									} catch (IllegalArgumentException ex) {
-										// El diálogo ya no está adjunto a la ventana, ignorar
+						} catch (Exception e) {
+							// Manejar el error correctamente o mostrar un mensaje al usuario
+							runOnUiThread(() -> {
+								if (!that.isFinishing() && !that.isDestroyed()) {
+									if (progressDialog != null && progressDialog.isShowing()) {
+										try {
+											progressDialog.dismiss();
+										} catch (IllegalArgumentException ex) {
+											// El diálogo ya no está adjunto a la ventana, ignorar
+										}
 									}
+									Toast.makeText(that, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
 								}
-								Toast.makeText(that, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-							}
-						});
+							});
+						}
+
 					}
 
-				}
-
-			}.start();
+				}.start();
+			});
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
 		}

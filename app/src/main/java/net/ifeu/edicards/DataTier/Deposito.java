@@ -75,11 +75,14 @@ public class Deposito extends Cliente implements IPersistable {
 		values.put("NumDoc", this.NumDoc);
 		values.put("TipoDeposito", this.TipoDeposito);
 
-		if (this.FechaDeposito == null)
-			this.FechaDeposito = new Date();
-
-		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-		values.put("FechaDeposito", formatter.format(this.FechaDeposito));
+		// IMPORTANTE: Permitir FechaDeposito null para depósitos placeholder
+		// que se crean durante la importación pero que no representan visitas reales
+		if (this.FechaDeposito == null) {
+			values.putNull("FechaDeposito");
+		} else {
+			SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+			values.put("FechaDeposito", formatter.format(this.FechaDeposito));
+		}
 
 		if (this.Ejercicio == null) {
 			int year = Calendar.getInstance().get(Calendar.YEAR);
@@ -158,8 +161,12 @@ public class Deposito extends Cliente implements IPersistable {
 			this.IdDeposito = Long.parseLong(cursor.getString(cursor
 					.getColumnIndex("IdDeposito")));
 			SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-			this.FechaDeposito = formatter.parse(cursor.getString(cursor
-					.getColumnIndex("FechaDeposito")));
+			String fechaStr = cursor.getString(cursor.getColumnIndex("FechaDeposito"));
+			if (fechaStr != null && !fechaStr.isEmpty()) {
+				this.FechaDeposito = formatter.parse(fechaStr);
+			} else {
+				this.FechaDeposito = null;
+			}
 			this.Ejercicio = cursor.getString(cursor
 					.getColumnIndex("Ejercicio"));
 			this.Clave = cursor.getString(cursor.getColumnIndex("Clave"));
@@ -233,8 +240,12 @@ public class Deposito extends Cliente implements IPersistable {
 				this.IdDeposito = Long.parseLong(cursor.getString(cursor
 						.getColumnIndex("IdDeposito")));
 				SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-				this.FechaDeposito = formatter.parse(cursor.getString(cursor
-						.getColumnIndex("FechaDeposito")));
+				String fechaStr = cursor.getString(cursor.getColumnIndex("FechaDeposito"));
+				if (fechaStr != null && !fechaStr.isEmpty()) {
+					this.FechaDeposito = formatter.parse(fechaStr);
+				} else {
+					this.FechaDeposito = null;
+				}
 				this.Ejercicio = (cursor.getString(cursor
 						.getColumnIndex("Ejercicio")));
 				this.Clave = cursor.getString(cursor.getColumnIndex("Clave"));
@@ -315,8 +326,12 @@ public class Deposito extends Cliente implements IPersistable {
 							.getString(cursor.getColumnIndex("IdDeposito")));
 					SimpleDateFormat formatter = new SimpleDateFormat(
 							"dd/MM/yyyy"); // please notice the capital M
-					deposito.FechaDeposito = formatter.parse(cursor
-							.getString(cursor.getColumnIndex("FechaDeposito")));
+					String fechaStr = cursor.getString(cursor.getColumnIndex("FechaDeposito"));
+					if (fechaStr != null && !fechaStr.isEmpty()) {
+						deposito.FechaDeposito = formatter.parse(fechaStr);
+					} else {
+						deposito.FechaDeposito = null;
+					}
 					deposito.Ejercicio = cursor.getString(cursor
 							.getColumnIndex("Ejercicio"));
 					deposito.Clave = cursor.getString(cursor
@@ -409,8 +424,12 @@ public class Deposito extends Cliente implements IPersistable {
 							.getString(cursor.getColumnIndex("IdDeposito")));
 					SimpleDateFormat formatter = new SimpleDateFormat(
 							"dd/MM/yyyy"); // please notice the capital M
-					deposito.FechaDeposito = formatter.parse(cursor
-							.getString(cursor.getColumnIndex("FechaDeposito")));
+					String fechaStr = cursor.getString(cursor.getColumnIndex("FechaDeposito"));
+					if (fechaStr != null && !fechaStr.isEmpty()) {
+						deposito.FechaDeposito = formatter.parse(fechaStr);
+					} else {
+						deposito.FechaDeposito = null;
+					}
 					deposito.Ejercicio = cursor.getString(cursor
 							.getColumnIndex("Ejercicio"));
 					deposito.Clave = cursor.getString(cursor
@@ -505,8 +524,12 @@ public class Deposito extends Cliente implements IPersistable {
 
 					deposito.IdDeposito = Long.parseLong(cursor
 							.getString(cursor.getColumnIndex("IdDeposito")));
-					deposito.FechaDeposito = formatter.parse(cursor
-							.getString(cursor.getColumnIndex("FechaDeposito")));
+					String fechaStr = cursor.getString(cursor.getColumnIndex("FechaDeposito"));
+					if (fechaStr != null && !fechaStr.isEmpty()) {
+						deposito.FechaDeposito = formatter.parse(fechaStr);
+					} else {
+						deposito.FechaDeposito = null;
+					}
 					deposito.Ejercicio = cursor.getString(cursor
 							.getColumnIndex("Ejercicio"));
 					deposito.Clave = cursor.getString(cursor

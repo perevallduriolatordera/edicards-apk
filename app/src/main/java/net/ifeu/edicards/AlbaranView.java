@@ -283,7 +283,8 @@ public class AlbaranView extends Activity {
 
 		double total;
 
-		if (_appConfig.getWorkingArea().CurrentDeposito.Serie.equals(_appConfig.getUser().SerialInvoiceA))
+		if (_appConfig.getWorkingArea().CurrentDeposito.Serie != null &&
+			_appConfig.getWorkingArea().CurrentDeposito.Serie.equals(_appConfig.getUser().SerialInvoiceA))
 			total = _appConfig.getWorkingArea().CurrentDeposito.Totales.Total;
 		else
 			total = _appConfig.getWorkingArea().CurrentDeposito.Totales.TotalBase;
