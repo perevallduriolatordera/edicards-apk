@@ -1700,47 +1700,70 @@ public class DepositManager extends Fragment implements  IMediator {
 			totalLinea.setTag(lineaDeposito);
 
 			// Botón Abono
+// Switch para VENTA/ABONO
+		LinearLayout switchContainer = new LinearLayout(getActivity());
+		switchContainer.setOrientation(LinearLayout.HORIZONTAL);
+		switchContainer.setGravity(Gravity.CENTER_VERTICAL);
+		
+		LayoutParams containerParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		containerParams.setMargins(4, 2, 8, 2);
+		switchContainer.setLayoutParams(containerParams);
+		
+		// Label que muestra el modo actual
+		final TextView modoLabel = new TextView(getActivity());
+		modoLabel.setText(_abonoMode ? "ABONO" : "VENTA");
+		modoLabel.setTextSize(10);
+		modoLabel.setTextColor(_abonoMode ? Color.parseColor("#F44336") : Color.parseColor("#4CAF50"));
+		modoLabel.setTypeface(null, android.graphics.Typeface.BOLD);
+		modoLabel.setPadding(4, 0, 8, 0);
+		
+		// Switch
+		android.widget.Switch switchModo = new android.widget.Switch(getActivity());
+		switchModo.setChecked(!_abonoMode); // Checked = VENTA
+		
+		switchModo.setOnCheckedChangeListener((buttonView, isChecked) -> {
+			_abonoMode = !isChecked;
+			
+			// Actualizar el label
+			if (isChecked) {
+				// VENTA mode (checked)
+				modoLabel.setText("VENTA");
+				modoLabel.setTextColor(Color.parseColor("#4CAF50")); // Verde
+			} else {
+				// ABONO mode (unchecked)
+				modoLabel.setText("ABONO");
+				modoLabel.setTextColor(Color.parseColor("#F44336")); // Rojo
+			}
+			
+			// Actualizar la línea seleccionada
+			try {
+				refreshLayout(lineaDeposito, true);
+			} catch (Exception e) {
+				android.util.Log.e("DepositManager", "Error refrescando layout: " + e.getMessage());
+			}
+		});
+		
+		switchContainer.addView(modoLabel);
+		switchContainer.addView(switchModo);
+		
+		switchContainer.setVisibility(_modalidad == DepositoModalidad.Edicards ?
+				View.INVISIBLE : View.VISIBLE);
 
-			LayoutParams buttonParams = new LayoutParams(params);
-			buttonParams.setMargins(10,10,10,10);
+	if (createHeaderLayout) {
 
-			ButtonColor modoAbono = createHeaderLayout ? DepositManagerExtension.UI.addButton(getActivity(), Color.parseColor("#F44336"), "▼ ABONO",
-					10, ScreenManager.getViewWidthByLength(_appConfig, 10, TEXT_SIZE, Gravity.CENTER), buttonParams, lineaDeposito)
-					: (ButtonColor) _headerLayout.getChildAt(10);
-
-			modoAbono.setTag(lineaDeposito);
-		modoAbono.setTextColor(Color.WHITE);
-		modoAbono.setGravity(Gravity.CENTER);
-
-			modoAbono.setVisibility(_modalidad == DepositoModalidad.Edicards ?
-					View.INVISIBLE : View.VISIBLE);
-
-			modoAbono.setOnClickListener(arg0 -> {
-
-				_abonoMode = true;
-				LineaDeposito lineaDepositoValue = (LineaDeposito) arg0.getTag();
-				try {
-					refreshLayout(lineaDepositoValue, true);
-				} catch (Exception e) {
-					throw new RuntimeException(e);
-				}
-			});
-
-		if (createHeaderLayout) {
-
-			DepositManagerExtension.UI.addViewsToLayout(_headerLayout,
-					createFieldContainer("Código", codigoArticulo),
-					createFieldContainer("Artículo", articuloDescripcion),
-					createFieldContainer("Dep.Ini", unidadesInicialesFijas),
-					createFieldContainer("Contadas", unidadesDevueltas),
-					createFieldContainer("Reciclado", unidadesDefectuosas),
-					createFieldContainer("PVP", pvp),
-					createFieldContainer("Facturadas", unidadesFacturadas),
-					createFieldContainer("Repuestas", unidadesRepuestas),
-					createFieldContainer("PVP Post.", pvpAnterior),
-					createFieldContainer("Total", totalLinea),
-					modoAbono);
-		}
+		DepositManagerExtension.UI.addViewsToLayout(_headerLayout,
+				createFieldContainer("Código", codigoArticulo),
+				createFieldContainer("Artículo", articuloDescripcion),
+				createFieldContainer("Dep.Ini", unidadesInicialesFijas),
+				createFieldContainer("Contadas", unidadesDevueltas),
+				createFieldContainer("Reciclado", unidadesDefectuosas),
+				createFieldContainer("PVP", pvp),
+				createFieldContainer("Facturadas", unidadesFacturadas),
+				createFieldContainer("Repuestas", unidadesRepuestas),
+				createFieldContainer("PVP Post.", pvpAnterior),
+				createFieldContainer("Total", totalLinea),
+				switchContainer);
+	}
 			mainLinearLayout.addView(_headerLayout);
 			_textBoxColorRequestFocus = unidadesDefectuosas;
 
@@ -1934,39 +1957,63 @@ public class DepositManager extends Fragment implements  IMediator {
 		totalAbono.setText(DepositManagerExtension.Format.CurrencyFormat(totalAbonoImporte));
 		totalAbono.setTag(lineaDeposito);
 				
-		// Botón Venta
+	// Switch para VENTA/ABONO
+	LinearLayout switchContainerAbono = new LinearLayout(getActivity());
+	switchContainerAbono.setOrientation(LinearLayout.HORIZONTAL);
+	switchContainerAbono.setGravity(Gravity.CENTER_VERTICAL);
 
-		LayoutParams buttonParams = new LayoutParams(params);
-		buttonParams.setMargins(50,10,10,10); // Margen izquierdo aumentado para separarlo del campo total
-		ButtonColor modoVenta = createHeaderLayout ?  DepositManagerExtension.UI.addButton(getActivity(), Color.parseColor("#4CAF50"), "▲ VENTA",
-				10, ScreenManager.getViewWidthByLength(_appConfig, 10, TEXT_SIZE, Gravity.CENTER), buttonParams, lineaDeposito)
-				: (ButtonColor) _headerAbonoLayout.getChildAt(9);
+	LayoutParams containerParamsAbono = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+	containerParamsAbono.setMargins(4, 2, 8, 2);
+	switchContainerAbono.setLayoutParams(containerParamsAbono);
 
-		modoVenta.setTag(lineaDeposito);
-	modoVenta.setTextColor(Color.WHITE);
-	modoVenta.setGravity(Gravity.CENTER);
-		modoVenta.setOnClickListener(arg0 -> {
+	// Label que muestra el modo actual
+	final TextView modoLabelAbono = new TextView(getActivity());
+	modoLabelAbono.setText(_abonoMode ? "ABONO" : "VENTA");
+	modoLabelAbono.setTextSize(10);
+	modoLabelAbono.setTextColor(_abonoMode ? Color.parseColor("#F44336") : Color.parseColor("#4CAF50"));
+	modoLabelAbono.setTypeface(null, android.graphics.Typeface.BOLD);
+	modoLabelAbono.setPadding(4, 0, 8, 0);
 
-			_abonoMode = false;
-			LineaDeposito lineaDepositoValue = (LineaDeposito) arg0.getTag();
-			try {
-				refreshLayout(lineaDepositoValue,true);
-			} catch (Exception e) {
-				throw new RuntimeException(e);
-			}
-		});
+	// Switch
+	android.widget.Switch switchModoAbono = new android.widget.Switch(getActivity());
+	switchModoAbono.setChecked(!_abonoMode); // Checked = VENTA
 
-	if (createHeaderLayout) {
+	switchModoAbono.setOnCheckedChangeListener((buttonView, isChecked) -> {
+		_abonoMode = !isChecked;
 
-		DepositManagerExtension.UI.addViewsToLayout(_headerAbonoLayout,
-				createFieldContainer("Código", codigoArticulo),
-				createFieldContainer("Artículo", articuloDescripcion),
-				createFieldContainer("Cantidad", unidadesAbono),
-				createFieldContainer("Defect.", defectuosasAbono),
-				createFieldContainer("PVP", pvpAbono),
-				createFieldContainer("Total", totalAbono),
-				modoVenta);
-	}
+		// Actualizar el label
+		if (isChecked) {
+			// VENTA mode (checked)
+			modoLabelAbono.setText("VENTA");
+			modoLabelAbono.setTextColor(Color.parseColor("#4CAF50")); // Verde
+		} else {
+			// ABONO mode (unchecked)
+			modoLabelAbono.setText("ABONO");
+			modoLabelAbono.setTextColor(Color.parseColor("#F44336")); // Rojo
+		}
+
+		// Actualizar la línea seleccionada
+		try {
+			refreshLayout(lineaDeposito, true);
+		} catch (Exception e) {
+			android.util.Log.e("DepositManager", "Error refrescando layout: " + e.getMessage());
+		}
+	});
+
+	switchContainerAbono.addView(modoLabelAbono);
+	switchContainerAbono.addView(switchModoAbono);
+
+if (createHeaderLayout) {
+
+	DepositManagerExtension.UI.addViewsToLayout(_headerAbonoLayout,
+			createFieldContainer("Código", codigoArticulo),
+			createFieldContainer("Artículo", articuloDescripcion),
+			createFieldContainer("Cantidad", unidadesAbono),
+			createFieldContainer("Defect.", defectuosasAbono),
+			createFieldContainer("PVP", pvpAbono),
+			createFieldContainer("Total", totalAbono),
+			switchContainerAbono);
+}
 
 		mainLinearLayout.addView(_headerAbonoLayout);
 		_textBoxColorRequestFocus = defectuosasAbono;
