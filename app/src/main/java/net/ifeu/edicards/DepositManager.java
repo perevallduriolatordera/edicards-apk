@@ -1726,12 +1726,21 @@ public class DepositManager extends Fragment implements  IMediator {
 				}
 			});
 
-			if (createHeaderLayout) {
+		if (createHeaderLayout) {
 
-				DepositManagerExtension.UI.addViewsToLayout(_headerLayout, codigoArticulo, articuloDescripcion,
-						unidadesInicialesFijas, unidadesDevueltas, unidadesDefectuosas, pvp, unidadesFacturadas,
-						unidadesRepuestas, pvpAnterior, totalLinea, modoAbono);
-			}
+			DepositManagerExtension.UI.addViewsToLayout(_headerLayout,
+					createFieldContainer("Código", codigoArticulo),
+					createFieldContainer("Artículo", articuloDescripcion),
+					createFieldContainer("Dep.Ini", unidadesInicialesFijas),
+					createFieldContainer("Contadas", unidadesDevueltas),
+					createFieldContainer("Reciclado", unidadesDefectuosas),
+					createFieldContainer("PVP", pvp),
+					createFieldContainer("Facturadas", unidadesFacturadas),
+					createFieldContainer("Repuestas", unidadesRepuestas),
+					createFieldContainer("PVP Post.", pvpAnterior),
+					createFieldContainer("Total", totalLinea),
+					modoAbono);
+		}
 			mainLinearLayout.addView(_headerLayout);
 			_textBoxColorRequestFocus = unidadesDefectuosas;
 
