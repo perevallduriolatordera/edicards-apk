@@ -210,7 +210,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		// //Copias
 
 		LabelColor labelCopias = DepositManagerExtension.UI.addLabel(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				"Copias", TEXT_SIZE, 90, params);
+				"Copias", TEXT_SIZE, 50, params);
 		List<String> copias = new ArrayList<>();
 		for (int i=1; i < 6; i++) copias.add(String.valueOf(i));
 
@@ -219,7 +219,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		// Series
 
 		LabelColor labelSeries = DepositManagerExtension.UI.addLabel(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				"Series", TEXT_SIZE, 75, params);
+				"Series", TEXT_SIZE, 50, params);
 
 		List<String> series = new ArrayList<>();
 		series.add(_appConfig.getUser().SerialInvoiceA);
@@ -1417,20 +1417,20 @@ public class DepositManager extends Fragment implements  IMediator {
 			_headerLayout = new LinearLayout(_appConfig);
 			_headerLayout.setOrientation(LinearLayout.HORIZONTAL);
 		} else {
-			_headerLayout.getChildAt(1).setOnClickListener(null);
+			getFieldFromContainer(_headerLayout, 1).setOnClickListener(null);
 			for (int i=3; i<9; i++) _headerLayout.setOnFocusChangeListener(null);
 		}
 
 		try {
 			LabelColor codigoArticulo = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 					lineaDeposito.Articulo.CodigoArticulo, TEXT_SIZE, 8, params, true)
-					: (LabelColor) _headerLayout.getChildAt(0);
+					: (LabelColor) getFieldFromContainer(_headerLayout, 0);
 			codigoArticulo.setText(lineaDeposito.Articulo.CodigoArticulo);
 
 			LabelColor articuloDescripcion = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 					lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion, TEXT_SIZE, 12,
 					params, true, lineaDeposito.Articulo)
-					: (LabelColor) _headerLayout.getChildAt(1);
+					: (LabelColor) getFieldFromContainer(_headerLayout, 1);
 			articuloDescripcion.setText(lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion);
 			articuloDescripcion.setTag(lineaDeposito.Articulo);
 
@@ -1438,13 +1438,13 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			LabelColor unidadesInicialesFijas = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 					String.valueOf(lineaDeposito.UnidadesInicialesFijas), TEXT_SIZE, 13, params, true, lineaDeposito)
-					: (LabelColor) _headerLayout.getChildAt(2);
+					: (LabelColor) getFieldFromContainer(_headerLayout, 2);
 			unidadesInicialesFijas.setText(String.valueOf(lineaDeposito.UnidadesInicialesFijas));
 			unidadesInicialesFijas.setTag(lineaDeposito);
 
 			TextBoxColor unidadesDevueltas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
 					String.valueOf(lineaDeposito.UnidadesDevueltas), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER ), params, true, lineaDeposito)
-					: (TextBoxColor) _headerLayout.getChildAt(3);
+					: (TextBoxColor) getFieldFromContainer(_headerLayout, 3);
 			unidadesDevueltas.setText(String.valueOf(lineaDeposito.UnidadesDevueltas));
 			unidadesDevueltas.setTag(lineaDeposito);
 
@@ -1487,7 +1487,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			TextBoxColor unidadesDefectuosas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
 					String.valueOf(lineaDeposito.UnidadesDefectuosas), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
-					: (TextBoxColor) _headerLayout.getChildAt(4);
+					: (TextBoxColor) getFieldFromContainer(_headerLayout, 4);
 			unidadesDefectuosas.setText(String.valueOf(lineaDeposito.UnidadesDefectuosas));
 			unidadesDefectuosas.setTag(lineaDeposito);
 
@@ -1538,7 +1538,7 @@ public class DepositManager extends Fragment implements  IMediator {
 			TextBoxColor pvp = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT,
 					DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP),
 					TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
-					: (TextBoxColor) _headerLayout.getChildAt(5);
+					: (TextBoxColor) getFieldFromContainer(_headerLayout, 5);
 			pvp.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP));
 			pvp.setTag(lineaDeposito);
 
@@ -1571,7 +1571,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			TextBoxColor unidadesFacturadas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.rgb(0, 128, 0), Gravity.LEFT,
 					String.valueOf(lineaDeposito.UnidadesFacturadas), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
-					: (TextBoxColor) _headerLayout.getChildAt(6);
+					: (TextBoxColor) getFieldFromContainer(_headerLayout, 6);
 			unidadesFacturadas.setText(String.valueOf(lineaDeposito.UnidadesFacturadas));
 			unidadesFacturadas.setTag(lineaDeposito);
 
@@ -1626,7 +1626,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			TextBoxColor unidadesRepuestas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT,
 					String.valueOf(lineaDeposito.UnidadesRepuestas), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
-					: (TextBoxColor) _headerLayout.getChildAt(7);
+					: (TextBoxColor) getFieldFromContainer(_headerLayout, 7);
 			unidadesRepuestas.setText(String.valueOf(lineaDeposito.UnidadesRepuestas));
 			unidadesRepuestas.setTag(lineaDeposito);
 
@@ -1660,7 +1660,7 @@ public class DepositManager extends Fragment implements  IMediator {
 			TextBoxColor pvpAnterior = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT,
 					DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAnterior),
 					TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
-					: (TextBoxColor) _headerLayout.getChildAt(8);
+					: (TextBoxColor) getFieldFromContainer(_headerLayout, 8);
 			pvpAnterior.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAnterior));
 			pvpAnterior.setTag(lineaDeposito);
 
@@ -1694,7 +1694,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			LabelColor totalLinea = createHeaderLayout ? DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 					String.valueOf(DepositManagerExtension.Format.round(total, 2)), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 13, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
-					: (LabelColor) _headerLayout.getChildAt(9);
+					: (LabelColor) getFieldFromContainer(_headerLayout, 9);
 
 			totalLinea.setText(String.valueOf(DepositManagerExtension.Format.round(total, 2)));
 			totalLinea.setTag(lineaDeposito);
@@ -1788,19 +1788,19 @@ public class DepositManager extends Fragment implements  IMediator {
 			_headerAbonoLayout = new LinearLayout(_appConfig);
 			_headerAbonoLayout.setOrientation(LinearLayout.HORIZONTAL);
 		} else {
-			_headerAbonoLayout.getChildAt(1).setOnClickListener(null);
+			getFieldFromContainer(_headerAbonoLayout, 1).setOnClickListener(null);
 			for (int i=3; i<8; i++) _headerAbonoLayout.setOnFocusChangeListener(null);
 		}
 
 		LabelColor codigoArticulo = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				lineaDeposito.Articulo.CodigoArticulo, TEXT_SIZE, 8, params, true)
-				: (LabelColor) _headerAbonoLayout.getChildAt(0);
+				: (LabelColor) getFieldFromContainer(_headerAbonoLayout, 0);
 		codigoArticulo.setText(lineaDeposito.Articulo.CodigoArticulo);
 
 		LabelColor articuloDescripcion = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion + " (Abono) ", TEXT_SIZE, 13,
 						params, true, lineaDeposito.Articulo)
-				: (LabelColor) _headerAbonoLayout.getChildAt(1);
+				: (LabelColor) getFieldFromContainer(_headerAbonoLayout, 1);
 		articuloDescripcion.setText((lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion));
 		articuloDescripcion.setTag(lineaDeposito.Articulo);
 
@@ -1808,11 +1808,11 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		LabelColor labelCantidadAbono = createHeaderLayout ?  DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				"Cantidad", TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true)
-				: (LabelColor) _headerAbonoLayout.getChildAt(2);
+				: (LabelColor) getFieldFromContainer(_headerAbonoLayout, 2);
 
 		TextBoxColor unidadesAbono =  createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
 				String.valueOf(lineaDeposito.UnidadesAbono), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true, lineaDeposito)
-				: (TextBoxColor) _headerAbonoLayout.getChildAt(3);
+				: (TextBoxColor) getFieldFromContainer(_headerAbonoLayout, 3);
 		unidadesAbono.setText(String.valueOf(lineaDeposito.UnidadesAbono));
 		unidadesAbono.setTag(lineaDeposito);
 
@@ -1861,12 +1861,12 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		LabelColor labelDefectuosasAbono =  createHeaderLayout ? DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				"Defect.", TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true)
-				: (LabelColor) _headerAbonoLayout.getChildAt(4);
+				: (LabelColor) getFieldFromContainer(_headerAbonoLayout, 4);
 
 		
 		TextBoxColor defectuosasAbono = createHeaderLayout ?  DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
 				String.valueOf(lineaDeposito.DefectuosasAbono), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true, lineaDeposito)
-				: (TextBoxColor) _headerAbonoLayout.getChildAt(5);
+				: (TextBoxColor) getFieldFromContainer(_headerAbonoLayout, 5);
 		defectuosasAbono.setText(String.valueOf(lineaDeposito.DefectuosasAbono));
 		defectuosasAbono.setTag(lineaDeposito);
 
@@ -1916,11 +1916,11 @@ public class DepositManager extends Fragment implements  IMediator {
 		
 		LabelColor labelPVPAbono = createHeaderLayout ?  DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				"PVP", TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true)
-				: (LabelColor) _headerAbonoLayout.getChildAt(6);
+				: (LabelColor) getFieldFromContainer(_headerAbonoLayout, 6);
 		
 		TextBoxColor pvpAbono =  createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
 				DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAbono), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true, lineaDeposito)
-				:(TextBoxColor) _headerAbonoLayout.getChildAt(7);
+				: (TextBoxColor) getFieldFromContainer(_headerAbonoLayout, 7);
 		pvpAbono.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAbono));
 		pvpAbono.setTag(lineaDeposito);
 
@@ -1953,7 +1953,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		
 		LabelColor totalAbono =  createHeaderLayout ?  DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.RIGHT, InputType.TYPE_CLASS_NUMBER,
 				DepositManagerExtension.Format.CurrencyFormat(totalAbonoImporte), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true)
-				: (LabelColor) _headerAbonoLayout.getChildAt(8);
+				: (LabelColor) getFieldFromContainer(_headerAbonoLayout, 8);
 		totalAbono.setText(DepositManagerExtension.Format.CurrencyFormat(totalAbonoImporte));
 		totalAbono.setTag(lineaDeposito);
 				
@@ -2053,23 +2053,29 @@ if (createHeaderLayout) {
 	private LinearLayout createFieldContainer(String labelText, View field) {
 		LinearLayout container = new LinearLayout(_appConfig);
 		container.setOrientation(LinearLayout.VERTICAL);
-		
+
 		// Crear label pequeño centrado
 		TextView label = new TextView(_appConfig);
 		label.setText(labelText);
 		label.setTextSize(8);
 		label.setTextColor(Color.parseColor("#757575")); // Gris
 		label.setGravity(Gravity.CENTER);
-		
+
 		LayoutParams labelParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 		labelParams.setMargins(0, 0, 0, 2);
 		label.setLayoutParams(labelParams);
-		
+
 		// Añadir label y campo al contenedor
 		container.addView(label);
 		container.addView(field);
-		
+
 		return container;
+	}
+
+	// Helper para extraer el campo de un container creado por createFieldContainer
+	private View getFieldFromContainer(ViewGroup parent, int containerIndex) {
+		LinearLayout container = (LinearLayout) parent.getChildAt(containerIndex);
+		return container.getChildAt(1); // El campo siempre está en el índice 1 (0 es el label)
 	}
 
 	private void createHeaderLabels() {
