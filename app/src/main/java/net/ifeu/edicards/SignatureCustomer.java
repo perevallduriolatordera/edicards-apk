@@ -20,6 +20,7 @@ public class SignatureCustomer extends Activity {
 	private Bundle _bundle;
 	AppConfig _app;
 	Boolean _isSaved = false;
+	private String _guid; // GUID recibido del Intent
 
 	@SuppressWarnings("deprecation")
 	@Override
@@ -28,13 +29,22 @@ public class SignatureCustomer extends Activity {
 		setContentView(R.layout.activity_signature_customer);
 
 		_app = (AppConfig) this.getApplicationContext();
-		
+
 		setFinishOnTouchOutside (false);
 
 		android.view.WindowManager.LayoutParams params = getWindow().getAttributes();
         params.height = LayoutParams.FILL_PARENT;
         params.width  = ScreenManager.getScreenSizeByPercentage(getWindowManager(), 0.95f).getWidth();
         getWindow().setAttributes(params);
+
+		// Recuperar el GUID del Intent o del Bundle si la actividad se recreó
+		if (savedInstanceState != null && savedInstanceState.containsKey("GUID")) {
+			_guid = savedInstanceState.getString("GUID");
+		} else if (getIntent() != null && getIntent().hasExtra("GUID")) {
+			_guid = getIntent().getStringExtra("GUID");
+		} else if (_app.getWorkingArea().CurrentHistorico != null) {
+			_guid = _app.getWorkingArea().CurrentHistorico.GUID;
+		}
 
 		TextView lblFormaPago = this.findViewById(R.id.lblFormaDePago);
 		lblFormaPago.setText("La forma de pago elegida por el cliente " + _app.getWorkingArea().CurrentCliente.Razon +
@@ -47,12 +57,30 @@ public class SignatureCustomer extends Activity {
 		_bundle = savedInstanceState;
 	}
 
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (_guid != null) {
+			outState.putString("GUID", _guid);
+		}
+	}
+
 	public void OnClick(View v) {
+
+		// Verificar que tenemos el GUID necesario
+		if (_guid == null) {
+			android.util.Log.e("SignatureCustomer", "GUID es null, no se puede completar la operación");
+			android.widget.Toast.makeText(this, "Error: No se pudo obtener el GUID de la operación",
+					android.widget.Toast.LENGTH_LONG).show();
+			finish();
+			return;
+		}
+
 		SignatureView signature = this.findViewById(R.id.signatureView);
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		executor.execute(() -> {
-			signature.save(1, _app.getWorkingArea().CurrentHistorico.GUID);
-			signature.saveBitmap1Color(1, _app.getWorkingArea().CurrentHistorico.GUID);
+			signature.save(1, _guid);
+			signature.saveBitmap1Color(1, _guid);
 			_isSaved = true;
 		});
 		finish();

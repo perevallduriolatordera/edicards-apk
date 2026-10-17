@@ -172,7 +172,7 @@ public class DepositView extends Activity {
 
 				LabelColor pvpLabel = new LabelColor(this, Color.parseColor("#388E3C"), Gravity.RIGHT);
 				pvpLabel.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-				pvpLabel.setText(linea.PVPAnterior + " €");
+				pvpLabel.setText(linea.PVP + " €");
 				pvpLabel.setTextSize(TEXT_SIZE);
 				pvpLabel.setWidth(150);
 				pvpLabel.setLayoutParams(params);

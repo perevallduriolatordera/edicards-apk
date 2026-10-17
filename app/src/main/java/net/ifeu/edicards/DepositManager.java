@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
+import android.text.method.DigitsKeyListener;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -120,6 +121,9 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		_articlesListView = this.getActivity().findViewById(R.id.listViewArticles);
 
+		// Configurar el switch de modo VENTA/ABONO en el header azul
+		setupModoSwitch();
+
 		showCustomerSearchDialog();
 
 	}
@@ -173,6 +177,89 @@ public class DepositManager extends Fragment implements  IMediator {
 	@Override
 	public void onResume() {
 		super.onResume();
+
+		// Detectar si hay un CLIENTE DIFERENTE en WorkingArea (cambio de cliente)
+		// En ese caso, resetear para forzar la recarga del nuevo depósito
+		if (_appConfig != null &&
+			_appConfig.getWorkingArea().CurrentCliente != null &&
+			_cliente != null &&
+			!_appConfig.getWorkingArea().CurrentCliente.CodigoCliente.equals(_cliente.CodigoCliente)) {
+
+			android.util.Log.d("DepositManager", "onResume: Detectado cambio de cliente (" +
+				_cliente.CodigoCliente + " -> " + _appConfig.getWorkingArea().CurrentCliente.CodigoCliente +
+				"), reseteando completamente para cargar nuevo depósito");
+
+			// Limpiar TODAS las listas y datos del cliente anterior
+			this._articles.clear();
+			this._currentLines.clear();
+			this._originalLines.clear();
+			if (this._adapter != null) {
+				this._adapter.clear();
+				this._adapter = null;
+			}
+
+			// Limpiar headers con datos del cliente anterior
+			this.resetHeaders();
+
+			// Resetear variables para forzar recarga
+			_deposito = null;
+			_cliente = null;
+			_isRendered = false;
+			_abonoMode = false;
+
+			android.util.Log.d("DepositManager", "onResume: Limpieza completa realizada");
+		}
+
+		// Si hay un cliente y depósito ya cargados en WorkingArea pero no en la instancia local,
+		// usarlos directamente (útil cuando se vuelve desde FichaClienteDialog)
+		// IMPORTANTE: Solo hacer esto si NO se ha renderizado aún (evita recargas al volver de firmas)
+		if (_appConfig != null &&
+			_appConfig.getWorkingArea().CurrentCliente != null &&
+			_appConfig.getWorkingArea().CurrentCliente.IdCliente != 0 &&
+			_deposito == null &&
+			!_isRendered) {
+
+			android.util.Log.d("DepositManager", "onResume: Cliente detectado en WorkingArea, cargando por primera vez");
+
+			try {
+				// Si hay un depósito ya cargado en WorkingArea, usarlo directamente
+				if (_appConfig.getWorkingArea().CurrentDeposito != null) {
+					android.util.Log.d("DepositManager", "onResume: Usando depósito del WorkingArea");
+
+					_deposito = _appConfig.getWorkingArea().CurrentDeposito;
+					_cliente = _appConfig.getWorkingArea().CurrentCliente;
+
+					// Cargar la vista con el depósito existente
+					this.CreateDepositView(null);
+
+					// Configurar la modalidad por defecto (Furgoneta)
+					_modalidad = DepositoModalidad.Furgoneta;
+					TextView labelTipoEntrega = getActivity().findViewById(R.id.lblTipoEntrega);
+					if (labelTipoEntrega != null) {
+						labelTipoEntrega.setText("Entregar mercancia físicamente");
+					}
+
+					android.util.Log.d("DepositManager", "onResume: Depósito cargado correctamente");
+				} else {
+					// Si no hay depósito en WorkingArea, crear uno nuevo
+					android.util.Log.d("DepositManager", "onResume: No hay depósito en WorkingArea, creando nuevo");
+					this.CreateDepositView(null);
+
+					_modalidad = DepositoModalidad.Furgoneta;
+					TextView labelTipoEntrega = getActivity().findViewById(R.id.lblTipoEntrega);
+					if (labelTipoEntrega != null) {
+						labelTipoEntrega.setText("Entregar mercancia físicamente");
+					}
+				}
+
+			} catch (Exception e) {
+				android.util.Log.e("DepositManager", "Error en onResume cargando depósito: " + e.getMessage(), e);
+				e.printStackTrace();
+				// Si hay error, limpiar para que se pueda intentar de nuevo
+				_appConfig.getWorkingArea().CurrentCliente = null;
+				_appConfig.getWorkingArea().CurrentDeposito = null;
+			}
+		}
 	}
 
 	private void showCustomerSearchDialog() {
@@ -191,71 +278,128 @@ public class DepositManager extends Fragment implements  IMediator {
 		params.setMargins(0, 5, 0, 0);
 
 		// Formas de pago
-
-		params.weight = 1;
-		LabelColor labelPago = DepositManagerExtension.UI.addLabel(_appConfig, Color.BLACK, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"Forma de pago", TEXT_SIZE,  params);
-
-		_comboPago = DepositManagerExtension.UI.addCombo(_appConfig, params, _appConfig.getCache().getAllFormasPagoList(), _deposito.Cliente.FormaPago.Descripcion);
+		LayoutParams paramsPago = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		paramsPago.setMargins(0, 5, 35, 0); // Margen derecho para separar del siguiente campo
+		_comboPago = DepositManagerExtension.UI.addCombo(_appConfig, paramsPago, _appConfig.getCache().getAllFormasPagoList(), _deposito.Cliente.FormaPago.Descripcion);
+		_comboPago.setTopLabelText("Forma de pago");
 
 		// Filiacion
-
-		LabelColor labelFiliacion = DepositManagerExtension.UI.addLabel(_appConfig, Color.BLACK, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"Filiación", TEXT_SIZE, params);
-
-
+		LayoutParams paramsFiliacion = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		paramsFiliacion.setMargins(0, 5, 35, 0); // Margen derecho
 		TipoIVA iva = Factory.build(TipoIVA.class, _appConfig);
-		_comboFiliacion = DepositManagerExtension.UI.addCombo(_appConfig, params, iva.getFiliaciones(), iva.getFiliacionByCode(_deposito.Cliente.Filiacion));
+		_comboFiliacion = DepositManagerExtension.UI.addCombo(_appConfig, paramsFiliacion, iva.getFiliaciones(), iva.getFiliacionByCode(_deposito.Cliente.Filiacion));
+		_comboFiliacion.setTopLabelText("Filiación");
 
-		// //Copias
-
-		LabelColor labelCopias = DepositManagerExtension.UI.addLabel(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				"Copias", TEXT_SIZE, 50, params);
+		// Copias
 		List<String> copias = new ArrayList<>();
 		for (int i=1; i < 6; i++) copias.add(String.valueOf(i));
 
 		// LayoutParams específico para combo Copias (más pequeño)
 		LayoutParams paramsCopias = new LinearLayout.LayoutParams(140, LayoutParams.WRAP_CONTENT);
-		paramsCopias.setMargins(0, 5, 0, 0);
+		paramsCopias.setMargins(0, 5, 35, 0); // Margen derecho
 		_comboCopias = DepositManagerExtension.UI.addCombo(_appConfig, paramsCopias, copias, "1");
+		_comboCopias.setTopLabelText("Copias");
 
 		// Series
-
-		LabelColor labelSeries = DepositManagerExtension.UI.addLabel(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				"Series", TEXT_SIZE, 50, params);
-
 		List<String> series = new ArrayList<>();
 		series.add(_appConfig.getUser().SerialInvoiceA);
 		series.add(_appConfig.getUser().SerialInvoiceB);
 
 		// LayoutParams específico para combo Series (más pequeño)
 		LayoutParams paramsSeries = new LinearLayout.LayoutParams(160, LayoutParams.WRAP_CONTENT);
-		paramsSeries.setMargins(0, 5, 0, 0);
+		paramsSeries.setMargins(0, 5, 35, 0); // Margen derecho
 		_comboSerie = DepositManagerExtension.UI.addCombo(_appConfig, paramsSeries, series, _appConfig.getUser().SerialInvoiceA);
+		_comboSerie.setTopLabelText("Series");
 
-		// //Pagado
+		// Pagado - Contenedor con checkbox y campo de cantidad
+
+		LinearLayout pagadoContainer = new LinearLayout(_appConfig);
+		pagadoContainer.setOrientation(LinearLayout.VERTICAL);
+
+		// TAMAÑO FIJO para evitar colapso
+		LinearLayout.LayoutParams pagadoContainerParams = new LinearLayout.LayoutParams(220, LayoutParams.WRAP_CONTENT);
+		pagadoContainerParams.setMargins(0, 5, 35, 0);
+		pagadoContainer.setLayoutParams(pagadoContainerParams);
+		pagadoContainer.setMinimumWidth(220);
+		pagadoContainer.setMinimumHeight(80);
+
+		// Label arriba
+		TextView labelPagado = new TextView(_appConfig);
+		labelPagado.setText("Pagado");
+		labelPagado.setTextSize(8);
+		labelPagado.setTextColor(Color.parseColor("#757575"));
+		labelPagado.setGravity(Gravity.CENTER);
+		LinearLayout.LayoutParams labelPagadoParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		labelPagadoParams.setMargins(0, 0, 0, 2);
+		labelPagado.setLayoutParams(labelPagadoParams);
+		pagadoContainer.addView(labelPagado);
+
+		// Contenedor horizontal para checkbox y campo
+		LinearLayout pagadoFieldsContainer = new LinearLayout(_appConfig);
+		pagadoFieldsContainer.setOrientation(LinearLayout.HORIZONTAL);
+		pagadoFieldsContainer.setGravity(Gravity.CENTER_VERTICAL);
+		pagadoFieldsContainer.setMinimumWidth(200);
+		pagadoFieldsContainer.setMinimumHeight(60);
 
 		_checkPagado = new CheckBox(_appConfig);
-		_checkPagado.setText("Pagado");
-		_checkPagado.setTextSize(TEXT_SIZE);
-		_checkPagado.setTextColor(Color.BLACK);
-		_checkPagado.setLayoutParams(params);
+		_checkPagado.setText("");  // Sin texto, el label está arriba
+		LinearLayout.LayoutParams checkParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		checkParams.setMargins(0, 0, 4, 0);
+		_checkPagado.setLayoutParams(checkParams);
+		pagadoFieldsContainer.addView(_checkPagado);
 
-		LabelColor labelCantidadPagada = DepositManagerExtension.UI.addLabel(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				"Cantidad Pagada", TEXT_SIZE, 150, params);
+		// Crear TextBoxColor con tamaño FIJO para evitar colapso
+		_textBoxCantidadPagada = new TextBoxColor(getActivity(), Color.parseColor("#757575"), Gravity.CENTER);
 
-		_textBoxCantidadPagada = DepositManagerExtension.UI.addEdit(getActivity(), Color.GREEN, Gravity.LEFT,
-				"0", TEXT_SIZE, 75, params, false);
+		// Layout params con tamaño FIJO
+		LinearLayout.LayoutParams fieldParams = new LinearLayout.LayoutParams(140, LayoutParams.WRAP_CONTENT);
+		_textBoxCantidadPagada.setLayoutParams(fieldParams);
+		_textBoxCantidadPagada.setMinimumWidth(140);
+		_textBoxCantidadPagada.setMinimumHeight(50);
 
-		// descuento 1
+		_textBoxCantidadPagada.setTextSize(14);
+		_textBoxCantidadPagada.setText("0.00");
+		_textBoxCantidadPagada.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+		_textBoxCantidadPagada.setFocusable(false);
+		_textBoxCantidadPagada.setFocusableInTouchMode(false);
+		_textBoxCantidadPagada.setClickable(false);
 
-		LabelColor labelDescuento1 = DepositManagerExtension.UI.addLabel(_appConfig, Color.BLACK, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"Dte. com.", TEXT_SIZE, 75, params);
+		// Estilo inicial deshabilitado (gris)
+		android.graphics.drawable.GradientDrawable borderDisabled = new android.graphics.drawable.GradientDrawable();
+		borderDisabled.setColor(Color.parseColor("#FAFAFA"));
+		borderDisabled.setStroke(3, Color.parseColor("#BDBDBD"));
+		borderDisabled.setCornerRadius(6);
+		_textBoxCantidadPagada.setBackground(borderDisabled);
+		_textBoxCantidadPagada.setPadding(12, 12, 12, 12);
+
+		pagadoFieldsContainer.addView(_textBoxCantidadPagada);
+		pagadoContainer.addView(pagadoFieldsContainer);
+
+		// descuento 1 - Contenedor con label arriba
 
 		DecimalFormat dec = new DecimalFormat("0.00");
 
+		LinearLayout descuento1Container = new LinearLayout(_appConfig);
+		descuento1Container.setOrientation(LinearLayout.VERTICAL);
+		// Agregar margen
+		LinearLayout.LayoutParams containerParams1 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		containerParams1.setMargins(0, 5, 35, 0); // Margen derecho
+		descuento1Container.setLayoutParams(containerParams1);
+
+		// Label arriba
+		TextView labelDescuento1 = new TextView(_appConfig);
+		labelDescuento1.setText("Dte. com.");
+		labelDescuento1.setTextSize(8);
+		labelDescuento1.setTextColor(Color.parseColor("#757575")); // Gris como otros labels
+		labelDescuento1.setGravity(Gravity.CENTER);
+		LinearLayout.LayoutParams labelParams1 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		labelParams1.setMargins(0, 0, 0, 2);
+		labelDescuento1.setLayoutParams(labelParams1);
+		descuento1Container.addView(labelDescuento1);
+
+		// Campo debajo - width aumentado de 60 a 100
 		TextBoxColor descuento1 = DepositManagerExtension.UI.addEdit(getActivity(), Color.BLACK, Gravity.LEFT,
-				dec.format(_cliente.DescuentoProntoPago), TEXT_SIZE, 60, params, true);
+				dec.format(_cliente.DescuentoProntoPago), TEXT_SIZE, 100, new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT), true);
 
 		descuento1.setEnabled(true);
 		descuento1.setClickable(true);
@@ -304,13 +448,32 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		});
 
-		// descuento 2
-		
-		LabelColor labelDescuento2 = DepositManagerExtension.UI.addLabel(_appConfig, Color.BLACK, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-				"Dte. fin.", TEXT_SIZE, 75, params);
+		// Agregar descuento1 al contenedor
+		descuento1Container.addView(descuento1);
 
+		// descuento 2 - Contenedor con label arriba
+
+		LinearLayout descuento2Container = new LinearLayout(_appConfig);
+		descuento2Container.setOrientation(LinearLayout.VERTICAL);
+		// Margen consistente
+		LinearLayout.LayoutParams containerParams2 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		containerParams2.setMargins(0, 5, 0, 0); // Sin margen derecho (es el último)
+		descuento2Container.setLayoutParams(containerParams2);
+
+		// Label arriba
+		TextView labelDescuento2 = new TextView(_appConfig);
+		labelDescuento2.setText("Dte. fin.");
+		labelDescuento2.setTextSize(8);
+		labelDescuento2.setTextColor(Color.parseColor("#757575")); // Gris como otros labels
+		labelDescuento2.setGravity(Gravity.CENTER);
+		LinearLayout.LayoutParams labelParams2 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		labelParams2.setMargins(0, 0, 0, 2);
+		labelDescuento2.setLayoutParams(labelParams2);
+		descuento2Container.addView(labelDescuento2);
+
+		// Campo debajo - width aumentado de 60 a 100
 		TextBoxColor descuento2 = DepositManagerExtension.UI.addEdit(getActivity(), Color.BLACK, Gravity.LEFT,
-				dec.format(_cliente.DescuentoFinanciero), TEXT_SIZE, 60, params, true);
+				dec.format(_cliente.DescuentoFinanciero), TEXT_SIZE, 100, new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT), true);
 
 		descuento2.setEnabled(true);
 		descuento2.setClickable(true);
@@ -356,19 +519,44 @@ public class DepositManager extends Fragment implements  IMediator {
 				throw new RuntimeException(e);
 			}
 		});
-		
+
+		// Agregar descuento2 al contenedor
+		descuento2Container.addView(descuento2);
+
 		_checkPagado.setOnCheckedChangeListener((buttonView, isChecked) -> {
 
 			if (_deposito == null) return;
 			_deposito.Pagado = isChecked;
 
 			if (isChecked) {
+				// HABILITAR edición
+				_textBoxCantidadPagada.setFocusable(true);
 				_textBoxCantidadPagada.setFocusableInTouchMode(true);
+				_textBoxCantidadPagada.setClickable(true);
 				_textBoxCantidadPagada.setText(String.valueOf(DepositManagerExtension.Format.RoundTo2Decimals(_deposito.Totales.Total)));
+				_textBoxCantidadPagada.setTextColor(Color.parseColor("#1B5E20")); // Verde oscuro visible
+				// Borde verde cuando está habilitado
+				android.graphics.drawable.GradientDrawable borderEnabled = new android.graphics.drawable.GradientDrawable();
+				borderEnabled.setColor(Color.parseColor("#FFFFFF"));
+				borderEnabled.setStroke(4, Color.parseColor("#4CAF50"));
+				borderEnabled.setCornerRadius(6);
+				_textBoxCantidadPagada.setBackground(borderEnabled);
+				_textBoxCantidadPagada.setPadding(12, 12, 12, 12);
 			}
 			else {
+				// DESHABILITAR edición pero mantener visible
 				_textBoxCantidadPagada.setFocusable(false);
-				_textBoxCantidadPagada.setText("");
+				_textBoxCantidadPagada.setFocusableInTouchMode(false);
+				_textBoxCantidadPagada.setClickable(false);
+				_textBoxCantidadPagada.setText("0.00");
+				_textBoxCantidadPagada.setTextColor(Color.parseColor("#757575")); // Gris cuando deshabilitado
+				// Borde gris cuando está deshabilitado
+				android.graphics.drawable.GradientDrawable borderDisabledState = new android.graphics.drawable.GradientDrawable();
+				borderDisabledState.setColor(Color.parseColor("#FAFAFA"));
+				borderDisabledState.setStroke(4, Color.parseColor("#BDBDBD"));
+				borderDisabledState.setCornerRadius(6);
+				_textBoxCantidadPagada.setBackground(borderDisabledState);
+				_textBoxCantidadPagada.setPadding(12, 12, 12, 12);
 			}
 		});
 		
@@ -394,11 +582,9 @@ public class DepositManager extends Fragment implements  IMediator {
 		topLinearLayout2.removeAllViews();
 		topLinearLayout3.removeAllViews();
 
-		DepositManagerExtension.UI.addViewsToLayout(topLinearLayout, labelPago, _comboPago, _checkPagado,
-		labelCantidadPagada, _textBoxCantidadPagada, labelSeries, _comboSerie);
-
-		DepositManagerExtension.UI.addViewsToLayout(topLinearLayout2, labelFiliacion, _comboFiliacion, labelCopias,
-				_comboCopias, labelDescuento1, descuento1, labelDescuento2, descuento2);
+		// Todo en una sola fila (topLinearLayout)
+		DepositManagerExtension.UI.addViewsToLayout(topLinearLayout, _comboPago, pagadoContainer, _comboSerie,
+				_comboFiliacion, _comboCopias, descuento1Container, descuento2Container);
 
 		//DepositManagerExtension.UI.addViewsToLayout(topLinearLayout3, );
 
@@ -658,6 +844,10 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		try {
 
+			// Si _deposito ya está asignado (viene de WorkingArea), usarlo directamente
+			// y saltar la lógica de carga desde la base de datos
+			boolean depositoYaCargado = (_deposito != null);
+
 			// Busquem el número de dipòsits del client
 
 			Deposito deposito = Factory.build(Deposito.class, _appConfig);
@@ -668,64 +858,74 @@ public class DepositManager extends Fragment implements  IMediator {
 				ArrayList<Deposito> depositos = deposito
 						.getDepositosByCodigoCliente(String.valueOf(cliente.CodigoCliente));
 
-				if (_cliente != null && _cliente.CodigoCliente != null) {
-					if  (_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
+				// Solo cargar/crear el depósito si NO está ya cargado
+				if (!depositoYaCargado) {
+					if (_cliente != null && _cliente.CodigoCliente != null) {
+						if  (_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
+
+							if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
+								_appConfig.getMessageBox().Show("Información", "Se va a proceder a crear un cliente nuevo.",
+										this.getActivity(), MessageBoxType.Information);
+
+								_deposito = Factory.build(Deposito.class, _appConfig);
+								_deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
+								_deposito.assingFromCliente(_cliente);
+								_deposito.Lineas.clear();
+								_deposito.IsNtvDeposit = isNTV;
+								this.addPotentialArticles();
+
+							} else {
+								_appConfig.getMessageBox().Show("Advertencia",
+										"No se puede hacer un traspaso de un cliente nuevo. La operación va a ser cancelada",
+										this.getActivity(), MessageBoxType.Information);
+
+								_appConfig.getWorkingArea().TransferMode = TransferMode.None;
+
+								return;
+							}
+						}
+					}
+
+					if (depositos.size() == 0 && _cliente.CodigoCliente != null && !_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
 
 						if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
-							_appConfig.getMessageBox().Show("Información", "Se va a proceder a crear un cliente nuevo.",
-									this.getActivity(), MessageBoxType.Information);
 
 							_deposito = Factory.build(Deposito.class, _appConfig);
 							_deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
 							_deposito.assingFromCliente(_cliente);
-							_deposito.Lineas.clear();
 							_deposito.IsNtvDeposit = isNTV;
+
 							this.addPotentialArticles();
 
+							if (!_deposito.IsNtvDeposit) {
+								_appConfig.getMessageBox().Show("Información",
+										"El cliente " + cliente.Nombre
+												+ " no tiene ningún depósito. Se va a proceder a crear uno de nuevo",
+										this.getActivity(), MessageBoxType.Information);
+							}
 						} else {
 							_appConfig.getMessageBox().Show("Advertencia",
-									"No se puede hacer un traspaso de un cliente nuevo. La operación va a ser cancelada",
+									"No se puede hacer un traspaso de un cliente sin depósito asignado. La operación va a ser cancelada",
 									this.getActivity(), MessageBoxType.Information);
 
 							_appConfig.getWorkingArea().TransferMode = TransferMode.None;
 
 							return;
 						}
-					}
-				}
 
-				if (depositos.size() == 0 && _cliente.CodigoCliente != null && !_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
-
-					if (!_appConfig.getWorkingArea().TransferMode.equals(TransferMode.Old)) {
-
+					} else if (depositos.size() > 0 && _cliente.CodigoCliente != null && !_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
 						_deposito = Factory.build(Deposito.class, _appConfig);
-						_deposito.ClienteInfo = Factory.build(ClienteInfo.class, _appConfig);
+						_deposito.setFirstDepositoByCliente(cliente.CodigoCliente);
 						_deposito.assingFromCliente(_cliente);
 						_deposito.IsNtvDeposit = isNTV;
-
 						this.addPotentialArticles();
-
-						if (!_deposito.IsNtvDeposit) {
-							_appConfig.getMessageBox().Show("Información",
-									"El cliente " + cliente.Nombre
-											+ " no tiene ningún depósito. Se va a proceder a crear uno de nuevo",
-									this.getActivity(), MessageBoxType.Information);
-						}
-					} else {
-						_appConfig.getMessageBox().Show("Advertencia",
-								"No se puede hacer un traspaso de un cliente sin depósito asignado. La operación va a ser cancelada",
-								this.getActivity(), MessageBoxType.Information);
-
-						_appConfig.getWorkingArea().TransferMode = TransferMode.None;
-
-						return;
 					}
-
-				} else if (depositos.size() > 0 && _cliente.CodigoCliente != null && !_cliente.CodigoCliente.equals(ConstantsTypes.NEW_CUSTOMER_CODE)) {
-					_deposito = Factory.build(Deposito.class, _appConfig);
-					_deposito.setFirstDepositoByCliente(cliente.CodigoCliente);
+				} else {
+					// Si el depósito ya estaba cargado, aún necesitamos:
+					// 1. Asignar datos del cliente al depósito (puede que se hayan actualizado)
+					// 2. Agregar artículos potenciales
+					android.util.Log.d("DepositManager", "Depósito ya cargado, actualizando datos del cliente");
 					_deposito.assingFromCliente(_cliente);
-					_deposito.IsNtvDeposit = isNTV;
 					this.addPotentialArticles();
 				}
 			//} else {
@@ -1412,31 +1612,63 @@ public class DepositManager extends Fragment implements  IMediator {
 		final DepositManager that = this;
 
 		LinearLayout mainLinearLayout = this.getActivity().findViewById(R.id.headerMainLinearLayout7);
-		mainLinearLayout.removeAllViews();
 
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
-		boolean createHeaderLayout = (_headerLayout == null) || (_headerLayout.getChildCount() == 0);
+		boolean createHeaderLayout = (_headerLayout == null);
 		int color = Color.BLACK;  // Cambiado de WHITE a BLACK para visibilidad
 
+		LinearLayout fieldsContainer = null;
+		LinearLayout labelsRow = null;
+		LinearLayout fieldsRow = null;
+
 		if (createHeaderLayout) {
+			// _headerLayout es HORIZONTAL y contendrá el fieldsContainer centrado
 			_headerLayout = new LinearLayout(_appConfig);
 			_headerLayout.setOrientation(LinearLayout.HORIZONTAL);
+			_headerLayout.setGravity(Gravity.CENTER_HORIZONTAL);
+
+			// Contenedor vertical para las dos filas (labels y campos)
+			fieldsContainer = new LinearLayout(_appConfig);
+			fieldsContainer.setOrientation(LinearLayout.VERTICAL);
+			LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			fieldsContainer.setLayoutParams(containerParams);
+
+			// Fila de labels
+			labelsRow = new LinearLayout(_appConfig);
+			labelsRow.setOrientation(LinearLayout.HORIZONTAL);
+
+			// Fila de campos
+			fieldsRow = new LinearLayout(_appConfig);
+			fieldsRow.setOrientation(LinearLayout.HORIZONTAL);
+
+			fieldsContainer.addView(labelsRow);
+			fieldsContainer.addView(fieldsRow);
+			_headerLayout.addView(fieldsContainer);
 		} else {
-			getFieldFromContainer(_headerLayout, 1).setOnClickListener(null);
-			for (int i=3; i<9; i++) _headerLayout.setOnFocusChangeListener(null);
+			fieldsContainer = (LinearLayout) _headerLayout.getChildAt(0);
+			labelsRow = (LinearLayout) fieldsContainer.getChildAt(0);
+			fieldsRow = (LinearLayout) fieldsContainer.getChildAt(1);
+
+			// Limpiar listeners
+			View articuloField = fieldsRow.getChildAt(1);
+			if (articuloField != null) articuloField.setOnClickListener(null);
+			for (int i=3; i<9; i++) {
+				View field = fieldsRow.getChildAt(i);
+				if (field != null) field.setOnFocusChangeListener(null);
+			}
 		}
 
 		try {
 			LabelColor codigoArticulo = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 					lineaDeposito.Articulo.CodigoArticulo, TEXT_SIZE, 8, params, true)
-					: (LabelColor) getFieldFromContainer(_headerLayout, 0);
+					: (LabelColor) ((ViewGroup) fieldsRow.getChildAt(0)).getChildAt(0);
 			codigoArticulo.setText(lineaDeposito.Articulo.CodigoArticulo);
 
 			LabelColor articuloDescripcion = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 					lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion, TEXT_SIZE, 12,
 					params, true, lineaDeposito.Articulo)
-					: (LabelColor) getFieldFromContainer(_headerLayout, 1);
+					: (LabelColor) ((ViewGroup) fieldsRow.getChildAt(1)).getChildAt(0);
 			articuloDescripcion.setText(lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion);
 			articuloDescripcion.setTag(lineaDeposito.Articulo);
 
@@ -1444,13 +1676,13 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			LabelColor unidadesInicialesFijas = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 					String.valueOf(lineaDeposito.UnidadesInicialesFijas), TEXT_SIZE, 13, params, true, lineaDeposito)
-					: (LabelColor) getFieldFromContainer(_headerLayout, 2);
+					: (LabelColor) ((ViewGroup) fieldsRow.getChildAt(2)).getChildAt(0);
 			unidadesInicialesFijas.setText(String.valueOf(lineaDeposito.UnidadesInicialesFijas));
 			unidadesInicialesFijas.setTag(lineaDeposito);
 
 			TextBoxColor unidadesDevueltas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
 					String.valueOf(lineaDeposito.UnidadesDevueltas), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER ), params, true, lineaDeposito)
-					: (TextBoxColor) getFieldFromContainer(_headerLayout, 3);
+					: (TextBoxColor) ((ViewGroup) fieldsRow.getChildAt(3)).getChildAt(0);
 			unidadesDevueltas.setText(String.valueOf(lineaDeposito.UnidadesDevueltas));
 			unidadesDevueltas.setTag(lineaDeposito);
 
@@ -1493,7 +1725,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			TextBoxColor unidadesDefectuosas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
 					String.valueOf(lineaDeposito.UnidadesDefectuosas), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
-					: (TextBoxColor) getFieldFromContainer(_headerLayout, 4);
+					: (TextBoxColor) ((ViewGroup) fieldsRow.getChildAt(4)).getChildAt(0);
 			unidadesDefectuosas.setText(String.valueOf(lineaDeposito.UnidadesDefectuosas));
 			unidadesDefectuosas.setTag(lineaDeposito);
 
@@ -1544,7 +1776,7 @@ public class DepositManager extends Fragment implements  IMediator {
 			TextBoxColor pvp = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT,
 					DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP),
 					TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
-					: (TextBoxColor) getFieldFromContainer(_headerLayout, 5);
+					: (TextBoxColor) ((ViewGroup) fieldsRow.getChildAt(5)).getChildAt(0);
 			pvp.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP));
 			pvp.setTag(lineaDeposito);
 
@@ -1577,7 +1809,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			TextBoxColor unidadesFacturadas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.rgb(0, 128, 0), Gravity.LEFT,
 					String.valueOf(lineaDeposito.UnidadesFacturadas), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
-					: (TextBoxColor) getFieldFromContainer(_headerLayout, 6);
+					: (TextBoxColor) ((ViewGroup) fieldsRow.getChildAt(6)).getChildAt(0);
 			unidadesFacturadas.setText(String.valueOf(lineaDeposito.UnidadesFacturadas));
 			unidadesFacturadas.setTag(lineaDeposito);
 
@@ -1632,7 +1864,7 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			TextBoxColor unidadesRepuestas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT,
 					String.valueOf(lineaDeposito.UnidadesRepuestas), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
-					: (TextBoxColor) getFieldFromContainer(_headerLayout, 7);
+					: (TextBoxColor) ((ViewGroup) fieldsRow.getChildAt(7)).getChildAt(0);
 			unidadesRepuestas.setText(String.valueOf(lineaDeposito.UnidadesRepuestas));
 			unidadesRepuestas.setTag(lineaDeposito);
 
@@ -1666,7 +1898,7 @@ public class DepositManager extends Fragment implements  IMediator {
 			TextBoxColor pvpAnterior = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT,
 					DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAnterior),
 					TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
-					: (TextBoxColor) getFieldFromContainer(_headerLayout, 8);
+					: (TextBoxColor) ((ViewGroup) fieldsRow.getChildAt(8)).getChildAt(0);
 			pvpAnterior.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAnterior));
 			pvpAnterior.setTag(lineaDeposito);
 
@@ -1700,78 +1932,31 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			LabelColor totalLinea = createHeaderLayout ? DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 					String.valueOf(DepositManagerExtension.Format.round(total, 2)), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 13, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
-					: (LabelColor) getFieldFromContainer(_headerLayout, 9);
+					: (LabelColor) ((ViewGroup) fieldsRow.getChildAt(9)).getChildAt(0);
 
 			totalLinea.setText(String.valueOf(DepositManagerExtension.Format.round(total, 2)));
 			totalLinea.setTag(lineaDeposito);
 
-			// Botón Abono
-// Switch para VENTA/ABONO
-		LinearLayout switchContainer = new LinearLayout(getActivity());
-		switchContainer.setOrientation(LinearLayout.HORIZONTAL);
-		switchContainer.setGravity(Gravity.CENTER_VERTICAL);
-		
-		LayoutParams containerParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		containerParams.setMargins(4, 2, 8, 2);
-		switchContainer.setLayoutParams(containerParams);
-		
-		// Label que muestra el modo actual
-		final TextView modoLabel = new TextView(getActivity());
-		modoLabel.setText(_abonoMode ? "ABONO" : "VENTA");
-		modoLabel.setTextSize(10);
-		modoLabel.setTextColor(_abonoMode ? Color.parseColor("#F44336") : Color.parseColor("#4CAF50"));
-		modoLabel.setTypeface(null, android.graphics.Typeface.BOLD);
-		modoLabel.setPadding(4, 0, 8, 0);
-		
-		// Switch
-		android.widget.Switch switchModo = new android.widget.Switch(getActivity());
-		switchModo.setChecked(!_abonoMode); // Checked = VENTA
-		
-		switchModo.setOnCheckedChangeListener((buttonView, isChecked) -> {
-			_abonoMode = !isChecked;
-			
-			// Actualizar el label
-			if (isChecked) {
-				// VENTA mode (checked)
-				modoLabel.setText("VENTA");
-				modoLabel.setTextColor(Color.parseColor("#4CAF50")); // Verde
-			} else {
-				// ABONO mode (unchecked)
-				modoLabel.setText("ABONO");
-				modoLabel.setTextColor(Color.parseColor("#F44336")); // Rojo
-			}
-			
-			// Actualizar la línea seleccionada
-			try {
-				refreshLayout(lineaDeposito, true);
-			} catch (Exception e) {
-				android.util.Log.e("DepositManager", "Error refrescando layout: " + e.getMessage());
-			}
-		});
-		
-		switchContainer.addView(modoLabel);
-		switchContainer.addView(switchModo);
-		
-		switchContainer.setVisibility(_modalidad == DepositoModalidad.Edicards ?
-				View.INVISIBLE : View.VISIBLE);
-
 	if (createHeaderLayout) {
-
-		DepositManagerExtension.UI.addViewsToLayout(_headerLayout,
-				createFieldContainer("Código", codigoArticulo),
-				createFieldContainer("Artículo", articuloDescripcion),
-				createFieldContainer("Dep.Ini", unidadesInicialesFijas),
-				createFieldContainer("Contadas", unidadesDevueltas),
-				createFieldContainer("Reciclado", unidadesDefectuosas),
-				createFieldContainer("PVP", pvp),
-				createFieldContainer("Facturadas", unidadesFacturadas),
-				createFieldContainer("Repuestas", unidadesRepuestas),
-				createFieldContainer("PVP Post.", pvpAnterior),
-				createFieldContainer("Total", totalLinea),
-				switchContainer);
+		// Agregar campos con alineación perfecta usando weights
+		addAlignedField(labelsRow, fieldsRow, "Código", codigoArticulo, 0.8f);
+		addAlignedField(labelsRow, fieldsRow, "Artículo", articuloDescripcion, 1.5f);
+		addAlignedField(labelsRow, fieldsRow, "Dep.Ini", unidadesInicialesFijas, 0.8f);
+		addAlignedField(labelsRow, fieldsRow, "Contadas", unidadesDevueltas, 0.8f);
+		addAlignedField(labelsRow, fieldsRow, "Reciclado", unidadesDefectuosas, 0.8f);
+		addAlignedField(labelsRow, fieldsRow, "PVP", pvp, 0.8f);
+		addAlignedField(labelsRow, fieldsRow, "Facturadas", unidadesFacturadas, 0.9f);
+		addAlignedField(labelsRow, fieldsRow, "Dep. Final", unidadesRepuestas, 0.9f);
+		addAlignedField(labelsRow, fieldsRow, "PVP Post.", pvpAnterior, 0.8f);
+		addAlignedField(labelsRow, fieldsRow, "Total", totalLinea, 0.8f);
 	}
-			mainLinearLayout.addView(_headerLayout);
-			_textBoxColorRequestFocus = unidadesDefectuosas;
+
+	// Solo limpiar y re-agregar cuando creamos por primera vez
+	if (createHeaderLayout) {
+		mainLinearLayout.removeAllViews();
+		mainLinearLayout.addView(_headerLayout);
+	}
+	_textBoxColorRequestFocus = unidadesDefectuosas;
 
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -1783,42 +1968,73 @@ public class DepositManager extends Fragment implements  IMediator {
 		final DepositManager that = this;
 
 		LinearLayout mainLinearLayout = this.getActivity().findViewById(R.id.headerMainLinearLayout7);
-		mainLinearLayout.removeAllViews();
 
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
-		boolean createHeaderLayout = _headerAbonoLayout	 == null;
+		boolean createHeaderLayout = _headerAbonoLayout == null;
 		int color = Color.BLACK;  // Cambiado de WHITE a BLACK para visibilidad
 
+		LinearLayout fieldsContainerAbono = null;
+		LinearLayout labelsRowAbono = null;
+		LinearLayout fieldsRowAbono = null;
+
 		if (createHeaderLayout) {
+			// _headerAbonoLayout es HORIZONTAL y contendrá el fieldsContainer centrado
 			_headerAbonoLayout = new LinearLayout(_appConfig);
 			_headerAbonoLayout.setOrientation(LinearLayout.HORIZONTAL);
+			_headerAbonoLayout.setGravity(Gravity.CENTER_HORIZONTAL);
+
+			// Contenedor vertical para las dos filas (labels y campos)
+			fieldsContainerAbono = new LinearLayout(_appConfig);
+			fieldsContainerAbono.setOrientation(LinearLayout.VERTICAL);
+			LinearLayout.LayoutParams containerAbonoParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			fieldsContainerAbono.setLayoutParams(containerAbonoParams);
+
+			// Fila de labels
+			labelsRowAbono = new LinearLayout(_appConfig);
+			labelsRowAbono.setOrientation(LinearLayout.HORIZONTAL);
+
+			// Fila de campos
+			fieldsRowAbono = new LinearLayout(_appConfig);
+			fieldsRowAbono.setOrientation(LinearLayout.HORIZONTAL);
+
+			fieldsContainerAbono.addView(labelsRowAbono);
+			fieldsContainerAbono.addView(fieldsRowAbono);
+			_headerAbonoLayout.addView(fieldsContainerAbono);
 		} else {
-			getFieldFromContainer(_headerAbonoLayout, 1).setOnClickListener(null);
-			for (int i=3; i<8; i++) _headerAbonoLayout.setOnFocusChangeListener(null);
+			fieldsContainerAbono = (LinearLayout) _headerAbonoLayout.getChildAt(0);
+			labelsRowAbono = (LinearLayout) fieldsContainerAbono.getChildAt(0);
+			fieldsRowAbono = (LinearLayout) fieldsContainerAbono.getChildAt(1);
+
+			// Limpiar listeners
+			View articuloField = ((ViewGroup) fieldsRowAbono.getChildAt(1)).getChildAt(0);
+			if (articuloField != null) articuloField.setOnClickListener(null);
+			for (int i=2; i<5; i++) {
+				ViewGroup wrapper = (ViewGroup) fieldsRowAbono.getChildAt(i);
+				if (wrapper != null && wrapper.getChildCount() > 0) {
+					View field = wrapper.getChildAt(0);
+					if (field != null) field.setOnFocusChangeListener(null);
+				}
+			}
 		}
 
 		LabelColor codigoArticulo = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				lineaDeposito.Articulo.CodigoArticulo, TEXT_SIZE, 8, params, true)
-				: (LabelColor) getFieldFromContainer(_headerAbonoLayout, 0);
+				: (LabelColor) ((ViewGroup) fieldsRowAbono.getChildAt(0)).getChildAt(0);
 		codigoArticulo.setText(lineaDeposito.Articulo.CodigoArticulo);
 
 		LabelColor articuloDescripcion = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion + " (Abono) ", TEXT_SIZE, 13,
 						params, true, lineaDeposito.Articulo)
-				: (LabelColor) getFieldFromContainer(_headerAbonoLayout, 1);
+				: (LabelColor) ((ViewGroup) fieldsRowAbono.getChildAt(1)).getChildAt(0);
 		articuloDescripcion.setText((lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion));
 		articuloDescripcion.setTag(lineaDeposito.Articulo);
 
 		articuloDescripcion.setOnClickListener(v -> DepositManagerExtension.Dialogs.StartArticuloDialog((Articulo) v.getTag(), that));
 
-		LabelColor labelCantidadAbono = createHeaderLayout ?  DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"Cantidad", TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true)
-				: (LabelColor) getFieldFromContainer(_headerAbonoLayout, 2);
-
 		TextBoxColor unidadesAbono =  createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
 				String.valueOf(lineaDeposito.UnidadesAbono), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true, lineaDeposito)
-				: (TextBoxColor) getFieldFromContainer(_headerAbonoLayout, 3);
+				: (TextBoxColor) ((ViewGroup) fieldsRowAbono.getChildAt(2)).getChildAt(0);
 		unidadesAbono.setText(String.valueOf(lineaDeposito.UnidadesAbono));
 		unidadesAbono.setTag(lineaDeposito);
 
@@ -1865,14 +2081,9 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		});
 
-		LabelColor labelDefectuosasAbono =  createHeaderLayout ? DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"Defect.", TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true)
-				: (LabelColor) getFieldFromContainer(_headerAbonoLayout, 4);
-
-		
 		TextBoxColor defectuosasAbono = createHeaderLayout ?  DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
 				String.valueOf(lineaDeposito.DefectuosasAbono), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true, lineaDeposito)
-				: (TextBoxColor) getFieldFromContainer(_headerAbonoLayout, 5);
+				: (TextBoxColor) ((ViewGroup) fieldsRowAbono.getChildAt(3)).getChildAt(0);
 		defectuosasAbono.setText(String.valueOf(lineaDeposito.DefectuosasAbono));
 		defectuosasAbono.setTag(lineaDeposito);
 
@@ -1920,13 +2131,9 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		});
 		
-		LabelColor labelPVPAbono = createHeaderLayout ?  DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
-				"PVP", TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true)
-				: (LabelColor) getFieldFromContainer(_headerAbonoLayout, 6);
-		
 		TextBoxColor pvpAbono =  createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
 				DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAbono), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true, lineaDeposito)
-				: (TextBoxColor) getFieldFromContainer(_headerAbonoLayout, 7);
+				: (TextBoxColor) ((ViewGroup) fieldsRowAbono.getChildAt(4)).getChildAt(0);
 		pvpAbono.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAbono));
 		pvpAbono.setTag(lineaDeposito);
 
@@ -1956,73 +2163,30 @@ public class DepositManager extends Fragment implements  IMediator {
 		});
 
 		double totalAbonoImporte = lineaDeposito.TotalAbono;
-		
+
 		LabelColor totalAbono =  createHeaderLayout ?  DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.RIGHT, InputType.TYPE_CLASS_NUMBER,
 				DepositManagerExtension.Format.CurrencyFormat(totalAbonoImporte), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true)
-				: (LabelColor) getFieldFromContainer(_headerAbonoLayout, 8);
+				: (LabelColor) ((ViewGroup) fieldsRowAbono.getChildAt(5)).getChildAt(0);
 		totalAbono.setText(DepositManagerExtension.Format.CurrencyFormat(totalAbonoImporte));
 		totalAbono.setTag(lineaDeposito);
-				
-	// Switch para VENTA/ABONO
-	LinearLayout switchContainerAbono = new LinearLayout(getActivity());
-	switchContainerAbono.setOrientation(LinearLayout.HORIZONTAL);
-	switchContainerAbono.setGravity(Gravity.CENTER_VERTICAL);
-
-	LayoutParams containerParamsAbono = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-	containerParamsAbono.setMargins(4, 2, 8, 2);
-	switchContainerAbono.setLayoutParams(containerParamsAbono);
-
-	// Label que muestra el modo actual
-	final TextView modoLabelAbono = new TextView(getActivity());
-	modoLabelAbono.setText(_abonoMode ? "ABONO" : "VENTA");
-	modoLabelAbono.setTextSize(10);
-	modoLabelAbono.setTextColor(_abonoMode ? Color.parseColor("#F44336") : Color.parseColor("#4CAF50"));
-	modoLabelAbono.setTypeface(null, android.graphics.Typeface.BOLD);
-	modoLabelAbono.setPadding(4, 0, 8, 0);
-
-	// Switch
-	android.widget.Switch switchModoAbono = new android.widget.Switch(getActivity());
-	switchModoAbono.setChecked(!_abonoMode); // Checked = VENTA
-
-	switchModoAbono.setOnCheckedChangeListener((buttonView, isChecked) -> {
-		_abonoMode = !isChecked;
-
-		// Actualizar el label
-		if (isChecked) {
-			// VENTA mode (checked)
-			modoLabelAbono.setText("VENTA");
-			modoLabelAbono.setTextColor(Color.parseColor("#4CAF50")); // Verde
-		} else {
-			// ABONO mode (unchecked)
-			modoLabelAbono.setText("ABONO");
-			modoLabelAbono.setTextColor(Color.parseColor("#F44336")); // Rojo
-		}
-
-		// Actualizar la línea seleccionada
-		try {
-			refreshLayout(lineaDeposito, true);
-		} catch (Exception e) {
-			android.util.Log.e("DepositManager", "Error refrescando layout: " + e.getMessage());
-		}
-	});
-
-	switchContainerAbono.addView(modoLabelAbono);
-	switchContainerAbono.addView(switchModoAbono);
 
 if (createHeaderLayout) {
-
-	DepositManagerExtension.UI.addViewsToLayout(_headerAbonoLayout,
-			createFieldContainer("Código", codigoArticulo),
-			createFieldContainer("Artículo", articuloDescripcion),
-			createFieldContainer("Cantidad", unidadesAbono),
-			createFieldContainer("Defect.", defectuosasAbono),
-			createFieldContainer("PVP", pvpAbono),
-			createFieldContainer("Total", totalAbono),
-			switchContainerAbono);
+	// Agregar campos con alineación perfecta usando weights
+	// Weights aumentados para aprovechar mejor el espacio en modo ABONO
+	addAlignedField(labelsRowAbono, fieldsRowAbono, "Código", codigoArticulo, 1.0f);
+	addAlignedField(labelsRowAbono, fieldsRowAbono, "Artículo", articuloDescripcion, 2.5f);
+	addAlignedField(labelsRowAbono, fieldsRowAbono, "Cantidad", unidadesAbono, 1.2f);
+	addAlignedField(labelsRowAbono, fieldsRowAbono, "Defect.", defectuosasAbono, 1.0f);
+	addAlignedField(labelsRowAbono, fieldsRowAbono, "PVP", pvpAbono, 1.0f);
+	addAlignedField(labelsRowAbono, fieldsRowAbono, "Total", totalAbono, 1.0f);
 }
 
-		mainLinearLayout.addView(_headerAbonoLayout);
-		_textBoxColorRequestFocus = defectuosasAbono;
+
+		// Solo limpiar y re-agregar cuando creamos por primera vez
+		if (createHeaderLayout) {
+			mainLinearLayout.removeAllViews();
+			mainLinearLayout.addView(_headerAbonoLayout);
+		}
 
 	}
 
@@ -2034,6 +2198,85 @@ if (createHeaderLayout) {
 		if (visible) {
 			setupHeaderToggle();
 		}
+	}
+
+	private void setupModoSwitch() {
+		LinearLayout headerTitleLayout = this.getActivity().findViewById(R.id.headerTitleLayout);
+		if (headerTitleLayout == null) {
+			android.util.Log.e("DepositManager", "headerTitleLayout es NULL!");
+			return;
+		}
+
+		// Verificar si el switch ya existe (no agregarlo múltiples veces)
+		if (headerTitleLayout.getChildCount() > 1) {
+			android.util.Log.d("DepositManager", "Switch ya existe, childCount: " + headerTitleLayout.getChildCount());
+			return;
+		}
+
+		android.util.Log.d("DepositManager", "Agregando switch al header...");
+
+		// Crear contenedor del switch
+		LinearLayout switchContainer = new LinearLayout(getActivity());
+		switchContainer.setOrientation(LinearLayout.HORIZONTAL);
+		switchContainer.setGravity(Gravity.CENTER_VERTICAL);
+
+		LayoutParams containerParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		containerParams.setMargins(8, 0, 8, 0);
+		switchContainer.setLayoutParams(containerParams);
+
+		// Label que muestra el modo actual - BLANCO para verse sobre fondo azul
+		final TextView modoLabel = new TextView(getActivity());
+		modoLabel.setText(_abonoMode ? "ABONO" : "VENTA");
+		modoLabel.setTextSize(13);
+		modoLabel.setTextColor(Color.WHITE); // BLANCO para contrastar con el azul
+		modoLabel.setTypeface(null, android.graphics.Typeface.BOLD);
+		modoLabel.setPadding(4, 0, 12, 0);
+
+		// Switch - con colores visibles
+		android.widget.Switch switchModo = new android.widget.Switch(getActivity());
+		switchModo.setChecked(!_abonoMode); // Checked = VENTA
+
+		// Hacer el switch más grande y visible
+		switchModo.setScaleX(1.2f);
+		switchModo.setScaleY(1.2f);
+
+		switchModo.setOnCheckedChangeListener((buttonView, isChecked) -> {
+			_abonoMode = !isChecked;
+
+			// Actualizar el label - mantener blanco
+			if (isChecked) {
+				// VENTA mode (checked)
+				modoLabel.setText("VENTA");
+			} else {
+				// ABONO mode (unchecked)
+				modoLabel.setText("ABONO");
+			}
+
+			// Resetear headers para forzar recreación del layout con los campos correctos
+			resetHeaders();
+
+			// Buscar el artículo seleccionado y repintarlo en el nuevo modo
+			try {
+				for (LineaDeposito linea : _currentLines) {
+					if (linea.IsSelected) {
+						// Repintar el artículo seleccionado con el nuevo modo
+						if (_abonoMode)
+							addLineHeaderAbono(linea);
+						else
+							addLineHeader(linea);
+						break;
+					}
+				}
+			} catch (Exception e) {
+				android.util.Log.e("DepositManager", "Error al cambiar modo: " + e.getMessage());
+			}
+		});
+
+		switchContainer.addView(modoLabel);
+		switchContainer.addView(switchModo);
+
+		// Agregar el switch al header azul fijo
+		headerTitleLayout.addView(switchContainer);
 	}
 
 	private void showArticlesGrid(boolean visible) {
@@ -2076,6 +2319,40 @@ if (createHeaderLayout) {
 		container.addView(field);
 
 		return container;
+	}
+
+	// Método helper para agregar campo con label alineado en dos filas
+	private void addAlignedField(LinearLayout labelsRow, LinearLayout fieldsRow, String labelText, View field, float weight) {
+		// Crear label centrado
+		TextView label = new TextView(_appConfig);
+		label.setText(labelText);
+		label.setTextSize(8);
+		label.setTextColor(Color.parseColor("#757575")); // Gris
+		label.setGravity(Gravity.CENTER);
+
+		LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT);
+		labelParams.weight = weight;
+		labelParams.setMargins(2, 0, 2, 2);
+		label.setLayoutParams(labelParams);
+
+		labelsRow.addView(label);
+
+		// Crear contenedor para centrar el campo horizontalmente
+		LinearLayout fieldWrapper = new LinearLayout(_appConfig);
+		fieldWrapper.setOrientation(LinearLayout.HORIZONTAL);
+		fieldWrapper.setGravity(Gravity.CENTER_HORIZONTAL);
+
+		LinearLayout.LayoutParams wrapperParams = new LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT);
+		wrapperParams.weight = weight;
+		wrapperParams.setMargins(2, 0, 2, 0);
+		fieldWrapper.setLayoutParams(wrapperParams);
+
+		// El campo ya no necesita layout params con weight, solo wrap_content
+		LinearLayout.LayoutParams fieldParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		field.setLayoutParams(fieldParams);
+
+		fieldWrapper.addView(field);
+		fieldsRow.addView(fieldWrapper);
 	}
 
 	// Helper para extraer el campo de un container creado por createFieldContainer
@@ -2184,6 +2461,7 @@ if (createHeaderLayout) {
 	}
 	private void resetDepositData() {
 		_abonoMode = false;
+		_deposito = null;
 		_appConfig.getWorkingArea().CurrentCliente = null;
 		_appConfig.getWorkingArea().CurrentDeposito = null;
 		this._articles.clear();
@@ -2240,12 +2518,42 @@ if (createHeaderLayout) {
 
 			case "EventCloseOperation" : {
 
+				// Verificar que CurrentHistorico no sea null
+				if (_appConfig.getWorkingArea().CurrentHistorico == null) {
+					_appConfig.getMessageBox().Show("Cierre de operación",
+							"Se ha producido un error al cerrar la operación. No se encontró el histórico de la transacción.",
+							this.getActivity(), MessageBoxType.Error);
+					android.util.Log.e("DepositManager", "EventCloseOperation: CurrentHistorico es null");
+					return;
+				}
+
 				if (_appConfig.getWorkingArea().CurrentHistorico.GUID == null) {
 					_appConfig.getMessageBox().Show("Cierre de operación",
 							"Se ha producido un error al cerrar la operación. Contacte con el servicio técnico",
 							this.getActivity(), MessageBoxType.Information);
 					return;
 				}
+
+				// IMPORTANTE: Verificar si _deposito es null (puede pasar si el fragmento se recreó
+				// durante el proceso de firmas pero onResume() aún no se ejecutó)
+				// En ese caso, intentar recuperarlo desde WorkingArea
+				if (_deposito == null) {
+					android.util.Log.w("DepositManager", "EventCloseOperation: _deposito es null, intentando recuperar desde WorkingArea");
+
+					if (_appConfig.getWorkingArea().CurrentDeposito != null) {
+						_deposito = _appConfig.getWorkingArea().CurrentDeposito;
+						_cliente = _appConfig.getWorkingArea().CurrentCliente;
+						android.util.Log.d("DepositManager", "EventCloseOperation: Depósito recuperado desde WorkingArea");
+					} else {
+						// Si WorkingArea también está vacío, no podemos continuar
+						_appConfig.getMessageBox().Show("Cierre de operación",
+								"Error al recuperar el depósito. Por favor, intente nuevamente.",
+								this.getActivity(), MessageBoxType.Error);
+						android.util.Log.e("DepositManager", "EventCloseOperation: No se pudo recuperar depósito desde WorkingArea");
+						return;
+					}
+				}
+
 				this.printDeposito(payload.toString());
 				closeOperation();
 				resetDepositData();

@@ -479,14 +479,28 @@ public class DepositManagerExtension {
 		}
 	
 		public static void StartSignatureCustomerDialog(Fragment fragment) {
+			AppConfig appConfig = (AppConfig) fragment.getActivity().getApplicationContext();
 			Intent intent = new Intent(fragment.getActivity(), SignatureCustomer.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+			// Pasar el GUID como extra para que sobreviva a la recreación del proceso
+			if (appConfig.getWorkingArea().CurrentHistorico != null) {
+				intent.putExtra("GUID", appConfig.getWorkingArea().CurrentHistorico.GUID);
+			}
+
 			fragment.startActivityForResult(intent, 1);
 		}
 	
 		public static void StartSignatureVendorDialog(Fragment fragment) {
+			AppConfig appConfig = (AppConfig) fragment.getActivity().getApplicationContext();
 			Intent intent = new Intent(fragment.getActivity(), SignatureVendor.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+			// Pasar el GUID como extra para que sobreviva a la recreación del proceso
+			if (appConfig.getWorkingArea().CurrentHistorico != null) {
+				intent.putExtra("GUID", appConfig.getWorkingArea().CurrentHistorico.GUID);
+			}
+
 			fragment.startActivityForResult(intent, 1);
 		}
 		

@@ -385,6 +385,9 @@ public class RutasViewerFragment extends Fragment {
 		}
 		listViewRutas.setAdapter(adapter);
 
+			// Restaurar posición guardada (bookmark)
+			restaurarPosicionGuardada();
+
 			// Habilitar drag & drop en el ListView
 			configurarDragAndDrop();
 
@@ -777,8 +780,9 @@ public class RutasViewerFragment extends Fragment {
 		// Obtener todos los días de visita de clientes (excluyendo NULL y BASE)
 		java.util.List<Integer> diasVisitas = new java.util.ArrayList<>();
 		for (RutaGenerada ruta : rutaFiltrada) {
-			// Saltar el cliente BASE (posición 0)
-			if (rutaFiltrada.indexOf(ruta) == 0) continue;
+			// Saltar el cliente BASE (OrdenVisita 1)
+			// IMPORTANTE: No usar posición, porque puede cambiar con ordenaciones/filtros
+			if (ruta.OrdenVisita == 1) continue;
 
 			InfoUltimaVisita info = getInfoUltimaVisita(ruta.CodigoCliente);
 			if (info != null && info.dias >= 0) {
@@ -873,10 +877,18 @@ public class RutasViewerFragment extends Fragment {
 
 			// Configurar botones de reordenación
 			final int currentPosition = position;
-			boolean esClienteBase = (position == 0); // El primer cliente es la BASE
+			// IMPORTANTE: Identificar BASE por OrdenVisita, no por position
+			// Cuando se aplican filtros, el BASE puede no estar en position 0
+			boolean esClienteBase = (ruta.OrdenVisita == 1); // OrdenVisita 1 es siempre la BASE
 
-			// Botón mover arriba - deshabilitado para BASE y para el primero
-			if (esClienteBase || position == 0) {
+			// Botón mover arriba - deshabilitado para BASE
+			// No permitir mover BASE ni mover items hacia BASE
+			boolean hayItemArribaEsBase = false;
+			if (position > 0) {
+				RutaGenerada itemArriba = rutas.get(position - 1);
+				hayItemArribaEsBase = (itemArriba.OrdenVisita == 1);
+			}
+			if (esClienteBase || position == 0 || hayItemArribaEsBase) {
 				btnMoverArriba.setEnabled(false);
 				btnMoverArriba.setAlpha(0.3f);
 			} else {
@@ -891,7 +903,13 @@ public class RutasViewerFragment extends Fragment {
 			}
 
 			// Botón mover abajo - deshabilitado para BASE y para el último
-			if (esClienteBase || position == rutas.size() - 1) {
+			// No permitir mover BASE ni mover items hacia BASE
+			boolean hayItemAbajoEsBase = false;
+			if (position < rutas.size() - 1) {
+				RutaGenerada itemAbajo = rutas.get(position + 1);
+				hayItemAbajoEsBase = (itemAbajo.OrdenVisita == 1);
+			}
+			if (esClienteBase || position == rutas.size() - 1 || hayItemAbajoEsBase) {
 				btnMoverAbajo.setEnabled(false);
 				btnMoverAbajo.setAlpha(0.3f);
 			} else {
@@ -999,7 +1017,7 @@ public class RutasViewerFragment extends Fragment {
 				btnFavorito.setVisibility(android.view.View.GONE);
 			}
 
-			// Si es el cliente BASE (posición 0), no aplicar colores ni mostrar info de visita
+			// Si es el cliente BASE (OrdenVisita == 1), no aplicar colores ni mostrar info de visita
 			if (esClienteBase) {
 				// Cliente BASE: fondo blanco, sin información de visitas
 				convertView.setBackgroundColor(0xFFFFFFFF); // Blanco
@@ -1049,6 +1067,9 @@ public class RutasViewerFragment extends Fragment {
 			btnVerFicha.setOnClickListener(new android.view.View.OnClickListener() {
 				@Override
 				public void onClick(android.view.View v) {
+					// Guardar posición como bookmark
+					guardarPosicionCliente(currentPosition);
+
 					Intent intent = new Intent(getActivity(), FichaClienteDialog.class);
 					intent.putExtra("codigoCliente", ruta.CodigoCliente);
 					startActivity(intent);
@@ -1059,6 +1080,9 @@ public class RutasViewerFragment extends Fragment {
 			convertView.setOnClickListener(new android.view.View.OnClickListener() {
 				@Override
 				public void onClick(android.view.View v) {
+					// Guardar posición como bookmark
+					guardarPosicionCliente(currentPosition);
+
 					Intent intent = new Intent(getActivity(), FichaClienteDialog.class);
 					intent.putExtra("codigoCliente", ruta.CodigoCliente);
 					startActivity(intent);
@@ -1363,12 +1387,12 @@ public class RutasViewerFragment extends Fragment {
 			if (txtBuscador != null && txtBuscador.getText().toString().trim().length() > 0) {
 				filtrarRutas(txtBuscador.getText().toString());
 			} else {
+				// Recrear rutaFiltrada con la lista ordenada
 				rutaFiltrada = new ArrayList<>(rutaActual);
-			}
 
-			// Notificar al adapter que los datos han cambiado
-			if (adapter != null) {
-				adapter.notifyDataSetChanged();
+				// IMPORTANTE: Recrear el adapter para que use la nueva lista
+				adapter = new RutaAdapter(getActivity(), rutaFiltrada);
+				listViewRutas.setAdapter(adapter);
 			}
 
 			// Actualizar el mapa si está visible
@@ -1519,11 +1543,19 @@ public class RutasViewerFragment extends Fragment {
 	 */
 	private void moverItemDragDrop(int fromPosition, int toPosition) {
 		if (rutaFiltrada == null || rutaActual == null) return;
-		if (fromPosition == 0 || toPosition == 0) return; // No mover BASE
 
 		try {
-			// Obtener el item que vamos a mover
+			// Obtener los items involucrados
 			RutaGenerada itemAMover = rutaFiltrada.get(fromPosition);
+			RutaGenerada itemDestino = rutaFiltrada.get(toPosition);
+
+			// No permitir mover la BASE o mover items hacia/desde la BASE
+			if (itemAMover.OrdenVisita == 1 || itemDestino.OrdenVisita == 1) {
+				android.widget.Toast.makeText(getActivity(),
+					"No se puede mover el punto BASE",
+					android.widget.Toast.LENGTH_SHORT).show();
+				return;
+			}
 
 			// Remover de la posición original
 			rutaFiltrada.remove(fromPosition);
@@ -1879,5 +1911,58 @@ public class RutasViewerFragment extends Fragment {
 		super.onPause();
 		// Desregistrar el receiver
 		LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(zonaAsignadaReceiver);
+	}
+
+	/**
+	 * Guarda la posición actual del cliente en SharedPreferences como bookmark
+	 */
+	private void guardarPosicionCliente(int position) {
+		try {
+			android.content.SharedPreferences prefs = getActivity().getSharedPreferences(
+				"RutasPreferences", Context.MODE_PRIVATE);
+			android.content.SharedPreferences.Editor editor = prefs.edit();
+			editor.putInt("ultima_posicion_ruta", position);
+			editor.apply();
+
+			android.util.Log.d("RutasViewerFragment", "Posición guardada: " + position);
+		} catch (Exception e) {
+			android.util.Log.w("RutasViewerFragment", "Error guardando posición: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Restaura la posición guardada en el ListView
+	 */
+	private void restaurarPosicionGuardada() {
+		try {
+			android.content.SharedPreferences prefs = getActivity().getSharedPreferences(
+				"RutasPreferences", Context.MODE_PRIVATE);
+			final int posicionGuardada = prefs.getInt("ultima_posicion_ruta", -1);
+
+			if (posicionGuardada >= 0 && rutaFiltrada != null && posicionGuardada < rutaFiltrada.size()) {
+				// Usar post para asegurar que el ListView está completamente renderizado
+				listViewRutas.post(new Runnable() {
+					@Override
+					public void run() {
+						// Posicionar el item guardado al principio de la vista (con un pequeño offset)
+						listViewRutas.setSelection(posicionGuardada);
+
+						// Alternativa más suave: centrar el item en la vista
+						// listViewRutas.smoothScrollToPosition(posicionGuardada);
+
+						android.util.Log.d("RutasViewerFragment", "Posición restaurada: " + posicionGuardada);
+
+						// Opcional: mostrar un toast breve indicando que se restauró la posición
+						if (getActivity() != null) {
+							android.widget.Toast.makeText(getActivity(),
+								"Posición restaurada: Cliente #" + (posicionGuardada + 1),
+								android.widget.Toast.LENGTH_SHORT).show();
+						}
+					}
+				});
+			}
+		} catch (Exception e) {
+			android.util.Log.w("RutasViewerFragment", "Error restaurando posición: " + e.getMessage());
+		}
 	}
 }

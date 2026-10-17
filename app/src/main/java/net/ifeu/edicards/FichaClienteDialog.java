@@ -318,18 +318,20 @@ public class FichaClienteDialog extends Activity {
 			android.util.Log.d("FichaClienteDialog", "Depósito actual: " + depositoActual.NumDoc);
 			android.util.Log.d("FichaClienteDialog", "Cliente: " + cliente.CodigoCliente);
 
-			// Cargar el depósito y cliente en el WorkingArea
-			appConfig.getWorkingArea().CurrentDeposito = depositoActual;
+			// IMPORTANTE: Asignar TANTO el cliente COMO el depósito al WorkingArea
+			// DepositManager usará estos objetos ya cargados en lugar de crear nuevos
 			appConfig.getWorkingArea().CurrentCliente = cliente;
+			appConfig.getWorkingArea().CurrentDeposito = depositoActual;
 
-			android.util.Log.d("FichaClienteDialog", "WorkingArea cargado, enviando evento");
+			android.util.Log.d("FichaClienteDialog", "Cliente y depósito asignados al WorkingArea");
+			android.util.Log.d("FichaClienteDialog", "Depósito: " + depositoActual.NumDoc + ", Cliente: " + cliente.CodigoCliente);
 
-			// Enviar evento para que MainMenu abra la pestaña de depósitos con DepositManager
+			// Enviar evento para cambiar a la pestaña de depósitos
 			appConfig.getMediator().notify(net.ifeu.edicards.Constants.ConstantsEvents.EVENT_OPEN_DEPOSIT, null);
 
-			android.util.Log.d("FichaClienteDialog", "Evento enviado, cerrando diálogo");
+			android.util.Log.d("FichaClienteDialog", "Cerrando diálogo");
 
-			// Cerrar este diálogo para volver al menú principal
+			// Cerrar este diálogo
 			finish();
 
 			android.util.Log.d("FichaClienteDialog", "editarDeposito() completado");

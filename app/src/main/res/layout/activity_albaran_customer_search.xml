@@ -131,61 +131,104 @@
                 android:padding="6dp"/>
         </RadioGroup>
 
-        <!-- Botones de acción -->
+        <!-- Botones de acción - Compactos en una fila -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:weightSum="4">
 
-            <net.ifeu.library.Controls.ButtonColor
-                android:id="@+id/btnAccept"
-                android:layout_width="match_parent"
+            <!-- Buscar Cliente -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="🔍  Buscar Cliente"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:background="#4CAF50"
-                android:padding="14dp"
-                android:layout_marginBottom="10dp"
-                android:elevation="2dp"/>
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginEnd="4dp">
 
-            <net.ifeu.library.Controls.ButtonColor
-                android:id="@+id/btnNewCustomer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="➕  Nuevo Cliente"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:background="#2196F3"
-                android:padding="14dp"
-                android:layout_marginBottom="10dp"
-                android:elevation="2dp"/>
+                <net.ifeu.library.Controls.ButtonColor
+                    android:id="@+id/btnAccept"
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:text="🔍\nBuscar"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:background="#4CAF50"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:elevation="2dp"/>
+            </LinearLayout>
 
-            <net.ifeu.library.Controls.ButtonColor
-                android:id="@+id/btnNTVImport"
-                android:layout_width="match_parent"
+            <!-- Nuevo Cliente -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="📥  Importación NTV"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@android:color/white"
-                android:background="#FF9800"
-                android:padding="14dp"
-                android:layout_marginBottom="10dp"
-                android:elevation="2dp"/>
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginEnd="4dp">
 
-            <net.ifeu.library.Controls.ButtonColor
-                android:id="@+id/btnClose"
-                android:layout_width="match_parent"
+                <net.ifeu.library.Controls.ButtonColor
+                    android:id="@+id/btnNewCustomer"
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:text="➕\nNuevo"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:background="#2196F3"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:elevation="2dp"/>
+            </LinearLayout>
+
+            <!-- Importar NTV -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Cerrar"
-                android:textSize="16sp"
-                android:textColor="@android:color/white"
-                android:background="#757575"
-                android:padding="14dp"
-                android:elevation="2dp"/>
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginEnd="4dp">
+
+                <net.ifeu.library.Controls.ButtonColor
+                    android:id="@+id/btnNTVImport"
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:text="📥\nImportar"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:background="#FF9800"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:elevation="2dp"/>
+            </LinearLayout>
+
+            <!-- Cerrar -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <net.ifeu.library.Controls.ButtonColor
+                    android:id="@+id/btnClose"
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:text="❌\nCerrar"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:background="#757575"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:elevation="2dp"/>
+            </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>

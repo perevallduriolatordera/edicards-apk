@@ -18,6 +18,7 @@ public class SignatureVendor extends Activity {
 	private Bundle _bundle;
 	AppConfig _app;
 	Boolean _isSaved = false;
+	private String _guid; // GUID recibido del Intent
 
 	@SuppressWarnings("deprecation")
 	@Override
@@ -34,19 +35,45 @@ public class SignatureVendor extends Activity {
 
 		_bundle = savedInstanceState;
 		_app = (AppConfig) this.getApplicationContext();
+
+		// Recuperar el GUID del Intent o del Bundle si la actividad se recreó
+		if (savedInstanceState != null && savedInstanceState.containsKey("GUID")) {
+			_guid = savedInstanceState.getString("GUID");
+		} else if (getIntent() != null && getIntent().hasExtra("GUID")) {
+			_guid = getIntent().getStringExtra("GUID");
+		} else if (_app.getWorkingArea().CurrentHistorico != null) {
+			_guid = _app.getWorkingArea().CurrentHistorico.GUID;
+		}
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (_guid != null) {
+			outState.putString("GUID", _guid);
+		}
 	}
 
 	public void OnClick(View v) {
 
+		// Verificar que tenemos el GUID necesario
+		if (_guid == null) {
+			android.util.Log.e("SignatureVendor", "GUID es null, no se puede completar la operación");
+			android.widget.Toast.makeText(this, "Error: No se pudo obtener el GUID de la operación",
+					android.widget.Toast.LENGTH_LONG).show();
+			finish();
+			return;
+		}
+
 		SignatureView signature = this.findViewById(R.id.signatureView);
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		executor.execute(() -> {
-			signature.save(2, _app.getWorkingArea().CurrentHistorico.GUID);
-			signature.saveBitmap1Color(2, _app.getWorkingArea().CurrentHistorico.GUID);
+			signature.save(2, _guid);
+			signature.saveBitmap1Color(2, _guid);
 			_isSaved = true;
 		});
 		finish();
-		_app.getMediator().notify(EVENT_CLOSE_OPERATION, _app.getWorkingArea().CurrentHistorico.GUID);
+		_app.getMediator().notify(EVENT_CLOSE_OPERATION, _guid);
 
 
 	}
