@@ -12,8 +12,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="#E3F2FD"
-        android:padding="16dp"
-        android:layout_marginBottom="16dp"
+        android:padding="6dp"
+        android:layout_marginBottom="6dp"
         android:gravity="center"
         android:clickable="true"
         android:focusable="true">
@@ -23,23 +23,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Ruta Optimizada de Clientes 🔄"
-            android:textSize="22sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#1976D2"
             android:gravity="center"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="2dp"/>
 
         <View
-            android:layout_width="80dp"
+            android:layout_width="50dp"
             android:layout_height="2dp"
             android:background="#1976D2"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="3dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="4dp">
+            android:layout_marginBottom="2dp">
 
             <TextView
                 android:id="@+id/lblFechaGeneracion"
@@ -47,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Generada: --/--/----"
-                android:textSize="14sp"
+                android:textSize="11sp"
                 android:textColor="#424242"/>
 
             <TextView
@@ -55,7 +55,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Total clientes: 0"
-                android:textSize="14sp"
+                android:textSize="11sp"
                 android:textStyle="bold"
                 android:textColor="#1976D2"/>
         </LinearLayout>
@@ -64,13 +64,13 @@
         <Button
             android:id="@+id/btnToggleControles"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="22dp"
             android:text="▼ Ocultar controles"
-            android:textSize="12sp"
+            android:textSize="10sp"
             android:textStyle="bold"
             android:background="#90CAF9"
             android:textColor="#1565C0"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="3dp"
             android:padding="0dp"/>
     </LinearLayout>
 
@@ -81,203 +81,244 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Selector de ordenación -->
+        <!-- TODO EN UNA SOLA FILA HORIZONTAL -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginBottom="8dp"
             android:background="#E3F2FD"
-            android:padding="8dp"
+            android:padding="6dp"
             android:gravity="center_vertical">
 
+            <!-- Ordenar Por -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ordenar por:"
-                android:textSize="14sp"
+                android:text="Ord:"
+                android:textSize="10sp"
                 android:textStyle="bold"
                 android:textColor="#1976D2"
-                android:layout_marginEnd="8dp"/>
+                android:layout_marginEnd="6dp"/>
 
             <Spinner
                 android:id="@+id/spinnerOrdenacion"
-                android:layout_width="0dp"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:background="@android:drawable/btn_dropdown"
-                android:padding="8dp"/>
-        </LinearLayout>
+                android:padding="2dp"
+                android:layout_marginEnd="12dp"/>
 
-        <!-- Buscador de clientes -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="8dp"
-            android:background="#FFF3E0"
-            android:padding="8dp"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🔍"
-                android:textSize="18sp"
-                android:layout_marginEnd="8dp"/>
-
+            <!-- Buscador -->
             <EditText
                 android:id="@+id/txtBuscador"
-                android:layout_width="0dp"
+                android:layout_width="250dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="Buscar por nombre, dirección, población..."
-                android:textSize="14sp"
+                android:hint="Buscar..."
+                android:textSize="11sp"
                 android:textColor="#000000"
                 android:textColorHint="#9E9E9E"
-                android:padding="8dp"
+                android:padding="4dp"
                 android:background="@android:color/white"
                 android:singleLine="true"
-                android:imeOptions="actionSearch"/>
+                android:imeOptions="actionSearch"
+                android:layout_marginEnd="8dp"/>
 
+            <!-- Botón Limpiar -->
             <Button
                 android:id="@+id/btnLimpiarBusqueda"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:text="✕"
-                android:textSize="18sp"
+                android:textSize="14sp"
                 android:background="#FF9800"
                 android:textColor="@android:color/white"
-                android:layout_marginStart="8dp"
-                android:padding="0dp"/>
+                android:layout_marginEnd="8dp"
+                android:padding="0dp"
+                android:contentDescription="Limpiar búsqueda"/>
 
+            <!-- Filtro Favoritos -->
             <Button
                 android:id="@+id/btnFiltroFavoritos"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:text="☆"
-                android:textSize="24sp"
+                android:textSize="16sp"
                 android:background="#FFFFFF"
                 android:textColor="#9E9E9E"
-                android:layout_marginStart="8dp"
-                android:padding="0dp"/>
+                android:padding="0dp"
+                android:layout_marginEnd="14dp"
+                android:contentDescription="Filtrar favoritos"/>
+
+            <!-- Botones de acción con iconos y leyendas -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginEnd="10dp">
+                <Button
+                    android:id="@+id/btnRegenerarRuta"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:text="🔄"
+                    android:textSize="16sp"
+                    android:background="#1976D2"
+                    android:textColor="#FFFFFF"
+                    android:padding="0dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Regen"
+                    android:textSize="7sp"
+                    android:textColor="#1976D2"
+                    android:gravity="center"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginEnd="10dp">
+                <Button
+                    android:id="@+id/btnExportarExcel"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:text="📊"
+                    android:textSize="16sp"
+                    android:background="#4CAF50"
+                    android:textColor="#FFFFFF"
+                    android:padding="0dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Excel"
+                    android:textSize="7sp"
+                    android:textColor="#4CAF50"
+                    android:gravity="center"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginEnd="10dp">
+                <Button
+                    android:id="@+id/btnGestionarZonas"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:text="🗺️"
+                    android:textSize="16sp"
+                    android:background="#9C27B0"
+                    android:textColor="#FFFFFF"
+                    android:padding="0dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Zonas"
+                    android:textSize="7sp"
+                    android:textColor="#9C27B0"
+                    android:gravity="center"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginEnd="10dp">
+                <Button
+                    android:id="@+id/btnToggleMapa"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:text="🗺️"
+                    android:textSize="16sp"
+                    android:background="#2196F3"
+                    android:textColor="#FFFFFF"
+                    android:padding="0dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mapa"
+                    android:textSize="7sp"
+                    android:textColor="#2196F3"
+                    android:gravity="center"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginEnd="10dp">
+                <Button
+                    android:id="@+id/btnCiudadBase"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:text="🏠"
+                    android:textSize="16sp"
+                    android:background="#795548"
+                    android:textColor="#FFFFFF"
+                    android:padding="0dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Base"
+                    android:textSize="7sp"
+                    android:textColor="#795548"
+                    android:gravity="center"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_marginEnd="10dp">
+                <Button
+                    android:id="@+id/btnLimpiarCoordenadas"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:text="🗑️"
+                    android:textSize="16sp"
+                    android:background="#FF9800"
+                    android:textColor="#FFFFFF"
+                    android:padding="0dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Limp"
+                    android:textSize="7sp"
+                    android:textColor="#FF9800"
+                    android:gravity="center"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+                <Button
+                    android:id="@+id/btnEstadoClientes"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:text="ℹ️"
+                    android:textSize="16sp"
+                    android:background="#00BCD4"
+                    android:textColor="#FFFFFF"
+                    android:padding="0dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Info"
+                    android:textSize="7sp"
+                    android:textColor="#00BCD4"
+                    android:gravity="center"/>
+            </LinearLayout>
+
         </LinearLayout>
-
-        <!-- Botones de Acción en Horizontal - Fila 1 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="4dp"
-            android:background="#F5F5F5"
-            android:padding="6dp"
-            android:gravity="center_vertical">
-
-            <Button
-                android:id="@+id/btnRegenerarRuta"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Regenerar Ruta"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:background="#1976D2"
-                android:textColor="#FFFFFF"
-                android:layout_marginEnd="4dp"/>
-
-            <Button
-                android:id="@+id/btnExportarExcel"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Exportar a Excel"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:background="#4CAF50"
-                android:textColor="#FFFFFF"
-                android:layout_marginEnd="4dp"/>
-
-            <Button
-                android:id="@+id/btnGestionarZonas"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Zonas"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:background="#9C27B0"
-                android:textColor="#FFFFFF"/>
-        </LinearLayout>
-
-        <!-- Botones de Acción en Horizontal - Fila 2 -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="8dp"
-            android:background="#F5F5F5"
-            android:padding="6dp"
-            android:gravity="center_vertical">
-
-            <Button
-                android:id="@+id/btnCiudadBase"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Ciudad Base"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:background="#795548"
-                android:textColor="#FFFFFF"
-                android:layout_marginEnd="4dp"/>
-
-            <Button
-                android:id="@+id/btnLimpiarCoordenadas"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Limpiar coordenadas"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp"
-                android:textSize="11sp"
-                android:background="#FF9800"
-                android:textColor="#FFFFFF"
-                android:layout_marginEnd="4dp"/>
-
-            <Button
-                android:id="@+id/btnEstadoClientes"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Estado Clientes"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp"
-                android:textSize="11sp"
-                android:background="#00BCD4"
-                android:textColor="#FFFFFF"/>
-        </LinearLayout>
-
-        <!-- Botón Toggle Mapa/Lista -->
-        <Button
-            android:id="@+id/btnToggleMapa"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Ver Mapa"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:background="#2196F3"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="8dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"/>
 
     </LinearLayout>
 

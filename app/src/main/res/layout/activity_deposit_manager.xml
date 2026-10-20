@@ -9,23 +9,27 @@
 
     <!-- Cabecera Compacta -->
     <LinearLayout
+        android:id="@+id/headerTitleLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:background="#0277BD"
         android:padding="6dp"
         android:layout_marginBottom="8dp"
-        android:gravity="center"
+        android:gravity="center_vertical"
         android:elevation="4dp">
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Gestión de Depósitos"
             android:textSize="15sp"
             android:textStyle="bold"
             android:textColor="#FFFFFF"
             android:gravity="center"/>
+
+        <!-- El switch se agregará aquí programáticamente -->
     </LinearLayout>
 
     <!-- Área de información del depósito (se llena desde código) -->
@@ -171,7 +175,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginBottom="6dp"
-            android:gravity="center_vertical"/>
+            android:gravity="center"/>
 
         <!-- Fila 3: Controles adicionales -->
         <LinearLayout
@@ -211,7 +215,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical"
+            android:gravity="center"
             android:background="#E8F5E9"
             android:padding="8dp"
             android:layout_marginTop="6dp"
