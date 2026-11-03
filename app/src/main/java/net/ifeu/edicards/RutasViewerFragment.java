@@ -1939,27 +1939,29 @@ public class RutasViewerFragment extends Fragment {
 				"RutasPreferences", Context.MODE_PRIVATE);
 			final int posicionGuardada = prefs.getInt("ultima_posicion_ruta", -1);
 
+			android.util.Log.d("RutasViewerFragment", "Intentando restaurar posición: " + posicionGuardada);
+			android.util.Log.d("RutasViewerFragment", "rutaFiltrada size: " + (rutaFiltrada != null ? rutaFiltrada.size() : "null"));
+
 			if (posicionGuardada >= 0 && rutaFiltrada != null && posicionGuardada < rutaFiltrada.size()) {
-				// Usar post para asegurar que el ListView está completamente renderizado
-				listViewRutas.post(new Runnable() {
+				// Usar postDelayed con un pequeño delay para asegurar que el ListView está completamente renderizado
+				listViewRutas.postDelayed(new Runnable() {
 					@Override
 					public void run() {
-						// Posicionar el item guardado al principio de la vista (con un pequeño offset)
+						// Posicionar el item guardado al principio de la vista
 						listViewRutas.setSelection(posicionGuardada);
-
-						// Alternativa más suave: centrar el item en la vista
-						// listViewRutas.smoothScrollToPosition(posicionGuardada);
 
 						android.util.Log.d("RutasViewerFragment", "Posición restaurada: " + posicionGuardada);
 
-						// Opcional: mostrar un toast breve indicando que se restauró la posición
+						// Mostrar toast indicando que se restauró la posición
 						if (getActivity() != null) {
 							android.widget.Toast.makeText(getActivity(),
-								"Posición restaurada: Cliente #" + (posicionGuardada + 1),
+								"📍 Posición restaurada: Cliente #" + (posicionGuardada + 1),
 								android.widget.Toast.LENGTH_SHORT).show();
 						}
 					}
-				});
+				}, 300); // Delay de 300ms para asegurar que el ListView está renderizado
+			} else {
+				android.util.Log.d("RutasViewerFragment", "No se restauró posición - Condiciones no cumplidas");
 			}
 		} catch (Exception e) {
 			android.util.Log.w("RutasViewerFragment", "Error restaurando posición: " + e.getMessage());

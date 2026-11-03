@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ifeu.edicards"
-    android:versionCode="60"
-    android:versionName="6.0.5 (15 Septiembre 2026) --> Mejoras de mensajeria">
+    android:versionCode="61"
+    android:versionName="6.1.1 (03 Noviembre 2026) --> Mejoras de visualización e interface">
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
