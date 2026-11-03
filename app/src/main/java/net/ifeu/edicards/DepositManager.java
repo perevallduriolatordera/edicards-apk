@@ -1363,6 +1363,10 @@ public class DepositManager extends Fragment implements  IMediator {
 			GUID = historico.GUID;
 			_appConfig.getWorkingArea().CurrentHistorico = historico;
 
+			// Actualizar la filiación del depósito con el valor del combo ANTES de verificar cambios
+			_deposito.Filiacion = DepositManagerExtension.DataTier.getFiliacionCode(_comboFiliacion.getText());
+
+			// Verificar si ha cambiado la filiación y enviar incidencia si es necesario
 			_deposito.Cliente.CheckIfNewFiliacion(_deposito.Filiacion, _deposito.Cliente.CodigoCliente);
 
 			if (_deposito.isDeposito() || _deposito.isAlbaran() || _deposito.isDepositoRetirado()) {
@@ -1413,6 +1417,8 @@ public class DepositManager extends Fragment implements  IMediator {
 	}
 
 	private void SaveHistorico() {
+		// La filiación del cliente ya se actualizó en CheckIfNewFiliacion antes de llegar aquí
+		// Solo necesitamos actualizar el cliente en la BD
 		_deposito.Cliente.Filiacion = DepositManagerExtension.DataTier.getFiliacionCode(_comboFiliacion.getText()).trim();
         try {
             _deposito.Cliente.update();
@@ -1420,7 +1426,8 @@ public class DepositManager extends Fragment implements  IMediator {
             throw new RuntimeException(e);
         }
 
-        _deposito.Filiacion = DepositManagerExtension.DataTier.getFiliacionCode(_comboFiliacion.getText());
+        // La filiación del depósito ya se asignó antes de CheckIfNewFiliacion, no es necesario volver a asignarla
+        // _deposito.Filiacion ya tiene el valor correcto
 		_deposito.Pagado = _checkPagado.isChecked();
 		_deposito.PagoDescripcion = _comboPago.getText();
 

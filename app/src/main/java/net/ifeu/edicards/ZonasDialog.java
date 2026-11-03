@@ -99,11 +99,11 @@ public class ZonasDialog extends Activity {
 			int numClientes = zonaManager.obtenerNumeroClientesEnZona(zona.IdZona);
 			txtNumClientes.setText("(" + numClientes + " clientes)");
 
-			// Configurar botones
-			btnEditar.changeAspect(this, R.color.Orange, getResources().getDrawable(android.R.drawable.ic_menu_edit));
-			btnActivar.changeAspect(this, R.color.Green, getResources().getDrawable(android.R.drawable.ic_input_add));
-			btnDesactivar.changeAspect(this, R.color.Orange, getResources().getDrawable(android.R.drawable.ic_menu_close_clear_cancel));
-			btnBorrar.changeAspect(this, R.color.Red, getResources().getDrawable(android.R.drawable.ic_menu_delete));
+			// Configurar botones con iconos compactos
+			configurarBotonCompacto(btnEditar, R.color.Orange, android.R.drawable.ic_menu_edit);
+			configurarBotonCompacto(btnActivar, R.color.Green, android.R.drawable.ic_input_add);
+			configurarBotonCompacto(btnDesactivar, R.color.Orange, android.R.drawable.ic_menu_close_clear_cancel);
+			configurarBotonCompacto(btnBorrar, R.color.Red, android.R.drawable.ic_menu_delete);
 
 			// Mostrar/ocultar botones según estado
 			if (zona.Activa) {
@@ -273,5 +273,29 @@ public class ZonasDialog extends Activity {
 	private void abrirAsignacionClientes() {
 		Intent intent = new Intent(this, AsignarClientesZonaDialog.class);
 		startActivity(intent);
+	}
+
+	/**
+	 * Configura un botón con icono y estilo compacto para la lista de zonas
+	 */
+	private void configurarBotonCompacto(ButtonColor boton, int colorRes, int iconoRes) {
+		android.graphics.drawable.Drawable icono = getResources().getDrawable(iconoRes);
+
+		// Configurar color de fondo y texto
+		boton.setBackgroundColor(getResources().getColor(colorRes));
+		boton.setTextColor(0xFFFFFFFF);
+
+		// Tamaño de texto compacto pero legible
+		boton.setTextSize(12);
+
+		// Padding reducido
+		boton.setPadding(8, 10, 8, 10);
+
+		// Icono compacto (28x28 px)
+		icono.setBounds(0, 0, 28, 28);
+		boton.setCompoundDrawables(icono, null, null, null);
+		boton.setCompoundDrawablePadding(6);
+
+		boton.setAllCaps(false);
 	}
 }

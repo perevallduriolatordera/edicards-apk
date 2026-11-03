@@ -52,7 +52,7 @@
         android:background="#673AB7"
         android:layout_marginBottom="8dp"/>
 
-    <!-- Fila inferior: Botones -->
+    <!-- Fila inferior: Botones compactos -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -63,52 +63,68 @@
         <net.ifeu.library.Controls.ButtonColor
             android:id="@+id/btnEditarZona"
             android:layout_width="0dp"
-            android:layout_height="42dp"
+            android:layout_height="36dp"
             android:layout_weight="1"
             android:text="Editar"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             android:textColor="@android:color/white"
             android:background="@color/Blue"
-            android:layout_marginEnd="6dp"/>
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:drawablePadding="3dp"
+            android:gravity="center"
+            android:layout_marginEnd="4dp"/>
 
         <!-- Botón Activar -->
         <net.ifeu.library.Controls.ButtonColor
             android:id="@+id/btnActivarZona"
             android:layout_width="0dp"
-            android:layout_height="42dp"
+            android:layout_height="36dp"
             android:layout_weight="1"
             android:text="Activar"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             android:textColor="@android:color/white"
             android:background="@color/Green"
-            android:layout_marginEnd="6dp"/>
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:drawablePadding="3dp"
+            android:gravity="center"
+            android:layout_marginEnd="4dp"/>
 
         <!-- Botón Pausar -->
         <net.ifeu.library.Controls.ButtonColor
             android:id="@+id/btnDesactivarZona"
             android:layout_width="0dp"
-            android:layout_height="42dp"
+            android:layout_height="36dp"
             android:layout_weight="1"
             android:text="Pausar"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             android:textColor="@android:color/white"
             android:background="@color/Orange"
-            android:layout_marginEnd="6dp"/>
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:drawablePadding="3dp"
+            android:gravity="center"
+            android:layout_marginEnd="4dp"/>
 
         <!-- Botón Borrar -->
         <net.ifeu.library.Controls.ButtonColor
             android:id="@+id/btnBorrarZona"
             android:layout_width="0dp"
-            android:layout_height="42dp"
+            android:layout_height="36dp"
             android:layout_weight="1"
             android:text="Borrar"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             android:textColor="@android:color/white"
-            android:background="@color/Red"/>
+            android:background="@color/Red"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:drawablePadding="3dp"
+            android:gravity="center"/>
     </LinearLayout>
 
 </LinearLayout>
