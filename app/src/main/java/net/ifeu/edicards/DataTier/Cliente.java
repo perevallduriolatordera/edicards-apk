@@ -99,9 +99,8 @@ public class Cliente extends Persistent implements IPersistable {
 		if (this.FechaGeocodificacion != null) {
 			values.put("FechaGeocodificacion", this.FechaGeocodificacion.getTime());
 		}
-		if (this.IdZona != null) {
-			values.put("IdZona", this.IdZona);
-		}
+		// Guardar IdZona siempre, incluso si es null (para permitir desasignacion)
+		values.put("IdZona", this.IdZona);
 
 		try {
 			this.IdCliente = super.getDatabaseOperations().insert(ConstantsDatabase.TABLE_CLIENTES, null , values);
@@ -147,9 +146,8 @@ public class Cliente extends Persistent implements IPersistable {
 		if (this.FechaGeocodificacion != null) {
 			values.put("FechaGeocodificacion", this.FechaGeocodificacion.getTime());
 		}
-		if (this.IdZona != null) {
-			values.put("IdZona", this.IdZona);
-		}
+		// Guardar IdZona siempre, incluso si es null (para permitir desasignacion)
+		values.put("IdZona", this.IdZona);
 
 		String[] whereArgs = { String.valueOf(this.IdCliente) }; 
 		

@@ -2231,32 +2231,53 @@ if (createHeaderLayout) {
 		containerParams.setMargins(8, 0, 8, 0);
 		switchContainer.setLayoutParams(containerParams);
 
-		// Label que muestra el modo actual - BLANCO para verse sobre fondo azul
+		// Label "Modo:" fijo
+		TextView modoTituloLabel = new TextView(getActivity());
+		modoTituloLabel.setText("Modo:");
+		modoTituloLabel.setTextSize(12);
+		modoTituloLabel.setTextColor(Color.WHITE);
+		modoTituloLabel.setPadding(4, 0, 8, 0);
+
+		// Label que muestra el modo actual - Con fondo de color y más destacado
 		final TextView modoLabel = new TextView(getActivity());
 		modoLabel.setText(_abonoMode ? "ABONO" : "VENTA");
-		modoLabel.setTextSize(13);
-		modoLabel.setTextColor(Color.WHITE); // BLANCO para contrastar con el azul
+		modoLabel.setTextSize(14);
+		modoLabel.setTextColor(Color.WHITE);
 		modoLabel.setTypeface(null, android.graphics.Typeface.BOLD);
-		modoLabel.setPadding(4, 0, 12, 0);
+		modoLabel.setPadding(12, 6, 12, 6);
+		modoLabel.setGravity(Gravity.CENTER);
+		// Color de fondo según modo: Naranja para ABONO, Verde para VENTA
+		modoLabel.setBackgroundColor(_abonoMode ? 0xFFFF9800 : 0xFF4CAF50);
 
-		// Switch - con colores visibles
+		// Switch - con colores visibles y texto personalizado
 		android.widget.Switch switchModo = new android.widget.Switch(getActivity());
 		switchModo.setChecked(!_abonoMode); // Checked = VENTA
 
+		// Personalizar texto del switch para que sea claro
+		switchModo.setTextOn("VENTA");   // Cuando está activado (checked)
+		switchModo.setTextOff("ABONO");  // Cuando está desactivado (unchecked)
+		switchModo.setShowText(true);    // Mostrar el texto en el switch
+		switchModo.setSwitchTextAppearance(getActivity(), android.R.style.TextAppearance_Small);
+
 		// Hacer el switch más grande y visible
-		switchModo.setScaleX(1.2f);
-		switchModo.setScaleY(1.2f);
+		switchModo.setScaleX(1.3f);
+		switchModo.setScaleY(1.3f);
+		LayoutParams switchParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		switchParams.setMargins(12, 0, 0, 0);
+		switchModo.setLayoutParams(switchParams);
 
 		switchModo.setOnCheckedChangeListener((buttonView, isChecked) -> {
 			_abonoMode = !isChecked;
 
-			// Actualizar el label - mantener blanco
+			// Actualizar el label con color de fondo
 			if (isChecked) {
 				// VENTA mode (checked)
 				modoLabel.setText("VENTA");
+				modoLabel.setBackgroundColor(0xFF4CAF50); // Verde
 			} else {
 				// ABONO mode (unchecked)
 				modoLabel.setText("ABONO");
+				modoLabel.setBackgroundColor(0xFFFF9800); // Naranja
 			}
 
 			// Resetear headers para forzar recreación del layout con los campos correctos
@@ -2279,6 +2300,7 @@ if (createHeaderLayout) {
 			}
 		});
 
+		switchContainer.addView(modoTituloLabel);
 		switchContainer.addView(modoLabel);
 		switchContainer.addView(switchModo);
 

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ifeu.edicards"
-    android:versionCode="61"
-    android:versionName="6.1.1 (03 Noviembre 2026) --> Mejoras de visualización e interface">
+    android:versionCode="62"
+    android:versionName="6.1.2 (05 Noviembre 2026) --> Mejoras de visualización e interface">
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
