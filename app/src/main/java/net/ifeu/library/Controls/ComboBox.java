@@ -52,7 +52,7 @@ public class ComboBox extends LinearLayout {
 
        // Label superior (inicialmente vacío, se puede setear desde fuera)
        _topLabel = new TextView(context);
-       _topLabel.setTextSize(8);
+       _topLabel.setTextSize(7);  // Reducido de 8 a 7
        _topLabel.setTextColor(Color.parseColor("#757575")); // Gris como los otros labels
        _topLabel.setGravity(Gravity.CENTER);
        _topLabel.setVisibility(GONE); // Oculto por defecto
@@ -76,7 +76,7 @@ public class ComboBox extends LinearLayout {
        _text.setWidth(ScreenManager.getScreenSizeByPercentage(windowManager, 0.2f).getWidth());
        _text.setFocusable(false);
        _text.setSingleLine();
-       int TEXT_SIZE = 16;
+       int TEXT_SIZE = 12;  // Reducido de 16 a 12
        _text.setTextSize(TEXT_SIZE);
        _text.setOnItemClickListener((listView, view, position, id) -> {
            _label.setText(listView.getItemAtPosition(position).toString());

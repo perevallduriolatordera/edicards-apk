@@ -90,7 +90,7 @@ public class DepositManager extends Fragment implements  IMediator {
 	private LinearLayout _headerLayout;
 	private LinearLayout _headerAbonoLayout;
 	private LinearLayout _articlesLayout;
-	private final int TEXT_SIZE = 14;
+	private final int TEXT_SIZE = 14;  // Tamaño aumentado para mejor legibilidad
 	private boolean _isRendered = false;
 	private LinearLayout _mainLayout;
 	private ListView _articlesListView;
@@ -326,7 +326,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		// Label arriba
 		TextView labelPagado = new TextView(_appConfig);
 		labelPagado.setText("Pagado");
-		labelPagado.setTextSize(8);
+		labelPagado.setTextSize(7);  // Reducido de 8 a 7
 		labelPagado.setTextColor(Color.parseColor("#757575"));
 		labelPagado.setGravity(Gravity.CENTER);
 		LinearLayout.LayoutParams labelPagadoParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -355,7 +355,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		LinearLayout.LayoutParams fieldParams = new LinearLayout.LayoutParams(140, LayoutParams.WRAP_CONTENT);
 		_textBoxCantidadPagada.setLayoutParams(fieldParams);
 		_textBoxCantidadPagada.setMinimumWidth(140);
-		_textBoxCantidadPagada.setMinimumHeight(50);
+		_textBoxCantidadPagada.setMinimumHeight(40);
 
 		_textBoxCantidadPagada.setTextSize(14);
 		_textBoxCantidadPagada.setText("0.00");
@@ -370,7 +370,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		borderDisabled.setStroke(3, Color.parseColor("#BDBDBD"));
 		borderDisabled.setCornerRadius(6);
 		_textBoxCantidadPagada.setBackground(borderDisabled);
-		_textBoxCantidadPagada.setPadding(12, 12, 12, 12);
+		_textBoxCantidadPagada.setPadding(8, 6, 8, 6);
 
 		pagadoFieldsContainer.addView(_textBoxCantidadPagada);
 		pagadoContainer.addView(pagadoFieldsContainer);
@@ -389,7 +389,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		// Label arriba
 		TextView labelDescuento1 = new TextView(_appConfig);
 		labelDescuento1.setText("Dte. com.");
-		labelDescuento1.setTextSize(8);
+		labelDescuento1.setTextSize(7);  // Reducido de 8 a 7
 		labelDescuento1.setTextColor(Color.parseColor("#757575")); // Gris como otros labels
 		labelDescuento1.setGravity(Gravity.CENTER);
 		LinearLayout.LayoutParams labelParams1 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -413,7 +413,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		border1.setStroke(2, Color.parseColor("#BDBDBD")); // Borde gris
 		border1.setCornerRadius(4);
 		descuento1.setBackground(border1);
-		descuento1.setPadding(8, 8, 8, 8);
+		descuento1.setPadding(8, 6, 8, 6);
 
 		descuento1.setOnFocusChangeListener((view, hasFocus) -> {
 			if (!hasFocus) {
@@ -463,7 +463,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		// Label arriba
 		TextView labelDescuento2 = new TextView(_appConfig);
 		labelDescuento2.setText("Dte. fin.");
-		labelDescuento2.setTextSize(8);
+		labelDescuento2.setTextSize(7);  // Reducido de 8 a 7
 		labelDescuento2.setTextColor(Color.parseColor("#757575")); // Gris como otros labels
 		labelDescuento2.setGravity(Gravity.CENTER);
 		LinearLayout.LayoutParams labelParams2 = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -487,7 +487,7 @@ public class DepositManager extends Fragment implements  IMediator {
 		border2.setStroke(2, Color.parseColor("#BDBDBD")); // Borde gris
 		border2.setCornerRadius(4);
 		descuento2.setBackground(border2);
-		descuento2.setPadding(8, 8, 8, 8);
+		descuento2.setPadding(8, 6, 8, 6);
 
 		descuento2.setOnFocusChangeListener((view, hasFocus) -> {
 			if (!hasFocus) {
@@ -1620,6 +1620,25 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		LinearLayout mainLinearLayout = this.getActivity().findViewById(R.id.headerMainLinearLayout7);
 
+		// DEBUGGING: Ver qué padding tiene el ListView
+		ListView listView = this.getActivity().findViewById(R.id.listViewArticles);
+		android.util.Log.e("ALIGNMENT_DEBUG", "ListView paddingLeft: " + listView.getPaddingLeft());
+
+		// DEBUGGING: Ver el padding de un item del ListView (si existe)
+		if (listView.getChildCount() > 0) {
+			View firstItem = listView.getChildAt(0);
+			android.util.Log.e("ALIGNMENT_DEBUG", "ListView item paddingLeft: " + firstItem.getPaddingLeft());
+			android.util.Log.e("ALIGNMENT_DEBUG", "ListView item total left: " + (listView.getPaddingLeft() + firstItem.getPaddingLeft()));
+		}
+
+		// Aplicar el MISMO padding que el ListView + item
+		int listViewPaddingPx = listView.getPaddingLeft();
+		int itemPaddingPx = (int) (4 * _appConfig.getResources().getDisplayMetrics().density); // Del XML
+		int totalPaddingPx = listViewPaddingPx + itemPaddingPx;
+
+		android.util.Log.e("ALIGNMENT_DEBUG", "Header setting paddingLeft to: " + totalPaddingPx);
+		mainLinearLayout.setPadding(totalPaddingPx, mainLinearLayout.getPaddingTop(), totalPaddingPx, mainLinearLayout.getPaddingBottom());
+
 		LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
 		boolean createHeaderLayout = (_headerLayout == null);
@@ -1630,24 +1649,25 @@ public class DepositManager extends Fragment implements  IMediator {
 		LinearLayout fieldsRow = null;
 
 		if (createHeaderLayout) {
-			// _headerLayout es HORIZONTAL y contendrá el fieldsContainer centrado
+			// _headerLayout es HORIZONTAL y contendrá el fieldsContainer ocupando todo el ancho
 			_headerLayout = new LinearLayout(_appConfig);
 			_headerLayout.setOrientation(LinearLayout.HORIZONTAL);
-			_headerLayout.setGravity(Gravity.CENTER_HORIZONTAL);
+			_headerLayout.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
 
-			// Contenedor vertical para las dos filas (labels y campos)
+			// Contenedor vertical para las dos filas (labels y campos) - SIN paddings ni margins
 			fieldsContainer = new LinearLayout(_appConfig);
 			fieldsContainer.setOrientation(LinearLayout.VERTICAL);
-			LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 			fieldsContainer.setLayoutParams(containerParams);
 
-			// Fila de labels
+			// Fila de labels - SIN padding
 			labelsRow = new LinearLayout(_appConfig);
 			labelsRow.setOrientation(LinearLayout.HORIZONTAL);
 
-			// Fila de campos
+			// Fila de campos - SIN padding
 			fieldsRow = new LinearLayout(_appConfig);
 			fieldsRow.setOrientation(LinearLayout.HORIZONTAL);
+			fieldsRow.setGravity(Gravity.CENTER_VERTICAL);
 
 			fieldsContainer.addView(labelsRow);
 			fieldsContainer.addView(fieldsRow);
@@ -1669,13 +1689,13 @@ public class DepositManager extends Fragment implements  IMediator {
 		try {
 			LabelColor codigoArticulo = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 					lineaDeposito.Articulo.CodigoArticulo, TEXT_SIZE, 8, params, true)
-					: (LabelColor) ((ViewGroup) fieldsRow.getChildAt(0)).getChildAt(0);
+					: (LabelColor) fieldsRow.getChildAt(0);
 			codigoArticulo.setText(lineaDeposito.Articulo.CodigoArticulo);
 
 			LabelColor articuloDescripcion = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 					lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion, TEXT_SIZE, 12,
 					params, true, lineaDeposito.Articulo)
-					: (LabelColor) ((ViewGroup) fieldsRow.getChildAt(1)).getChildAt(0);
+					: (LabelColor) fieldsRow.getChildAt(1);
 			articuloDescripcion.setText(lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion);
 			articuloDescripcion.setTag(lineaDeposito.Articulo);
 
@@ -1683,13 +1703,13 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			LabelColor unidadesInicialesFijas = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
 					String.valueOf(lineaDeposito.UnidadesInicialesFijas), TEXT_SIZE, 13, params, true, lineaDeposito)
-					: (LabelColor) ((ViewGroup) fieldsRow.getChildAt(2)).getChildAt(0);
+					: (LabelColor) fieldsRow.getChildAt(2);
 			unidadesInicialesFijas.setText(String.valueOf(lineaDeposito.UnidadesInicialesFijas));
 			unidadesInicialesFijas.setTag(lineaDeposito);
 
-			TextBoxColor unidadesDevueltas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
+			TextBoxColor unidadesDevueltas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.CENTER,
 					String.valueOf(lineaDeposito.UnidadesDevueltas), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER ), params, true, lineaDeposito)
-					: (TextBoxColor) ((ViewGroup) fieldsRow.getChildAt(3)).getChildAt(0);
+					: (TextBoxColor) fieldsRow.getChildAt(3);
 			unidadesDevueltas.setText(String.valueOf(lineaDeposito.UnidadesDevueltas));
 			unidadesDevueltas.setTag(lineaDeposito);
 
@@ -1730,9 +1750,9 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			});
 
-			TextBoxColor unidadesDefectuosas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
+			TextBoxColor unidadesDefectuosas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.CENTER,
 					String.valueOf(lineaDeposito.UnidadesDefectuosas), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
-					: (TextBoxColor) ((ViewGroup) fieldsRow.getChildAt(4)).getChildAt(0);
+					: (TextBoxColor) fieldsRow.getChildAt(4);
 			unidadesDefectuosas.setText(String.valueOf(lineaDeposito.UnidadesDefectuosas));
 			unidadesDefectuosas.setTag(lineaDeposito);
 
@@ -1780,10 +1800,10 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			});
 
-			TextBoxColor pvp = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT,
+			TextBoxColor pvp = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.CENTER,
 					DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP),
 					TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
-					: (TextBoxColor) ((ViewGroup) fieldsRow.getChildAt(5)).getChildAt(0);
+					: (TextBoxColor) fieldsRow.getChildAt(5);
 			pvp.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVP));
 			pvp.setTag(lineaDeposito);
 
@@ -1814,9 +1834,9 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			});
 
-			TextBoxColor unidadesFacturadas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.rgb(0, 128, 0), Gravity.LEFT,
+			TextBoxColor unidadesFacturadas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.rgb(0, 128, 0), Gravity.CENTER,
 					String.valueOf(lineaDeposito.UnidadesFacturadas), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
-					: (TextBoxColor) ((ViewGroup) fieldsRow.getChildAt(6)).getChildAt(0);
+					: (TextBoxColor) fieldsRow.getChildAt(6);
 			unidadesFacturadas.setText(String.valueOf(lineaDeposito.UnidadesFacturadas));
 			unidadesFacturadas.setTag(lineaDeposito);
 
@@ -1869,9 +1889,9 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			});
 
-			TextBoxColor unidadesRepuestas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT,
+			TextBoxColor unidadesRepuestas = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.CENTER,
 					String.valueOf(lineaDeposito.UnidadesRepuestas), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
-					: (TextBoxColor) ((ViewGroup) fieldsRow.getChildAt(7)).getChildAt(0);
+					: (TextBoxColor) fieldsRow.getChildAt(7);
 			unidadesRepuestas.setText(String.valueOf(lineaDeposito.UnidadesRepuestas));
 			unidadesRepuestas.setTag(lineaDeposito);
 
@@ -1902,10 +1922,10 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			});
 
-			TextBoxColor pvpAnterior = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.LEFT,
+			TextBoxColor pvpAnterior = createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), color, Gravity.CENTER,
 					DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAnterior),
 					TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 11, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
-					: (TextBoxColor) ((ViewGroup) fieldsRow.getChildAt(8)).getChildAt(0);
+					: (TextBoxColor) fieldsRow.getChildAt(8);
 			pvpAnterior.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAnterior));
 			pvpAnterior.setTag(lineaDeposito);
 
@@ -1937,25 +1957,63 @@ public class DepositManager extends Fragment implements  IMediator {
 
 			double total = (lineaDeposito.UnidadesFacturadas * lineaDeposito.PVP);
 
-			LabelColor totalLinea = createHeaderLayout ? DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
-					String.valueOf(DepositManagerExtension.Format.round(total, 2)), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 13, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
-					: (LabelColor) ((ViewGroup) fieldsRow.getChildAt(9)).getChildAt(0);
+			// Ya no mostramos el campo Total visible, está oculto como spacer
+			// LabelColor totalLinea = createHeaderLayout ? DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.CENTER, InputType.TYPE_CLASS_NUMBER,
+			//		String.valueOf(DepositManagerExtension.Format.round(total, 2)), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 13, TEXT_SIZE, Gravity.CENTER), params, true, lineaDeposito)
+			//		: (LabelColor) fieldsRow.getChildAt(9);
 
-			totalLinea.setText(String.valueOf(DepositManagerExtension.Format.round(total, 2)));
-			totalLinea.setTag(lineaDeposito);
+			// totalLinea.setText(String.valueOf(DepositManagerExtension.Format.round(total, 2)));
+			// totalLinea.setTag(lineaDeposito);
 
 	if (createHeaderLayout) {
-		// Agregar campos con alineación perfecta usando weights
-		addAlignedField(labelsRow, fieldsRow, "Código", codigoArticulo, 0.8f);
-		addAlignedField(labelsRow, fieldsRow, "Artículo", articuloDescripcion, 1.5f);
-		addAlignedField(labelsRow, fieldsRow, "Dep.Ini", unidadesInicialesFijas, 0.8f);
-		addAlignedField(labelsRow, fieldsRow, "Contadas", unidadesDevueltas, 0.8f);
-		addAlignedField(labelsRow, fieldsRow, "Reciclado", unidadesDefectuosas, 0.8f);
-		addAlignedField(labelsRow, fieldsRow, "PVP", pvp, 0.8f);
-		addAlignedField(labelsRow, fieldsRow, "Facturadas", unidadesFacturadas, 0.9f);
-		addAlignedField(labelsRow, fieldsRow, "Dep. Final", unidadesRepuestas, 0.9f);
-		addAlignedField(labelsRow, fieldsRow, "PVP Post.", pvpAnterior, 0.8f);
-		addAlignedField(labelsRow, fieldsRow, "Total", totalLinea, 0.8f);
+		// Agregar campos con alineación perfecta usando weights - DEBEN COINCIDIR EXACTAMENTE con list_item_deposit_article.xml
+		addAlignedField(labelsRow, fieldsRow, "Código", codigoArticulo, 0.9f, Gravity.CENTER_HORIZONTAL);
+		addAlignedField(labelsRow, fieldsRow, "Artículo", articuloDescripcion, 2.2f, Gravity.LEFT);
+		addAlignedField(labelsRow, fieldsRow, "Dep.Ini", unidadesInicialesFijas, 0.9f, Gravity.CENTER_HORIZONTAL);
+		addAlignedField(labelsRow, fieldsRow, "Contadas", unidadesDevueltas, 0.9f, Gravity.CENTER_HORIZONTAL);
+		addAlignedField(labelsRow, fieldsRow, "Reciclado", unidadesDefectuosas, 0.9f, Gravity.CENTER_HORIZONTAL);
+		addAlignedField(labelsRow, fieldsRow, "PVP", pvp, 0.9f, Gravity.CENTER_HORIZONTAL);
+		addAlignedField(labelsRow, fieldsRow, "Facturadas", unidadesFacturadas, 0.9f, Gravity.CENTER_HORIZONTAL);
+		addAlignedField(labelsRow, fieldsRow, "Dep. Final", unidadesRepuestas, 0.9f, Gravity.CENTER_HORIZONTAL);
+		addAlignedField(labelsRow, fieldsRow, "PVP Post.", pvpAnterior, 0.9f, Gravity.CENTER_HORIZONTAL);
+
+		// NO agregar el campo Total visible, usar un spacer invisible como el ListView
+		// addAlignedField(labelsRow, fieldsRow, "Total", totalLinea, 0.9f, Gravity.CENTER_HORIZONTAL);
+
+		int marginRightPx = (int) (2 * _appConfig.getResources().getDisplayMetrics().density);
+		int spacerWidthPx = (int) (24 * _appConfig.getResources().getDisplayMetrics().density);
+
+		// ===== SPACERS PARA LABELSROW =====
+		// Spacer invisible para "Total" label
+		View totalLabelSpacer = new View(_appConfig);
+		LinearLayout.LayoutParams totalLabelSpacerParams = new LinearLayout.LayoutParams(0, 1);
+		totalLabelSpacerParams.weight = 0.9f;
+		totalLabelSpacerParams.setMargins(0, 0, marginRightPx, 2);
+		totalLabelSpacer.setLayoutParams(totalLabelSpacerParams);
+		totalLabelSpacer.setVisibility(View.INVISIBLE);
+		labelsRow.addView(totalLabelSpacer);
+
+		// Spacer fijo 24dp para imagen label
+		View imageLabelSpacer = new View(_appConfig);
+		LinearLayout.LayoutParams imageLabelSpacerParams = new LinearLayout.LayoutParams(spacerWidthPx, 1);
+		imageLabelSpacer.setLayoutParams(imageLabelSpacerParams);
+		labelsRow.addView(imageLabelSpacer);
+
+		// ===== SPACERS PARA FIELDSROW =====
+		// Spacer invisible para "Total" field
+		View totalSpacer = new View(_appConfig);
+		LinearLayout.LayoutParams totalSpacerParams = new LinearLayout.LayoutParams(0, 1);
+		totalSpacerParams.weight = 0.9f;
+		totalSpacerParams.setMargins(0, 0, marginRightPx, 0);
+		totalSpacer.setLayoutParams(totalSpacerParams);
+		totalSpacer.setVisibility(View.INVISIBLE);
+		fieldsRow.addView(totalSpacer);
+
+		// Spacer fijo 24dp para imagen field
+		View imageSpacer = new View(_appConfig);
+		LinearLayout.LayoutParams imageSpacerParams = new LinearLayout.LayoutParams(spacerWidthPx, 1);
+		imageSpacer.setLayoutParams(imageSpacerParams);
+		fieldsRow.addView(imageSpacer);
 	}
 
 	// Solo limpiar y re-agregar cuando creamos por primera vez
@@ -2004,6 +2062,7 @@ public class DepositManager extends Fragment implements  IMediator {
 			// Fila de campos
 			fieldsRowAbono = new LinearLayout(_appConfig);
 			fieldsRowAbono.setOrientation(LinearLayout.HORIZONTAL);
+			fieldsRowAbono.setGravity(Gravity.CENTER_VERTICAL);
 
 			fieldsContainerAbono.addView(labelsRowAbono);
 			fieldsContainerAbono.addView(fieldsRowAbono);
@@ -2014,34 +2073,31 @@ public class DepositManager extends Fragment implements  IMediator {
 			fieldsRowAbono = (LinearLayout) fieldsContainerAbono.getChildAt(1);
 
 			// Limpiar listeners
-			View articuloField = ((ViewGroup) fieldsRowAbono.getChildAt(1)).getChildAt(0);
+			View articuloField = fieldsRowAbono.getChildAt(1);
 			if (articuloField != null) articuloField.setOnClickListener(null);
 			for (int i=2; i<5; i++) {
-				ViewGroup wrapper = (ViewGroup) fieldsRowAbono.getChildAt(i);
-				if (wrapper != null && wrapper.getChildCount() > 0) {
-					View field = wrapper.getChildAt(0);
-					if (field != null) field.setOnFocusChangeListener(null);
-				}
+				View field = fieldsRowAbono.getChildAt(i);
+				if (field != null) field.setOnFocusChangeListener(null);
 			}
 		}
 
 		LabelColor codigoArticulo = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				lineaDeposito.Articulo.CodigoArticulo, TEXT_SIZE, 8, params, true)
-				: (LabelColor) ((ViewGroup) fieldsRowAbono.getChildAt(0)).getChildAt(0);
+				: (LabelColor) fieldsRowAbono.getChildAt(0);
 		codigoArticulo.setText(lineaDeposito.Articulo.CodigoArticulo);
 
 		LabelColor articuloDescripcion = createHeaderLayout ? DepositManagerExtension.UI.addLabelByText(_appConfig, color, Gravity.LEFT, InputType.TYPE_CLASS_NUMBER,
 				lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion + " (Abono) ", TEXT_SIZE, 13,
 						params, true, lineaDeposito.Articulo)
-				: (LabelColor) ((ViewGroup) fieldsRowAbono.getChildAt(1)).getChildAt(0);
+				: (LabelColor) fieldsRowAbono.getChildAt(1);
 		articuloDescripcion.setText((lineaDeposito.Articulo.Descripcion.length() > 25 ? lineaDeposito.Articulo.Descripcion.substring(0, 24) + "..." : lineaDeposito.Articulo.Descripcion));
 		articuloDescripcion.setTag(lineaDeposito.Articulo);
 
 		articuloDescripcion.setOnClickListener(v -> DepositManagerExtension.Dialogs.StartArticuloDialog((Articulo) v.getTag(), that));
 
-		TextBoxColor unidadesAbono =  createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
+		TextBoxColor unidadesAbono =  createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.CENTER,
 				String.valueOf(lineaDeposito.UnidadesAbono), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true, lineaDeposito)
-				: (TextBoxColor) ((ViewGroup) fieldsRowAbono.getChildAt(2)).getChildAt(0);
+				: (TextBoxColor) fieldsRowAbono.getChildAt(2);
 		unidadesAbono.setText(String.valueOf(lineaDeposito.UnidadesAbono));
 		unidadesAbono.setTag(lineaDeposito);
 
@@ -2088,9 +2144,9 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		});
 
-		TextBoxColor defectuosasAbono = createHeaderLayout ?  DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
+		TextBoxColor defectuosasAbono = createHeaderLayout ?  DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.CENTER,
 				String.valueOf(lineaDeposito.DefectuosasAbono), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true, lineaDeposito)
-				: (TextBoxColor) ((ViewGroup) fieldsRowAbono.getChildAt(3)).getChildAt(0);
+				: (TextBoxColor) fieldsRowAbono.getChildAt(3);
 		defectuosasAbono.setText(String.valueOf(lineaDeposito.DefectuosasAbono));
 		defectuosasAbono.setTag(lineaDeposito);
 
@@ -2138,9 +2194,9 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		});
 		
-		TextBoxColor pvpAbono =  createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.LEFT,
+		TextBoxColor pvpAbono =  createHeaderLayout ? DepositManagerExtension.UI.addEdit(getActivity(), Color.RED, Gravity.CENTER,
 				DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAbono), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true, lineaDeposito)
-				: (TextBoxColor) ((ViewGroup) fieldsRowAbono.getChildAt(4)).getChildAt(0);
+				: (TextBoxColor) fieldsRowAbono.getChildAt(4);
 		pvpAbono.setText(DepositManagerExtension.Format.CurrencyFormat(lineaDeposito.PVPAbono));
 		pvpAbono.setTag(lineaDeposito);
 
@@ -2173,19 +2229,19 @@ public class DepositManager extends Fragment implements  IMediator {
 
 		LabelColor totalAbono =  createHeaderLayout ?  DepositManagerExtension.UI.addLabel(_appConfig, color, Gravity.RIGHT, InputType.TYPE_CLASS_NUMBER,
 				DepositManagerExtension.Format.CurrencyFormat(totalAbonoImporte), TEXT_SIZE, ScreenManager.getViewWidthByLength(_appConfig, 12, TEXT_SIZE, Gravity.LEFT), params, true)
-				: (LabelColor) ((ViewGroup) fieldsRowAbono.getChildAt(5)).getChildAt(0);
+				: (LabelColor) fieldsRowAbono.getChildAt(5);
 		totalAbono.setText(DepositManagerExtension.Format.CurrencyFormat(totalAbonoImporte));
 		totalAbono.setTag(lineaDeposito);
 
 if (createHeaderLayout) {
 	// Agregar campos con alineación perfecta usando weights
 	// Weights aumentados para aprovechar mejor el espacio en modo ABONO
-	addAlignedField(labelsRowAbono, fieldsRowAbono, "Código", codigoArticulo, 1.0f);
-	addAlignedField(labelsRowAbono, fieldsRowAbono, "Artículo", articuloDescripcion, 2.5f);
-	addAlignedField(labelsRowAbono, fieldsRowAbono, "Cantidad", unidadesAbono, 1.2f);
-	addAlignedField(labelsRowAbono, fieldsRowAbono, "Defect.", defectuosasAbono, 1.0f);
-	addAlignedField(labelsRowAbono, fieldsRowAbono, "PVP", pvpAbono, 1.0f);
-	addAlignedField(labelsRowAbono, fieldsRowAbono, "Total", totalAbono, 1.0f);
+	addAlignedField(labelsRowAbono, fieldsRowAbono, "Código", codigoArticulo, 1.0f, Gravity.CENTER_HORIZONTAL);
+	addAlignedField(labelsRowAbono, fieldsRowAbono, "Artículo", articuloDescripcion, 2.5f, Gravity.LEFT);
+	addAlignedField(labelsRowAbono, fieldsRowAbono, "Cantidad", unidadesAbono, 1.2f, Gravity.CENTER_HORIZONTAL);
+	addAlignedField(labelsRowAbono, fieldsRowAbono, "Defect.", defectuosasAbono, 1.0f, Gravity.CENTER_HORIZONTAL);
+	addAlignedField(labelsRowAbono, fieldsRowAbono, "PVP", pvpAbono, 1.0f, Gravity.CENTER_HORIZONTAL);
+	addAlignedField(labelsRowAbono, fieldsRowAbono, "Total", totalAbono, 1.0f, Gravity.CENTER_HORIZONTAL);
 }
 
 
@@ -2351,37 +2407,38 @@ if (createHeaderLayout) {
 	}
 
 	// Método helper para agregar campo con label alineado en dos filas
-	private void addAlignedField(LinearLayout labelsRow, LinearLayout fieldsRow, String labelText, View field, float weight) {
-		// Crear label centrado
+	private void addAlignedField(LinearLayout labelsRow, LinearLayout fieldsRow, String labelText, View field, float weight, int gravity) {
+		// Crear label centrado y más pequeño
 		TextView label = new TextView(_appConfig);
 		label.setText(labelText);
-		label.setTextSize(8);
+		label.setTextSize(9);  // Aumentado para mejor legibilidad
 		label.setTextColor(Color.parseColor("#757575")); // Gris
 		label.setGravity(Gravity.CENTER);
 
+		// Convertir 2dp a pixels
+		int marginRightPx = (int) (2 * _appConfig.getResources().getDisplayMetrics().density);
+
 		LinearLayout.LayoutParams labelParams = new LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT);
 		labelParams.weight = weight;
-		labelParams.setMargins(2, 0, 2, 2);
+		// Márgenes igual que ListView: 0dp izquierda, 2dp derecha
+		labelParams.setMargins(0, 0, marginRightPx, 2);
 		label.setLayoutParams(labelParams);
 
 		labelsRow.addView(label);
 
-		// Crear contenedor para centrar el campo horizontalmente
-		LinearLayout fieldWrapper = new LinearLayout(_appConfig);
-		fieldWrapper.setOrientation(LinearLayout.HORIZONTAL);
-		fieldWrapper.setGravity(Gravity.CENTER_HORIZONTAL);
-
-		LinearLayout.LayoutParams wrapperParams = new LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT);
-		wrapperParams.weight = weight;
-		wrapperParams.setMargins(2, 0, 2, 0);
-		fieldWrapper.setLayoutParams(wrapperParams);
-
-		// El campo ya no necesita layout params con weight, solo wrap_content
-		LinearLayout.LayoutParams fieldParams = new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		// Campo directo con weight y margins, SIN wrapper intermedio (igual que ListView)
+		LinearLayout.LayoutParams fieldParams = new LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT);
+		fieldParams.weight = weight;
+		// Márgenes igual que ListView: 0dp izquierda, 2dp derecha
+		fieldParams.setMargins(0, 0, marginRightPx, 0);
 		field.setLayoutParams(fieldParams);
 
-		fieldWrapper.addView(field);
-		fieldsRow.addView(fieldWrapper);
+		// Aplicar gravity al campo directamente
+		if (field instanceof TextView) {
+			((TextView) field).setGravity(gravity | Gravity.CENTER_VERTICAL);
+		}
+
+		fieldsRow.addView(field);
 	}
 
 	// Helper para extraer el campo de un container creado por createFieldContainer

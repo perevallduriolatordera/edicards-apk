@@ -44,13 +44,20 @@
         android:padding="16dp"
         android:background="#FAFAFA">
 
-        <net.ifeu.library.Signature.SignatureView
-            android:id="@+id/signatureView"
+        <!-- Contenedor con borde grueso -->
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="#FFFFFF"
-            android:elevation="2dp"/>
+            android:background="@drawable/signature_border"
+            android:padding="8dp">
+
+            <net.ifeu.library.Signature.SignatureView
+                android:id="@+id/signatureView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#FFFFFF"/>
+        </FrameLayout>
 
         <!-- Información forma de pago -->
         <LinearLayout

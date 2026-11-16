@@ -184,7 +184,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginBottom="6dp"
-            android:gravity="center_vertical"/>
+            android:gravity="center"/>
 
         <!-- Fila 4: Controles opcionales -->
         <LinearLayout
@@ -209,22 +209,22 @@
             android:elevation="4dp"
             android:visibility="gone"/>
 
-        <!-- Fila 7: Adicional - Zona de edición de artículo seleccionado -->
-        <LinearLayout
-            android:id="@+id/headerMainLinearLayout7"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:background="#E8F5E9"
-            android:padding="8dp"
-            android:layout_marginTop="6dp"
-            android:elevation="2dp"/>
-
         </LinearLayout>
         <!-- Fin del contenedor colapsable -->
 
     </LinearLayout>
+
+    <!-- Fila 7: Adicional - Zona de edición de artículo seleccionado -->
+    <LinearLayout
+        android:id="@+id/headerMainLinearLayout7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:background="#E8F5E9"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:elevation="2dp"/>
 
     <!-- Lista de artículos -->
     <LinearLayout
