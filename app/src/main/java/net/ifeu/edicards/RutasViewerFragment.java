@@ -696,39 +696,52 @@ public class RutasViewerFragment extends Fragment {
 
 			Long ultimoDepositoMillis = null;
 			String fechaDepositoStr = clienteModel.getUltimaFechaDeposito(codigoCliente);
+			android.util.Log.d("RutasViewerFragment", "━━━ Cliente " + codigoCliente + " ━━━");
+			android.util.Log.d("RutasViewerFragment", "FechaDeposito STRING desde BD: '" + fechaDepositoStr + "'");
 			if (fechaDepositoStr != null && !fechaDepositoStr.isEmpty()) {
 				try {
 					java.util.Date fecha = formatter.parse(fechaDepositoStr);
 					ultimoDepositoMillis = fecha.getTime();
-					android.util.Log.d("RutasViewerFragment", "FechaDeposito para " + codigoCliente + ": " + fecha);
+					android.util.Log.d("RutasViewerFragment", "FechaDeposito PARSEADA: " + fecha + " (millis: " + ultimoDepositoMillis + ")");
 				} catch (Exception e) {
-					android.util.Log.w("RutasViewerFragment", "Error parseando FechaDeposito: " + fechaDepositoStr);
+					android.util.Log.w("RutasViewerFragment", "❌ Error parseando FechaDeposito: " + fechaDepositoStr + " - " + e.getMessage());
 				}
+			} else {
+				android.util.Log.d("RutasViewerFragment", "No hay FechaDeposito");
 			}
 
 			Long ultimoAlbaranMillis = null;
 			String fechaAlbaranStr = clienteModel.getUltimaFechaAlbaran(codigoCliente);
+			android.util.Log.d("RutasViewerFragment", "FechaAlbaran STRING desde BD: '" + fechaAlbaranStr + "'");
 			if (fechaAlbaranStr != null && !fechaAlbaranStr.isEmpty()) {
 				try {
 					java.util.Date fecha = formatter.parse(fechaAlbaranStr);
 					ultimoAlbaranMillis = fecha.getTime();
+					android.util.Log.d("RutasViewerFragment", "FechaAlbaran PARSEADA: " + fecha + " (millis: " + ultimoAlbaranMillis + ")");
 				} catch (Exception e) {
-					android.util.Log.w("RutasViewerFragment", "Error parseando FechaAlbaran: " + fechaAlbaranStr);
+					android.util.Log.w("RutasViewerFragment", "❌ Error parseando FechaAlbaran: " + fechaAlbaranStr + " - " + e.getMessage());
 				}
+			} else {
+				android.util.Log.d("RutasViewerFragment", "No hay FechaAlbaran");
 			}
 
 			// Determinar la fecha más reciente
 			Long ultimaVisitaMillis = null;
+			String origen = "";
 			if (ultimoDepositoMillis != null && ultimoAlbaranMillis != null) {
 				ultimaVisitaMillis = Math.max(ultimoDepositoMillis, ultimoAlbaranMillis);
+				origen = ultimoDepositoMillis > ultimoAlbaranMillis ? "Deposito" : "Albaran";
 			} else if (ultimoDepositoMillis != null) {
 				ultimaVisitaMillis = ultimoDepositoMillis;
+				origen = "Deposito";
 			} else if (ultimoAlbaranMillis != null) {
 				ultimaVisitaMillis = ultimoAlbaranMillis;
+				origen = "Albaran";
 			}
 
 			// Si nunca se ha visitado
 			if (ultimaVisitaMillis == null) {
+				android.util.Log.d("RutasViewerFragment", "No hay última visita registrada");
 				return null;
 			}
 
@@ -736,6 +749,12 @@ public class RutasViewerFragment extends Fragment {
 			long ahora = System.currentTimeMillis();
 			long diferencia = ahora - ultimaVisitaMillis;
 			int dias = (int) (diferencia / (1000 * 60 * 60 * 24));
+
+			android.util.Log.d("RutasViewerFragment", "Fecha más reciente tomada de: " + origen);
+			android.util.Log.d("RutasViewerFragment", "Fecha última visita: " + new java.util.Date(ultimaVisitaMillis));
+			android.util.Log.d("RutasViewerFragment", "Fecha actual: " + new java.util.Date(ahora));
+			android.util.Log.d("RutasViewerFragment", "Diferencia en millis: " + diferencia);
+			android.util.Log.d("RutasViewerFragment", "✓ DÍAS CALCULADOS: " + dias);
 
 			return new InfoUltimaVisita(dias, new java.util.Date(ultimaVisitaMillis));
 
