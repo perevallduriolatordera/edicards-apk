@@ -1113,23 +1113,25 @@ public class RutasViewerFragment extends Fragment {
 				// Aplicar color de fondo con transparencia ligera para mantener legibilidad
 				convertView.setBackgroundColor((colorFondo & 0x00FFFFFF) | 0x40000000);  // 40% de opacidad
 
-				// Configurar etiqueta de última visita (FORMATO COMPACTO)
+				// Configurar etiqueta de última visita (días + fecha)
 				if (infoVisita != null) {
 					String textoVisita;
+					SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yy");
+					String fechaStr = formatoFecha.format(infoVisita.fecha);
 
-					// Formato ultra-compacto: solo días
+					// Texto compacto: días + fecha
 					if (diasDesdeVisita == 0) {
-						textoVisita = "Hoy";
+						textoVisita = "Hoy " + fechaStr;
 					} else if (diasDesdeVisita == 1) {
-						textoVisita = "Ayer";
+						textoVisita = "Ayer " + fechaStr;
 					} else if (diasDesdeVisita < 30) {
-						textoVisita = diasDesdeVisita + "d";
+						textoVisita = diasDesdeVisita + "d " + fechaStr;
 					} else if (diasDesdeVisita < 365) {
 						int meses = diasDesdeVisita / 30;
-						textoVisita = meses + "m";
+						textoVisita = meses + "m " + fechaStr;
 					} else {
 						int años = diasDesdeVisita / 365;
-						textoVisita = años + "a";
+						textoVisita = años + "a " + fechaStr;
 					}
 
 					holder.txtUltimaVisita.setText(textoVisita);
