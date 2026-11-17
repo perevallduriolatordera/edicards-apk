@@ -820,8 +820,11 @@ public class Cliente extends Persistent implements IPersistable {
 	public String getUltimaFechaDeposito(String codigoCliente) {
 		Cursor cursor = null;
 		try {
+			// Usar ORDER BY DESC LIMIT 1 en lugar de MAX() para comparar fechas correctamente
+			// MAX() hace comparación lexicográfica con strings: "30/11/2026" > "01/12/2026" (incorrecto)
 			cursor = super.getDatabaseOperations().executeSentence(
-				"SELECT MAX(FechaDeposito) FROM Depositos WHERE CodigoCliente = '" + codigoCliente + "'");
+				"SELECT FechaDeposito FROM Depositos WHERE CodigoCliente = '" + codigoCliente + "' " +
+				"ORDER BY substr(FechaDeposito, 7, 4) || substr(FechaDeposito, 4, 2) || substr(FechaDeposito, 1, 2) DESC LIMIT 1");
 			if (cursor != null && cursor.moveToFirst() && !cursor.isNull(0)) {
 				return cursor.getString(0);
 			}
@@ -853,10 +856,11 @@ public class Cliente extends Persistent implements IPersistable {
 			cursor.close();
 
 			// Buscar el último registro en Historicos (sin restricción de NumeroAlbaran)
+			// Ordenar convirtiendo dd/MM/yyyy a yyyyMMdd para comparación correcta
 			cursor = super.getDatabaseOperations().executeSentence(
 				"SELECT * FROM " + ConstantsDatabase.TABLE_HISTORICOS + " " +
 				"WHERE IdCliente = " + idCliente + " " +
-				"ORDER BY Fecha DESC LIMIT 1");
+				"ORDER BY substr(Fecha, 7, 4) || substr(Fecha, 4, 2) || substr(Fecha, 1, 2) DESC LIMIT 1");
 
 			if (cursor != null && cursor.moveToFirst()) {
 				SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
@@ -914,10 +918,11 @@ public class Cliente extends Persistent implements IPersistable {
 			cursor.close();
 
 			// Buscar el último registro en Historicos (sin restricción de NumeroAlbaran)
+			// Ordenar convirtiendo dd/MM/yyyy a yyyyMMdd para comparación correcta
 			cursor = super.getDatabaseOperations().executeSentence(
 				"SELECT Fecha, NumeroAlbaran, Serie FROM " + ConstantsDatabase.TABLE_HISTORICOS + " " +
 				"WHERE IdCliente = " + idCliente + " " +
-				"ORDER BY Fecha DESC LIMIT 1");
+				"ORDER BY substr(Fecha, 7, 4) || substr(Fecha, 4, 2) || substr(Fecha, 1, 2) DESC LIMIT 1");
 
 			if (cursor != null && cursor.moveToFirst()) {
 				String fecha = cursor.getString(0);
