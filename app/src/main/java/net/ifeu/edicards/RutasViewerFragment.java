@@ -835,9 +835,73 @@ public class RutasViewerFragment extends Fragment {
 		private java.util.Map<String, Cliente.DatosUbicacion> cacheUbicaciones = new java.util.HashMap<>();
 		private java.util.Map<Long, String> cacheZonas = new java.util.HashMap<>();
 
+		// OPTIMIZACIÓN: Reutilizar SimpleDateFormat (muy costoso de crear)
+		private SimpleDateFormat formatoFechaCompacto = new SimpleDateFormat("dd/MM/yy");
+
+		// OPTIMIZACIÓN: Reutilizar instancias de modelos (Factory.build es costoso)
+		private Cliente clienteModelCache;
+		private net.ifeu.edicards.DataTier.Zona zonaModelCache;
+
+		// OPTIMIZACIÓN: Listeners reutilizables para evitar crear nuevos en cada scroll
+		private android.view.View.OnClickListener listenerMoverArriba = new android.view.View.OnClickListener() {
+			@Override
+			public void onClick(android.view.View v) {
+				int position = (Integer) v.getTag();
+				moverRutaArriba(position);
+			}
+		};
+
+		private android.view.View.OnClickListener listenerMoverAbajo = new android.view.View.OnClickListener() {
+			@Override
+			public void onClick(android.view.View v) {
+				int position = (Integer) v.getTag();
+				moverRutaAbajo(position);
+			}
+		};
+
+		private android.view.View.OnClickListener listenerFavorito = new android.view.View.OnClickListener() {
+			@Override
+			public void onClick(android.view.View v) {
+				String codigoCliente = (String) v.getTag(R.id.txtNombre); // Tag para código cliente
+				Boolean esFavorito = (Boolean) v.getTag(R.id.txtDireccion); // Tag para estado actual
+				toggleFavorito(codigoCliente, !esFavorito);
+			}
+		};
+
+		private android.view.View.OnClickListener listenerVerFicha = new android.view.View.OnClickListener() {
+			@Override
+			public void onClick(android.view.View v) {
+				int position = (Integer) v.getTag(R.id.txtOrden); // Tag para posición
+				String codigoCliente = (String) v.getTag(R.id.txtNombre); // Tag para código cliente
+				guardarPosicionCliente(position);
+				Intent intent = new Intent(getActivity(), FichaClienteDialog.class);
+				intent.putExtra("codigoCliente", codigoCliente);
+				startActivity(intent);
+			}
+		};
+
+		private android.view.View.OnClickListener listenerFilaCompleta = new android.view.View.OnClickListener() {
+			@Override
+			public void onClick(android.view.View v) {
+				int position = (Integer) v.getTag(R.id.txtOrden); // Tag para posición
+				String codigoCliente = (String) v.getTag(R.id.txtNombre); // Tag para código cliente
+				guardarPosicionCliente(position);
+				Intent intent = new Intent(getActivity(), FichaClienteDialog.class);
+				intent.putExtra("codigoCliente", codigoCliente);
+				startActivity(intent);
+			}
+		};
+
 		public RutaAdapter(Context context, List<RutaGenerada> rutas) {
 			this.context = context;
 			this.rutas = rutas;
+			// Inicializar modelos reutilizables
+			try {
+				this.clienteModelCache = Factory.build(Cliente.class, app);
+				this.zonaModelCache = Factory.build(net.ifeu.edicards.DataTier.Zona.class, app);
+			} catch (Exception e) {
+				android.util.Log.e("RutaAdapter", "Error inicializando modelos cache: " + e.getMessage());
+			}
 		}
 
 		// Actualizar lista de rutas sin recrear el adapter (mantiene cachés)
@@ -930,46 +994,31 @@ public class RutasViewerFragment extends Fragment {
 			// Cuando se aplican filtros, el BASE puede no estar en position 0
 			boolean esClienteBase = (ruta.OrdenVisita == 1); // OrdenVisita 1 es siempre la BASE
 
+			// OPTIMIZACIÓN: Configurar botones de reordenación sin crear listeners nuevos
 			// Botón mover arriba - deshabilitado para BASE
-			// No permitir mover BASE ni mover items hacia BASE
-			boolean hayItemArribaEsBase = false;
-			if (position > 0) {
-				RutaGenerada itemArriba = rutas.get(position - 1);
-				hayItemArribaEsBase = (itemArriba.OrdenVisita == 1);
-			}
+			boolean hayItemArribaEsBase = position > 0 && rutas.get(position - 1).OrdenVisita == 1;
 			if (esClienteBase || position == 0 || hayItemArribaEsBase) {
 				holder.btnMoverArriba.setEnabled(false);
 				holder.btnMoverArriba.setAlpha(0.3f);
+				holder.btnMoverArriba.setOnClickListener(null);
 			} else {
 				holder.btnMoverArriba.setEnabled(true);
 				holder.btnMoverArriba.setAlpha(1.0f);
-				holder.btnMoverArriba.setOnClickListener(new android.view.View.OnClickListener() {
-					@Override
-					public void onClick(android.view.View v) {
-						moverRutaArriba(currentPosition);
-					}
-				});
+				holder.btnMoverArriba.setTag(currentPosition);
+				holder.btnMoverArriba.setOnClickListener(listenerMoverArriba);
 			}
 
 			// Botón mover abajo - deshabilitado para BASE y para el último
-			// No permitir mover BASE ni mover items hacia BASE
-			boolean hayItemAbajoEsBase = false;
-			if (position < rutas.size() - 1) {
-				RutaGenerada itemAbajo = rutas.get(position + 1);
-				hayItemAbajoEsBase = (itemAbajo.OrdenVisita == 1);
-			}
+			boolean hayItemAbajoEsBase = position < rutas.size() - 1 && rutas.get(position + 1).OrdenVisita == 1;
 			if (esClienteBase || position == rutas.size() - 1 || hayItemAbajoEsBase) {
 				holder.btnMoverAbajo.setEnabled(false);
 				holder.btnMoverAbajo.setAlpha(0.3f);
+				holder.btnMoverAbajo.setOnClickListener(null);
 			} else {
 				holder.btnMoverAbajo.setEnabled(true);
 				holder.btnMoverAbajo.setAlpha(1.0f);
-				holder.btnMoverAbajo.setOnClickListener(new android.view.View.OnClickListener() {
-					@Override
-					public void onClick(android.view.View v) {
-						moverRutaAbajo(currentPosition);
-					}
-				});
+				holder.btnMoverAbajo.setTag(currentPosition);
+				holder.btnMoverAbajo.setOnClickListener(listenerMoverAbajo);
 			}
 			holder.txtNombre.setText(ruta.NombreCliente);
 			holder.txtDireccion.setText(ruta.DireccionCliente);
@@ -992,10 +1041,9 @@ public class RutasViewerFragment extends Fragment {
 			// OPTIMIZACIÓN: Obtener datos de ubicación desde caché
 			try {
 				Cliente.DatosUbicacion ubicacion = cacheUbicaciones.get(ruta.CodigoCliente);
-				if (ubicacion == null) {
-					// Cache miss: cargar desde DB y almacenar en caché
-					Cliente clienteModel = Factory.build(Cliente.class, app);
-					ubicacion = clienteModel.getDatosUbicacion(ruta.CodigoCliente);
+				if (ubicacion == null && clienteModelCache != null) {
+					// Cache miss: cargar desde DB usando modelo reutilizable
+					ubicacion = clienteModelCache.getDatosUbicacion(ruta.CodigoCliente);
 					if (ubicacion != null) {
 						cacheUbicaciones.put(ruta.CodigoCliente, ubicacion);
 					}
@@ -1005,7 +1053,8 @@ public class RutasViewerFragment extends Fragment {
 					// Mostrar coordenadas en formato compacto si existen
 					if (ubicacion.latitud != null && ubicacion.longitud != null &&
 						ubicacion.latitud != 0 && ubicacion.longitud != 0) {
-						holder.txtCoordenadas.setText(String.format("📍 %.6f, %.6f", ubicacion.latitud, ubicacion.longitud));
+						// OPTIMIZACIÓN: Evitar String.format costoso
+						holder.txtCoordenadas.setText("📍 " + ubicacion.latitud + ", " + ubicacion.longitud);
 						holder.txtCoordenadas.setVisibility(android.view.View.VISIBLE);
 					} else {
 						holder.txtCoordenadas.setVisibility(android.view.View.GONE);
@@ -1015,17 +1064,11 @@ public class RutasViewerFragment extends Fragment {
 					if (ubicacion.idZona != null && ubicacion.idZona > 0) {
 						// OPTIMIZACIÓN: Usar caché de zonas
 						String nombreZona = cacheZonas.get(ubicacion.idZona);
-						if (nombreZona == null) {
-							// Cache miss: cargar desde DB
-							try {
-								net.ifeu.edicards.DataTier.Zona zona = Factory.build(
-									net.ifeu.edicards.DataTier.Zona.class, app);
-								if (zona.setZonaById(ubicacion.idZona)) {
-									nombreZona = zona.NombreZona;
-									cacheZonas.put(ubicacion.idZona, nombreZona);
-								}
-							} catch (Exception e) {
-								// Ignorar error al cargar zona
+						if (nombreZona == null && zonaModelCache != null) {
+							// Cache miss: cargar desde DB usando modelo reutilizable
+							if (zonaModelCache.setZonaById(ubicacion.idZona)) {
+								nombreZona = zonaModelCache.NombreZona;
+								cacheZonas.put(ubicacion.idZona, nombreZona);
 							}
 						}
 
@@ -1060,15 +1103,13 @@ public class RutasViewerFragment extends Fragment {
 			try {
 				Boolean favoritoActual = cacheFavoritos.get(ruta.CodigoCliente);
 				if (favoritoActual == null) {
-					// Cache miss: cargar desde DB y almacenar en caché
-					Cliente clienteModel = Factory.build(Cliente.class, app);
-					favoritoActual = clienteModel.esFavorito(ruta.CodigoCliente);
+					// Cache miss: cargar desde DB usando modelo reutilizable
+					favoritoActual = clienteModelCache.esFavorito(ruta.CodigoCliente);
 					cacheFavoritos.put(ruta.CodigoCliente, favoritoActual);
 				}
 
 				// Actualizar icono según el estado
-				final boolean esFavorito = favoritoActual;
-				if (esFavorito) {
+				if (favoritoActual) {
 					holder.btnFavorito.setText("★"); // Estrella llena
 					holder.btnFavorito.setTextColor(0xFFFFC107); // Amarillo/dorado
 				} else {
@@ -1076,13 +1117,10 @@ public class RutasViewerFragment extends Fragment {
 					holder.btnFavorito.setTextColor(0xFF9E9E9E); // Gris
 				}
 
-				// Click para toggle favorito
-				holder.btnFavorito.setOnClickListener(new android.view.View.OnClickListener() {
-					@Override
-					public void onClick(android.view.View v) {
-						toggleFavorito(ruta.CodigoCliente, !esFavorito);
-					}
-				});
+				// OPTIMIZACIÓN: Usar listener reutilizable con tags
+				holder.btnFavorito.setTag(R.id.txtNombre, ruta.CodigoCliente);
+				holder.btnFavorito.setTag(R.id.txtDireccion, favoritoActual);
+				holder.btnFavorito.setOnClickListener(listenerFavorito);
 
 			} catch (Exception e) {
 				android.util.Log.w("RutasViewerFragment", "Error leyendo estado favorito: " + e.getMessage());
@@ -1116,8 +1154,7 @@ public class RutasViewerFragment extends Fragment {
 				// Configurar etiqueta de última visita (días + fecha)
 				if (infoVisita != null) {
 					String textoVisita;
-					SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yy");
-					String fechaStr = formatoFecha.format(infoVisita.fecha);
+					String fechaStr = formatoFechaCompacto.format(infoVisita.fecha);
 
 					// Texto compacto: días + fecha
 					if (diasDesdeVisita == 0) {
@@ -1145,31 +1182,15 @@ public class RutasViewerFragment extends Fragment {
 				}
 			}
 
-			// Configurar botón Ver Ficha
-			holder.btnVerFicha.setOnClickListener(new android.view.View.OnClickListener() {
-				@Override
-				public void onClick(android.view.View v) {
-					// Guardar posición como bookmark
-					guardarPosicionCliente(currentPosition);
+			// OPTIMIZACIÓN: Configurar botón Ver Ficha con listener reutilizable
+			holder.btnVerFicha.setTag(R.id.txtOrden, currentPosition);
+			holder.btnVerFicha.setTag(R.id.txtNombre, ruta.CodigoCliente);
+			holder.btnVerFicha.setOnClickListener(listenerVerFicha);
 
-					Intent intent = new Intent(getActivity(), FichaClienteDialog.class);
-					intent.putExtra("codigoCliente", ruta.CodigoCliente);
-					startActivity(intent);
-				}
-			});
-
-			// Hacer toda la fila clickable para abrir la ficha del cliente
-			convertView.setOnClickListener(new android.view.View.OnClickListener() {
-				@Override
-				public void onClick(android.view.View v) {
-					// Guardar posición como bookmark
-					guardarPosicionCliente(currentPosition);
-
-					Intent intent = new Intent(getActivity(), FichaClienteDialog.class);
-					intent.putExtra("codigoCliente", ruta.CodigoCliente);
-					startActivity(intent);
-				}
-			});
+			// OPTIMIZACIÓN: Hacer toda la fila clickable con listener reutilizable
+			convertView.setTag(R.id.txtOrden, currentPosition);
+			convertView.setTag(R.id.txtNombre, ruta.CodigoCliente);
+			convertView.setOnClickListener(listenerFilaCompleta);
 
 			// Añadir feedback visual al tocar la fila
 			convertView.setClickable(true);
