@@ -689,59 +689,47 @@ public class RutasViewerFragment extends Fragment {
 	 */
 	private InfoUltimaVisita getInfoUltimaVisita(String codigoCliente) {
 		try {
-			SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+			// IMPORTANTE: Depositos usa formato dd/MM/yyyy, Historicos usa MM/dd/yyyy
+			SimpleDateFormat formatterDeposito = new SimpleDateFormat("dd/MM/yyyy");
+			SimpleDateFormat formatterAlbaran = new SimpleDateFormat("MM/dd/yyyy");
 
 			// Buscar última fecha en Depositos y Albaranes usando el modelo
 			Cliente clienteModel = Factory.build(Cliente.class, app);
 
 			Long ultimoDepositoMillis = null;
 			String fechaDepositoStr = clienteModel.getUltimaFechaDeposito(codigoCliente);
-			android.util.Log.d("RutasViewerFragment", "━━━ Cliente " + codigoCliente + " ━━━");
-			android.util.Log.d("RutasViewerFragment", "FechaDeposito STRING desde BD: '" + fechaDepositoStr + "'");
 			if (fechaDepositoStr != null && !fechaDepositoStr.isEmpty()) {
 				try {
-					java.util.Date fecha = formatter.parse(fechaDepositoStr);
+					java.util.Date fecha = formatterDeposito.parse(fechaDepositoStr);
 					ultimoDepositoMillis = fecha.getTime();
-					android.util.Log.d("RutasViewerFragment", "FechaDeposito PARSEADA: " + fecha + " (millis: " + ultimoDepositoMillis + ")");
 				} catch (Exception e) {
-					android.util.Log.w("RutasViewerFragment", "❌ Error parseando FechaDeposito: " + fechaDepositoStr + " - " + e.getMessage());
+					android.util.Log.w("RutasViewerFragment", "Error parseando FechaDeposito: " + fechaDepositoStr);
 				}
-			} else {
-				android.util.Log.d("RutasViewerFragment", "No hay FechaDeposito");
 			}
 
 			Long ultimoAlbaranMillis = null;
 			String fechaAlbaranStr = clienteModel.getUltimaFechaAlbaran(codigoCliente);
-			android.util.Log.d("RutasViewerFragment", "FechaAlbaran STRING desde BD: '" + fechaAlbaranStr + "'");
 			if (fechaAlbaranStr != null && !fechaAlbaranStr.isEmpty()) {
 				try {
-					java.util.Date fecha = formatter.parse(fechaAlbaranStr);
+					java.util.Date fecha = formatterAlbaran.parse(fechaAlbaranStr);
 					ultimoAlbaranMillis = fecha.getTime();
-					android.util.Log.d("RutasViewerFragment", "FechaAlbaran PARSEADA: " + fecha + " (millis: " + ultimoAlbaranMillis + ")");
 				} catch (Exception e) {
-					android.util.Log.w("RutasViewerFragment", "❌ Error parseando FechaAlbaran: " + fechaAlbaranStr + " - " + e.getMessage());
+					android.util.Log.w("RutasViewerFragment", "Error parseando FechaAlbaran: " + fechaAlbaranStr);
 				}
-			} else {
-				android.util.Log.d("RutasViewerFragment", "No hay FechaAlbaran");
 			}
 
 			// Determinar la fecha más reciente
 			Long ultimaVisitaMillis = null;
-			String origen = "";
 			if (ultimoDepositoMillis != null && ultimoAlbaranMillis != null) {
 				ultimaVisitaMillis = Math.max(ultimoDepositoMillis, ultimoAlbaranMillis);
-				origen = ultimoDepositoMillis > ultimoAlbaranMillis ? "Deposito" : "Albaran";
 			} else if (ultimoDepositoMillis != null) {
 				ultimaVisitaMillis = ultimoDepositoMillis;
-				origen = "Deposito";
 			} else if (ultimoAlbaranMillis != null) {
 				ultimaVisitaMillis = ultimoAlbaranMillis;
-				origen = "Albaran";
 			}
 
 			// Si nunca se ha visitado
 			if (ultimaVisitaMillis == null) {
-				android.util.Log.d("RutasViewerFragment", "No hay última visita registrada");
 				return null;
 			}
 
@@ -749,12 +737,6 @@ public class RutasViewerFragment extends Fragment {
 			long ahora = System.currentTimeMillis();
 			long diferencia = ahora - ultimaVisitaMillis;
 			int dias = (int) (diferencia / (1000 * 60 * 60 * 24));
-
-			android.util.Log.d("RutasViewerFragment", "Fecha más reciente tomada de: " + origen);
-			android.util.Log.d("RutasViewerFragment", "Fecha última visita: " + new java.util.Date(ultimaVisitaMillis));
-			android.util.Log.d("RutasViewerFragment", "Fecha actual: " + new java.util.Date(ahora));
-			android.util.Log.d("RutasViewerFragment", "Diferencia en millis: " + diferencia);
-			android.util.Log.d("RutasViewerFragment", "✓ DÍAS CALCULADOS: " + dias);
 
 			return new InfoUltimaVisita(dias, new java.util.Date(ultimaVisitaMillis));
 
@@ -1465,15 +1447,33 @@ public class RutasViewerFragment extends Fragment {
 						return provZ2.compareToIgnoreCase(provZ1);
 
 					case 7: // Última visita (reciente primero)
-						InfoUltimaVisita info1 = getInfoUltimaVisita(r1.CodigoCliente);
-						InfoUltimaVisita info2 = getInfoUltimaVisita(r2.CodigoCliente);
+						// OPTIMIZACIÓN: Usar caché del adapter para evitar queries SQL repetidas
+						InfoUltimaVisita info1 = adapter.cacheUltimasVisitas.get(r1.CodigoCliente);
+						if (info1 == null) {
+							info1 = getInfoUltimaVisita(r1.CodigoCliente);
+							if (info1 != null) adapter.cacheUltimasVisitas.put(r1.CodigoCliente, info1);
+						}
+						InfoUltimaVisita info2 = adapter.cacheUltimasVisitas.get(r2.CodigoCliente);
+						if (info2 == null) {
+							info2 = getInfoUltimaVisita(r2.CodigoCliente);
+							if (info2 != null) adapter.cacheUltimasVisitas.put(r2.CodigoCliente, info2);
+						}
 						int dias1 = info1 != null ? info1.dias : Integer.MAX_VALUE;
 						int dias2 = info2 != null ? info2.dias : Integer.MAX_VALUE;
 						return Integer.compare(dias1, dias2); // Menos días = más reciente
 
 					case 8: // Última visita (antigua primero)
-						InfoUltimaVisita infoA1 = getInfoUltimaVisita(r1.CodigoCliente);
-						InfoUltimaVisita infoA2 = getInfoUltimaVisita(r2.CodigoCliente);
+						// OPTIMIZACIÓN: Usar caché del adapter para evitar queries SQL repetidas
+						InfoUltimaVisita infoA1 = adapter.cacheUltimasVisitas.get(r1.CodigoCliente);
+						if (infoA1 == null) {
+							infoA1 = getInfoUltimaVisita(r1.CodigoCliente);
+							if (infoA1 != null) adapter.cacheUltimasVisitas.put(r1.CodigoCliente, infoA1);
+						}
+						InfoUltimaVisita infoA2 = adapter.cacheUltimasVisitas.get(r2.CodigoCliente);
+						if (infoA2 == null) {
+							infoA2 = getInfoUltimaVisita(r2.CodigoCliente);
+							if (infoA2 != null) adapter.cacheUltimasVisitas.put(r2.CodigoCliente, infoA2);
+						}
 						int diasA1 = infoA1 != null ? infoA1.dias : Integer.MAX_VALUE;
 						int diasA2 = infoA2 != null ? infoA2.dias : Integer.MAX_VALUE;
 						return Integer.compare(diasA2, diasA1); // Más días = más antigua
