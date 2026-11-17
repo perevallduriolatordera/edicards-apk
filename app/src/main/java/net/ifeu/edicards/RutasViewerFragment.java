@@ -828,9 +828,23 @@ public class RutasViewerFragment extends Fragment {
 		private Context context;
 		private List<RutaGenerada> rutas;
 
+		// OPTIMIZACIÓN: Cachés para evitar queries SQL repetidas en cada scroll
+		private java.util.Map<String, Boolean> cacheFavoritos = new java.util.HashMap<>();
+		private java.util.Map<String, InfoUltimaVisita> cacheUltimasVisitas = new java.util.HashMap<>();
+		private java.util.Map<String, Cliente.DatosUbicacion> cacheUbicaciones = new java.util.HashMap<>();
+		private java.util.Map<Long, String> cacheZonas = new java.util.HashMap<>();
+
 		public RutaAdapter(Context context, List<RutaGenerada> rutas) {
 			this.context = context;
 			this.rutas = rutas;
+		}
+
+		// Invalidar cachés cuando sea necesario
+		public void invalidarCaches() {
+			cacheFavoritos.clear();
+			cacheUltimasVisitas.clear();
+			cacheUbicaciones.clear();
+			cacheZonas.clear();
 		}
 
 		@Override
@@ -850,30 +864,58 @@ public class RutasViewerFragment extends Fragment {
 			return position;
 		}
 
+		// OPTIMIZACIÓN: ViewHolder para evitar findViewById en cada scroll
+		private class ViewHolder {
+			TextView txtOrden;
+			TextView txtNombre;
+			TextView txtDireccion;
+			TextView txtPoblacion;
+			TextView txtDistancia;
+			TextView txtZona;
+			TextView txtClienteNuevo;
+			TextView txtUltimaVisita;
+			TextView txtCoordenadas;
+			android.widget.Button btnMoverArriba;
+			android.widget.Button btnMoverAbajo;
+			android.widget.Button btnFavorito;
+			android.widget.Button btnVerFicha;
+		}
+
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			// IMPORTANTE: No cachear vistas para que siempre se recalcule el color
-			// según la última visita al cliente
-			LayoutInflater inflater = LayoutInflater.from(context);
-			convertView = inflater.inflate(R.layout.item_ruta, parent, false);
+			ViewHolder holder;
+
+			// OPTIMIZACIÓN: Reciclar vistas existentes en lugar de inflar cada vez
+			if (convertView == null) {
+				// Solo inflar si no hay vista reciclada
+				LayoutInflater inflater = LayoutInflater.from(context);
+				convertView = inflater.inflate(R.layout.item_ruta, parent, false);
+
+				// Crear ViewHolder y cachear referencias
+				holder = new ViewHolder();
+				holder.txtOrden = convertView.findViewById(R.id.txtOrden);
+				holder.txtNombre = convertView.findViewById(R.id.txtNombre);
+				holder.txtDireccion = convertView.findViewById(R.id.txtDireccion);
+				holder.txtPoblacion = convertView.findViewById(R.id.txtPoblacion);
+				holder.txtDistancia = convertView.findViewById(R.id.txtDistancia);
+				holder.txtZona = convertView.findViewById(R.id.txtZona);
+				holder.txtClienteNuevo = convertView.findViewById(R.id.txtClienteNuevo);
+				holder.txtUltimaVisita = convertView.findViewById(R.id.txtUltimaVisita);
+				holder.txtCoordenadas = convertView.findViewById(R.id.txtCoordenadas);
+				holder.btnMoverArriba = convertView.findViewById(R.id.btnMoverArriba);
+				holder.btnMoverAbajo = convertView.findViewById(R.id.btnMoverAbajo);
+				holder.btnFavorito = convertView.findViewById(R.id.btnFavorito);
+				holder.btnVerFicha = convertView.findViewById(R.id.btnVerFicha);
+
+				convertView.setTag(holder);
+			} else {
+				// Reusar vista reciclada
+				holder = (ViewHolder) convertView.getTag();
+			}
 
 			RutaGenerada ruta = rutas.get(position);
 
-			TextView txtOrden = convertView.findViewById(R.id.txtOrden);
-			TextView txtNombre = convertView.findViewById(R.id.txtNombre);
-			TextView txtDireccion = convertView.findViewById(R.id.txtDireccion);
-			TextView txtPoblacion = convertView.findViewById(R.id.txtPoblacion);
-			TextView txtDistancia = convertView.findViewById(R.id.txtDistancia);
-			TextView txtZona = convertView.findViewById(R.id.txtZona);
-			TextView txtClienteNuevo = convertView.findViewById(R.id.txtClienteNuevo);
-			TextView txtUltimaVisita = convertView.findViewById(R.id.txtUltimaVisita);
-			TextView txtCoordenadas = convertView.findViewById(R.id.txtCoordenadas);
-			android.widget.Button btnMoverArriba = convertView.findViewById(R.id.btnMoverArriba);
-			android.widget.Button btnMoverAbajo = convertView.findViewById(R.id.btnMoverAbajo);
-			android.widget.Button btnFavorito = convertView.findViewById(R.id.btnFavorito);
-			android.widget.Button btnVerFicha = convertView.findViewById(R.id.btnVerFicha);
-
-			txtOrden.setText(String.valueOf(ruta.OrdenVisita));
+			holder.txtOrden.setText(String.valueOf(ruta.OrdenVisita));
 
 			// Configurar botones de reordenación
 			final int currentPosition = position;
@@ -889,12 +931,12 @@ public class RutasViewerFragment extends Fragment {
 				hayItemArribaEsBase = (itemArriba.OrdenVisita == 1);
 			}
 			if (esClienteBase || position == 0 || hayItemArribaEsBase) {
-				btnMoverArriba.setEnabled(false);
-				btnMoverArriba.setAlpha(0.3f);
+				holder.btnMoverArriba.setEnabled(false);
+				holder.btnMoverArriba.setAlpha(0.3f);
 			} else {
-				btnMoverArriba.setEnabled(true);
-				btnMoverArriba.setAlpha(1.0f);
-				btnMoverArriba.setOnClickListener(new android.view.View.OnClickListener() {
+				holder.btnMoverArriba.setEnabled(true);
+				holder.btnMoverArriba.setAlpha(1.0f);
+				holder.btnMoverArriba.setOnClickListener(new android.view.View.OnClickListener() {
 					@Override
 					public void onClick(android.view.View v) {
 						moverRutaArriba(currentPosition);
@@ -910,20 +952,20 @@ public class RutasViewerFragment extends Fragment {
 				hayItemAbajoEsBase = (itemAbajo.OrdenVisita == 1);
 			}
 			if (esClienteBase || position == rutas.size() - 1 || hayItemAbajoEsBase) {
-				btnMoverAbajo.setEnabled(false);
-				btnMoverAbajo.setAlpha(0.3f);
+				holder.btnMoverAbajo.setEnabled(false);
+				holder.btnMoverAbajo.setAlpha(0.3f);
 			} else {
-				btnMoverAbajo.setEnabled(true);
-				btnMoverAbajo.setAlpha(1.0f);
-				btnMoverAbajo.setOnClickListener(new android.view.View.OnClickListener() {
+				holder.btnMoverAbajo.setEnabled(true);
+				holder.btnMoverAbajo.setAlpha(1.0f);
+				holder.btnMoverAbajo.setOnClickListener(new android.view.View.OnClickListener() {
 					@Override
 					public void onClick(android.view.View v) {
 						moverRutaAbajo(currentPosition);
 					}
 				});
 			}
-			txtNombre.setText(ruta.NombreCliente);
-			txtDireccion.setText(ruta.DireccionCliente);
+			holder.txtNombre.setText(ruta.NombreCliente);
+			holder.txtDireccion.setText(ruta.DireccionCliente);
 
 			String poblacionProvincia = "";
 			if (ruta.PoblacionCliente != null && !ruta.PoblacionCliente.isEmpty()) {
@@ -932,101 +974,132 @@ public class RutasViewerFragment extends Fragment {
 					poblacionProvincia += ", " + ruta.ProvinciaCliente;
 				}
 			}
-			txtPoblacion.setText(poblacionProvincia);
+			holder.txtPoblacion.setText(poblacionProvincia);
 
 			if (ruta.DistanciaEstimada != null && !ruta.DistanciaEstimada.isEmpty()) {
-				txtDistancia.setText(ruta.DistanciaEstimada);
+				holder.txtDistancia.setText(ruta.DistanciaEstimada);
 			} else {
-				txtDistancia.setText("- km");
+				holder.txtDistancia.setText("- km");
 			}
 
-			// Obtener datos de ubicación del cliente desde el modelo
+			// OPTIMIZACIÓN: Obtener datos de ubicación desde caché
 			try {
-				Cliente clienteModel = Factory.build(Cliente.class, app);
-				Cliente.DatosUbicacion ubicacion = clienteModel.getDatosUbicacion(ruta.CodigoCliente);
+				Cliente.DatosUbicacion ubicacion = cacheUbicaciones.get(ruta.CodigoCliente);
+				if (ubicacion == null) {
+					// Cache miss: cargar desde DB y almacenar en caché
+					Cliente clienteModel = Factory.build(Cliente.class, app);
+					ubicacion = clienteModel.getDatosUbicacion(ruta.CodigoCliente);
+					if (ubicacion != null) {
+						cacheUbicaciones.put(ruta.CodigoCliente, ubicacion);
+					}
+				}
 
 				if (ubicacion != null) {
 					// Mostrar coordenadas en formato compacto si existen
 					if (ubicacion.latitud != null && ubicacion.longitud != null &&
 						ubicacion.latitud != 0 && ubicacion.longitud != 0) {
-						txtCoordenadas.setText(String.format("📍 %.6f, %.6f", ubicacion.latitud, ubicacion.longitud));
-						txtCoordenadas.setVisibility(android.view.View.VISIBLE);
+						holder.txtCoordenadas.setText(String.format("📍 %.6f, %.6f", ubicacion.latitud, ubicacion.longitud));
+						holder.txtCoordenadas.setVisibility(android.view.View.VISIBLE);
 					} else {
-						txtCoordenadas.setVisibility(android.view.View.GONE);
+						holder.txtCoordenadas.setVisibility(android.view.View.GONE);
 					}
 
 					// Mostrar zona si existe
 					if (ubicacion.idZona != null && ubicacion.idZona > 0) {
-						try {
-							net.ifeu.edicards.DataTier.Zona zona = Factory.build(
-								net.ifeu.edicards.DataTier.Zona.class, app);
-							if (zona.setZonaById(ubicacion.idZona)) {
-								txtZona.setText(zona.NombreZona);
-								txtZona.setVisibility(android.view.View.VISIBLE);
-							} else {
-								txtZona.setVisibility(android.view.View.GONE);
+						// OPTIMIZACIÓN: Usar caché de zonas
+						String nombreZona = cacheZonas.get(ubicacion.idZona);
+						if (nombreZona == null) {
+							// Cache miss: cargar desde DB
+							try {
+								net.ifeu.edicards.DataTier.Zona zona = Factory.build(
+									net.ifeu.edicards.DataTier.Zona.class, app);
+								if (zona.setZonaById(ubicacion.idZona)) {
+									nombreZona = zona.NombreZona;
+									cacheZonas.put(ubicacion.idZona, nombreZona);
+								}
+							} catch (Exception e) {
+								// Ignorar error al cargar zona
 							}
-						} catch (Exception e) {
-							txtZona.setVisibility(android.view.View.GONE);
+						}
+
+						if (nombreZona != null) {
+							holder.txtZona.setText(nombreZona);
+							holder.txtZona.setVisibility(android.view.View.VISIBLE);
+						} else {
+							holder.txtZona.setVisibility(android.view.View.GONE);
 						}
 					} else {
-						txtZona.setVisibility(android.view.View.GONE);
+						holder.txtZona.setVisibility(android.view.View.GONE);
 					}
 				} else {
-					txtCoordenadas.setVisibility(android.view.View.GONE);
-					txtZona.setVisibility(android.view.View.GONE);
+					holder.txtCoordenadas.setVisibility(android.view.View.GONE);
+					holder.txtZona.setVisibility(android.view.View.GONE);
 				}
 			} catch (Exception e) {
 				android.util.Log.w("RutasViewerFragment", "Error obteniendo datos ubicación: " + e.getMessage());
-				txtCoordenadas.setVisibility(android.view.View.GONE);
-				txtZona.setVisibility(android.view.View.GONE);
+				holder.txtCoordenadas.setVisibility(android.view.View.GONE);
+				holder.txtZona.setVisibility(android.view.View.GONE);
 			}
 
 			// Mostrar indicador de cliente nuevo si corresponde
 			if (ruta.EsClienteNuevo) {
-				txtClienteNuevo.setVisibility(android.view.View.VISIBLE);
+				holder.txtClienteNuevo.setVisibility(android.view.View.VISIBLE);
 				android.util.Log.d("RutaAdapter", "Cliente NUEVO mostrado: " + ruta.NombreCliente);
 			} else {
-				txtClienteNuevo.setVisibility(android.view.View.GONE);
+				holder.txtClienteNuevo.setVisibility(android.view.View.GONE);
 			}
 
-			// Configurar botón de favorito
+			// OPTIMIZACIÓN: Configurar botón de favorito desde caché
 			try {
-				Cliente clienteModel = Factory.build(Cliente.class, app);
-				final boolean favoritoActual = clienteModel.esFavorito(ruta.CodigoCliente);
+				Boolean favoritoActual = cacheFavoritos.get(ruta.CodigoCliente);
+				if (favoritoActual == null) {
+					// Cache miss: cargar desde DB y almacenar en caché
+					Cliente clienteModel = Factory.build(Cliente.class, app);
+					favoritoActual = clienteModel.esFavorito(ruta.CodigoCliente);
+					cacheFavoritos.put(ruta.CodigoCliente, favoritoActual);
+				}
 
 				// Actualizar icono según el estado
-				if (favoritoActual) {
-					btnFavorito.setText("★"); // Estrella llena
-					btnFavorito.setTextColor(0xFFFFC107); // Amarillo/dorado
+				final boolean esFavorito = favoritoActual;
+				if (esFavorito) {
+					holder.btnFavorito.setText("★"); // Estrella llena
+					holder.btnFavorito.setTextColor(0xFFFFC107); // Amarillo/dorado
 				} else {
-					btnFavorito.setText("☆"); // Estrella vacía
-					btnFavorito.setTextColor(0xFF9E9E9E); // Gris
+					holder.btnFavorito.setText("☆"); // Estrella vacía
+					holder.btnFavorito.setTextColor(0xFF9E9E9E); // Gris
 				}
 
 				// Click para toggle favorito
-				btnFavorito.setOnClickListener(new android.view.View.OnClickListener() {
+				holder.btnFavorito.setOnClickListener(new android.view.View.OnClickListener() {
 					@Override
 					public void onClick(android.view.View v) {
-						toggleFavorito(ruta.CodigoCliente, !favoritoActual);
+						toggleFavorito(ruta.CodigoCliente, !esFavorito);
 					}
 				});
 
 			} catch (Exception e) {
 				android.util.Log.w("RutasViewerFragment", "Error leyendo estado favorito: " + e.getMessage());
-				btnFavorito.setVisibility(android.view.View.GONE);
+				holder.btnFavorito.setVisibility(android.view.View.GONE);
 			}
 
 			// Si es el cliente BASE (OrdenVisita == 1), no aplicar colores ni mostrar info de visita
 			if (esClienteBase) {
 				// Cliente BASE: fondo blanco, sin información de visitas
 				convertView.setBackgroundColor(0xFFFFFFFF); // Blanco
-				txtUltimaVisita.setText("BASE");
-				txtUltimaVisita.setBackgroundColor(0xFF9E9E9E); // Gris neutro
-				txtUltimaVisita.setVisibility(android.view.View.VISIBLE);
+				holder.txtUltimaVisita.setText("BASE");
+				holder.txtUltimaVisita.setBackgroundColor(0xFF9E9E9E); // Gris neutro
+				holder.txtUltimaVisita.setVisibility(android.view.View.VISIBLE);
 			} else {
-				// Clientes normales: calcular y aplicar color según cuartil de antigüedad de visita
-				InfoUltimaVisita infoVisita = getInfoUltimaVisita(ruta.CodigoCliente);
+				// OPTIMIZACIÓN: Clientes normales - obtener info de última visita desde caché
+				InfoUltimaVisita infoVisita = cacheUltimasVisitas.get(ruta.CodigoCliente);
+				if (infoVisita == null) {
+					// Cache miss: calcular y almacenar en caché
+					infoVisita = getInfoUltimaVisita(ruta.CodigoCliente);
+					if (infoVisita != null) {
+						cacheUltimasVisitas.put(ruta.CodigoCliente, infoVisita);
+					}
+				}
+
 				int diasDesdeVisita = infoVisita != null ? infoVisita.dias : -1;
 				int colorFondo = getColorPorAntiguedadVisita(diasDesdeVisita);
 
@@ -1052,19 +1125,19 @@ public class RutasViewerFragment extends Fragment {
 						textoVisita = años + "a";
 					}
 
-					txtUltimaVisita.setText(textoVisita);
-					txtUltimaVisita.setBackgroundColor(colorFondo); // Mismo color que el fondo
-					txtUltimaVisita.setVisibility(android.view.View.VISIBLE);
+					holder.txtUltimaVisita.setText(textoVisita);
+					holder.txtUltimaVisita.setBackgroundColor(colorFondo); // Mismo color que el fondo
+					holder.txtUltimaVisita.setVisibility(android.view.View.VISIBLE);
 				} else {
 					// Nunca visitado
-					txtUltimaVisita.setText("NUEVO");
-					txtUltimaVisita.setBackgroundColor(0xFFFF4444); // Rojo intenso
-					txtUltimaVisita.setVisibility(android.view.View.VISIBLE);
+					holder.txtUltimaVisita.setText("NUEVO");
+					holder.txtUltimaVisita.setBackgroundColor(0xFFFF4444); // Rojo intenso
+					holder.txtUltimaVisita.setVisibility(android.view.View.VISIBLE);
 				}
 			}
 
 			// Configurar botón Ver Ficha
-			btnVerFicha.setOnClickListener(new android.view.View.OnClickListener() {
+			holder.btnVerFicha.setOnClickListener(new android.view.View.OnClickListener() {
 				@Override
 				public void onClick(android.view.View v) {
 					// Guardar posición como bookmark
@@ -1236,6 +1309,11 @@ public class RutasViewerFragment extends Fragment {
 		try {
 			Cliente cliente = Factory.build(Cliente.class, app);
 			cliente.setEsFavorito(codigoCliente, nuevoEstado);
+
+			// OPTIMIZACIÓN: Invalidar caché de favoritos para este cliente
+			if (adapter != null) {
+				adapter.cacheFavoritos.remove(codigoCliente);
+			}
 
 			// Actualizar la vista
 			if (adapter != null) {

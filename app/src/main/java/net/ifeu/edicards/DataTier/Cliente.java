@@ -852,11 +852,10 @@ public class Cliente extends Persistent implements IPersistable {
 			String idCliente = cursor.getString(0);
 			cursor.close();
 
-			// Buscar el último albarán en Historicos
+			// Buscar el último registro en Historicos (sin restricción de NumeroAlbaran)
 			cursor = super.getDatabaseOperations().executeSentence(
 				"SELECT * FROM " + ConstantsDatabase.TABLE_HISTORICOS + " " +
 				"WHERE IdCliente = " + idCliente + " " +
-				"AND NumeroAlbaran IS NOT NULL AND NumeroAlbaran != '' " +
 				"ORDER BY Fecha DESC LIMIT 1");
 
 			if (cursor != null && cursor.moveToFirst()) {
@@ -914,11 +913,10 @@ public class Cliente extends Persistent implements IPersistable {
 			String idCliente = cursor.getString(0);
 			cursor.close();
 
-			// Buscar el último albarán en Historicos
+			// Buscar el último registro en Historicos (sin restricción de NumeroAlbaran)
 			cursor = super.getDatabaseOperations().executeSentence(
 				"SELECT Fecha, NumeroAlbaran, Serie FROM " + ConstantsDatabase.TABLE_HISTORICOS + " " +
 				"WHERE IdCliente = " + idCliente + " " +
-				"AND NumeroAlbaran IS NOT NULL AND NumeroAlbaran != '' " +
 				"ORDER BY Fecha DESC LIMIT 1");
 
 			if (cursor != null && cursor.moveToFirst()) {
