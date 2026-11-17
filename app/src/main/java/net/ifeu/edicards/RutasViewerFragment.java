@@ -839,6 +839,12 @@ public class RutasViewerFragment extends Fragment {
 			this.rutas = rutas;
 		}
 
+		// Actualizar lista de rutas sin recrear el adapter (mantiene cachés)
+		public void actualizarRutas(List<RutaGenerada> nuevasRutas) {
+			this.rutas = nuevasRutas;
+			notifyDataSetChanged();
+		}
+
 		// Invalidar cachés cuando sea necesario
 		public void invalidarCaches() {
 			cacheFavoritos.clear();
@@ -1203,9 +1209,8 @@ public class RutasViewerFragment extends Fragment {
 				spinnerOrdenacion.setSelection(0, false); // false = no dispara el listener
 			}
 
-			// Recrear adapter con la lista actualizada
-			adapter = new RutaAdapter(getActivity(), rutaFiltrada);
-			listViewRutas.setAdapter(adapter);
+			// OPTIMIZACIÓN: Actualizar lista sin recrear adapter (mantiene cachés)
+			adapter.actualizarRutas(rutaFiltrada);
 
 			// MANTENER el scroll en la posición del item movido
 			// Usamos post() para ejecutar después de que el ListView se haya actualizado
@@ -1269,9 +1274,8 @@ public class RutasViewerFragment extends Fragment {
 				spinnerOrdenacion.setSelection(0, false); // false = no dispara el listener
 			}
 
-			// Recrear adapter con la lista actualizada
-			adapter = new RutaAdapter(getActivity(), rutaFiltrada);
-			listViewRutas.setAdapter(adapter);
+			// OPTIMIZACIÓN: Actualizar lista sin recrear adapter (mantiene cachés)
+			adapter.actualizarRutas(rutaFiltrada);
 
 			// MANTENER el scroll en la posición del item movido
 			// Usamos post() para ejecutar después de que el ListView se haya actualizado
@@ -1389,9 +1393,8 @@ public class RutasViewerFragment extends Fragment {
 		// Actualizar contador
 		lblTotalClientes.setText("Mostrando: " + rutaFiltrada.size() + " de " + rutaActual.size() + " clientes");
 
-		// Recrear adapter para forzar actualización
-		adapter = new RutaAdapter(getActivity(), rutaFiltrada);
-		listViewRutas.setAdapter(adapter);
+		// OPTIMIZACIÓN: Actualizar lista sin recrear adapter (mantiene cachés)
+		adapter.actualizarRutas(rutaFiltrada);
 
 		// Actualizar mapa si está visible
 		if (mostrandoMapa && googleMap != null) {
@@ -1468,9 +1471,8 @@ public class RutasViewerFragment extends Fragment {
 				// Recrear rutaFiltrada con la lista ordenada
 				rutaFiltrada = new ArrayList<>(rutaActual);
 
-				// IMPORTANTE: Recrear el adapter para que use la nueva lista
-				adapter = new RutaAdapter(getActivity(), rutaFiltrada);
-				listViewRutas.setAdapter(adapter);
+				// OPTIMIZACIÓN: Actualizar lista sin recrear adapter (mantiene cachés)
+				adapter.actualizarRutas(rutaFiltrada);
 			}
 
 			// Actualizar el mapa si está visible
@@ -1656,11 +1658,10 @@ public class RutasViewerFragment extends Fragment {
 				spinnerOrdenacion.setSelection(0, false);
 			}
 
-			// Recrear adapter
-			adapter = new RutaAdapter(getActivity(), rutaFiltrada);
-			listViewRutas.setAdapter(adapter);
+			// OPTIMIZACIÓN: Actualizar lista sin recrear adapter (mantiene cachés)
+			adapter.actualizarRutas(rutaFiltrada);
 
-			// Volver a configurar drag & drop después de recrear el adapter
+			// Volver a configurar drag & drop después de actualizar
 			configurarDragAndDrop();
 
 			// Scroll a la nueva posición
