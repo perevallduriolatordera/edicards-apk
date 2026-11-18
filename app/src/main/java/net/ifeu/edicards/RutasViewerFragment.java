@@ -692,44 +692,59 @@ public class RutasViewerFragment extends Fragment {
 			// IMPORTANTE: Depositos usa formato dd/MM/yyyy, Historicos usa MM/dd/yyyy
 			SimpleDateFormat formatterDeposito = new SimpleDateFormat("dd/MM/yyyy");
 			SimpleDateFormat formatterAlbaran = new SimpleDateFormat("MM/dd/yyyy");
+			SimpleDateFormat formatterLog = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
 			// Buscar última fecha en Depositos y Albaranes usando el modelo
 			Cliente clienteModel = Factory.build(Cliente.class, app);
 
 			Long ultimoDepositoMillis = null;
 			String fechaDepositoStr = clienteModel.getUltimaFechaDeposito(codigoCliente);
+			android.util.Log.d("RutasViewerFragment", "[" + codigoCliente + "] FechaDeposito raw: " + fechaDepositoStr);
 			if (fechaDepositoStr != null && !fechaDepositoStr.isEmpty()) {
 				try {
 					java.util.Date fecha = formatterDeposito.parse(fechaDepositoStr);
 					ultimoDepositoMillis = fecha.getTime();
+					android.util.Log.d("RutasViewerFragment", "[" + codigoCliente + "] FechaDeposito parseada: " + formatterLog.format(fecha));
 				} catch (Exception e) {
-					android.util.Log.w("RutasViewerFragment", "Error parseando FechaDeposito: " + fechaDepositoStr);
+					android.util.Log.w("RutasViewerFragment", "[" + codigoCliente + "] Error parseando FechaDeposito: " + fechaDepositoStr + " -> " + e.getMessage());
 				}
 			}
 
 			Long ultimoAlbaranMillis = null;
 			String fechaAlbaranStr = clienteModel.getUltimaFechaAlbaran(codigoCliente);
+			android.util.Log.d("RutasViewerFragment", "[" + codigoCliente + "] FechaAlbaran raw: " + fechaAlbaranStr);
 			if (fechaAlbaranStr != null && !fechaAlbaranStr.isEmpty()) {
 				try {
 					java.util.Date fecha = formatterAlbaran.parse(fechaAlbaranStr);
 					ultimoAlbaranMillis = fecha.getTime();
+					android.util.Log.d("RutasViewerFragment", "[" + codigoCliente + "] FechaAlbaran parseada: " + formatterLog.format(fecha));
 				} catch (Exception e) {
-					android.util.Log.w("RutasViewerFragment", "Error parseando FechaAlbaran: " + fechaAlbaranStr);
+					android.util.Log.w("RutasViewerFragment", "[" + codigoCliente + "] Error parseando FechaAlbaran: " + fechaAlbaranStr + " -> " + e.getMessage());
 				}
 			}
 
 			// Determinar la fecha más reciente
 			Long ultimaVisitaMillis = null;
+			String origenFecha = "";
 			if (ultimoDepositoMillis != null && ultimoAlbaranMillis != null) {
-				ultimaVisitaMillis = Math.max(ultimoDepositoMillis, ultimoAlbaranMillis);
+				if (ultimoDepositoMillis > ultimoAlbaranMillis) {
+					ultimaVisitaMillis = ultimoDepositoMillis;
+					origenFecha = "Deposito";
+				} else {
+					ultimaVisitaMillis = ultimoAlbaranMillis;
+					origenFecha = "Albaran";
+				}
 			} else if (ultimoDepositoMillis != null) {
 				ultimaVisitaMillis = ultimoDepositoMillis;
+				origenFecha = "Deposito";
 			} else if (ultimoAlbaranMillis != null) {
 				ultimaVisitaMillis = ultimoAlbaranMillis;
+				origenFecha = "Albaran";
 			}
 
 			// Si nunca se ha visitado
 			if (ultimaVisitaMillis == null) {
+				android.util.Log.d("RutasViewerFragment", "[" + codigoCliente + "] Cliente NUNCA visitado");
 				return null;
 			}
 
@@ -737,6 +752,9 @@ public class RutasViewerFragment extends Fragment {
 			long ahora = System.currentTimeMillis();
 			long diferencia = ahora - ultimaVisitaMillis;
 			int dias = (int) (diferencia / (1000 * 60 * 60 * 24));
+
+			android.util.Log.d("RutasViewerFragment", "[" + codigoCliente + "] Última visita desde " + origenFecha + ": " +
+				formatterLog.format(new java.util.Date(ultimaVisitaMillis)) + " -> " + dias + " días");
 
 			return new InfoUltimaVisita(dias, new java.util.Date(ultimaVisitaMillis));
 
@@ -842,6 +860,12 @@ public class RutasViewerFragment extends Fragment {
 		private Cliente clienteModelCache;
 		private net.ifeu.edicards.DataTier.Zona zonaModelCache;
 
+		// OPTIMIZACIÓN: Cachear cuartiles de antigüedad para evitar recalcular en cada getView()
+		private int cuartilQ1 = -1;
+		private int cuartilQ2 = -1;
+		private int cuartilQ3 = -1;
+		private boolean cuartilesCalculados = false;
+
 		// OPTIMIZACIÓN: Listeners reutilizables para evitar crear nuevos en cada scroll
 		private android.view.View.OnClickListener listenerMoverArriba = new android.view.View.OnClickListener() {
 			@Override
@@ -916,6 +940,138 @@ public class RutasViewerFragment extends Fragment {
 			cacheUltimasVisitas.clear();
 			cacheUbicaciones.clear();
 			cacheZonas.clear();
+			cuartilesCalculados = false;
+		}
+
+		// OPTIMIZACIÓN: Calcular cuartiles UNA SOLA VEZ al principio
+		private void calcularCuartiles() {
+			if (cuartilesCalculados) return;
+
+			// Obtener todos los días de visita de clientes (excluyendo NULL y BASE)
+			java.util.List<Integer> diasVisitas = new java.util.ArrayList<>();
+			for (RutaGenerada ruta : rutas) {
+				// Saltar el cliente BASE (OrdenVisita 1)
+				if (ruta.OrdenVisita == 1) continue;
+
+				InfoUltimaVisita info = cacheUltimasVisitas.get(ruta.CodigoCliente);
+				if (info == null) {
+					// Cache miss: calcular y almacenar usando método optimizado del adapter
+					info = getInfoUltimaVisitaOptimizada(ruta.CodigoCliente);
+					if (info != null) {
+						cacheUltimasVisitas.put(ruta.CodigoCliente, info);
+					}
+				}
+
+				if (info != null && info.dias >= 0) {
+					diasVisitas.add(info.dias);
+				}
+			}
+
+			// Si hay suficientes datos, calcular cuartiles
+			if (!diasVisitas.isEmpty()) {
+				// Ordenar de menor a mayor (más reciente a más antiguo)
+				java.util.Collections.sort(diasVisitas);
+
+				// Calcular cuartiles (Q1=25%, Q2=50%, Q3=75%)
+				int totalClientes = diasVisitas.size();
+				int q1Index = totalClientes / 4;
+				int q2Index = totalClientes / 2;
+				int q3Index = (3 * totalClientes) / 4;
+
+				cuartilQ1 = q1Index < diasVisitas.size() ? diasVisitas.get(q1Index) : 0;
+				cuartilQ2 = q2Index < diasVisitas.size() ? diasVisitas.get(q2Index) : 0;
+				cuartilQ3 = q3Index < diasVisitas.size() ? diasVisitas.get(q3Index) : 0;
+
+				android.util.Log.d("RutaAdapter", "Cuartiles calculados: Q1=" + cuartilQ1 + ", Q2=" + cuartilQ2 + ", Q3=" + cuartilQ3);
+			}
+
+			cuartilesCalculados = true;
+		}
+
+		// Obtener color según cuartiles pre-calculados
+		private int getColorPorCuartiles(int diasDesdeUltimaVisita) {
+			// EXCEPCIÓN: Clientes nunca visitados (NULL) siempre en rojo oscuro
+			if (diasDesdeUltimaVisita < 0) {
+				return 0xFFB71C1C; // Rojo oscuro
+			}
+
+			// Si no hay cuartiles calculados, usar color neutro
+			if (!cuartilesCalculados || cuartilQ1 < 0) {
+				return 0xFFBDBDBD; // Gris
+			}
+
+			// Asignar color según el cuartil
+			if (diasDesdeUltimaVisita <= cuartilQ1) {
+				// Primer cuartil (25% más recientes) - Verde
+				return 0xFF4CAF50;
+			} else if (diasDesdeUltimaVisita <= cuartilQ2) {
+				// Segundo cuartil - Naranja claro
+				return 0xFFFFB74D;
+			} else if (diasDesdeUltimaVisita <= cuartilQ3) {
+				// Tercer cuartil - Naranja oscuro
+				return 0xFFFF9800;
+			} else {
+				// Cuarto cuartil (25% más antiguos) - Rojo oscuro
+				return 0xFFB71C1C;
+			}
+		}
+
+		// OPTIMIZACIÓN: getInfoUltimaVisita optimizado usando clienteModelCache del adapter
+		private InfoUltimaVisita getInfoUltimaVisitaOptimizada(String codigoCliente) {
+			try {
+				// IMPORTANTE: Depositos usa formato dd/MM/yyyy, Historicos usa MM/dd/yyyy
+				SimpleDateFormat formatterDeposito = new SimpleDateFormat("dd/MM/yyyy");
+				SimpleDateFormat formatterAlbaran = new SimpleDateFormat("MM/dd/yyyy");
+
+				// OPTIMIZACIÓN: Usar clienteModelCache en vez de Factory.build()
+				Long ultimoDepositoMillis = null;
+				String fechaDepositoStr = clienteModelCache.getUltimaFechaDeposito(codigoCliente);
+				if (fechaDepositoStr != null && !fechaDepositoStr.isEmpty()) {
+					try {
+						java.util.Date fecha = formatterDeposito.parse(fechaDepositoStr);
+						ultimoDepositoMillis = fecha.getTime();
+					} catch (Exception e) {
+						android.util.Log.w("RutaAdapter", "[" + codigoCliente + "] Error parseando FechaDeposito: " + fechaDepositoStr);
+					}
+				}
+
+				Long ultimoAlbaranMillis = null;
+				String fechaAlbaranStr = clienteModelCache.getUltimaFechaAlbaran(codigoCliente);
+				if (fechaAlbaranStr != null && !fechaAlbaranStr.isEmpty()) {
+					try {
+						java.util.Date fecha = formatterAlbaran.parse(fechaAlbaranStr);
+						ultimoAlbaranMillis = fecha.getTime();
+					} catch (Exception e) {
+						android.util.Log.w("RutaAdapter", "[" + codigoCliente + "] Error parseando FechaAlbaran: " + fechaAlbaranStr);
+					}
+				}
+
+				// Determinar la fecha más reciente
+				Long ultimaVisitaMillis = null;
+				if (ultimoDepositoMillis != null && ultimoAlbaranMillis != null) {
+					ultimaVisitaMillis = Math.max(ultimoDepositoMillis, ultimoAlbaranMillis);
+				} else if (ultimoDepositoMillis != null) {
+					ultimaVisitaMillis = ultimoDepositoMillis;
+				} else if (ultimoAlbaranMillis != null) {
+					ultimaVisitaMillis = ultimoAlbaranMillis;
+				}
+
+				// Si nunca se ha visitado
+				if (ultimaVisitaMillis == null) {
+					return null;
+				}
+
+				// Calcular días transcurridos
+				long ahora = System.currentTimeMillis();
+				long diferencia = ahora - ultimaVisitaMillis;
+				int dias = (int) (diferencia / (1000 * 60 * 60 * 24));
+
+				return new InfoUltimaVisita(dias, new java.util.Date(ultimaVisitaMillis));
+
+			} catch (Exception e) {
+				android.util.Log.e("RutaAdapter", "Error calculando última visita: " + e.getMessage());
+				return null;
+			}
 		}
 
 		@Override
@@ -954,6 +1110,9 @@ public class RutasViewerFragment extends Fragment {
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
+			// OPTIMIZACIÓN CRÍTICA: Calcular cuartiles solo la primera vez
+			calcularCuartiles();
+
 			ViewHolder holder;
 
 			// OPTIMIZACIÓN: Reciclar vistas existentes en lugar de inflar cada vez
@@ -1138,15 +1297,15 @@ public class RutasViewerFragment extends Fragment {
 				// OPTIMIZACIÓN: Clientes normales - obtener info de última visita desde caché
 				InfoUltimaVisita infoVisita = cacheUltimasVisitas.get(ruta.CodigoCliente);
 				if (infoVisita == null) {
-					// Cache miss: calcular y almacenar en caché
-					infoVisita = getInfoUltimaVisita(ruta.CodigoCliente);
+					// Cache miss: calcular y almacenar en caché usando método optimizado
+					infoVisita = getInfoUltimaVisitaOptimizada(ruta.CodigoCliente);
 					if (infoVisita != null) {
 						cacheUltimasVisitas.put(ruta.CodigoCliente, infoVisita);
 					}
 				}
 
 				int diasDesdeVisita = infoVisita != null ? infoVisita.dias : -1;
-				int colorFondo = getColorPorAntiguedadVisita(diasDesdeVisita);
+				int colorFondo = getColorPorCuartiles(diasDesdeVisita);
 
 				// Aplicar color de fondo con transparencia ligera para mantener legibilidad
 				convertView.setBackgroundColor((colorFondo & 0x00FFFFFF) | 0x40000000);  // 40% de opacidad

@@ -856,11 +856,12 @@ public class Cliente extends Persistent implements IPersistable {
 			cursor.close();
 
 			// Buscar el último registro en Historicos (sin restricción de NumeroAlbaran)
-			// Ordenar convirtiendo dd/MM/yyyy a yyyyMMdd para comparación correcta
+			// IMPORTANTE: Historicos guarda fechas en formato MM/dd/yyyy (ver Historico.java línea 53)
+			// Ordenar convirtiendo MM/dd/yyyy a yyyyMMdd para comparación correcta
 			cursor = super.getDatabaseOperations().executeSentence(
 				"SELECT * FROM " + ConstantsDatabase.TABLE_HISTORICOS + " " +
 				"WHERE IdCliente = " + idCliente + " " +
-				"ORDER BY substr(Fecha, 7, 4) || substr(Fecha, 4, 2) || substr(Fecha, 1, 2) DESC LIMIT 1");
+				"ORDER BY substr(Fecha, 7, 4) || substr(Fecha, 1, 2) || substr(Fecha, 4, 2) DESC LIMIT 1");
 
 			if (cursor != null && cursor.moveToFirst()) {
 				SimpleDateFormat formatter = new SimpleDateFormat("MM/dd/yyyy");
@@ -918,11 +919,13 @@ public class Cliente extends Persistent implements IPersistable {
 			cursor.close();
 
 			// Buscar el último registro en Historicos (sin restricción de NumeroAlbaran)
-			// Ordenar convirtiendo dd/MM/yyyy a yyyyMMdd para comparación correcta
+			// IMPORTANTE: Historicos guarda fechas en formato MM/dd/yyyy (ver Historico.java línea 53)
+			// Ordenar convirtiendo MM/dd/yyyy a yyyyMMdd para comparación correcta
+			// substr(Fecha, 7, 4) = año, substr(Fecha, 1, 2) = mes, substr(Fecha, 4, 2) = día
 			cursor = super.getDatabaseOperations().executeSentence(
 				"SELECT Fecha, NumeroAlbaran, Serie FROM " + ConstantsDatabase.TABLE_HISTORICOS + " " +
 				"WHERE IdCliente = " + idCliente + " " +
-				"ORDER BY substr(Fecha, 7, 4) || substr(Fecha, 4, 2) || substr(Fecha, 1, 2) DESC LIMIT 1");
+				"ORDER BY substr(Fecha, 7, 4) || substr(Fecha, 1, 2) || substr(Fecha, 4, 2) DESC LIMIT 1");
 
 			if (cursor != null && cursor.moveToFirst()) {
 				String fecha = cursor.getString(0);
