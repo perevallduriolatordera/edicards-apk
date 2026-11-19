@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="net.ifeu.edicards"
     android:versionCode="62"
-    android:versionName="6.1.4 (17 Noviembre 2026) --> Mejoras de visualización e interface">
+    android:versionName="6.1.5 (19 Noviembre 2026) --> Mejoras de visualización e interface">
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
