@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import net.ifeu.edicards.Application.AppConfig;
 import net.ifeu.edicards.Constants.ConstantsTypes;
@@ -339,71 +340,132 @@ public class Reports extends Fragment {
 	}
 	
 	private LinearLayout addInfo(String text, int color) {
+		// Estilo compacto similar a la pantalla de rutas
+		LinearLayout container = new LinearLayout(this.getActivity());
+		container.setOrientation(LinearLayout.VERTICAL);
+		container.setGravity(Gravity.CENTER);
 
-		LinearLayout layout = new LinearLayout(this.getActivity());
-		layout.setOrientation(LinearLayout.HORIZONTAL);
+		android.widget.LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams(
+			LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		containerParams.setMargins(0, 0, 10, 0);
+		container.setLayoutParams(containerParams);
 
-    	android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
+		// TextView para mostrar el texto (fecha)
+		TextView textView = new TextView(this.getActivity());
+		textView.setText(text);
+		textView.setTextSize(13);
+		textView.setTextColor(Color.WHITE);
+		textView.setBackgroundColor(color);
+		textView.setGravity(Gravity.CENTER);
+		textView.setPadding(12, 12, 12, 12);
 
-		RelativeLayout card = new RelativeLayout(this.getActivity());
-    	card.setBackgroundResource(R.drawable.card_background);
-    	card.setGravity(Gravity.CENTER);
-    	    	
-    	params.width= ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.2f).getWidth();
-		params.height= ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getHeight();
-    	card.setLayoutParams(params);
-    	card.setPadding(20, 20, 20, 20);
-    	
-    	LinearLayout layout1 = new LinearLayout(this.getActivity());
-		layout1.setOrientation(LinearLayout.VERTICAL);
-		
-		LabelColor label = new LabelColor(this.getActivity(), color, true, Gravity.CENTER);
-		label.setText(text.toUpperCase());
-		label.setTextSize(24);
-		
-    	layout1.addView(label);
-    	card.addView(layout1);
-    	layout.addView(card);
-    	return layout;
-    	
+		android.widget.LinearLayout.LayoutParams textParams = new LinearLayout.LayoutParams(
+			LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		textParams.width = 230;
+		textParams.height = 85;
+		textView.setLayoutParams(textParams);
+
+		// Etiqueta pequeña
+		TextView label = new TextView(this.getActivity());
+		label.setText("Fecha");
+		label.setTextSize(9);
+		label.setTextColor(color);
+		label.setGravity(Gravity.CENTER);
+
+		container.addView(textView);
+		container.addView(label);
+
+		return container;
 	}
 
 	
 	private LinearLayout addCounter(String text, String value, int color) {
-		
-		LinearLayout layout = new LinearLayout(this.getActivity());
-		layout.setOrientation(LinearLayout.HORIZONTAL);
-		
-    	android.widget.LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT);
-    	
-		RelativeLayout card = new RelativeLayout(this.getActivity());
-    	card.setBackgroundResource(R.drawable.card_background);
-		card.setGravity(Gravity.CENTER);
+		// Estilo compacto similar a la pantalla de rutas
+		LinearLayout container = new LinearLayout(this.getActivity());
+		container.setOrientation(LinearLayout.VERTICAL);
+		container.setGravity(Gravity.CENTER);
 
-		params.width= ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.2f).getWidth();
-		params.height= ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getHeight();	card.setLayoutParams(params);
-    	card.setPadding(20, 20, 20, 20);
-    	
-    	LinearLayout layout1 = new LinearLayout(this.getActivity());
-		layout1.setOrientation(LinearLayout.VERTICAL);
-		
-		LabelColor label = new LabelColor(this.getActivity(), color, true, Gravity.CENTER);
-		label.setText(text.toUpperCase());
-		label.setTextSize(16);
-		
-		
-    	LabelColor label2 = new LabelColor(this.getActivity(), Color.BLACK, true, Gravity.CENTER);
-		label2.setText(String.valueOf(value));
-		label2.setTextSize(24);
-    	
-    	layout1.addView(label);
-    	layout1.addView(label2);
-    	
-    	card.addView(layout1);
-    	layout.addView(card);
-    	
-    	return layout;
-    	
+		android.widget.LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams(
+			LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		containerParams.setMargins(0, 0, 10, 0);
+		container.setLayoutParams(containerParams);
+
+		// TextView para mostrar el valor (número)
+		TextView valueView = new TextView(this.getActivity());
+		valueView.setText(value);
+		valueView.setTextSize(20);
+		valueView.setTextColor(Color.WHITE);
+		valueView.setBackgroundColor(color);
+		valueView.setGravity(Gravity.CENTER);
+		valueView.setPadding(0, 0, 0, 0);
+		valueView.setTypeface(null, android.graphics.Typeface.BOLD);
+
+		android.widget.LinearLayout.LayoutParams valueParams = new LinearLayout.LayoutParams(
+			LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		valueParams.width = 85;
+		valueParams.height = 85;
+		valueView.setLayoutParams(valueParams);
+
+		// Etiqueta pequeña
+		TextView label = new TextView(this.getActivity());
+		label.setText(text);
+		label.setTextSize(9);
+		label.setTextColor(color);
+		label.setGravity(Gravity.CENTER);
+
+		container.addView(valueView);
+		container.addView(label);
+
+		return container;
+	}
+
+	// Clase auxiliar para devolver tanto el container como el botón
+	private class CompactButtonResult {
+		LinearLayout container;
+		android.widget.Button button;
+
+		CompactButtonResult(LinearLayout container, android.widget.Button button) {
+			this.container = container;
+			this.button = button;
+		}
+	}
+
+	private CompactButtonResult createCompactButton(String text, String emoji, int backgroundColor) {
+		// Estilo compacto similar a la pantalla de rutas
+		LinearLayout container = new LinearLayout(this.getActivity());
+		container.setOrientation(LinearLayout.VERTICAL);
+		container.setGravity(Gravity.CENTER);
+
+		android.widget.LinearLayout.LayoutParams containerParams = new LinearLayout.LayoutParams(
+			LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		containerParams.setMargins(0, 0, 10, 0);
+		container.setLayoutParams(containerParams);
+
+		// Botón cuadrado con emoji
+		android.widget.Button button = new android.widget.Button(this.getActivity());
+		button.setText(emoji);
+		button.setTextSize(18);
+		button.setBackgroundColor(backgroundColor);
+		button.setTextColor(Color.WHITE);
+		button.setPadding(0, 0, 0, 0);
+
+		android.widget.LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
+			LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		buttonParams.width = 60;
+		buttonParams.height = 60;
+		button.setLayoutParams(buttonParams);
+
+		// Etiqueta pequeña
+		TextView label = new TextView(this.getActivity());
+		label.setText(text);
+		label.setTextSize(9);
+		label.setTextColor(backgroundColor);
+		label.setGravity(Gravity.CENTER);
+
+		container.addView(button);
+		container.addView(label);
+
+		return new CompactButtonResult(container, button);
 	}
 
 	private void addLine(final ArrayList<Historico> list) {
@@ -449,7 +511,7 @@ public class Reports extends Fragment {
 		
 		layout.addView(layoutLegends);
 
-		int TEXT_SIZE = 16;
+		int TEXT_SIZE = 14;
 		for (final Historico hist : list) {
 
 			int colorText = Color.BLACK;
@@ -521,9 +583,13 @@ public class Reports extends Fragment {
 			reImpresion.setText("Reimprimir");
 			reImpresion.setTextColor(Color.WHITE);
 			reImpresion.setBackgroundResource(R.drawable.button_primary);
-			reImpresion.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getWidth());
+			reImpresion.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.12f).getWidth());
 
-			reImpresion.setLayoutParams(params);
+			// LayoutParams para el botón Reimprimir sin márgenes
+			android.widget.LinearLayout.LayoutParams paramsReimprimir = new LinearLayout.LayoutParams(
+				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			paramsReimprimir.setMargins(0, 0, 0, 0);
+			reImpresion.setLayoutParams(paramsReimprimir);
 
 			reImpresion.setOnClickListener(arg0 -> {
 				
@@ -662,8 +728,13 @@ public class Reports extends Fragment {
 			anular.setText("Anular");
 			anular.setTextColor(Color.WHITE);
 			anular.setBackgroundResource(R.drawable.button_warning);
-			anular.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getWidth());
-			anular.setLayoutParams(params);
+			anular.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.12f).getWidth());
+
+			// Agregar margen izquierdo al botón Anular para separarlo del botón Reimprimir
+			android.widget.LinearLayout.LayoutParams paramsAnular = new LinearLayout.LayoutParams(
+				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+			paramsAnular.setMargins(8, 0, 0, 0);
+			anular.setLayoutParams(paramsAnular);
 			
 			final Reports that = this;
 
@@ -1123,24 +1194,14 @@ public class Reports extends Fragment {
 		layout.setGravity(Gravity.CENTER);
 		layout.setPadding(8, 8, 8, 8);
 
-		// Botón Ver - Estilo moderno azul
-		ButtonColor ver = new ButtonColor(getActivity(), Color.parseColor("#1976D2"), getResources().getDrawable(R.drawable.ic_view_all));
-		ver.setText("Ver");
-		ver.setTextSize(TEXT_SIZE_BUTTON);
-		ver.setTextColor(Color.WHITE);
-		ver.setBackgroundResource(R.drawable.button_primary);
-		ver.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getWidth());
-		ver.setLayoutParams(params);
-
-		ver.setOnClickListener(v -> {
-
+		// Botón Ver - Estilo compacto
+		CompactButtonResult verResult = createCompactButton("Ver", "👁", Color.parseColor("#1976D2"));
+		verResult.button.setOnClickListener(v -> {
 			try {
-
 				if (Inactivate.inactivateIfNecessary()) {
 					that.getActivity().finish();
 					System.exit(0);
 				}
-
 				getHistoricos();
 			} catch (Exception e) {
 				throw new RuntimeException(e);
@@ -1148,17 +1209,9 @@ public class Reports extends Fragment {
 		});
 
 
-		// Botón Potenciados - Estilo moderno verde
-		ButtonColor potenciados = new ButtonColor(getActivity(), Color.parseColor("#4CAF50"), getResources().getDrawable(R.drawable.ic_potenciados));
-		potenciados.setText("Potenciados");
-		potenciados.setTextSize(TEXT_SIZE_BUTTON);
-		potenciados.setTextColor(Color.WHITE);
-		potenciados.setBackgroundResource(R.drawable.button_success);
-		potenciados.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getWidth());
-		potenciados.setLayoutParams(params);
-
-		potenciados.setOnClickListener(arg0 -> {
-			
+		// Botón Potenciados - Estilo compacto
+		CompactButtonResult potenciadosResult = createCompactButton("Potenc.", "⬆", Color.parseColor("#4CAF50"));
+		potenciadosResult.button.setOnClickListener(arg0 -> {
 			try {
 				if (_appConfig.getWorkingArea().CurrentReporting != null)
 					StartPotenciadosDialog();
@@ -1167,17 +1220,9 @@ public class Reports extends Fragment {
 			}
 		});
 
-		// Botón Retirados - Estilo moderno naranja
-		ButtonColor retirados = new ButtonColor(getActivity(), Color.parseColor("#FF9800"), getResources().getDrawable(R.drawable.ic_retirados));
-		retirados.setText("Retirados");
-		retirados.setTextSize(TEXT_SIZE_BUTTON);
-		retirados.setTextColor(Color.WHITE);
-		retirados.setBackgroundResource(R.drawable.button_warning);
-		retirados.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getWidth());
-		retirados.setLayoutParams(params);
-
-		retirados.setOnClickListener(arg0 -> {
-
+		// Botón Retirados - Estilo compacto
+		CompactButtonResult retiradosResult = createCompactButton("Retir.", "⬇", Color.parseColor("#FF9800"));
+		retiradosResult.button.setOnClickListener(arg0 -> {
 			try {
 				if (_appConfig.getWorkingArea().CurrentReporting != null)
 					StartRetiradosDialog();
@@ -1186,39 +1231,25 @@ public class Reports extends Fragment {
 			}
 		});
 
-		// Botón Piezas - Estilo moderno gris
-		ButtonColor piezas = new ButtonColor(getActivity(), Color.parseColor("#757575"), getResources().getDrawable(R.drawable.ic_piezas));
-		piezas.setText("Piezas");
-		piezas.setTextSize(TEXT_SIZE_BUTTON);
-		piezas.setTextColor(Color.WHITE);
-		piezas.setBackgroundResource(R.drawable.button_secondary);
-		piezas.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(), 0.15f).getWidth());
-		piezas.setLayoutParams(params);
-
-		piezas.setOnClickListener(arg0 -> {
+		// Botón Piezas - Estilo compacto
+		CompactButtonResult piezasResult = createCompactButton("Piezas", "📦", Color.parseColor("#757575"));
+		piezasResult.button.setOnClickListener(arg0 -> {
 			if (_appConfig.getWorkingArea().CurrentReporting != null)
 				StartPiezasDialog();
 		});
 
-		// Botón Totales - Estilo moderno azul
-		ButtonColor totales = new ButtonColor(getActivity(), Color.parseColor("#1976D2"), getResources().getDrawable(R.drawable.ic_totals));
-		totales.setText("Totales");
-		totales.setTextSize(TEXT_SIZE_BUTTON);
-		totales.setTextColor(Color.WHITE);
-		totales.setBackgroundResource(R.drawable.button_primary);
-		totales.setWidth(ScreenManager.getScreenSizeByPercentage(getActivity().getWindowManager(),  0.15f).getWidth());
-		totales.setLayoutParams(params);
-
-		totales.setOnClickListener(arg0 -> {
+		// Botón Totales - Estilo compacto
+		CompactButtonResult totalesResult = createCompactButton("Totales", "Σ", Color.parseColor("#1976D2"));
+		totalesResult.button.setOnClickListener(arg0 -> {
 			if (_appConfig.getWorkingArea().CurrentReporting != null)
 				StartTotalesDialog();
 		});
 
-		layout.addView(ver);
-		layout.addView(potenciados);
-		layout.addView(retirados);
-		layout.addView(piezas);
-		layout.addView(totales);
+		layout.addView(verResult.container);
+		layout.addView(potenciadosResult.container);
+		layout.addView(retiradosResult.container);
+		layout.addView(piezasResult.container);
+		layout.addView(totalesResult.container);
 
 		LinearLayout footerLinearLayout = this.getActivity()
 				.findViewById(R.id.headerReportButtonsLinearLayout);

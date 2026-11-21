@@ -172,7 +172,8 @@ public class DepositView extends Activity {
 
 				LabelColor pvpLabel = new LabelColor(this, Color.parseColor("#388E3C"), Gravity.RIGHT);
 				pvpLabel.setRawInputType(InputType.TYPE_CLASS_NUMBER);
-				pvpLabel.setText(linea.PVP + " €");
+				// Redondear PVP a 2 decimales
+				pvpLabel.setText(String.format("%.2f €", linea.PVP));
 				pvpLabel.setTextSize(TEXT_SIZE);
 				pvpLabel.setWidth(150);
 				pvpLabel.setLayoutParams(params);

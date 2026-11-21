@@ -14,6 +14,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -773,11 +774,32 @@ public class FichaClienteDialog extends Activity {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("Nuevo Comentario");
 
+		// Crear un contenedor con padding para el EditText
+		LinearLayout container = new LinearLayout(this);
+		container.setOrientation(LinearLayout.VERTICAL);
+		container.setPadding(60, 40, 60, 20);
+
 		final EditText input = new EditText(this);
 		input.setHint("Escribe tu comentario aquí");
-		input.setLines(4);
-		input.setMinLines(3);
-		builder.setView(input);
+		input.setLines(8);  // Aumentado de 4 a 8 líneas
+		input.setMinLines(6);  // Aumentado de 3 a 6 líneas
+		input.setMaxLines(12);  // Permitir hasta 12 líneas
+		input.setGravity(android.view.Gravity.TOP | android.view.Gravity.START);
+		input.setInputType(android.text.InputType.TYPE_CLASS_TEXT |
+		                   android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE |
+		                   android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+
+		// Hacer el EditText más alto
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+			LinearLayout.LayoutParams.MATCH_PARENT,
+			400  // Altura en píxeles
+		);
+		input.setLayoutParams(params);
+		input.setPadding(20, 20, 20, 20);
+		input.setTextSize(16);
+
+		container.addView(input);
+		builder.setView(container);
 
 		builder.setPositiveButton("Guardar", (dialog, which) -> {
 			String textoComentario = input.getText().toString().trim();
@@ -791,7 +813,17 @@ public class FichaClienteDialog extends Activity {
 
 		builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
 
-		builder.show();
+		AlertDialog dialog = builder.create();
+		dialog.show();
+
+		// Hacer el diálogo más ancho después de mostrarlo
+		android.view.Window window = dialog.getWindow();
+		if (window != null) {
+			android.view.WindowManager.LayoutParams layoutParams = new android.view.WindowManager.LayoutParams();
+			layoutParams.copyFrom(window.getAttributes());
+			layoutParams.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.90);  // 90% del ancho
+			window.setAttributes(layoutParams);
+		}
 	}
 
 	private void guardarComentario(String texto) {
@@ -817,12 +849,33 @@ public class FichaClienteDialog extends Activity {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("Editar Comentario");
 
+		// Crear un contenedor con padding para el EditText
+		LinearLayout container = new LinearLayout(this);
+		container.setOrientation(LinearLayout.VERTICAL);
+		container.setPadding(60, 40, 60, 20);
+
 		final EditText input = new EditText(this);
 		input.setText(comentario.Comentario);
-		input.setLines(4);
-		input.setMinLines(3);
+		input.setLines(8);  // Aumentado de 4 a 8 líneas
+		input.setMinLines(6);  // Aumentado de 3 a 6 líneas
+		input.setMaxLines(12);  // Permitir hasta 12 líneas
+		input.setGravity(android.view.Gravity.TOP | android.view.Gravity.START);
+		input.setInputType(android.text.InputType.TYPE_CLASS_TEXT |
+		                   android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE |
+		                   android.text.InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
 		input.setSelection(comentario.Comentario.length());
-		builder.setView(input);
+
+		// Hacer el EditText más alto
+		LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+			LinearLayout.LayoutParams.MATCH_PARENT,
+			400  // Altura en píxeles
+		);
+		input.setLayoutParams(params);
+		input.setPadding(20, 20, 20, 20);
+		input.setTextSize(16);
+
+		container.addView(input);
+		builder.setView(container);
 
 		builder.setPositiveButton("Guardar", (dialog, which) -> {
 			String textoComentario = input.getText().toString().trim();
@@ -841,7 +894,17 @@ public class FichaClienteDialog extends Activity {
 
 		builder.setNegativeButton("Cancelar", (dialog, which) -> dialog.cancel());
 
-		builder.show();
+		AlertDialog dialog = builder.create();
+		dialog.show();
+
+		// Hacer el diálogo más ancho después de mostrarlo
+		android.view.Window window = dialog.getWindow();
+		if (window != null) {
+			android.view.WindowManager.LayoutParams layoutParams = new android.view.WindowManager.LayoutParams();
+			layoutParams.copyFrom(window.getAttributes());
+			layoutParams.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.90);  // 90% del ancho
+			window.setAttributes(layoutParams);
+		}
 	}
 
 	private void eliminarComentario(ClienteComentario comentario) {

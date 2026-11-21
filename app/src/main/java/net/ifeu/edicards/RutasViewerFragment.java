@@ -943,7 +943,8 @@ public class RutasViewerFragment extends Fragment {
 			cuartilesCalculados = false;
 		}
 
-		// OPTIMIZACIÓN: Calcular cuartiles UNA SOLA VEZ al principio
+		// OPTIMIZACIÓN: Calcular percentiles UNA SOLA VEZ al principio
+		// Ahora usa porcentajes fijos: 50%, 65%, 80% en lugar de cuartiles
 		private void calcularCuartiles() {
 			if (cuartilesCalculados) return;
 
@@ -967,52 +968,56 @@ public class RutasViewerFragment extends Fragment {
 				}
 			}
 
-			// Si hay suficientes datos, calcular cuartiles
+			// Si hay suficientes datos, calcular percentiles: 50%, 65%, 80%
 			if (!diasVisitas.isEmpty()) {
 				// Ordenar de menor a mayor (más reciente a más antiguo)
 				java.util.Collections.sort(diasVisitas);
 
-				// Calcular cuartiles (Q1=25%, Q2=50%, Q3=75%)
+				// Calcular percentiles (50%, 65%, 80%)
 				int totalClientes = diasVisitas.size();
-				int q1Index = totalClientes / 4;
-				int q2Index = totalClientes / 2;
-				int q3Index = (3 * totalClientes) / 4;
+				int p50Index = (int) (totalClientes * 0.50);  // 50%
+				int p65Index = (int) (totalClientes * 0.65);  // 65%
+				int p80Index = (int) (totalClientes * 0.80);  // 80%
 
-				cuartilQ1 = q1Index < diasVisitas.size() ? diasVisitas.get(q1Index) : 0;
-				cuartilQ2 = q2Index < diasVisitas.size() ? diasVisitas.get(q2Index) : 0;
-				cuartilQ3 = q3Index < diasVisitas.size() ? diasVisitas.get(q3Index) : 0;
+				cuartilQ1 = p50Index < diasVisitas.size() ? diasVisitas.get(p50Index) : 0;
+				cuartilQ2 = p65Index < diasVisitas.size() ? diasVisitas.get(p65Index) : 0;
+				cuartilQ3 = p80Index < diasVisitas.size() ? diasVisitas.get(p80Index) : 0;
 
-				android.util.Log.d("RutaAdapter", "Cuartiles calculados: Q1=" + cuartilQ1 + ", Q2=" + cuartilQ2 + ", Q3=" + cuartilQ3);
+				android.util.Log.d("RutaAdapter", "Percentiles calculados: 50%=" + cuartilQ1 + " días, 65%=" + cuartilQ2 + " días, 80%=" + cuartilQ3 + " días");
 			}
 
 			cuartilesCalculados = true;
 		}
 
-		// Obtener color según cuartiles pre-calculados
+		// Obtener color según percentiles pre-calculados (50%, 65%, 80%)
 		private int getColorPorCuartiles(int diasDesdeUltimaVisita) {
 			// EXCEPCIÓN: Clientes nunca visitados (NULL) siempre en rojo oscuro
 			if (diasDesdeUltimaVisita < 0) {
 				return 0xFFB71C1C; // Rojo oscuro
 			}
 
-			// Si no hay cuartiles calculados, usar color neutro
+			// Si no hay percentiles calculados, usar color neutro
 			if (!cuartilesCalculados || cuartilQ1 < 0) {
 				return 0xFFBDBDBD; // Gris
 			}
 
-			// Asignar color según el cuartil
+			// Asignar color según el percentil:
+			// - Hasta 50%: Verde suave
+			// - Más del 50% hasta 65%: Naranja claro
+			// - Más del 65% hasta 80%: Naranja oscuro
+			// - Más del 80%: Rojo
 			if (diasDesdeUltimaVisita <= cuartilQ1) {
-				// Primer cuartil (25% más recientes) - Verde
-				return 0xFF4CAF50;
+				// Hasta 50% - Verde suave
+				return 0xFF81C784; // Verde suave (#81C784)
 			} else if (diasDesdeUltimaVisita <= cuartilQ2) {
-				// Segundo cuartil - Naranja claro
-				return 0xFFFFB74D;
+				// Más del 50% hasta 65% - Naranja claro
+				return 0xFFFFB74D; // Naranja claro
 			} else if (diasDesdeUltimaVisita <= cuartilQ3) {
-				// Tercer cuartil - Naranja oscuro
-				return 0xFFFF9800;
+				// Más del 65% hasta 80% - Naranja oscuro
+				return 0xFFFF9800; // Naranja oscuro
 			} else {
-				// Cuarto cuartil (25% más antiguos) - Rojo oscuro
-				return 0xFFB71C1C;
+				// Más del 80% - Rojo
+				return 0xFFE53935; // Rojo (#E53935)
 			}
 		}
 

@@ -29,6 +29,7 @@
             android:textSize="10sp"
             android:textStyle="bold"
             android:gravity="center"
+            android:layout_gravity="center_vertical"
             android:background="#E91E63"
             android:textColor="@android:color/white"
             android:paddingLeft="10dp"
@@ -49,7 +50,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Nombre del Cliente"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="#1A1A1A"
                 android:layout_marginBottom="4dp"/>
@@ -64,7 +65,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Barcelona"
-                    android:textSize="12sp"
+                    android:textSize="11sp"
                     android:textColor="#424242"
                     android:layout_marginEnd="8dp"/>
 
@@ -73,7 +74,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="08001"
-                    android:textSize="12sp"
+                    android:textSize="11sp"
                     android:textColor="#757575"
                     android:layout_marginEnd="12dp"/>
 
@@ -82,10 +83,24 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Albarán núm: 1234"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textColor="#1976D2"
                     android:textStyle="bold"/>
             </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Botones de acción alineados horizontalmente -->
+        <LinearLayout
+            android:id="@+id/layoutBotones"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginStart="8dp"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical">
+
+            <!-- Los botones se agregan dinámicamente desde código -->
 
         </LinearLayout>
 
@@ -95,6 +110,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_marginStart="12dp"
+            android:layout_gravity="center_vertical"
             android:gravity="center_horizontal">
 
             <TextView
@@ -110,23 +126,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="125.50 €"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="#4CAF50"/>
         </LinearLayout>
-
-    </LinearLayout>
-
-    <!-- Fila de botones -->
-    <LinearLayout
-        android:id="@+id/layoutBotones"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="12dp"
-        android:gravity="end">
-
-        <!-- Los botones se agregan dinámicamente desde código -->
 
     </LinearLayout>
 
